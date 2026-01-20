@@ -99,6 +99,12 @@ func (_c *CountryCreate) SetNillableDescription(v *string) *CountryCreate {
 	return _c
 }
 
+// SetContinentID sets the "continent_id" field.
+func (_c *CountryCreate) SetContinentID(v uuid.UUID) *CountryCreate {
+	_c.mutation.SetContinentID(v)
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *CountryCreate) SetID(v uuid.UUID) *CountryCreate {
 	_c.mutation.SetID(v)
@@ -110,12 +116,6 @@ func (_c *CountryCreate) SetNillableID(v *uuid.UUID) *CountryCreate {
 	if v != nil {
 		_c.SetID(*v)
 	}
-	return _c
-}
-
-// SetContinentID sets the "continent" edge to the Continent entity by ID.
-func (_c *CountryCreate) SetContinentID(id uuid.UUID) *CountryCreate {
-	_c.mutation.SetContinentID(id)
 	return _c
 }
 
@@ -250,6 +250,9 @@ func (_c *CountryCreate) check() error {
 			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "Country.code": %w`, err)}
 		}
 	}
+	if _, ok := _c.mutation.ContinentID(); !ok {
+		return &ValidationError{Name: "continent_id", err: errors.New(`ent: missing required field "Country.continent_id"`)}
+	}
 	if len(_c.mutation.ContinentIDs()) == 0 {
 		return &ValidationError{Name: "continent", err: errors.New(`ent: missing required edge "Country.continent"`)}
 	}
@@ -330,7 +333,7 @@ func (_c *CountryCreate) createSpec() (*Country, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.continent_countries = &nodes[0]
+		_node.ContinentID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.LocationsIDs(); len(nodes) > 0 {

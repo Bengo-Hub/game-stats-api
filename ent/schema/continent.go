@@ -34,6 +34,7 @@ func (Continent) Fields() []ent.Field {
 		field.Text("description").
 			Optional().
 			Nillable(),
+		field.UUID("world_id", uuid.UUID{}),
 	}
 }
 
@@ -43,6 +44,7 @@ func (Continent) Edges() []ent.Edge {
 		edge.From("world", World.Type).
 			Ref("continents").
 			Unique().
+			Field("world_id").
 			Required(),
 		edge.To("countries", Country.Type),
 		edge.To("managed_by", User.Type),

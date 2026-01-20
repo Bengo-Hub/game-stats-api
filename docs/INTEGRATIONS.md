@@ -11,7 +11,7 @@ This document defines all integration points between the Game Stats backend API 
 ### Base Configuration
 
 **API Base URL**: 
-- Development: `http://localhost:8080/api/v1`
+- Development: `http://localhost:4000/api/v1`
 - Staging: `https://api-staging.gamestats.com/api/v1`
 - Production: `https://api.gamestats.com/api/v1`
 
@@ -814,7 +814,7 @@ ws.onmessage = (event) => {
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `PORT` | HTTP server port | `8080` |
+| `PORT` | HTTP server port | `4000` |
 | `ENV` | Environment (dev, staging, prod) | `dev` |
 | `LOG_LEVEL` | Logging level | `info` |
 | `CORS_ORIGINS` | Allowed CORS origins | `http://localhost:3000` |

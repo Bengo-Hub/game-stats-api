@@ -86,6 +86,11 @@ func Description(v string) predicate.Continent {
 	return predicate.Continent(sql.FieldEQ(FieldDescription, v))
 }
 
+// WorldID applies equality check predicate on the "world_id" field. It's identical to WorldIDEQ.
+func WorldID(v uuid.UUID) predicate.Continent {
+	return predicate.Continent(sql.FieldEQ(FieldWorldID, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Continent {
 	return predicate.Continent(sql.FieldEQ(FieldCreatedAt, v))
@@ -419,6 +424,26 @@ func DescriptionEqualFold(v string) predicate.Continent {
 // DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
 func DescriptionContainsFold(v string) predicate.Continent {
 	return predicate.Continent(sql.FieldContainsFold(FieldDescription, v))
+}
+
+// WorldIDEQ applies the EQ predicate on the "world_id" field.
+func WorldIDEQ(v uuid.UUID) predicate.Continent {
+	return predicate.Continent(sql.FieldEQ(FieldWorldID, v))
+}
+
+// WorldIDNEQ applies the NEQ predicate on the "world_id" field.
+func WorldIDNEQ(v uuid.UUID) predicate.Continent {
+	return predicate.Continent(sql.FieldNEQ(FieldWorldID, v))
+}
+
+// WorldIDIn applies the In predicate on the "world_id" field.
+func WorldIDIn(vs ...uuid.UUID) predicate.Continent {
+	return predicate.Continent(sql.FieldIn(FieldWorldID, vs...))
+}
+
+// WorldIDNotIn applies the NotIn predicate on the "world_id" field.
+func WorldIDNotIn(vs ...uuid.UUID) predicate.Continent {
+	return predicate.Continent(sql.FieldNotIn(FieldWorldID, vs...))
 }
 
 // HasWorld applies the HasEdge predicate on the "world" edge.

@@ -8,11 +8,15 @@ import (
 )
 
 type AuthHandler struct {
-	service *auth.Service
+	service   *auth.Service
+	jwtSecret string
 }
 
-func NewAuthHandler(service *auth.Service) *AuthHandler {
-	return &AuthHandler{service: service}
+func NewAuthHandler(service *auth.Service, jwtSecret string) *AuthHandler {
+	return &AuthHandler{
+		service:   service,
+		jwtSecret: jwtSecret,
+	}
 }
 
 // Login handles user authentication.
@@ -71,4 +75,30 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
+}
+
+// Me returns the current authenticated user's information.
+// @Summary Get Current User
+// @Description Get information about the currently authenticated user.
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} auth.UserDTO
+// @Failure 401 {string} string "unauthorized"
+// @Security BearerAuth
+// @Router /auth/me [get]
+func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
+	// In a real app, this would get the user from the context (populated by middleware)
+	// and possibly fetch fresh data from the repo.
+
+	// Assuming middleware puts "user_id" in context
+	userID, ok := r.Context().Value("user_id").(string)
+	if !ok {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// For Sprint 1, we return a simple representation.
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"id": userID, "status": "authenticated"})
 }

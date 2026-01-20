@@ -1981,27 +1981,51 @@ func (m *ContinentMutation) ResetDescription() {
 	delete(m.clearedFields, continent.FieldDescription)
 }
 
-// SetWorldID sets the "world" edge to the World entity by id.
-func (m *ContinentMutation) SetWorldID(id uuid.UUID) {
-	m.world = &id
+// SetWorldID sets the "world_id" field.
+func (m *ContinentMutation) SetWorldID(u uuid.UUID) {
+	m.world = &u
+}
+
+// WorldID returns the value of the "world_id" field in the mutation.
+func (m *ContinentMutation) WorldID() (r uuid.UUID, exists bool) {
+	v := m.world
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWorldID returns the old "world_id" field's value of the Continent entity.
+// If the Continent object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ContinentMutation) OldWorldID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWorldID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWorldID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWorldID: %w", err)
+	}
+	return oldValue.WorldID, nil
+}
+
+// ResetWorldID resets all changes to the "world_id" field.
+func (m *ContinentMutation) ResetWorldID() {
+	m.world = nil
 }
 
 // ClearWorld clears the "world" edge to the World entity.
 func (m *ContinentMutation) ClearWorld() {
 	m.clearedworld = true
+	m.clearedFields[continent.FieldWorldID] = struct{}{}
 }
 
 // WorldCleared reports if the "world" edge to the World entity was cleared.
 func (m *ContinentMutation) WorldCleared() bool {
 	return m.clearedworld
-}
-
-// WorldID returns the "world" edge ID in the mutation.
-func (m *ContinentMutation) WorldID() (id uuid.UUID, exists bool) {
-	if m.world != nil {
-		return *m.world, true
-	}
-	return
 }
 
 // WorldIDs returns the "world" edge IDs in the mutation.
@@ -2162,7 +2186,7 @@ func (m *ContinentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ContinentMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, continent.FieldCreatedAt)
 	}
@@ -2180,6 +2204,9 @@ func (m *ContinentMutation) Fields() []string {
 	}
 	if m.description != nil {
 		fields = append(fields, continent.FieldDescription)
+	}
+	if m.world != nil {
+		fields = append(fields, continent.FieldWorldID)
 	}
 	return fields
 }
@@ -2201,6 +2228,8 @@ func (m *ContinentMutation) Field(name string) (ent.Value, bool) {
 		return m.Slug()
 	case continent.FieldDescription:
 		return m.Description()
+	case continent.FieldWorldID:
+		return m.WorldID()
 	}
 	return nil, false
 }
@@ -2222,6 +2251,8 @@ func (m *ContinentMutation) OldField(ctx context.Context, name string) (ent.Valu
 		return m.OldSlug(ctx)
 	case continent.FieldDescription:
 		return m.OldDescription(ctx)
+	case continent.FieldWorldID:
+		return m.OldWorldID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Continent field %s", name)
 }
@@ -2272,6 +2303,13 @@ func (m *ContinentMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDescription(v)
+		return nil
+	case continent.FieldWorldID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWorldID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Continent field %s", name)
@@ -2354,6 +2392,9 @@ func (m *ContinentMutation) ResetField(name string) error {
 		return nil
 	case continent.FieldDescription:
 		m.ResetDescription()
+		return nil
+	case continent.FieldWorldID:
+		m.ResetWorldID()
 		return nil
 	}
 	return fmt.Errorf("unknown Continent field %s", name)
@@ -2899,27 +2940,51 @@ func (m *CountryMutation) ResetDescription() {
 	delete(m.clearedFields, country.FieldDescription)
 }
 
-// SetContinentID sets the "continent" edge to the Continent entity by id.
-func (m *CountryMutation) SetContinentID(id uuid.UUID) {
-	m.continent = &id
+// SetContinentID sets the "continent_id" field.
+func (m *CountryMutation) SetContinentID(u uuid.UUID) {
+	m.continent = &u
+}
+
+// ContinentID returns the value of the "continent_id" field in the mutation.
+func (m *CountryMutation) ContinentID() (r uuid.UUID, exists bool) {
+	v := m.continent
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldContinentID returns the old "continent_id" field's value of the Country entity.
+// If the Country object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CountryMutation) OldContinentID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldContinentID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldContinentID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldContinentID: %w", err)
+	}
+	return oldValue.ContinentID, nil
+}
+
+// ResetContinentID resets all changes to the "continent_id" field.
+func (m *CountryMutation) ResetContinentID() {
+	m.continent = nil
 }
 
 // ClearContinent clears the "continent" edge to the Continent entity.
 func (m *CountryMutation) ClearContinent() {
 	m.clearedcontinent = true
+	m.clearedFields[country.FieldContinentID] = struct{}{}
 }
 
 // ContinentCleared reports if the "continent" edge to the Continent entity was cleared.
 func (m *CountryMutation) ContinentCleared() bool {
 	return m.clearedcontinent
-}
-
-// ContinentID returns the "continent" edge ID in the mutation.
-func (m *CountryMutation) ContinentID() (id uuid.UUID, exists bool) {
-	if m.continent != nil {
-		return *m.continent, true
-	}
-	return
 }
 
 // ContinentIDs returns the "continent" edge IDs in the mutation.
@@ -3134,7 +3199,7 @@ func (m *CountryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CountryMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, country.FieldCreatedAt)
 	}
@@ -3155,6 +3220,9 @@ func (m *CountryMutation) Fields() []string {
 	}
 	if m.description != nil {
 		fields = append(fields, country.FieldDescription)
+	}
+	if m.continent != nil {
+		fields = append(fields, country.FieldContinentID)
 	}
 	return fields
 }
@@ -3178,6 +3246,8 @@ func (m *CountryMutation) Field(name string) (ent.Value, bool) {
 		return m.Code()
 	case country.FieldDescription:
 		return m.Description()
+	case country.FieldContinentID:
+		return m.ContinentID()
 	}
 	return nil, false
 }
@@ -3201,6 +3271,8 @@ func (m *CountryMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldCode(ctx)
 	case country.FieldDescription:
 		return m.OldDescription(ctx)
+	case country.FieldContinentID:
+		return m.OldContinentID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Country field %s", name)
 }
@@ -3258,6 +3330,13 @@ func (m *CountryMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDescription(v)
+		return nil
+	case country.FieldContinentID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetContinentID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Country field %s", name)
@@ -3343,6 +3422,9 @@ func (m *CountryMutation) ResetField(name string) error {
 		return nil
 	case country.FieldDescription:
 		m.ResetDescription()
+		return nil
+	case country.FieldContinentID:
+		m.ResetContinentID()
 		return nil
 	}
 	return fmt.Errorf("unknown Country field %s", name)

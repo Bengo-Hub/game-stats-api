@@ -121,9 +121,17 @@ func (_u *CountryUpdate) ClearDescription() *CountryUpdate {
 	return _u
 }
 
-// SetContinentID sets the "continent" edge to the Continent entity by ID.
-func (_u *CountryUpdate) SetContinentID(id uuid.UUID) *CountryUpdate {
-	_u.mutation.SetContinentID(id)
+// SetContinentID sets the "continent_id" field.
+func (_u *CountryUpdate) SetContinentID(v uuid.UUID) *CountryUpdate {
+	_u.mutation.SetContinentID(v)
+	return _u
+}
+
+// SetNillableContinentID sets the "continent_id" field if the given value is not nil.
+func (_u *CountryUpdate) SetNillableContinentID(v *uuid.UUID) *CountryUpdate {
+	if v != nil {
+		_u.SetContinentID(*v)
+	}
 	return _u
 }
 
@@ -618,9 +626,17 @@ func (_u *CountryUpdateOne) ClearDescription() *CountryUpdateOne {
 	return _u
 }
 
-// SetContinentID sets the "continent" edge to the Continent entity by ID.
-func (_u *CountryUpdateOne) SetContinentID(id uuid.UUID) *CountryUpdateOne {
-	_u.mutation.SetContinentID(id)
+// SetContinentID sets the "continent_id" field.
+func (_u *CountryUpdateOne) SetContinentID(v uuid.UUID) *CountryUpdateOne {
+	_u.mutation.SetContinentID(v)
+	return _u
+}
+
+// SetNillableContinentID sets the "continent_id" field if the given value is not nil.
+func (_u *CountryUpdateOne) SetNillableContinentID(v *uuid.UUID) *CountryUpdateOne {
+	if v != nil {
+		_u.SetContinentID(*v)
+	}
 	return _u
 }
 

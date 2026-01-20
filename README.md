@@ -61,7 +61,7 @@ make seed
 make run
 ```
 
-Server runs at `http://localhost:8080`
+Server runs at `http://localhost:4000`
 
 ## Documentation
 
@@ -153,7 +153,7 @@ make migrate-down
 | `REDIS_URL` | Yes | Redis connection string |
 | `JWT_SECRET` | Yes | JWT signing secret |
 | `OPENAI_API_KEY` | No | For AI analytics (optional) |
-| `PORT` | No | Server port (default: 8080) |
+| `PORT` | No | Server port (default: 4000) |
 
 See [.env.example](./.env.example) for full configuration.
 
@@ -166,7 +166,7 @@ See [.env.example](./.env.example) for full configuration.
 docker build -t game-stats-api .
 
 # Run container
-docker run -p 8080:8080 --env-file .env game-stats-api
+docker run -p 4000:4000 --env-file .env game-stats-api
 ```
 
 ### Kubernetes

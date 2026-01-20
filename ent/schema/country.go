@@ -38,6 +38,7 @@ func (Country) Fields() []ent.Field {
 		field.Text("description").
 			Optional().
 			Nillable(),
+		field.UUID("continent_id", uuid.UUID{}),
 	}
 }
 
@@ -47,6 +48,7 @@ func (Country) Edges() []ent.Edge {
 		edge.From("continent", Continent.Type).
 			Ref("countries").
 			Unique().
+			Field("continent_id").
 			Required(),
 		edge.To("locations", Location.Type),
 		edge.To("disciplines", Discipline.Type),

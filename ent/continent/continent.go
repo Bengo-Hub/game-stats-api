@@ -27,6 +27,8 @@ const (
 	FieldSlug = "slug"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// FieldWorldID holds the string denoting the world_id field in the database.
+	FieldWorldID = "world_id"
 	// EdgeWorld holds the string denoting the world edge name in mutations.
 	EdgeWorld = "world"
 	// EdgeCountries holds the string denoting the countries edge name in mutations.
@@ -41,14 +43,14 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "world" package.
 	WorldInverseTable = "worlds"
 	// WorldColumn is the table column denoting the world relation/edge.
-	WorldColumn = "world_continents"
+	WorldColumn = "world_id"
 	// CountriesTable is the table that holds the countries relation/edge.
 	CountriesTable = "countries"
 	// CountriesInverseTable is the table name for the Country entity.
 	// It exists in this package in order to avoid circular dependency with the "country" package.
 	CountriesInverseTable = "countries"
 	// CountriesColumn is the table column denoting the countries relation/edge.
-	CountriesColumn = "continent_countries"
+	CountriesColumn = "continent_id"
 	// ManagedByTable is the table that holds the managed_by relation/edge.
 	ManagedByTable = "users"
 	// ManagedByInverseTable is the table name for the User entity.
@@ -67,23 +69,13 @@ var Columns = []string{
 	FieldName,
 	FieldSlug,
 	FieldDescription,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "continents"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"world_continents",
+	FieldWorldID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -141,6 +133,11 @@ func BySlug(opts ...sql.OrderTermOption) OrderOption {
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByWorldID orders the results by the world_id field.
+func ByWorldID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWorldID, opts...).ToFunc()
 }
 
 // ByWorldField orders the results by world field.

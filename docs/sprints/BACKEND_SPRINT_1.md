@@ -107,6 +107,7 @@
 - Shared infrastructure moved to `/shared/infrastructure` to support global BengoBox ecosystem.
 - PostgreSQL 17 mapped to host port 5433 to avoid local conflicts.
 - Redis 7.2 mapped to host port 6380.
+- **Backend Port Standardized to 4000**: All services and documentation updated to port 4000.
 - All primary keys use UUIDs for enhanced security and scalability.
 
 ---

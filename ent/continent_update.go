@@ -106,9 +106,17 @@ func (_u *ContinentUpdate) ClearDescription() *ContinentUpdate {
 	return _u
 }
 
-// SetWorldID sets the "world" edge to the World entity by ID.
-func (_u *ContinentUpdate) SetWorldID(id uuid.UUID) *ContinentUpdate {
-	_u.mutation.SetWorldID(id)
+// SetWorldID sets the "world_id" field.
+func (_u *ContinentUpdate) SetWorldID(v uuid.UUID) *ContinentUpdate {
+	_u.mutation.SetWorldID(v)
+	return _u
+}
+
+// SetNillableWorldID sets the "world_id" field if the given value is not nil.
+func (_u *ContinentUpdate) SetNillableWorldID(v *uuid.UUID) *ContinentUpdate {
+	if v != nil {
+		_u.SetWorldID(*v)
+	}
 	return _u
 }
 
@@ -500,9 +508,17 @@ func (_u *ContinentUpdateOne) ClearDescription() *ContinentUpdateOne {
 	return _u
 }
 
-// SetWorldID sets the "world" edge to the World entity by ID.
-func (_u *ContinentUpdateOne) SetWorldID(id uuid.UUID) *ContinentUpdateOne {
-	_u.mutation.SetWorldID(id)
+// SetWorldID sets the "world_id" field.
+func (_u *ContinentUpdateOne) SetWorldID(v uuid.UUID) *ContinentUpdateOne {
+	_u.mutation.SetWorldID(v)
+	return _u
+}
+
+// SetNillableWorldID sets the "world_id" field if the given value is not nil.
+func (_u *ContinentUpdateOne) SetNillableWorldID(v *uuid.UUID) *ContinentUpdateOne {
+	if v != nil {
+		_u.SetWorldID(*v)
+	}
 	return _u
 }
 

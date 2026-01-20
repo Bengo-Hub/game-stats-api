@@ -29,6 +29,8 @@ const (
 	FieldCode = "code"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// FieldContinentID holds the string denoting the continent_id field in the database.
+	FieldContinentID = "continent_id"
 	// EdgeContinent holds the string denoting the continent edge name in mutations.
 	EdgeContinent = "continent"
 	// EdgeLocations holds the string denoting the locations edge name in mutations.
@@ -45,7 +47,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "continent" package.
 	ContinentInverseTable = "continents"
 	// ContinentColumn is the table column denoting the continent relation/edge.
-	ContinentColumn = "continent_countries"
+	ContinentColumn = "continent_id"
 	// LocationsTable is the table that holds the locations relation/edge.
 	LocationsTable = "locations"
 	// LocationsInverseTable is the table name for the Location entity.
@@ -79,23 +81,13 @@ var Columns = []string{
 	FieldSlug,
 	FieldCode,
 	FieldDescription,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "countries"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"continent_countries",
+	FieldContinentID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -160,6 +152,11 @@ func ByCode(opts ...sql.OrderTermOption) OrderOption {
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByContinentID orders the results by the continent_id field.
+func ByContinentID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldContinentID, opts...).ToFunc()
 }
 
 // ByContinentField orders the results by continent field.

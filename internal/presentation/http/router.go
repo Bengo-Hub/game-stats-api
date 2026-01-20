@@ -15,8 +15,10 @@ import (
 )
 
 type RouterOptions struct {
-	Config      *config.Config
-	AuthHandler *handlers.AuthHandler
+	Config            *config.Config
+	AuthHandler       *handlers.AuthHandler
+	SystemHandler     *handlers.SystemHandler
+	GeographicHandler *handlers.GeographicHandler
 }
 
 func NewRouter(opts RouterOptions) chi.Router {
@@ -35,10 +37,7 @@ func NewRouter(opts RouterOptions) chi.Router {
 	// API v1
 	r.Route("/api/v1", func(r chi.Router) {
 		// Health check
-		r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("OK"))
-		})
+		r.Get("/health", opts.SystemHandler.Health)
 
 		// Public routes
 		r.Route("/auth", func(r chi.Router) {
@@ -50,15 +49,19 @@ func NewRouter(opts RouterOptions) chi.Router {
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.AuthMiddleware(opts.Config.JWTSecret))
 
-			r.Get("/me", func(w http.ResponseWriter, r *http.Request) {
-				// Return user info from context
-			})
+			r.Get("/me", opts.AuthHandler.Me)
 
 			// Admin only routes
 			r.Group(func(r chi.Router) {
 				r.Use(middleware.RoleMiddleware("admin"))
 				// ...
 			})
+		})
+
+		// Geographic metadata (Public for now)
+		r.Route("/geographic", func(r chi.Router) {
+			r.Get("/worlds", opts.GeographicHandler.ListWorlds)
+			r.Get("/continents", opts.GeographicHandler.ListContinents)
 		})
 	})
 

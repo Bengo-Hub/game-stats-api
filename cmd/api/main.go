@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/bengobox/game-stats-api/internal/application/auth"
+	"github.com/bengobox/game-stats-api/internal/application/metadata"
 	"github.com/bengobox/game-stats-api/internal/config"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/database"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/repository"
@@ -29,7 +30,7 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host localhost:8080
+// @host localhost:4000
 // @BasePath /api/v1
 
 // @securityDefinitions.apikey BearerAuth
@@ -57,11 +58,11 @@ func main() {
 
 	// 4. Initialize repositories
 	userRepo := repository.NewUserRepository(client)
+	worldRepo := repository.NewWorldRepository(client)
+	continentRepo := repository.NewContinentRepository(client)
+	countryRepo := repository.NewCountryRepository(client)
 
 	// Instantiate other repositories to ensure they are valid and compiled
-	_ = repository.NewWorldRepository(client)
-	_ = repository.NewContinentRepository(client)
-	_ = repository.NewCountryRepository(client)
 	_ = repository.NewLocationRepository(client)
 	_ = repository.NewFieldRepository(client)
 	_ = repository.NewDisciplineRepository(client)
@@ -78,14 +79,19 @@ func main() {
 
 	// 5. Initialize application services
 	authService := auth.NewService(userRepo, cfg)
+	metadataService := metadata.NewService(worldRepo, continentRepo, countryRepo)
 
 	// 6. Initialize HTTP handlers
-	authHandler := handlers.NewAuthHandler(authService)
+	authHandler := handlers.NewAuthHandler(authService, cfg.JWTSecret)
+	systemHandler := handlers.NewSystemHandler()
+	geographicHandler := handlers.NewGeographicHandler(metadataService)
 
 	// 7. Setup router
 	router := appHttp.NewRouter(appHttp.RouterOptions{
-		Config:      cfg,
-		AuthHandler: authHandler,
+		Config:            cfg,
+		AuthHandler:       authHandler,
+		SystemHandler:     systemHandler,
+		GeographicHandler: geographicHandler,
 	})
 
 	// 8. Start server

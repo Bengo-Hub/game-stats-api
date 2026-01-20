@@ -414,7 +414,9 @@ func (_q *WorldQuery) loadContinents(ctx context.Context, query *ContinentQuery,
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(continent.FieldWorldID)
+	}
 	query.Where(predicate.Continent(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(world.ContinentsColumn), fks...))
 	}))
@@ -423,13 +425,10 @@ func (_q *WorldQuery) loadContinents(ctx context.Context, query *ContinentQuery,
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.world_continents
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "world_continents" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.WorldID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "world_continents" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "world_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

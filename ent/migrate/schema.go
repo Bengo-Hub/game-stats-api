@@ -52,7 +52,7 @@ var (
 		{Name: "name", Type: field.TypeString, Size: 100},
 		{Name: "slug", Type: field.TypeString, Unique: true, Size: 100},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "world_continents", Type: field.TypeUUID},
+		{Name: "world_id", Type: field.TypeUUID},
 	}
 	// ContinentsTable holds the schema information for the "continents" table.
 	ContinentsTable = &schema.Table{
@@ -78,7 +78,7 @@ var (
 		{Name: "slug", Type: field.TypeString, Unique: true, Size: 100},
 		{Name: "code", Type: field.TypeString, Unique: true, Size: 3},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "continent_countries", Type: field.TypeUUID},
+		{Name: "continent_id", Type: field.TypeUUID},
 	}
 	// CountriesTable holds the schema information for the "countries" table.
 	CountriesTable = &schema.Table{

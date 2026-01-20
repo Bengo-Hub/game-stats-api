@@ -32,7 +32,6 @@ type CountryQuery struct {
 	withLocations   *LocationQuery
 	withDisciplines *DisciplineQuery
 	withManagedBy   *UserQuery
-	withFKs         bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -480,7 +479,6 @@ func (_q *CountryQuery) prepareQuery(ctx context.Context) error {
 func (_q *CountryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Country, error) {
 	var (
 		nodes       = []*Country{}
-		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
 		loadedTypes = [4]bool{
 			_q.withContinent != nil,
@@ -489,12 +487,6 @@ func (_q *CountryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Coun
 			_q.withManagedBy != nil,
 		}
 	)
-	if _q.withContinent != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, country.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Country).scanValues(nil, columns)
 	}
@@ -547,10 +539,7 @@ func (_q *CountryQuery) loadContinent(ctx context.Context, query *ContinentQuery
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Country)
 	for i := range nodes {
-		if nodes[i].continent_countries == nil {
-			continue
-		}
-		fk := *nodes[i].continent_countries
+		fk := nodes[i].ContinentID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -567,7 +556,7 @@ func (_q *CountryQuery) loadContinent(ctx context.Context, query *ContinentQuery
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "continent_countries" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "continent_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -693,6 +682,9 @@ func (_q *CountryQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != country.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withContinent != nil {
+			_spec.Node.AddColumnOnce(country.FieldContinentID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

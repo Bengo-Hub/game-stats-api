@@ -33,11 +33,12 @@ type Country struct {
 	Code string `json:"code,omitempty"`
 	// Description holds the value of the "description" field.
 	Description *string `json:"description,omitempty"`
+	// ContinentID holds the value of the "continent_id" field.
+	ContinentID uuid.UUID `json:"continent_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CountryQuery when eager-loading is set.
-	Edges               CountryEdges `json:"edges"`
-	continent_countries *uuid.UUID
-	selectValues        sql.SelectValues
+	Edges        CountryEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // CountryEdges holds the relations/edges for other nodes in the graph.
@@ -102,10 +103,8 @@ func (*Country) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case country.FieldCreatedAt, country.FieldUpdatedAt, country.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case country.FieldID:
+		case country.FieldID, country.FieldContinentID:
 			values[i] = new(uuid.UUID)
-		case country.ForeignKeys[0]: // continent_countries
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -171,12 +170,11 @@ func (_m *Country) assignValues(columns []string, values []any) error {
 				_m.Description = new(string)
 				*_m.Description = value.String
 			}
-		case country.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field continent_countries", values[i])
-			} else if value.Valid {
-				_m.continent_countries = new(uuid.UUID)
-				*_m.continent_countries = *value.S.(*uuid.UUID)
+		case country.FieldContinentID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field continent_id", values[i])
+			} else if value != nil {
+				_m.ContinentID = *value
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -258,6 +256,9 @@ func (_m *Country) String() string {
 		builder.WriteString("description=")
 		builder.WriteString(*v)
 	}
+	builder.WriteString(", ")
+	builder.WriteString("continent_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ContinentID))
 	builder.WriteByte(')')
 	return builder.String()
 }

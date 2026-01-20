@@ -30,7 +30,6 @@ type ContinentQuery struct {
 	withWorld     *WorldQuery
 	withCountries *CountryQuery
 	withManagedBy *UserQuery
-	withFKs       bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -444,7 +443,6 @@ func (_q *ContinentQuery) prepareQuery(ctx context.Context) error {
 func (_q *ContinentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Continent, error) {
 	var (
 		nodes       = []*Continent{}
-		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
 		loadedTypes = [3]bool{
 			_q.withWorld != nil,
@@ -452,12 +450,6 @@ func (_q *ContinentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Co
 			_q.withManagedBy != nil,
 		}
 	)
-	if _q.withWorld != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, continent.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Continent).scanValues(nil, columns)
 	}
@@ -503,10 +495,7 @@ func (_q *ContinentQuery) loadWorld(ctx context.Context, query *WorldQuery, node
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Continent)
 	for i := range nodes {
-		if nodes[i].world_continents == nil {
-			continue
-		}
-		fk := *nodes[i].world_continents
+		fk := nodes[i].WorldID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -523,7 +512,7 @@ func (_q *ContinentQuery) loadWorld(ctx context.Context, query *WorldQuery, node
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "world_continents" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "world_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -541,7 +530,9 @@ func (_q *ContinentQuery) loadCountries(ctx context.Context, query *CountryQuery
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(country.FieldContinentID)
+	}
 	query.Where(predicate.Country(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(continent.CountriesColumn), fks...))
 	}))
@@ -550,13 +541,10 @@ func (_q *ContinentQuery) loadCountries(ctx context.Context, query *CountryQuery
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.continent_countries
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "continent_countries" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.ContinentID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "continent_countries" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "continent_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -618,6 +606,9 @@ func (_q *ContinentQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != continent.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withWorld != nil {
+			_spec.Node.AddColumnOnce(continent.FieldWorldID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

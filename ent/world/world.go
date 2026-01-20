@@ -37,7 +37,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "continent" package.
 	ContinentsInverseTable = "continents"
 	// ContinentsColumn is the table column denoting the continents relation/edge.
-	ContinentsColumn = "world_continents"
+	ContinentsColumn = "world_id"
 )
 
 // Columns holds all SQL columns for world fields.

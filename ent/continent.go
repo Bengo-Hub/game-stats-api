@@ -31,11 +31,12 @@ type Continent struct {
 	Slug string `json:"slug,omitempty"`
 	// Description holds the value of the "description" field.
 	Description *string `json:"description,omitempty"`
+	// WorldID holds the value of the "world_id" field.
+	WorldID uuid.UUID `json:"world_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ContinentQuery when eager-loading is set.
-	Edges            ContinentEdges `json:"edges"`
-	world_continents *uuid.UUID
-	selectValues     sql.SelectValues
+	Edges        ContinentEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // ContinentEdges holds the relations/edges for other nodes in the graph.
@@ -89,10 +90,8 @@ func (*Continent) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case continent.FieldCreatedAt, continent.FieldUpdatedAt, continent.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case continent.FieldID:
+		case continent.FieldID, continent.FieldWorldID:
 			values[i] = new(uuid.UUID)
-		case continent.ForeignKeys[0]: // world_continents
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -152,12 +151,11 @@ func (_m *Continent) assignValues(columns []string, values []any) error {
 				_m.Description = new(string)
 				*_m.Description = value.String
 			}
-		case continent.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field world_continents", values[i])
-			} else if value.Valid {
-				_m.world_continents = new(uuid.UUID)
-				*_m.world_continents = *value.S.(*uuid.UUID)
+		case continent.FieldWorldID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field world_id", values[i])
+			} else if value != nil {
+				_m.WorldID = *value
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -231,6 +229,9 @@ func (_m *Continent) String() string {
 		builder.WriteString("description=")
 		builder.WriteString(*v)
 	}
+	builder.WriteString(", ")
+	builder.WriteString("world_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.WorldID))
 	builder.WriteByte(')')
 	return builder.String()
 }
