@@ -5,18 +5,129 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // SpiritScore is the model entity for the SpiritScore schema.
 type SpiritScore struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
-	selectValues sql.SelectValues
+	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	// RulesKnowledge holds the value of the "rules_knowledge" field.
+	RulesKnowledge int `json:"rules_knowledge,omitempty"`
+	// FoulsBodyContact holds the value of the "fouls_body_contact" field.
+	FoulsBodyContact int `json:"fouls_body_contact,omitempty"`
+	// FairMindedness holds the value of the "fair_mindedness" field.
+	FairMindedness int `json:"fair_mindedness,omitempty"`
+	// Attitude holds the value of the "attitude" field.
+	Attitude int `json:"attitude,omitempty"`
+	// Communication holds the value of the "communication" field.
+	Communication int `json:"communication,omitempty"`
+	// Comments holds the value of the "comments" field.
+	Comments string `json:"comments,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the SpiritScoreQuery when eager-loading is set.
+	Edges                        SpiritScoreEdges `json:"edges"`
+	game_spirit_scores           *uuid.UUID
+	team_spirit_scores_given     *uuid.UUID
+	team_spirit_scores_received  *uuid.UUID
+	user_submitted_spirit_scores *uuid.UUID
+	selectValues                 sql.SelectValues
+}
+
+// SpiritScoreEdges holds the relations/edges for other nodes in the graph.
+type SpiritScoreEdges struct {
+	// Game holds the value of the game edge.
+	Game *Game `json:"game,omitempty"`
+	// ScoredByTeam holds the value of the scored_by_team edge.
+	ScoredByTeam *Team `json:"scored_by_team,omitempty"`
+	// Team holds the value of the team edge.
+	Team *Team `json:"team,omitempty"`
+	// SubmittedBy holds the value of the submitted_by edge.
+	SubmittedBy *User `json:"submitted_by,omitempty"`
+	// MvpNominations holds the value of the mvp_nominations edge.
+	MvpNominations []*MVP_Nomination `json:"mvp_nominations,omitempty"`
+	// SpiritNominations holds the value of the spirit_nominations edge.
+	SpiritNominations []*SpiritNomination `json:"spirit_nominations,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [6]bool
+}
+
+// GameOrErr returns the Game value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e SpiritScoreEdges) GameOrErr() (*Game, error) {
+	if e.Game != nil {
+		return e.Game, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: game.Label}
+	}
+	return nil, &NotLoadedError{edge: "game"}
+}
+
+// ScoredByTeamOrErr returns the ScoredByTeam value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e SpiritScoreEdges) ScoredByTeamOrErr() (*Team, error) {
+	if e.ScoredByTeam != nil {
+		return e.ScoredByTeam, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: team.Label}
+	}
+	return nil, &NotLoadedError{edge: "scored_by_team"}
+}
+
+// TeamOrErr returns the Team value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e SpiritScoreEdges) TeamOrErr() (*Team, error) {
+	if e.Team != nil {
+		return e.Team, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: team.Label}
+	}
+	return nil, &NotLoadedError{edge: "team"}
+}
+
+// SubmittedByOrErr returns the SubmittedBy value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e SpiritScoreEdges) SubmittedByOrErr() (*User, error) {
+	if e.SubmittedBy != nil {
+		return e.SubmittedBy, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: user.Label}
+	}
+	return nil, &NotLoadedError{edge: "submitted_by"}
+}
+
+// MvpNominationsOrErr returns the MvpNominations value or an error if the edge
+// was not loaded in eager-loading.
+func (e SpiritScoreEdges) MvpNominationsOrErr() ([]*MVP_Nomination, error) {
+	if e.loadedTypes[4] {
+		return e.MvpNominations, nil
+	}
+	return nil, &NotLoadedError{edge: "mvp_nominations"}
+}
+
+// SpiritNominationsOrErr returns the SpiritNominations value or an error if the edge
+// was not loaded in eager-loading.
+func (e SpiritScoreEdges) SpiritNominationsOrErr() ([]*SpiritNomination, error) {
+	if e.loadedTypes[5] {
+		return e.SpiritNominations, nil
+	}
+	return nil, &NotLoadedError{edge: "spirit_nominations"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -24,8 +135,22 @@ func (*SpiritScore) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case spiritscore.FieldID:
+		case spiritscore.FieldRulesKnowledge, spiritscore.FieldFoulsBodyContact, spiritscore.FieldFairMindedness, spiritscore.FieldAttitude, spiritscore.FieldCommunication:
 			values[i] = new(sql.NullInt64)
+		case spiritscore.FieldComments:
+			values[i] = new(sql.NullString)
+		case spiritscore.FieldCreatedAt, spiritscore.FieldUpdatedAt, spiritscore.FieldDeletedAt:
+			values[i] = new(sql.NullTime)
+		case spiritscore.FieldID:
+			values[i] = new(uuid.UUID)
+		case spiritscore.ForeignKeys[0]: // game_spirit_scores
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case spiritscore.ForeignKeys[1]: // team_spirit_scores_given
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case spiritscore.ForeignKeys[2]: // team_spirit_scores_received
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case spiritscore.ForeignKeys[3]: // user_submitted_spirit_scores
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -42,11 +167,94 @@ func (_m *SpiritScore) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case spiritscore.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
+		case spiritscore.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case spiritscore.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case spiritscore.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
+		case spiritscore.FieldRulesKnowledge:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field rules_knowledge", values[i])
+			} else if value.Valid {
+				_m.RulesKnowledge = int(value.Int64)
+			}
+		case spiritscore.FieldFoulsBodyContact:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field fouls_body_contact", values[i])
+			} else if value.Valid {
+				_m.FoulsBodyContact = int(value.Int64)
+			}
+		case spiritscore.FieldFairMindedness:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field fair_mindedness", values[i])
+			} else if value.Valid {
+				_m.FairMindedness = int(value.Int64)
+			}
+		case spiritscore.FieldAttitude:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field attitude", values[i])
+			} else if value.Valid {
+				_m.Attitude = int(value.Int64)
+			}
+		case spiritscore.FieldCommunication:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field communication", values[i])
+			} else if value.Valid {
+				_m.Communication = int(value.Int64)
+			}
+		case spiritscore.FieldComments:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field comments", values[i])
+			} else if value.Valid {
+				_m.Comments = value.String
+			}
+		case spiritscore.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field game_spirit_scores", values[i])
+			} else if value.Valid {
+				_m.game_spirit_scores = new(uuid.UUID)
+				*_m.game_spirit_scores = *value.S.(*uuid.UUID)
+			}
+		case spiritscore.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field team_spirit_scores_given", values[i])
+			} else if value.Valid {
+				_m.team_spirit_scores_given = new(uuid.UUID)
+				*_m.team_spirit_scores_given = *value.S.(*uuid.UUID)
+			}
+		case spiritscore.ForeignKeys[2]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field team_spirit_scores_received", values[i])
+			} else if value.Valid {
+				_m.team_spirit_scores_received = new(uuid.UUID)
+				*_m.team_spirit_scores_received = *value.S.(*uuid.UUID)
+			}
+		case spiritscore.ForeignKeys[3]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field user_submitted_spirit_scores", values[i])
+			} else if value.Valid {
+				_m.user_submitted_spirit_scores = new(uuid.UUID)
+				*_m.user_submitted_spirit_scores = *value.S.(*uuid.UUID)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -58,6 +266,36 @@ func (_m *SpiritScore) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *SpiritScore) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryGame queries the "game" edge of the SpiritScore entity.
+func (_m *SpiritScore) QueryGame() *GameQuery {
+	return NewSpiritScoreClient(_m.config).QueryGame(_m)
+}
+
+// QueryScoredByTeam queries the "scored_by_team" edge of the SpiritScore entity.
+func (_m *SpiritScore) QueryScoredByTeam() *TeamQuery {
+	return NewSpiritScoreClient(_m.config).QueryScoredByTeam(_m)
+}
+
+// QueryTeam queries the "team" edge of the SpiritScore entity.
+func (_m *SpiritScore) QueryTeam() *TeamQuery {
+	return NewSpiritScoreClient(_m.config).QueryTeam(_m)
+}
+
+// QuerySubmittedBy queries the "submitted_by" edge of the SpiritScore entity.
+func (_m *SpiritScore) QuerySubmittedBy() *UserQuery {
+	return NewSpiritScoreClient(_m.config).QuerySubmittedBy(_m)
+}
+
+// QueryMvpNominations queries the "mvp_nominations" edge of the SpiritScore entity.
+func (_m *SpiritScore) QueryMvpNominations() *MVPNominationQuery {
+	return NewSpiritScoreClient(_m.config).QueryMvpNominations(_m)
+}
+
+// QuerySpiritNominations queries the "spirit_nominations" edge of the SpiritScore entity.
+func (_m *SpiritScore) QuerySpiritNominations() *SpiritNominationQuery {
+	return NewSpiritScoreClient(_m.config).QuerySpiritNominations(_m)
 }
 
 // Update returns a builder for updating this SpiritScore.
@@ -82,7 +320,35 @@ func (_m *SpiritScore) Unwrap() *SpiritScore {
 func (_m *SpiritScore) String() string {
 	var builder strings.Builder
 	builder.WriteString("SpiritScore(")
-	builder.WriteString(fmt.Sprintf("id=%v", _m.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("rules_knowledge=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RulesKnowledge))
+	builder.WriteString(", ")
+	builder.WriteString("fouls_body_contact=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FoulsBodyContact))
+	builder.WriteString(", ")
+	builder.WriteString("fair_mindedness=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FairMindedness))
+	builder.WriteString(", ")
+	builder.WriteString("attitude=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Attitude))
+	builder.WriteString(", ")
+	builder.WriteString("communication=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Communication))
+	builder.WriteString(", ")
+	builder.WriteString("comments=")
+	builder.WriteString(_m.Comments)
 	builder.WriteByte(')')
 	return builder.String()
 }

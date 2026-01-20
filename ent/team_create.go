@@ -4,11 +4,20 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/location"
+	"github.com/bengobox/game-stats-api/ent/player"
+	"github.com/bengobox/game-stats-api/ent/spiritscore"
 	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // TeamCreate is the builder for creating a Team entity.
@@ -18,6 +27,236 @@ type TeamCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *TeamCreate) SetCreatedAt(v time.Time) *TeamCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *TeamCreate) SetNillableCreatedAt(v *time.Time) *TeamCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *TeamCreate) SetUpdatedAt(v time.Time) *TeamCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *TeamCreate) SetNillableUpdatedAt(v *time.Time) *TeamCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *TeamCreate) SetDeletedAt(v time.Time) *TeamCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *TeamCreate) SetNillableDeletedAt(v *time.Time) *TeamCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
+// SetName sets the "name" field.
+func (_c *TeamCreate) SetName(v string) *TeamCreate {
+	_c.mutation.SetName(v)
+	return _c
+}
+
+// SetInitialSeed sets the "initial_seed" field.
+func (_c *TeamCreate) SetInitialSeed(v int) *TeamCreate {
+	_c.mutation.SetInitialSeed(v)
+	return _c
+}
+
+// SetNillableInitialSeed sets the "initial_seed" field if the given value is not nil.
+func (_c *TeamCreate) SetNillableInitialSeed(v *int) *TeamCreate {
+	if v != nil {
+		_c.SetInitialSeed(*v)
+	}
+	return _c
+}
+
+// SetFinalPlacement sets the "final_placement" field.
+func (_c *TeamCreate) SetFinalPlacement(v int) *TeamCreate {
+	_c.mutation.SetFinalPlacement(v)
+	return _c
+}
+
+// SetNillableFinalPlacement sets the "final_placement" field if the given value is not nil.
+func (_c *TeamCreate) SetNillableFinalPlacement(v *int) *TeamCreate {
+	if v != nil {
+		_c.SetFinalPlacement(*v)
+	}
+	return _c
+}
+
+// SetLogoURL sets the "logo_url" field.
+func (_c *TeamCreate) SetLogoURL(v string) *TeamCreate {
+	_c.mutation.SetLogoURL(v)
+	return _c
+}
+
+// SetNillableLogoURL sets the "logo_url" field if the given value is not nil.
+func (_c *TeamCreate) SetNillableLogoURL(v *string) *TeamCreate {
+	if v != nil {
+		_c.SetLogoURL(*v)
+	}
+	return _c
+}
+
+// SetMetadata sets the "metadata" field.
+func (_c *TeamCreate) SetMetadata(v map[string]interface{}) *TeamCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *TeamCreate) SetID(v uuid.UUID) *TeamCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *TeamCreate) SetNillableID(v *uuid.UUID) *TeamCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// SetDivisionPoolID sets the "division_pool" edge to the DivisionPool entity by ID.
+func (_c *TeamCreate) SetDivisionPoolID(id uuid.UUID) *TeamCreate {
+	_c.mutation.SetDivisionPoolID(id)
+	return _c
+}
+
+// SetDivisionPool sets the "division_pool" edge to the DivisionPool entity.
+func (_c *TeamCreate) SetDivisionPool(v *DivisionPool) *TeamCreate {
+	return _c.SetDivisionPoolID(v.ID)
+}
+
+// SetHomeLocationID sets the "home_location" edge to the Location entity by ID.
+func (_c *TeamCreate) SetHomeLocationID(id uuid.UUID) *TeamCreate {
+	_c.mutation.SetHomeLocationID(id)
+	return _c
+}
+
+// SetNillableHomeLocationID sets the "home_location" edge to the Location entity by ID if the given value is not nil.
+func (_c *TeamCreate) SetNillableHomeLocationID(id *uuid.UUID) *TeamCreate {
+	if id != nil {
+		_c = _c.SetHomeLocationID(*id)
+	}
+	return _c
+}
+
+// SetHomeLocation sets the "home_location" edge to the Location entity.
+func (_c *TeamCreate) SetHomeLocation(v *Location) *TeamCreate {
+	return _c.SetHomeLocationID(v.ID)
+}
+
+// AddPlayerIDs adds the "players" edge to the Player entity by IDs.
+func (_c *TeamCreate) AddPlayerIDs(ids ...uuid.UUID) *TeamCreate {
+	_c.mutation.AddPlayerIDs(ids...)
+	return _c
+}
+
+// AddPlayers adds the "players" edges to the Player entity.
+func (_c *TeamCreate) AddPlayers(v ...*Player) *TeamCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddPlayerIDs(ids...)
+}
+
+// AddManagedByIDs adds the "managed_by" edge to the User entity by IDs.
+func (_c *TeamCreate) AddManagedByIDs(ids ...uuid.UUID) *TeamCreate {
+	_c.mutation.AddManagedByIDs(ids...)
+	return _c
+}
+
+// AddManagedBy adds the "managed_by" edges to the User entity.
+func (_c *TeamCreate) AddManagedBy(v ...*User) *TeamCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddManagedByIDs(ids...)
+}
+
+// AddHomeGameIDs adds the "home_games" edge to the Game entity by IDs.
+func (_c *TeamCreate) AddHomeGameIDs(ids ...uuid.UUID) *TeamCreate {
+	_c.mutation.AddHomeGameIDs(ids...)
+	return _c
+}
+
+// AddHomeGames adds the "home_games" edges to the Game entity.
+func (_c *TeamCreate) AddHomeGames(v ...*Game) *TeamCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddHomeGameIDs(ids...)
+}
+
+// AddAwayGameIDs adds the "away_games" edge to the Game entity by IDs.
+func (_c *TeamCreate) AddAwayGameIDs(ids ...uuid.UUID) *TeamCreate {
+	_c.mutation.AddAwayGameIDs(ids...)
+	return _c
+}
+
+// AddAwayGames adds the "away_games" edges to the Game entity.
+func (_c *TeamCreate) AddAwayGames(v ...*Game) *TeamCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddAwayGameIDs(ids...)
+}
+
+// AddSpiritScoresGivenIDs adds the "spirit_scores_given" edge to the SpiritScore entity by IDs.
+func (_c *TeamCreate) AddSpiritScoresGivenIDs(ids ...uuid.UUID) *TeamCreate {
+	_c.mutation.AddSpiritScoresGivenIDs(ids...)
+	return _c
+}
+
+// AddSpiritScoresGiven adds the "spirit_scores_given" edges to the SpiritScore entity.
+func (_c *TeamCreate) AddSpiritScoresGiven(v ...*SpiritScore) *TeamCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSpiritScoresGivenIDs(ids...)
+}
+
+// AddSpiritScoresReceivedIDs adds the "spirit_scores_received" edge to the SpiritScore entity by IDs.
+func (_c *TeamCreate) AddSpiritScoresReceivedIDs(ids ...uuid.UUID) *TeamCreate {
+	_c.mutation.AddSpiritScoresReceivedIDs(ids...)
+	return _c
+}
+
+// AddSpiritScoresReceived adds the "spirit_scores_received" edges to the SpiritScore entity.
+func (_c *TeamCreate) AddSpiritScoresReceived(v ...*SpiritScore) *TeamCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSpiritScoresReceivedIDs(ids...)
+}
+
 // Mutation returns the TeamMutation object of the builder.
 func (_c *TeamCreate) Mutation() *TeamMutation {
 	return _c.mutation
@@ -25,6 +264,7 @@ func (_c *TeamCreate) Mutation() *TeamMutation {
 
 // Save creates the Team in the database.
 func (_c *TeamCreate) Save(ctx context.Context) (*Team, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -50,8 +290,41 @@ func (_c *TeamCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *TeamCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := team.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := team.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := team.DefaultID()
+		_c.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *TeamCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Team.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Team.updated_at"`)}
+	}
+	if _, ok := _c.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Team.name"`)}
+	}
+	if v, ok := _c.mutation.Name(); ok {
+		if err := team.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Team.name": %w`, err)}
+		}
+	}
+	if len(_c.mutation.DivisionPoolIDs()) == 0 {
+		return &ValidationError{Name: "division_pool", err: errors.New(`ent: missing required edge "Team.division_pool"`)}
+	}
 	return nil
 }
 
@@ -66,8 +339,13 @@ func (_c *TeamCreate) sqlSave(ctx context.Context) (*Team, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -76,8 +354,174 @@ func (_c *TeamCreate) sqlSave(ctx context.Context) (*Team, error) {
 func (_c *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Team{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(team.Table, sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(team.Table, sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(team.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(team.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(team.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
+	if value, ok := _c.mutation.Name(); ok {
+		_spec.SetField(team.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
+	if value, ok := _c.mutation.InitialSeed(); ok {
+		_spec.SetField(team.FieldInitialSeed, field.TypeInt, value)
+		_node.InitialSeed = value
+	}
+	if value, ok := _c.mutation.FinalPlacement(); ok {
+		_spec.SetField(team.FieldFinalPlacement, field.TypeInt, value)
+		_node.FinalPlacement = value
+	}
+	if value, ok := _c.mutation.LogoURL(); ok {
+		_spec.SetField(team.FieldLogoURL, field.TypeString, value)
+		_node.LogoURL = value
+	}
+	if value, ok := _c.mutation.Metadata(); ok {
+		_spec.SetField(team.FieldMetadata, field.TypeJSON, value)
+		_node.Metadata = value
+	}
+	if nodes := _c.mutation.DivisionPoolIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   team.DivisionPoolTable,
+			Columns: []string{team.DivisionPoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.division_pool_teams = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.HomeLocationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   team.HomeLocationTable,
+			Columns: []string{team.HomeLocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.location_teams = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.PlayersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.PlayersTable,
+			Columns: []string{team.PlayersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ManagedByIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.ManagedByTable,
+			Columns: []string{team.ManagedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.HomeGamesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.HomeGamesTable,
+			Columns: []string{team.HomeGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.AwayGamesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.AwayGamesTable,
+			Columns: []string{team.AwayGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SpiritScoresGivenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.SpiritScoresGivenTable,
+			Columns: []string{team.SpiritScoresGivenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SpiritScoresReceivedIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.SpiritScoresReceivedTable,
+			Columns: []string{team.SpiritScoresReceivedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -99,6 +543,7 @@ func (_c *TeamCreateBulk) Save(ctx context.Context) ([]*Team, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*TeamMutation)
 				if !ok {
@@ -125,10 +570,6 @@ func (_c *TeamCreateBulk) Save(ctx context.Context) ([]*Team, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

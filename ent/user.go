@@ -5,18 +5,145 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/bengobox/game-stats-api/ent/continent"
+	"github.com/bengobox/game-stats-api/ent/country"
+	"github.com/bengobox/game-stats-api/ent/discipline"
+	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // User is the model entity for the User schema.
 type User struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
-	selectValues sql.SelectValues
+	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	// Email holds the value of the "email" field.
+	Email string `json:"email,omitempty"`
+	// PasswordHash holds the value of the "password_hash" field.
+	PasswordHash string `json:"-"`
+	// FullName holds the value of the "full_name" field.
+	FullName string `json:"full_name,omitempty"`
+	// Role holds the value of the "role" field.
+	Role string `json:"role,omitempty"`
+	// IsActive holds the value of the "is_active" field.
+	IsActive bool `json:"is_active,omitempty"`
+	// LastLoginAt holds the value of the "last_login_at" field.
+	LastLoginAt *time.Time `json:"last_login_at,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserQuery when eager-loading is set.
+	Edges                 UserEdges `json:"edges"`
+	continent_managed_by  *uuid.UUID
+	country_managed_by    *uuid.UUID
+	discipline_managed_by *uuid.UUID
+	event_managed_by      *uuid.UUID
+	team_managed_by       *uuid.UUID
+	selectValues          sql.SelectValues
+}
+
+// UserEdges holds the relations/edges for other nodes in the graph.
+type UserEdges struct {
+	// ManagedContinent holds the value of the managed_continent edge.
+	ManagedContinent *Continent `json:"managed_continent,omitempty"`
+	// ManagedCountry holds the value of the managed_country edge.
+	ManagedCountry *Country `json:"managed_country,omitempty"`
+	// ManagedDiscipline holds the value of the managed_discipline edge.
+	ManagedDiscipline *Discipline `json:"managed_discipline,omitempty"`
+	// ManagedEvent holds the value of the managed_event edge.
+	ManagedEvent *Event `json:"managed_event,omitempty"`
+	// ManagedTeam holds the value of the managed_team edge.
+	ManagedTeam *Team `json:"managed_team,omitempty"`
+	// OfficiatedGames holds the value of the officiated_games edge.
+	OfficiatedGames []*Game `json:"officiated_games,omitempty"`
+	// SubmittedSpiritScores holds the value of the submitted_spirit_scores edge.
+	SubmittedSpiritScores []*SpiritScore `json:"submitted_spirit_scores,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [7]bool
+}
+
+// ManagedContinentOrErr returns the ManagedContinent value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) ManagedContinentOrErr() (*Continent, error) {
+	if e.ManagedContinent != nil {
+		return e.ManagedContinent, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: continent.Label}
+	}
+	return nil, &NotLoadedError{edge: "managed_continent"}
+}
+
+// ManagedCountryOrErr returns the ManagedCountry value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) ManagedCountryOrErr() (*Country, error) {
+	if e.ManagedCountry != nil {
+		return e.ManagedCountry, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: country.Label}
+	}
+	return nil, &NotLoadedError{edge: "managed_country"}
+}
+
+// ManagedDisciplineOrErr returns the ManagedDiscipline value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) ManagedDisciplineOrErr() (*Discipline, error) {
+	if e.ManagedDiscipline != nil {
+		return e.ManagedDiscipline, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: discipline.Label}
+	}
+	return nil, &NotLoadedError{edge: "managed_discipline"}
+}
+
+// ManagedEventOrErr returns the ManagedEvent value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) ManagedEventOrErr() (*Event, error) {
+	if e.ManagedEvent != nil {
+		return e.ManagedEvent, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: event.Label}
+	}
+	return nil, &NotLoadedError{edge: "managed_event"}
+}
+
+// ManagedTeamOrErr returns the ManagedTeam value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) ManagedTeamOrErr() (*Team, error) {
+	if e.ManagedTeam != nil {
+		return e.ManagedTeam, nil
+	} else if e.loadedTypes[4] {
+		return nil, &NotFoundError{label: team.Label}
+	}
+	return nil, &NotLoadedError{edge: "managed_team"}
+}
+
+// OfficiatedGamesOrErr returns the OfficiatedGames value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) OfficiatedGamesOrErr() ([]*Game, error) {
+	if e.loadedTypes[5] {
+		return e.OfficiatedGames, nil
+	}
+	return nil, &NotLoadedError{edge: "officiated_games"}
+}
+
+// SubmittedSpiritScoresOrErr returns the SubmittedSpiritScores value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) SubmittedSpiritScoresOrErr() ([]*SpiritScore, error) {
+	if e.loadedTypes[6] {
+		return e.SubmittedSpiritScores, nil
+	}
+	return nil, &NotLoadedError{edge: "submitted_spirit_scores"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -24,8 +151,24 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case user.FieldIsActive:
+			values[i] = new(sql.NullBool)
+		case user.FieldEmail, user.FieldPasswordHash, user.FieldFullName, user.FieldRole:
+			values[i] = new(sql.NullString)
+		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt, user.FieldLastLoginAt:
+			values[i] = new(sql.NullTime)
 		case user.FieldID:
-			values[i] = new(sql.NullInt64)
+			values[i] = new(uuid.UUID)
+		case user.ForeignKeys[0]: // continent_managed_by
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case user.ForeignKeys[1]: // country_managed_by
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case user.ForeignKeys[2]: // discipline_managed_by
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case user.ForeignKeys[3]: // event_managed_by
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case user.ForeignKeys[4]: // team_managed_by
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -42,11 +185,102 @@ func (_m *User) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case user.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
+		case user.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case user.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case user.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
+		case user.FieldEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field email", values[i])
+			} else if value.Valid {
+				_m.Email = value.String
+			}
+		case user.FieldPasswordHash:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field password_hash", values[i])
+			} else if value.Valid {
+				_m.PasswordHash = value.String
+			}
+		case user.FieldFullName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field full_name", values[i])
+			} else if value.Valid {
+				_m.FullName = value.String
+			}
+		case user.FieldRole:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field role", values[i])
+			} else if value.Valid {
+				_m.Role = value.String
+			}
+		case user.FieldIsActive:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_active", values[i])
+			} else if value.Valid {
+				_m.IsActive = value.Bool
+			}
+		case user.FieldLastLoginAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field last_login_at", values[i])
+			} else if value.Valid {
+				_m.LastLoginAt = new(time.Time)
+				*_m.LastLoginAt = value.Time
+			}
+		case user.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field continent_managed_by", values[i])
+			} else if value.Valid {
+				_m.continent_managed_by = new(uuid.UUID)
+				*_m.continent_managed_by = *value.S.(*uuid.UUID)
+			}
+		case user.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field country_managed_by", values[i])
+			} else if value.Valid {
+				_m.country_managed_by = new(uuid.UUID)
+				*_m.country_managed_by = *value.S.(*uuid.UUID)
+			}
+		case user.ForeignKeys[2]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field discipline_managed_by", values[i])
+			} else if value.Valid {
+				_m.discipline_managed_by = new(uuid.UUID)
+				*_m.discipline_managed_by = *value.S.(*uuid.UUID)
+			}
+		case user.ForeignKeys[3]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field event_managed_by", values[i])
+			} else if value.Valid {
+				_m.event_managed_by = new(uuid.UUID)
+				*_m.event_managed_by = *value.S.(*uuid.UUID)
+			}
+		case user.ForeignKeys[4]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field team_managed_by", values[i])
+			} else if value.Valid {
+				_m.team_managed_by = new(uuid.UUID)
+				*_m.team_managed_by = *value.S.(*uuid.UUID)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -58,6 +292,41 @@ func (_m *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *User) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryManagedContinent queries the "managed_continent" edge of the User entity.
+func (_m *User) QueryManagedContinent() *ContinentQuery {
+	return NewUserClient(_m.config).QueryManagedContinent(_m)
+}
+
+// QueryManagedCountry queries the "managed_country" edge of the User entity.
+func (_m *User) QueryManagedCountry() *CountryQuery {
+	return NewUserClient(_m.config).QueryManagedCountry(_m)
+}
+
+// QueryManagedDiscipline queries the "managed_discipline" edge of the User entity.
+func (_m *User) QueryManagedDiscipline() *DisciplineQuery {
+	return NewUserClient(_m.config).QueryManagedDiscipline(_m)
+}
+
+// QueryManagedEvent queries the "managed_event" edge of the User entity.
+func (_m *User) QueryManagedEvent() *EventQuery {
+	return NewUserClient(_m.config).QueryManagedEvent(_m)
+}
+
+// QueryManagedTeam queries the "managed_team" edge of the User entity.
+func (_m *User) QueryManagedTeam() *TeamQuery {
+	return NewUserClient(_m.config).QueryManagedTeam(_m)
+}
+
+// QueryOfficiatedGames queries the "officiated_games" edge of the User entity.
+func (_m *User) QueryOfficiatedGames() *GameQuery {
+	return NewUserClient(_m.config).QueryOfficiatedGames(_m)
+}
+
+// QuerySubmittedSpiritScores queries the "submitted_spirit_scores" edge of the User entity.
+func (_m *User) QuerySubmittedSpiritScores() *SpiritScoreQuery {
+	return NewUserClient(_m.config).QuerySubmittedSpiritScores(_m)
 }
 
 // Update returns a builder for updating this User.
@@ -82,7 +351,36 @@ func (_m *User) Unwrap() *User {
 func (_m *User) String() string {
 	var builder strings.Builder
 	builder.WriteString("User(")
-	builder.WriteString(fmt.Sprintf("id=%v", _m.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("email=")
+	builder.WriteString(_m.Email)
+	builder.WriteString(", ")
+	builder.WriteString("password_hash=<sensitive>")
+	builder.WriteString(", ")
+	builder.WriteString("full_name=")
+	builder.WriteString(_m.FullName)
+	builder.WriteString(", ")
+	builder.WriteString("role=")
+	builder.WriteString(_m.Role)
+	builder.WriteString(", ")
+	builder.WriteString("is_active=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsActive))
+	builder.WriteString(", ")
+	if v := _m.LastLoginAt; v != nil {
+		builder.WriteString("last_login_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

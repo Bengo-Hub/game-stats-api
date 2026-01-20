@@ -40,7 +40,7 @@ func (_d *DivisionPoolDelete) ExecX(ctx context.Context) int {
 }
 
 func (_d *DivisionPoolDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(divisionpool.Table, sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(divisionpool.Table, sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID))
 	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

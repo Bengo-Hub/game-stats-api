@@ -6,12 +6,22 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	entfield "github.com/bengobox/game-stats-api/ent/field"
 	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/gameevent"
+	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/bengobox/game-stats-api/ent/spiritscore"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // GameUpdate is the builder for updating Game entities.
@@ -27,13 +37,485 @@ func (_u *GameUpdate) Where(ps ...predicate.Game) *GameUpdate {
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *GameUpdate) SetUpdatedAt(v time.Time) *GameUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *GameUpdate) SetDeletedAt(v time.Time) *GameUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *GameUpdate) SetNillableDeletedAt(v *time.Time) *GameUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *GameUpdate) ClearDeletedAt() *GameUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetName sets the "name" field.
+func (_u *GameUpdate) SetName(v string) *GameUpdate {
+	_u.mutation.SetName(v)
+	return _u
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (_u *GameUpdate) SetNillableName(v *string) *GameUpdate {
+	if v != nil {
+		_u.SetName(*v)
+	}
+	return _u
+}
+
+// SetScheduledTime sets the "scheduled_time" field.
+func (_u *GameUpdate) SetScheduledTime(v time.Time) *GameUpdate {
+	_u.mutation.SetScheduledTime(v)
+	return _u
+}
+
+// SetNillableScheduledTime sets the "scheduled_time" field if the given value is not nil.
+func (_u *GameUpdate) SetNillableScheduledTime(v *time.Time) *GameUpdate {
+	if v != nil {
+		_u.SetScheduledTime(*v)
+	}
+	return _u
+}
+
+// SetActualStartTime sets the "actual_start_time" field.
+func (_u *GameUpdate) SetActualStartTime(v time.Time) *GameUpdate {
+	_u.mutation.SetActualStartTime(v)
+	return _u
+}
+
+// SetNillableActualStartTime sets the "actual_start_time" field if the given value is not nil.
+func (_u *GameUpdate) SetNillableActualStartTime(v *time.Time) *GameUpdate {
+	if v != nil {
+		_u.SetActualStartTime(*v)
+	}
+	return _u
+}
+
+// ClearActualStartTime clears the value of the "actual_start_time" field.
+func (_u *GameUpdate) ClearActualStartTime() *GameUpdate {
+	_u.mutation.ClearActualStartTime()
+	return _u
+}
+
+// SetActualEndTime sets the "actual_end_time" field.
+func (_u *GameUpdate) SetActualEndTime(v time.Time) *GameUpdate {
+	_u.mutation.SetActualEndTime(v)
+	return _u
+}
+
+// SetNillableActualEndTime sets the "actual_end_time" field if the given value is not nil.
+func (_u *GameUpdate) SetNillableActualEndTime(v *time.Time) *GameUpdate {
+	if v != nil {
+		_u.SetActualEndTime(*v)
+	}
+	return _u
+}
+
+// ClearActualEndTime clears the value of the "actual_end_time" field.
+func (_u *GameUpdate) ClearActualEndTime() *GameUpdate {
+	_u.mutation.ClearActualEndTime()
+	return _u
+}
+
+// SetAllocatedTimeMinutes sets the "allocated_time_minutes" field.
+func (_u *GameUpdate) SetAllocatedTimeMinutes(v int) *GameUpdate {
+	_u.mutation.ResetAllocatedTimeMinutes()
+	_u.mutation.SetAllocatedTimeMinutes(v)
+	return _u
+}
+
+// SetNillableAllocatedTimeMinutes sets the "allocated_time_minutes" field if the given value is not nil.
+func (_u *GameUpdate) SetNillableAllocatedTimeMinutes(v *int) *GameUpdate {
+	if v != nil {
+		_u.SetAllocatedTimeMinutes(*v)
+	}
+	return _u
+}
+
+// AddAllocatedTimeMinutes adds value to the "allocated_time_minutes" field.
+func (_u *GameUpdate) AddAllocatedTimeMinutes(v int) *GameUpdate {
+	_u.mutation.AddAllocatedTimeMinutes(v)
+	return _u
+}
+
+// SetStoppageTimeSeconds sets the "stoppage_time_seconds" field.
+func (_u *GameUpdate) SetStoppageTimeSeconds(v int) *GameUpdate {
+	_u.mutation.ResetStoppageTimeSeconds()
+	_u.mutation.SetStoppageTimeSeconds(v)
+	return _u
+}
+
+// SetNillableStoppageTimeSeconds sets the "stoppage_time_seconds" field if the given value is not nil.
+func (_u *GameUpdate) SetNillableStoppageTimeSeconds(v *int) *GameUpdate {
+	if v != nil {
+		_u.SetStoppageTimeSeconds(*v)
+	}
+	return _u
+}
+
+// AddStoppageTimeSeconds adds value to the "stoppage_time_seconds" field.
+func (_u *GameUpdate) AddStoppageTimeSeconds(v int) *GameUpdate {
+	_u.mutation.AddStoppageTimeSeconds(v)
+	return _u
+}
+
+// SetStatus sets the "status" field.
+func (_u *GameUpdate) SetStatus(v string) *GameUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *GameUpdate) SetNillableStatus(v *string) *GameUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
+// SetHomeTeamScore sets the "home_team_score" field.
+func (_u *GameUpdate) SetHomeTeamScore(v int) *GameUpdate {
+	_u.mutation.ResetHomeTeamScore()
+	_u.mutation.SetHomeTeamScore(v)
+	return _u
+}
+
+// SetNillableHomeTeamScore sets the "home_team_score" field if the given value is not nil.
+func (_u *GameUpdate) SetNillableHomeTeamScore(v *int) *GameUpdate {
+	if v != nil {
+		_u.SetHomeTeamScore(*v)
+	}
+	return _u
+}
+
+// AddHomeTeamScore adds value to the "home_team_score" field.
+func (_u *GameUpdate) AddHomeTeamScore(v int) *GameUpdate {
+	_u.mutation.AddHomeTeamScore(v)
+	return _u
+}
+
+// SetAwayTeamScore sets the "away_team_score" field.
+func (_u *GameUpdate) SetAwayTeamScore(v int) *GameUpdate {
+	_u.mutation.ResetAwayTeamScore()
+	_u.mutation.SetAwayTeamScore(v)
+	return _u
+}
+
+// SetNillableAwayTeamScore sets the "away_team_score" field if the given value is not nil.
+func (_u *GameUpdate) SetNillableAwayTeamScore(v *int) *GameUpdate {
+	if v != nil {
+		_u.SetAwayTeamScore(*v)
+	}
+	return _u
+}
+
+// AddAwayTeamScore adds value to the "away_team_score" field.
+func (_u *GameUpdate) AddAwayTeamScore(v int) *GameUpdate {
+	_u.mutation.AddAwayTeamScore(v)
+	return _u
+}
+
+// SetFirstPullBy sets the "first_pull_by" field.
+func (_u *GameUpdate) SetFirstPullBy(v string) *GameUpdate {
+	_u.mutation.SetFirstPullBy(v)
+	return _u
+}
+
+// SetNillableFirstPullBy sets the "first_pull_by" field if the given value is not nil.
+func (_u *GameUpdate) SetNillableFirstPullBy(v *string) *GameUpdate {
+	if v != nil {
+		_u.SetFirstPullBy(*v)
+	}
+	return _u
+}
+
+// ClearFirstPullBy clears the value of the "first_pull_by" field.
+func (_u *GameUpdate) ClearFirstPullBy() *GameUpdate {
+	_u.mutation.ClearFirstPullBy()
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *GameUpdate) SetVersion(v int) *GameUpdate {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *GameUpdate) SetNillableVersion(v *int) *GameUpdate {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *GameUpdate) AddVersion(v int) *GameUpdate {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
+// SetMetadata sets the "metadata" field.
+func (_u *GameUpdate) SetMetadata(v map[string]interface{}) *GameUpdate {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *GameUpdate) ClearMetadata() *GameUpdate {
+	_u.mutation.ClearMetadata()
+	return _u
+}
+
+// SetGameRoundID sets the "game_round" edge to the GameRound entity by ID.
+func (_u *GameUpdate) SetGameRoundID(id uuid.UUID) *GameUpdate {
+	_u.mutation.SetGameRoundID(id)
+	return _u
+}
+
+// SetNillableGameRoundID sets the "game_round" edge to the GameRound entity by ID if the given value is not nil.
+func (_u *GameUpdate) SetNillableGameRoundID(id *uuid.UUID) *GameUpdate {
+	if id != nil {
+		_u = _u.SetGameRoundID(*id)
+	}
+	return _u
+}
+
+// SetGameRound sets the "game_round" edge to the GameRound entity.
+func (_u *GameUpdate) SetGameRound(v *GameRound) *GameUpdate {
+	return _u.SetGameRoundID(v.ID)
+}
+
+// SetHomeTeamID sets the "home_team" edge to the Team entity by ID.
+func (_u *GameUpdate) SetHomeTeamID(id uuid.UUID) *GameUpdate {
+	_u.mutation.SetHomeTeamID(id)
+	return _u
+}
+
+// SetHomeTeam sets the "home_team" edge to the Team entity.
+func (_u *GameUpdate) SetHomeTeam(v *Team) *GameUpdate {
+	return _u.SetHomeTeamID(v.ID)
+}
+
+// SetAwayTeamID sets the "away_team" edge to the Team entity by ID.
+func (_u *GameUpdate) SetAwayTeamID(id uuid.UUID) *GameUpdate {
+	_u.mutation.SetAwayTeamID(id)
+	return _u
+}
+
+// SetAwayTeam sets the "away_team" edge to the Team entity.
+func (_u *GameUpdate) SetAwayTeam(v *Team) *GameUpdate {
+	return _u.SetAwayTeamID(v.ID)
+}
+
+// SetDivisionPoolID sets the "division_pool" edge to the DivisionPool entity by ID.
+func (_u *GameUpdate) SetDivisionPoolID(id uuid.UUID) *GameUpdate {
+	_u.mutation.SetDivisionPoolID(id)
+	return _u
+}
+
+// SetDivisionPool sets the "division_pool" edge to the DivisionPool entity.
+func (_u *GameUpdate) SetDivisionPool(v *DivisionPool) *GameUpdate {
+	return _u.SetDivisionPoolID(v.ID)
+}
+
+// SetFieldID sets the "field" edge to the Field entity by ID.
+func (_u *GameUpdate) SetFieldID(id uuid.UUID) *GameUpdate {
+	_u.mutation.SetFieldID(id)
+	return _u
+}
+
+// SetField sets the "field" edge to the Field entity.
+func (_u *GameUpdate) SetField(v *Field) *GameUpdate {
+	return _u.SetFieldID(v.ID)
+}
+
+// SetScorekeeperID sets the "scorekeeper" edge to the User entity by ID.
+func (_u *GameUpdate) SetScorekeeperID(id uuid.UUID) *GameUpdate {
+	_u.mutation.SetScorekeeperID(id)
+	return _u
+}
+
+// SetNillableScorekeeperID sets the "scorekeeper" edge to the User entity by ID if the given value is not nil.
+func (_u *GameUpdate) SetNillableScorekeeperID(id *uuid.UUID) *GameUpdate {
+	if id != nil {
+		_u = _u.SetScorekeeperID(*id)
+	}
+	return _u
+}
+
+// SetScorekeeper sets the "scorekeeper" edge to the User entity.
+func (_u *GameUpdate) SetScorekeeper(v *User) *GameUpdate {
+	return _u.SetScorekeeperID(v.ID)
+}
+
+// AddScoreIDs adds the "scores" edge to the Scoring entity by IDs.
+func (_u *GameUpdate) AddScoreIDs(ids ...uuid.UUID) *GameUpdate {
+	_u.mutation.AddScoreIDs(ids...)
+	return _u
+}
+
+// AddScores adds the "scores" edges to the Scoring entity.
+func (_u *GameUpdate) AddScores(v ...*Scoring) *GameUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddScoreIDs(ids...)
+}
+
+// AddGameEventIDs adds the "game_events" edge to the GameEvent entity by IDs.
+func (_u *GameUpdate) AddGameEventIDs(ids ...uuid.UUID) *GameUpdate {
+	_u.mutation.AddGameEventIDs(ids...)
+	return _u
+}
+
+// AddGameEvents adds the "game_events" edges to the GameEvent entity.
+func (_u *GameUpdate) AddGameEvents(v ...*GameEvent) *GameUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddGameEventIDs(ids...)
+}
+
+// AddSpiritScoreIDs adds the "spirit_scores" edge to the SpiritScore entity by IDs.
+func (_u *GameUpdate) AddSpiritScoreIDs(ids ...uuid.UUID) *GameUpdate {
+	_u.mutation.AddSpiritScoreIDs(ids...)
+	return _u
+}
+
+// AddSpiritScores adds the "spirit_scores" edges to the SpiritScore entity.
+func (_u *GameUpdate) AddSpiritScores(v ...*SpiritScore) *GameUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpiritScoreIDs(ids...)
+}
+
 // Mutation returns the GameMutation object of the builder.
 func (_u *GameUpdate) Mutation() *GameMutation {
 	return _u.mutation
 }
 
+// ClearGameRound clears the "game_round" edge to the GameRound entity.
+func (_u *GameUpdate) ClearGameRound() *GameUpdate {
+	_u.mutation.ClearGameRound()
+	return _u
+}
+
+// ClearHomeTeam clears the "home_team" edge to the Team entity.
+func (_u *GameUpdate) ClearHomeTeam() *GameUpdate {
+	_u.mutation.ClearHomeTeam()
+	return _u
+}
+
+// ClearAwayTeam clears the "away_team" edge to the Team entity.
+func (_u *GameUpdate) ClearAwayTeam() *GameUpdate {
+	_u.mutation.ClearAwayTeam()
+	return _u
+}
+
+// ClearDivisionPool clears the "division_pool" edge to the DivisionPool entity.
+func (_u *GameUpdate) ClearDivisionPool() *GameUpdate {
+	_u.mutation.ClearDivisionPool()
+	return _u
+}
+
+// ClearFieldEdge clears the "field" edge to the Field entity.
+func (_u *GameUpdate) ClearFieldEdge() *GameUpdate {
+	_u.mutation.ClearFieldEdge()
+	return _u
+}
+
+// ClearScorekeeper clears the "scorekeeper" edge to the User entity.
+func (_u *GameUpdate) ClearScorekeeper() *GameUpdate {
+	_u.mutation.ClearScorekeeper()
+	return _u
+}
+
+// ClearScores clears all "scores" edges to the Scoring entity.
+func (_u *GameUpdate) ClearScores() *GameUpdate {
+	_u.mutation.ClearScores()
+	return _u
+}
+
+// RemoveScoreIDs removes the "scores" edge to Scoring entities by IDs.
+func (_u *GameUpdate) RemoveScoreIDs(ids ...uuid.UUID) *GameUpdate {
+	_u.mutation.RemoveScoreIDs(ids...)
+	return _u
+}
+
+// RemoveScores removes "scores" edges to Scoring entities.
+func (_u *GameUpdate) RemoveScores(v ...*Scoring) *GameUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveScoreIDs(ids...)
+}
+
+// ClearGameEvents clears all "game_events" edges to the GameEvent entity.
+func (_u *GameUpdate) ClearGameEvents() *GameUpdate {
+	_u.mutation.ClearGameEvents()
+	return _u
+}
+
+// RemoveGameEventIDs removes the "game_events" edge to GameEvent entities by IDs.
+func (_u *GameUpdate) RemoveGameEventIDs(ids ...uuid.UUID) *GameUpdate {
+	_u.mutation.RemoveGameEventIDs(ids...)
+	return _u
+}
+
+// RemoveGameEvents removes "game_events" edges to GameEvent entities.
+func (_u *GameUpdate) RemoveGameEvents(v ...*GameEvent) *GameUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveGameEventIDs(ids...)
+}
+
+// ClearSpiritScores clears all "spirit_scores" edges to the SpiritScore entity.
+func (_u *GameUpdate) ClearSpiritScores() *GameUpdate {
+	_u.mutation.ClearSpiritScores()
+	return _u
+}
+
+// RemoveSpiritScoreIDs removes the "spirit_scores" edge to SpiritScore entities by IDs.
+func (_u *GameUpdate) RemoveSpiritScoreIDs(ids ...uuid.UUID) *GameUpdate {
+	_u.mutation.RemoveSpiritScoreIDs(ids...)
+	return _u
+}
+
+// RemoveSpiritScores removes "spirit_scores" edges to SpiritScore entities.
+func (_u *GameUpdate) RemoveSpiritScores(v ...*SpiritScore) *GameUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpiritScoreIDs(ids...)
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *GameUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -59,14 +541,433 @@ func (_u *GameUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *GameUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := game.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *GameUpdate) check() error {
+	if v, ok := _u.mutation.Name(); ok {
+		if err := game.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Game.name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := game.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Game.status": %w`, err)}
+		}
+	}
+	if _u.mutation.HomeTeamCleared() && len(_u.mutation.HomeTeamIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Game.home_team"`)
+	}
+	if _u.mutation.AwayTeamCleared() && len(_u.mutation.AwayTeamIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Game.away_team"`)
+	}
+	if _u.mutation.DivisionPoolCleared() && len(_u.mutation.DivisionPoolIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Game.division_pool"`)
+	}
+	if _u.mutation.FieldCleared() && len(_u.mutation.FieldIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Game.field"`)
+	}
+	return nil
+}
+
 func (_u *GameUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(game.Table, game.Columns, sqlgraph.NewFieldSpec(game.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(game.Table, game.Columns, sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(game.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(game.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(game.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Name(); ok {
+		_spec.SetField(game.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.ScheduledTime(); ok {
+		_spec.SetField(game.FieldScheduledTime, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.ActualStartTime(); ok {
+		_spec.SetField(game.FieldActualStartTime, field.TypeTime, value)
+	}
+	if _u.mutation.ActualStartTimeCleared() {
+		_spec.ClearField(game.FieldActualStartTime, field.TypeTime)
+	}
+	if value, ok := _u.mutation.ActualEndTime(); ok {
+		_spec.SetField(game.FieldActualEndTime, field.TypeTime, value)
+	}
+	if _u.mutation.ActualEndTimeCleared() {
+		_spec.ClearField(game.FieldActualEndTime, field.TypeTime)
+	}
+	if value, ok := _u.mutation.AllocatedTimeMinutes(); ok {
+		_spec.SetField(game.FieldAllocatedTimeMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAllocatedTimeMinutes(); ok {
+		_spec.AddField(game.FieldAllocatedTimeMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.StoppageTimeSeconds(); ok {
+		_spec.SetField(game.FieldStoppageTimeSeconds, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedStoppageTimeSeconds(); ok {
+		_spec.AddField(game.FieldStoppageTimeSeconds, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(game.FieldStatus, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.HomeTeamScore(); ok {
+		_spec.SetField(game.FieldHomeTeamScore, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedHomeTeamScore(); ok {
+		_spec.AddField(game.FieldHomeTeamScore, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AwayTeamScore(); ok {
+		_spec.SetField(game.FieldAwayTeamScore, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAwayTeamScore(); ok {
+		_spec.AddField(game.FieldAwayTeamScore, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.FirstPullBy(); ok {
+		_spec.SetField(game.FieldFirstPullBy, field.TypeString, value)
+	}
+	if _u.mutation.FirstPullByCleared() {
+		_spec.ClearField(game.FieldFirstPullBy, field.TypeString)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(game.FieldVersion, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(game.FieldVersion, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(game.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(game.FieldMetadata, field.TypeJSON)
+	}
+	if _u.mutation.GameRoundCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.GameRoundTable,
+			Columns: []string{game.GameRoundColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GameRoundIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.GameRoundTable,
+			Columns: []string{game.GameRoundColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.HomeTeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.HomeTeamTable,
+			Columns: []string{game.HomeTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.HomeTeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.HomeTeamTable,
+			Columns: []string{game.HomeTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AwayTeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.AwayTeamTable,
+			Columns: []string{game.AwayTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AwayTeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.AwayTeamTable,
+			Columns: []string{game.AwayTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DivisionPoolCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.DivisionPoolTable,
+			Columns: []string{game.DivisionPoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DivisionPoolIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.DivisionPoolTable,
+			Columns: []string{game.DivisionPoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.FieldEdgeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.FieldTable,
+			Columns: []string{game.FieldColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(entfield.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.FieldIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.FieldTable,
+			Columns: []string{game.FieldColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(entfield.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ScorekeeperCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.ScorekeeperTable,
+			Columns: []string{game.ScorekeeperColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ScorekeeperIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.ScorekeeperTable,
+			Columns: []string{game.ScorekeeperColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ScoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.ScoresTable,
+			Columns: []string{game.ScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedScoresIDs(); len(nodes) > 0 && !_u.mutation.ScoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.ScoresTable,
+			Columns: []string{game.ScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ScoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.ScoresTable,
+			Columns: []string{game.ScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.GameEventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.GameEventsTable,
+			Columns: []string{game.GameEventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameevent.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedGameEventsIDs(); len(nodes) > 0 && !_u.mutation.GameEventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.GameEventsTable,
+			Columns: []string{game.GameEventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameevent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GameEventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.GameEventsTable,
+			Columns: []string{game.GameEventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameevent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpiritScoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.SpiritScoresTable,
+			Columns: []string{game.SpiritScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpiritScoresIDs(); len(nodes) > 0 && !_u.mutation.SpiritScoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.SpiritScoresTable,
+			Columns: []string{game.SpiritScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpiritScoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.SpiritScoresTable,
+			Columns: []string{game.SpiritScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -88,9 +989,480 @@ type GameUpdateOne struct {
 	mutation *GameMutation
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *GameUpdateOne) SetUpdatedAt(v time.Time) *GameUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *GameUpdateOne) SetDeletedAt(v time.Time) *GameUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableDeletedAt(v *time.Time) *GameUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *GameUpdateOne) ClearDeletedAt() *GameUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetName sets the "name" field.
+func (_u *GameUpdateOne) SetName(v string) *GameUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableName(v *string) *GameUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
+	}
+	return _u
+}
+
+// SetScheduledTime sets the "scheduled_time" field.
+func (_u *GameUpdateOne) SetScheduledTime(v time.Time) *GameUpdateOne {
+	_u.mutation.SetScheduledTime(v)
+	return _u
+}
+
+// SetNillableScheduledTime sets the "scheduled_time" field if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableScheduledTime(v *time.Time) *GameUpdateOne {
+	if v != nil {
+		_u.SetScheduledTime(*v)
+	}
+	return _u
+}
+
+// SetActualStartTime sets the "actual_start_time" field.
+func (_u *GameUpdateOne) SetActualStartTime(v time.Time) *GameUpdateOne {
+	_u.mutation.SetActualStartTime(v)
+	return _u
+}
+
+// SetNillableActualStartTime sets the "actual_start_time" field if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableActualStartTime(v *time.Time) *GameUpdateOne {
+	if v != nil {
+		_u.SetActualStartTime(*v)
+	}
+	return _u
+}
+
+// ClearActualStartTime clears the value of the "actual_start_time" field.
+func (_u *GameUpdateOne) ClearActualStartTime() *GameUpdateOne {
+	_u.mutation.ClearActualStartTime()
+	return _u
+}
+
+// SetActualEndTime sets the "actual_end_time" field.
+func (_u *GameUpdateOne) SetActualEndTime(v time.Time) *GameUpdateOne {
+	_u.mutation.SetActualEndTime(v)
+	return _u
+}
+
+// SetNillableActualEndTime sets the "actual_end_time" field if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableActualEndTime(v *time.Time) *GameUpdateOne {
+	if v != nil {
+		_u.SetActualEndTime(*v)
+	}
+	return _u
+}
+
+// ClearActualEndTime clears the value of the "actual_end_time" field.
+func (_u *GameUpdateOne) ClearActualEndTime() *GameUpdateOne {
+	_u.mutation.ClearActualEndTime()
+	return _u
+}
+
+// SetAllocatedTimeMinutes sets the "allocated_time_minutes" field.
+func (_u *GameUpdateOne) SetAllocatedTimeMinutes(v int) *GameUpdateOne {
+	_u.mutation.ResetAllocatedTimeMinutes()
+	_u.mutation.SetAllocatedTimeMinutes(v)
+	return _u
+}
+
+// SetNillableAllocatedTimeMinutes sets the "allocated_time_minutes" field if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableAllocatedTimeMinutes(v *int) *GameUpdateOne {
+	if v != nil {
+		_u.SetAllocatedTimeMinutes(*v)
+	}
+	return _u
+}
+
+// AddAllocatedTimeMinutes adds value to the "allocated_time_minutes" field.
+func (_u *GameUpdateOne) AddAllocatedTimeMinutes(v int) *GameUpdateOne {
+	_u.mutation.AddAllocatedTimeMinutes(v)
+	return _u
+}
+
+// SetStoppageTimeSeconds sets the "stoppage_time_seconds" field.
+func (_u *GameUpdateOne) SetStoppageTimeSeconds(v int) *GameUpdateOne {
+	_u.mutation.ResetStoppageTimeSeconds()
+	_u.mutation.SetStoppageTimeSeconds(v)
+	return _u
+}
+
+// SetNillableStoppageTimeSeconds sets the "stoppage_time_seconds" field if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableStoppageTimeSeconds(v *int) *GameUpdateOne {
+	if v != nil {
+		_u.SetStoppageTimeSeconds(*v)
+	}
+	return _u
+}
+
+// AddStoppageTimeSeconds adds value to the "stoppage_time_seconds" field.
+func (_u *GameUpdateOne) AddStoppageTimeSeconds(v int) *GameUpdateOne {
+	_u.mutation.AddStoppageTimeSeconds(v)
+	return _u
+}
+
+// SetStatus sets the "status" field.
+func (_u *GameUpdateOne) SetStatus(v string) *GameUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableStatus(v *string) *GameUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
+// SetHomeTeamScore sets the "home_team_score" field.
+func (_u *GameUpdateOne) SetHomeTeamScore(v int) *GameUpdateOne {
+	_u.mutation.ResetHomeTeamScore()
+	_u.mutation.SetHomeTeamScore(v)
+	return _u
+}
+
+// SetNillableHomeTeamScore sets the "home_team_score" field if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableHomeTeamScore(v *int) *GameUpdateOne {
+	if v != nil {
+		_u.SetHomeTeamScore(*v)
+	}
+	return _u
+}
+
+// AddHomeTeamScore adds value to the "home_team_score" field.
+func (_u *GameUpdateOne) AddHomeTeamScore(v int) *GameUpdateOne {
+	_u.mutation.AddHomeTeamScore(v)
+	return _u
+}
+
+// SetAwayTeamScore sets the "away_team_score" field.
+func (_u *GameUpdateOne) SetAwayTeamScore(v int) *GameUpdateOne {
+	_u.mutation.ResetAwayTeamScore()
+	_u.mutation.SetAwayTeamScore(v)
+	return _u
+}
+
+// SetNillableAwayTeamScore sets the "away_team_score" field if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableAwayTeamScore(v *int) *GameUpdateOne {
+	if v != nil {
+		_u.SetAwayTeamScore(*v)
+	}
+	return _u
+}
+
+// AddAwayTeamScore adds value to the "away_team_score" field.
+func (_u *GameUpdateOne) AddAwayTeamScore(v int) *GameUpdateOne {
+	_u.mutation.AddAwayTeamScore(v)
+	return _u
+}
+
+// SetFirstPullBy sets the "first_pull_by" field.
+func (_u *GameUpdateOne) SetFirstPullBy(v string) *GameUpdateOne {
+	_u.mutation.SetFirstPullBy(v)
+	return _u
+}
+
+// SetNillableFirstPullBy sets the "first_pull_by" field if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableFirstPullBy(v *string) *GameUpdateOne {
+	if v != nil {
+		_u.SetFirstPullBy(*v)
+	}
+	return _u
+}
+
+// ClearFirstPullBy clears the value of the "first_pull_by" field.
+func (_u *GameUpdateOne) ClearFirstPullBy() *GameUpdateOne {
+	_u.mutation.ClearFirstPullBy()
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *GameUpdateOne) SetVersion(v int) *GameUpdateOne {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableVersion(v *int) *GameUpdateOne {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *GameUpdateOne) AddVersion(v int) *GameUpdateOne {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
+// SetMetadata sets the "metadata" field.
+func (_u *GameUpdateOne) SetMetadata(v map[string]interface{}) *GameUpdateOne {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *GameUpdateOne) ClearMetadata() *GameUpdateOne {
+	_u.mutation.ClearMetadata()
+	return _u
+}
+
+// SetGameRoundID sets the "game_round" edge to the GameRound entity by ID.
+func (_u *GameUpdateOne) SetGameRoundID(id uuid.UUID) *GameUpdateOne {
+	_u.mutation.SetGameRoundID(id)
+	return _u
+}
+
+// SetNillableGameRoundID sets the "game_round" edge to the GameRound entity by ID if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableGameRoundID(id *uuid.UUID) *GameUpdateOne {
+	if id != nil {
+		_u = _u.SetGameRoundID(*id)
+	}
+	return _u
+}
+
+// SetGameRound sets the "game_round" edge to the GameRound entity.
+func (_u *GameUpdateOne) SetGameRound(v *GameRound) *GameUpdateOne {
+	return _u.SetGameRoundID(v.ID)
+}
+
+// SetHomeTeamID sets the "home_team" edge to the Team entity by ID.
+func (_u *GameUpdateOne) SetHomeTeamID(id uuid.UUID) *GameUpdateOne {
+	_u.mutation.SetHomeTeamID(id)
+	return _u
+}
+
+// SetHomeTeam sets the "home_team" edge to the Team entity.
+func (_u *GameUpdateOne) SetHomeTeam(v *Team) *GameUpdateOne {
+	return _u.SetHomeTeamID(v.ID)
+}
+
+// SetAwayTeamID sets the "away_team" edge to the Team entity by ID.
+func (_u *GameUpdateOne) SetAwayTeamID(id uuid.UUID) *GameUpdateOne {
+	_u.mutation.SetAwayTeamID(id)
+	return _u
+}
+
+// SetAwayTeam sets the "away_team" edge to the Team entity.
+func (_u *GameUpdateOne) SetAwayTeam(v *Team) *GameUpdateOne {
+	return _u.SetAwayTeamID(v.ID)
+}
+
+// SetDivisionPoolID sets the "division_pool" edge to the DivisionPool entity by ID.
+func (_u *GameUpdateOne) SetDivisionPoolID(id uuid.UUID) *GameUpdateOne {
+	_u.mutation.SetDivisionPoolID(id)
+	return _u
+}
+
+// SetDivisionPool sets the "division_pool" edge to the DivisionPool entity.
+func (_u *GameUpdateOne) SetDivisionPool(v *DivisionPool) *GameUpdateOne {
+	return _u.SetDivisionPoolID(v.ID)
+}
+
+// SetFieldID sets the "field" edge to the Field entity by ID.
+func (_u *GameUpdateOne) SetFieldID(id uuid.UUID) *GameUpdateOne {
+	_u.mutation.SetFieldID(id)
+	return _u
+}
+
+// SetField sets the "field" edge to the Field entity.
+func (_u *GameUpdateOne) SetField(v *Field) *GameUpdateOne {
+	return _u.SetFieldID(v.ID)
+}
+
+// SetScorekeeperID sets the "scorekeeper" edge to the User entity by ID.
+func (_u *GameUpdateOne) SetScorekeeperID(id uuid.UUID) *GameUpdateOne {
+	_u.mutation.SetScorekeeperID(id)
+	return _u
+}
+
+// SetNillableScorekeeperID sets the "scorekeeper" edge to the User entity by ID if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableScorekeeperID(id *uuid.UUID) *GameUpdateOne {
+	if id != nil {
+		_u = _u.SetScorekeeperID(*id)
+	}
+	return _u
+}
+
+// SetScorekeeper sets the "scorekeeper" edge to the User entity.
+func (_u *GameUpdateOne) SetScorekeeper(v *User) *GameUpdateOne {
+	return _u.SetScorekeeperID(v.ID)
+}
+
+// AddScoreIDs adds the "scores" edge to the Scoring entity by IDs.
+func (_u *GameUpdateOne) AddScoreIDs(ids ...uuid.UUID) *GameUpdateOne {
+	_u.mutation.AddScoreIDs(ids...)
+	return _u
+}
+
+// AddScores adds the "scores" edges to the Scoring entity.
+func (_u *GameUpdateOne) AddScores(v ...*Scoring) *GameUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddScoreIDs(ids...)
+}
+
+// AddGameEventIDs adds the "game_events" edge to the GameEvent entity by IDs.
+func (_u *GameUpdateOne) AddGameEventIDs(ids ...uuid.UUID) *GameUpdateOne {
+	_u.mutation.AddGameEventIDs(ids...)
+	return _u
+}
+
+// AddGameEvents adds the "game_events" edges to the GameEvent entity.
+func (_u *GameUpdateOne) AddGameEvents(v ...*GameEvent) *GameUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddGameEventIDs(ids...)
+}
+
+// AddSpiritScoreIDs adds the "spirit_scores" edge to the SpiritScore entity by IDs.
+func (_u *GameUpdateOne) AddSpiritScoreIDs(ids ...uuid.UUID) *GameUpdateOne {
+	_u.mutation.AddSpiritScoreIDs(ids...)
+	return _u
+}
+
+// AddSpiritScores adds the "spirit_scores" edges to the SpiritScore entity.
+func (_u *GameUpdateOne) AddSpiritScores(v ...*SpiritScore) *GameUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpiritScoreIDs(ids...)
+}
+
 // Mutation returns the GameMutation object of the builder.
 func (_u *GameUpdateOne) Mutation() *GameMutation {
 	return _u.mutation
+}
+
+// ClearGameRound clears the "game_round" edge to the GameRound entity.
+func (_u *GameUpdateOne) ClearGameRound() *GameUpdateOne {
+	_u.mutation.ClearGameRound()
+	return _u
+}
+
+// ClearHomeTeam clears the "home_team" edge to the Team entity.
+func (_u *GameUpdateOne) ClearHomeTeam() *GameUpdateOne {
+	_u.mutation.ClearHomeTeam()
+	return _u
+}
+
+// ClearAwayTeam clears the "away_team" edge to the Team entity.
+func (_u *GameUpdateOne) ClearAwayTeam() *GameUpdateOne {
+	_u.mutation.ClearAwayTeam()
+	return _u
+}
+
+// ClearDivisionPool clears the "division_pool" edge to the DivisionPool entity.
+func (_u *GameUpdateOne) ClearDivisionPool() *GameUpdateOne {
+	_u.mutation.ClearDivisionPool()
+	return _u
+}
+
+// ClearFieldEdge clears the "field" edge to the Field entity.
+func (_u *GameUpdateOne) ClearFieldEdge() *GameUpdateOne {
+	_u.mutation.ClearFieldEdge()
+	return _u
+}
+
+// ClearScorekeeper clears the "scorekeeper" edge to the User entity.
+func (_u *GameUpdateOne) ClearScorekeeper() *GameUpdateOne {
+	_u.mutation.ClearScorekeeper()
+	return _u
+}
+
+// ClearScores clears all "scores" edges to the Scoring entity.
+func (_u *GameUpdateOne) ClearScores() *GameUpdateOne {
+	_u.mutation.ClearScores()
+	return _u
+}
+
+// RemoveScoreIDs removes the "scores" edge to Scoring entities by IDs.
+func (_u *GameUpdateOne) RemoveScoreIDs(ids ...uuid.UUID) *GameUpdateOne {
+	_u.mutation.RemoveScoreIDs(ids...)
+	return _u
+}
+
+// RemoveScores removes "scores" edges to Scoring entities.
+func (_u *GameUpdateOne) RemoveScores(v ...*Scoring) *GameUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveScoreIDs(ids...)
+}
+
+// ClearGameEvents clears all "game_events" edges to the GameEvent entity.
+func (_u *GameUpdateOne) ClearGameEvents() *GameUpdateOne {
+	_u.mutation.ClearGameEvents()
+	return _u
+}
+
+// RemoveGameEventIDs removes the "game_events" edge to GameEvent entities by IDs.
+func (_u *GameUpdateOne) RemoveGameEventIDs(ids ...uuid.UUID) *GameUpdateOne {
+	_u.mutation.RemoveGameEventIDs(ids...)
+	return _u
+}
+
+// RemoveGameEvents removes "game_events" edges to GameEvent entities.
+func (_u *GameUpdateOne) RemoveGameEvents(v ...*GameEvent) *GameUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveGameEventIDs(ids...)
+}
+
+// ClearSpiritScores clears all "spirit_scores" edges to the SpiritScore entity.
+func (_u *GameUpdateOne) ClearSpiritScores() *GameUpdateOne {
+	_u.mutation.ClearSpiritScores()
+	return _u
+}
+
+// RemoveSpiritScoreIDs removes the "spirit_scores" edge to SpiritScore entities by IDs.
+func (_u *GameUpdateOne) RemoveSpiritScoreIDs(ids ...uuid.UUID) *GameUpdateOne {
+	_u.mutation.RemoveSpiritScoreIDs(ids...)
+	return _u
+}
+
+// RemoveSpiritScores removes "spirit_scores" edges to SpiritScore entities.
+func (_u *GameUpdateOne) RemoveSpiritScores(v ...*SpiritScore) *GameUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpiritScoreIDs(ids...)
 }
 
 // Where appends a list predicates to the GameUpdate builder.
@@ -108,6 +1480,7 @@ func (_u *GameUpdateOne) Select(field string, fields ...string) *GameUpdateOne {
 
 // Save executes the query and returns the updated Game entity.
 func (_u *GameUpdateOne) Save(ctx context.Context) (*Game, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -133,8 +1506,46 @@ func (_u *GameUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *GameUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := game.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *GameUpdateOne) check() error {
+	if v, ok := _u.mutation.Name(); ok {
+		if err := game.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Game.name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := game.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Game.status": %w`, err)}
+		}
+	}
+	if _u.mutation.HomeTeamCleared() && len(_u.mutation.HomeTeamIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Game.home_team"`)
+	}
+	if _u.mutation.AwayTeamCleared() && len(_u.mutation.AwayTeamIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Game.away_team"`)
+	}
+	if _u.mutation.DivisionPoolCleared() && len(_u.mutation.DivisionPoolIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Game.division_pool"`)
+	}
+	if _u.mutation.FieldCleared() && len(_u.mutation.FieldIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Game.field"`)
+	}
+	return nil
+}
+
 func (_u *GameUpdateOne) sqlSave(ctx context.Context) (_node *Game, err error) {
-	_spec := sqlgraph.NewUpdateSpec(game.Table, game.Columns, sqlgraph.NewFieldSpec(game.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(game.Table, game.Columns, sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Game.id" for update`)}
@@ -158,6 +1569,387 @@ func (_u *GameUpdateOne) sqlSave(ctx context.Context) (_node *Game, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(game.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(game.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(game.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Name(); ok {
+		_spec.SetField(game.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.ScheduledTime(); ok {
+		_spec.SetField(game.FieldScheduledTime, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.ActualStartTime(); ok {
+		_spec.SetField(game.FieldActualStartTime, field.TypeTime, value)
+	}
+	if _u.mutation.ActualStartTimeCleared() {
+		_spec.ClearField(game.FieldActualStartTime, field.TypeTime)
+	}
+	if value, ok := _u.mutation.ActualEndTime(); ok {
+		_spec.SetField(game.FieldActualEndTime, field.TypeTime, value)
+	}
+	if _u.mutation.ActualEndTimeCleared() {
+		_spec.ClearField(game.FieldActualEndTime, field.TypeTime)
+	}
+	if value, ok := _u.mutation.AllocatedTimeMinutes(); ok {
+		_spec.SetField(game.FieldAllocatedTimeMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAllocatedTimeMinutes(); ok {
+		_spec.AddField(game.FieldAllocatedTimeMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.StoppageTimeSeconds(); ok {
+		_spec.SetField(game.FieldStoppageTimeSeconds, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedStoppageTimeSeconds(); ok {
+		_spec.AddField(game.FieldStoppageTimeSeconds, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(game.FieldStatus, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.HomeTeamScore(); ok {
+		_spec.SetField(game.FieldHomeTeamScore, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedHomeTeamScore(); ok {
+		_spec.AddField(game.FieldHomeTeamScore, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AwayTeamScore(); ok {
+		_spec.SetField(game.FieldAwayTeamScore, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAwayTeamScore(); ok {
+		_spec.AddField(game.FieldAwayTeamScore, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.FirstPullBy(); ok {
+		_spec.SetField(game.FieldFirstPullBy, field.TypeString, value)
+	}
+	if _u.mutation.FirstPullByCleared() {
+		_spec.ClearField(game.FieldFirstPullBy, field.TypeString)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(game.FieldVersion, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(game.FieldVersion, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(game.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(game.FieldMetadata, field.TypeJSON)
+	}
+	if _u.mutation.GameRoundCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.GameRoundTable,
+			Columns: []string{game.GameRoundColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GameRoundIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.GameRoundTable,
+			Columns: []string{game.GameRoundColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.HomeTeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.HomeTeamTable,
+			Columns: []string{game.HomeTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.HomeTeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.HomeTeamTable,
+			Columns: []string{game.HomeTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AwayTeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.AwayTeamTable,
+			Columns: []string{game.AwayTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AwayTeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.AwayTeamTable,
+			Columns: []string{game.AwayTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DivisionPoolCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.DivisionPoolTable,
+			Columns: []string{game.DivisionPoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DivisionPoolIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.DivisionPoolTable,
+			Columns: []string{game.DivisionPoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.FieldEdgeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.FieldTable,
+			Columns: []string{game.FieldColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(entfield.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.FieldIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.FieldTable,
+			Columns: []string{game.FieldColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(entfield.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ScorekeeperCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.ScorekeeperTable,
+			Columns: []string{game.ScorekeeperColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ScorekeeperIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.ScorekeeperTable,
+			Columns: []string{game.ScorekeeperColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ScoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.ScoresTable,
+			Columns: []string{game.ScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedScoresIDs(); len(nodes) > 0 && !_u.mutation.ScoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.ScoresTable,
+			Columns: []string{game.ScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ScoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.ScoresTable,
+			Columns: []string{game.ScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.GameEventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.GameEventsTable,
+			Columns: []string{game.GameEventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameevent.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedGameEventsIDs(); len(nodes) > 0 && !_u.mutation.GameEventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.GameEventsTable,
+			Columns: []string{game.GameEventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameevent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GameEventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.GameEventsTable,
+			Columns: []string{game.GameEventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameevent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpiritScoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.SpiritScoresTable,
+			Columns: []string{game.SpiritScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpiritScoresIDs(); len(nodes) > 0 && !_u.mutation.SpiritScoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.SpiritScoresTable,
+			Columns: []string{game.SpiritScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpiritScoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.SpiritScoresTable,
+			Columns: []string{game.SpiritScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Game{config: _u.config}
 	_spec.Assign = _node.assignValues

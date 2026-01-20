@@ -10,7 +10,14 @@ import (
 var (
 	// AnalyticSearchesColumns holds the columns for the "analytic_searches" table.
 	AnalyticSearchesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "query", Type: field.TypeString, Size: 2147483647},
+		{Name: "explanation", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "generated_sql", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 	}
 	// AnalyticSearchesTable holds the schema information for the "analytic_searches" table.
 	AnalyticSearchesTable = &schema.Table{
@@ -20,7 +27,15 @@ var (
 	}
 	// AnalyticsEmbeddingsColumns holds the columns for the "analytics_embeddings" table.
 	AnalyticsEmbeddingsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "entity_type", Type: field.TypeString},
+		{Name: "entity_id", Type: field.TypeUUID},
+		{Name: "embedding", Type: field.TypeJSON, Nullable: true},
+		{Name: "content", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 	}
 	// AnalyticsEmbeddingsTable holds the schema information for the "analytics_embeddings" table.
 	AnalyticsEmbeddingsTable = &schema.Table{
@@ -28,111 +43,680 @@ var (
 		Columns:    AnalyticsEmbeddingsColumns,
 		PrimaryKey: []*schema.Column{AnalyticsEmbeddingsColumns[0]},
 	}
+	// ContinentsColumns holds the columns for the "continents" table.
+	ContinentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 100},
+		{Name: "slug", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "world_continents", Type: field.TypeUUID},
+	}
+	// ContinentsTable holds the schema information for the "continents" table.
+	ContinentsTable = &schema.Table{
+		Name:       "continents",
+		Columns:    ContinentsColumns,
+		PrimaryKey: []*schema.Column{ContinentsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "continents_worlds_continents",
+				Columns:    []*schema.Column{ContinentsColumns[7]},
+				RefColumns: []*schema.Column{WorldsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// CountriesColumns holds the columns for the "countries" table.
+	CountriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 100},
+		{Name: "slug", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "code", Type: field.TypeString, Unique: true, Size: 3},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "continent_countries", Type: field.TypeUUID},
+	}
+	// CountriesTable holds the schema information for the "countries" table.
+	CountriesTable = &schema.Table{
+		Name:       "countries",
+		Columns:    CountriesColumns,
+		PrimaryKey: []*schema.Column{CountriesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "countries_continents_countries",
+				Columns:    []*schema.Column{CountriesColumns[8]},
+				RefColumns: []*schema.Column{ContinentsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// DisciplinesColumns holds the columns for the "disciplines" table.
+	DisciplinesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 100},
+		{Name: "slug", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "rules_pdf_url", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "country_disciplines", Type: field.TypeUUID},
+	}
+	// DisciplinesTable holds the schema information for the "disciplines" table.
+	DisciplinesTable = &schema.Table{
+		Name:       "disciplines",
+		Columns:    DisciplinesColumns,
+		PrimaryKey: []*schema.Column{DisciplinesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "disciplines_countries_disciplines",
+				Columns:    []*schema.Column{DisciplinesColumns[8]},
+				RefColumns: []*schema.Column{CountriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// DivisionPoolsColumns holds the columns for the "division_pools" table.
 	DivisionPoolsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 100},
+		{Name: "division_type", Type: field.TypeString, Size: 50},
+		{Name: "max_teams", Type: field.TypeInt, Nullable: true},
+		{Name: "ranking_criteria", Type: field.TypeJSON, Nullable: true},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "event_division_pools", Type: field.TypeUUID},
 	}
 	// DivisionPoolsTable holds the schema information for the "division_pools" table.
 	DivisionPoolsTable = &schema.Table{
 		Name:       "division_pools",
 		Columns:    DivisionPoolsColumns,
 		PrimaryKey: []*schema.Column{DivisionPoolsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "division_pools_events_division_pools",
+				Columns:    []*schema.Column{DivisionPoolsColumns[9]},
+				RefColumns: []*schema.Column{EventsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// EventsColumns holds the columns for the "events" table.
 	EventsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 200},
+		{Name: "slug", Type: field.TypeString, Unique: true, Size: 200},
+		{Name: "year", Type: field.TypeInt},
+		{Name: "start_date", Type: field.TypeTime},
+		{Name: "end_date", Type: field.TypeTime},
+		{Name: "status", Type: field.TypeString, Default: "draft"},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "settings", Type: field.TypeJSON, Nullable: true},
+		{Name: "discipline_events", Type: field.TypeUUID},
+		{Name: "location_events", Type: field.TypeUUID},
 	}
 	// EventsTable holds the schema information for the "events" table.
 	EventsTable = &schema.Table{
 		Name:       "events",
 		Columns:    EventsColumns,
 		PrimaryKey: []*schema.Column{EventsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "events_disciplines_events",
+				Columns:    []*schema.Column{EventsColumns[12]},
+				RefColumns: []*schema.Column{DisciplinesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "events_locations_events",
+				Columns:    []*schema.Column{EventsColumns[13]},
+				RefColumns: []*schema.Column{LocationsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// EventReconciliationsColumns holds the columns for the "event_reconciliations" table.
+	EventReconciliationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "is_active", Type: field.TypeBool, Default: true},
+	}
+	// EventReconciliationsTable holds the schema information for the "event_reconciliations" table.
+	EventReconciliationsTable = &schema.Table{
+		Name:       "event_reconciliations",
+		Columns:    EventReconciliationsColumns,
+		PrimaryKey: []*schema.Column{EventReconciliationsColumns[0]},
+	}
+	// FieldsColumns holds the columns for the "fields" table.
+	FieldsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 100},
+		{Name: "capacity", Type: field.TypeInt, Nullable: true},
+		{Name: "surface_type", Type: field.TypeString, Nullable: true, Size: 50},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "location_fields", Type: field.TypeUUID},
+	}
+	// FieldsTable holds the schema information for the "fields" table.
+	FieldsTable = &schema.Table{
+		Name:       "fields",
+		Columns:    FieldsColumns,
+		PrimaryKey: []*schema.Column{FieldsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "fields_locations_fields",
+				Columns:    []*schema.Column{FieldsColumns[8]},
+				RefColumns: []*schema.Column{LocationsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// GamesColumns holds the columns for the "games" table.
 	GamesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "scheduled_time", Type: field.TypeTime},
+		{Name: "actual_start_time", Type: field.TypeTime, Nullable: true},
+		{Name: "actual_end_time", Type: field.TypeTime, Nullable: true},
+		{Name: "allocated_time_minutes", Type: field.TypeInt},
+		{Name: "stoppage_time_seconds", Type: field.TypeInt, Default: 0},
+		{Name: "status", Type: field.TypeString, Default: "scheduled"},
+		{Name: "home_team_score", Type: field.TypeInt, Default: 0},
+		{Name: "away_team_score", Type: field.TypeInt, Default: 0},
+		{Name: "first_pull_by", Type: field.TypeString, Nullable: true},
+		{Name: "version", Type: field.TypeInt, Default: 1},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "division_pool_games", Type: field.TypeUUID},
+		{Name: "field_games", Type: field.TypeUUID},
+		{Name: "game_round_games", Type: field.TypeUUID, Nullable: true},
+		{Name: "team_home_games", Type: field.TypeUUID},
+		{Name: "team_away_games", Type: field.TypeUUID},
+		{Name: "user_officiated_games", Type: field.TypeUUID, Nullable: true},
 	}
 	// GamesTable holds the schema information for the "games" table.
 	GamesTable = &schema.Table{
 		Name:       "games",
 		Columns:    GamesColumns,
 		PrimaryKey: []*schema.Column{GamesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "games_division_pools_games",
+				Columns:    []*schema.Column{GamesColumns[16]},
+				RefColumns: []*schema.Column{DivisionPoolsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "games_fields_games",
+				Columns:    []*schema.Column{GamesColumns[17]},
+				RefColumns: []*schema.Column{FieldsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "games_game_rounds_games",
+				Columns:    []*schema.Column{GamesColumns[18]},
+				RefColumns: []*schema.Column{GameRoundsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "games_teams_home_games",
+				Columns:    []*schema.Column{GamesColumns[19]},
+				RefColumns: []*schema.Column{TeamsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "games_teams_away_games",
+				Columns:    []*schema.Column{GamesColumns[20]},
+				RefColumns: []*schema.Column{TeamsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "games_users_officiated_games",
+				Columns:    []*schema.Column{GamesColumns[21]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// GameEventsColumns holds the columns for the "game_events" table.
+	GameEventsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "event_type", Type: field.TypeString, Size: 50},
+		{Name: "minute", Type: field.TypeInt},
+		{Name: "second", Type: field.TypeInt},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "game_game_events", Type: field.TypeUUID},
+		{Name: "player_game_events", Type: field.TypeUUID, Nullable: true},
+	}
+	// GameEventsTable holds the schema information for the "game_events" table.
+	GameEventsTable = &schema.Table{
+		Name:       "game_events",
+		Columns:    GameEventsColumns,
+		PrimaryKey: []*schema.Column{GameEventsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "game_events_games_game_events",
+				Columns:    []*schema.Column{GameEventsColumns[7]},
+				RefColumns: []*schema.Column{GamesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "game_events_players_game_events",
+				Columns:    []*schema.Column{GameEventsColumns[8]},
+				RefColumns: []*schema.Column{PlayersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// GameRoundsColumns holds the columns for the "game_rounds" table.
 	GameRoundsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 100},
+		{Name: "round_type", Type: field.TypeString, Size: 50},
+		{Name: "round_number", Type: field.TypeInt, Nullable: true},
+		{Name: "start_date", Type: field.TypeTime, Nullable: true},
+		{Name: "end_date", Type: field.TypeTime, Nullable: true},
+		{Name: "event_game_rounds", Type: field.TypeUUID},
 	}
 	// GameRoundsTable holds the schema information for the "game_rounds" table.
 	GameRoundsTable = &schema.Table{
 		Name:       "game_rounds",
 		Columns:    GameRoundsColumns,
 		PrimaryKey: []*schema.Column{GameRoundsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "game_rounds_events_game_rounds",
+				Columns:    []*schema.Column{GameRoundsColumns[9]},
+				RefColumns: []*schema.Column{EventsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// LocationsColumns holds the columns for the "locations" table.
+	LocationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 200},
+		{Name: "slug", Type: field.TypeString, Unique: true, Size: 200},
+		{Name: "address", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "city", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "latitude", Type: field.TypeFloat64, Nullable: true},
+		{Name: "longitude", Type: field.TypeFloat64, Nullable: true},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "country_locations", Type: field.TypeUUID},
+	}
+	// LocationsTable holds the schema information for the "locations" table.
+	LocationsTable = &schema.Table{
+		Name:       "locations",
+		Columns:    LocationsColumns,
+		PrimaryKey: []*schema.Column{LocationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "locations_countries_locations",
+				Columns:    []*schema.Column{LocationsColumns[11]},
+				RefColumns: []*schema.Column{CountriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// MvpNominationsColumns holds the columns for the "mvp_nominations" table.
+	MvpNominationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "category", Type: field.TypeString, Size: 20},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "player_mvp_nominations", Type: field.TypeUUID},
+		{Name: "spirit_score_mvp_nominations", Type: field.TypeUUID},
+	}
+	// MvpNominationsTable holds the schema information for the "mvp_nominations" table.
+	MvpNominationsTable = &schema.Table{
+		Name:       "mvp_nominations",
+		Columns:    MvpNominationsColumns,
+		PrimaryKey: []*schema.Column{MvpNominationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "mvp_nominations_players_mvp_nominations",
+				Columns:    []*schema.Column{MvpNominationsColumns[3]},
+				RefColumns: []*schema.Column{PlayersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "mvp_nominations_spirit_scores_mvp_nominations",
+				Columns:    []*schema.Column{MvpNominationsColumns[4]},
+				RefColumns: []*schema.Column{SpiritScoresColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// PlayersColumns holds the columns for the "players" table.
 	PlayersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 200},
+		{Name: "email", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "gender", Type: field.TypeString, Size: 10},
+		{Name: "date_of_birth", Type: field.TypeTime, Nullable: true},
+		{Name: "jersey_number", Type: field.TypeString, Nullable: true, Size: 10},
+		{Name: "profile_image_url", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "team_players", Type: field.TypeUUID},
 	}
 	// PlayersTable holds the schema information for the "players" table.
 	PlayersTable = &schema.Table{
 		Name:       "players",
 		Columns:    PlayersColumns,
 		PrimaryKey: []*schema.Column{PlayersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "players_teams_players",
+				Columns:    []*schema.Column{PlayersColumns[11]},
+				RefColumns: []*schema.Column{TeamsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// ScoringsColumns holds the columns for the "scorings" table.
 	ScoringsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "goals", Type: field.TypeInt, Default: 0},
+		{Name: "assists", Type: field.TypeInt, Default: 0},
+		{Name: "blocks", Type: field.TypeInt, Default: 0},
+		{Name: "turns", Type: field.TypeInt, Default: 0},
+		{Name: "version", Type: field.TypeInt, Default: 1},
+		{Name: "game_scores", Type: field.TypeUUID},
+		{Name: "player_scores", Type: field.TypeUUID},
 	}
 	// ScoringsTable holds the schema information for the "scorings" table.
 	ScoringsTable = &schema.Table{
 		Name:       "scorings",
 		Columns:    ScoringsColumns,
 		PrimaryKey: []*schema.Column{ScoringsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "scorings_games_scores",
+				Columns:    []*schema.Column{ScoringsColumns[9]},
+				RefColumns: []*schema.Column{GamesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "scorings_players_scores",
+				Columns:    []*schema.Column{ScoringsColumns[10]},
+				RefColumns: []*schema.Column{PlayersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// SpiritNominationsColumns holds the columns for the "spirit_nominations" table.
+	SpiritNominationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "category", Type: field.TypeString, Size: 20},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "player_spirit_nominations", Type: field.TypeUUID},
+		{Name: "spirit_score_spirit_nominations", Type: field.TypeUUID},
+	}
+	// SpiritNominationsTable holds the schema information for the "spirit_nominations" table.
+	SpiritNominationsTable = &schema.Table{
+		Name:       "spirit_nominations",
+		Columns:    SpiritNominationsColumns,
+		PrimaryKey: []*schema.Column{SpiritNominationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "spirit_nominations_players_spirit_nominations",
+				Columns:    []*schema.Column{SpiritNominationsColumns[3]},
+				RefColumns: []*schema.Column{PlayersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "spirit_nominations_spirit_scores_spirit_nominations",
+				Columns:    []*schema.Column{SpiritNominationsColumns[4]},
+				RefColumns: []*schema.Column{SpiritScoresColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// SpiritScoresColumns holds the columns for the "spirit_scores" table.
 	SpiritScoresColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "rules_knowledge", Type: field.TypeInt},
+		{Name: "fouls_body_contact", Type: field.TypeInt},
+		{Name: "fair_mindedness", Type: field.TypeInt},
+		{Name: "attitude", Type: field.TypeInt},
+		{Name: "communication", Type: field.TypeInt},
+		{Name: "comments", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "game_spirit_scores", Type: field.TypeUUID},
+		{Name: "team_spirit_scores_given", Type: field.TypeUUID},
+		{Name: "team_spirit_scores_received", Type: field.TypeUUID},
+		{Name: "user_submitted_spirit_scores", Type: field.TypeUUID},
 	}
 	// SpiritScoresTable holds the schema information for the "spirit_scores" table.
 	SpiritScoresTable = &schema.Table{
 		Name:       "spirit_scores",
 		Columns:    SpiritScoresColumns,
 		PrimaryKey: []*schema.Column{SpiritScoresColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "spirit_scores_games_spirit_scores",
+				Columns:    []*schema.Column{SpiritScoresColumns[10]},
+				RefColumns: []*schema.Column{GamesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "spirit_scores_teams_spirit_scores_given",
+				Columns:    []*schema.Column{SpiritScoresColumns[11]},
+				RefColumns: []*schema.Column{TeamsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "spirit_scores_teams_spirit_scores_received",
+				Columns:    []*schema.Column{SpiritScoresColumns[12]},
+				RefColumns: []*schema.Column{TeamsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "spirit_scores_users_submitted_spirit_scores",
+				Columns:    []*schema.Column{SpiritScoresColumns[13]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// TeamsColumns holds the columns for the "teams" table.
 	TeamsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "initial_seed", Type: field.TypeInt, Nullable: true},
+		{Name: "final_placement", Type: field.TypeInt, Nullable: true},
+		{Name: "logo_url", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "division_pool_teams", Type: field.TypeUUID},
+		{Name: "location_teams", Type: field.TypeUUID, Nullable: true},
 	}
 	// TeamsTable holds the schema information for the "teams" table.
 	TeamsTable = &schema.Table{
 		Name:       "teams",
 		Columns:    TeamsColumns,
 		PrimaryKey: []*schema.Column{TeamsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "teams_division_pools_teams",
+				Columns:    []*schema.Column{TeamsColumns[9]},
+				RefColumns: []*schema.Column{DivisionPoolsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "teams_locations_teams",
+				Columns:    []*schema.Column{TeamsColumns[10]},
+				RefColumns: []*schema.Column{LocationsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "email", Type: field.TypeString, Unique: true},
+		{Name: "password_hash", Type: field.TypeString},
+		{Name: "full_name", Type: field.TypeString, Size: 200},
+		{Name: "role", Type: field.TypeString},
+		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "last_login_at", Type: field.TypeTime, Nullable: true},
+		{Name: "continent_managed_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "country_managed_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "discipline_managed_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "event_managed_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "team_managed_by", Type: field.TypeUUID, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "users_continents_managed_by",
+				Columns:    []*schema.Column{UsersColumns[10]},
+				RefColumns: []*schema.Column{ContinentsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "users_countries_managed_by",
+				Columns:    []*schema.Column{UsersColumns[11]},
+				RefColumns: []*schema.Column{CountriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "users_disciplines_managed_by",
+				Columns:    []*schema.Column{UsersColumns[12]},
+				RefColumns: []*schema.Column{DisciplinesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "users_events_managed_by",
+				Columns:    []*schema.Column{UsersColumns[13]},
+				RefColumns: []*schema.Column{EventsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "users_teams_managed_by",
+				Columns:    []*schema.Column{UsersColumns[14]},
+				RefColumns: []*schema.Column{TeamsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// WorldsColumns holds the columns for the "worlds" table.
+	WorldsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "slug", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+	}
+	// WorldsTable holds the schema information for the "worlds" table.
+	WorldsTable = &schema.Table{
+		Name:       "worlds",
+		Columns:    WorldsColumns,
+		PrimaryKey: []*schema.Column{WorldsColumns[0]},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AnalyticSearchesTable,
 		AnalyticsEmbeddingsTable,
+		ContinentsTable,
+		CountriesTable,
+		DisciplinesTable,
 		DivisionPoolsTable,
 		EventsTable,
+		EventReconciliationsTable,
+		FieldsTable,
 		GamesTable,
+		GameEventsTable,
 		GameRoundsTable,
+		LocationsTable,
+		MvpNominationsTable,
 		PlayersTable,
 		ScoringsTable,
+		SpiritNominationsTable,
 		SpiritScoresTable,
 		TeamsTable,
 		UsersTable,
+		WorldsTable,
 	}
 )
 
 func init() {
+	ContinentsTable.ForeignKeys[0].RefTable = WorldsTable
+	CountriesTable.ForeignKeys[0].RefTable = ContinentsTable
+	DisciplinesTable.ForeignKeys[0].RefTable = CountriesTable
+	DivisionPoolsTable.ForeignKeys[0].RefTable = EventsTable
+	EventsTable.ForeignKeys[0].RefTable = DisciplinesTable
+	EventsTable.ForeignKeys[1].RefTable = LocationsTable
+	FieldsTable.ForeignKeys[0].RefTable = LocationsTable
+	GamesTable.ForeignKeys[0].RefTable = DivisionPoolsTable
+	GamesTable.ForeignKeys[1].RefTable = FieldsTable
+	GamesTable.ForeignKeys[2].RefTable = GameRoundsTable
+	GamesTable.ForeignKeys[3].RefTable = TeamsTable
+	GamesTable.ForeignKeys[4].RefTable = TeamsTable
+	GamesTable.ForeignKeys[5].RefTable = UsersTable
+	GameEventsTable.ForeignKeys[0].RefTable = GamesTable
+	GameEventsTable.ForeignKeys[1].RefTable = PlayersTable
+	GameRoundsTable.ForeignKeys[0].RefTable = EventsTable
+	LocationsTable.ForeignKeys[0].RefTable = CountriesTable
+	MvpNominationsTable.ForeignKeys[0].RefTable = PlayersTable
+	MvpNominationsTable.ForeignKeys[1].RefTable = SpiritScoresTable
+	PlayersTable.ForeignKeys[0].RefTable = TeamsTable
+	ScoringsTable.ForeignKeys[0].RefTable = GamesTable
+	ScoringsTable.ForeignKeys[1].RefTable = PlayersTable
+	SpiritNominationsTable.ForeignKeys[0].RefTable = PlayersTable
+	SpiritNominationsTable.ForeignKeys[1].RefTable = SpiritScoresTable
+	SpiritScoresTable.ForeignKeys[0].RefTable = GamesTable
+	SpiritScoresTable.ForeignKeys[1].RefTable = TeamsTable
+	SpiritScoresTable.ForeignKeys[2].RefTable = TeamsTable
+	SpiritScoresTable.ForeignKeys[3].RefTable = UsersTable
+	TeamsTable.ForeignKeys[0].RefTable = DivisionPoolsTable
+	TeamsTable.ForeignKeys[1].RefTable = LocationsTable
+	UsersTable.ForeignKeys[0].RefTable = ContinentsTable
+	UsersTable.ForeignKeys[1].RefTable = CountriesTable
+	UsersTable.ForeignKeys[2].RefTable = DisciplinesTable
+	UsersTable.ForeignKeys[3].RefTable = EventsTable
+	UsersTable.ForeignKeys[4].RefTable = TeamsTable
 }

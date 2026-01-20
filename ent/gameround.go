@@ -5,18 +5,72 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/gameround"
+	"github.com/google/uuid"
 )
 
 // GameRound is the model entity for the GameRound schema.
 type GameRound struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
-	selectValues sql.SelectValues
+	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
+	// RoundType holds the value of the "round_type" field.
+	RoundType string `json:"round_type,omitempty"`
+	// RoundNumber holds the value of the "round_number" field.
+	RoundNumber int `json:"round_number,omitempty"`
+	// StartDate holds the value of the "start_date" field.
+	StartDate time.Time `json:"start_date,omitempty"`
+	// EndDate holds the value of the "end_date" field.
+	EndDate time.Time `json:"end_date,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the GameRoundQuery when eager-loading is set.
+	Edges             GameRoundEdges `json:"edges"`
+	event_game_rounds *uuid.UUID
+	selectValues      sql.SelectValues
+}
+
+// GameRoundEdges holds the relations/edges for other nodes in the graph.
+type GameRoundEdges struct {
+	// Event holds the value of the event edge.
+	Event *Event `json:"event,omitempty"`
+	// Games holds the value of the games edge.
+	Games []*Game `json:"games,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [2]bool
+}
+
+// EventOrErr returns the Event value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e GameRoundEdges) EventOrErr() (*Event, error) {
+	if e.Event != nil {
+		return e.Event, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: event.Label}
+	}
+	return nil, &NotLoadedError{edge: "event"}
+}
+
+// GamesOrErr returns the Games value or an error if the edge
+// was not loaded in eager-loading.
+func (e GameRoundEdges) GamesOrErr() ([]*Game, error) {
+	if e.loadedTypes[1] {
+		return e.Games, nil
+	}
+	return nil, &NotLoadedError{edge: "games"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -24,8 +78,16 @@ func (*GameRound) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case gameround.FieldID:
+		case gameround.FieldRoundNumber:
 			values[i] = new(sql.NullInt64)
+		case gameround.FieldName, gameround.FieldRoundType:
+			values[i] = new(sql.NullString)
+		case gameround.FieldCreatedAt, gameround.FieldUpdatedAt, gameround.FieldDeletedAt, gameround.FieldStartDate, gameround.FieldEndDate:
+			values[i] = new(sql.NullTime)
+		case gameround.FieldID:
+			values[i] = new(uuid.UUID)
+		case gameround.ForeignKeys[0]: // event_game_rounds
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -42,11 +104,67 @@ func (_m *GameRound) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case gameround.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
+		case gameround.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case gameround.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case gameround.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
+		case gameround.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				_m.Name = value.String
+			}
+		case gameround.FieldRoundType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field round_type", values[i])
+			} else if value.Valid {
+				_m.RoundType = value.String
+			}
+		case gameround.FieldRoundNumber:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field round_number", values[i])
+			} else if value.Valid {
+				_m.RoundNumber = int(value.Int64)
+			}
+		case gameround.FieldStartDate:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field start_date", values[i])
+			} else if value.Valid {
+				_m.StartDate = value.Time
+			}
+		case gameround.FieldEndDate:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field end_date", values[i])
+			} else if value.Valid {
+				_m.EndDate = value.Time
+			}
+		case gameround.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field event_game_rounds", values[i])
+			} else if value.Valid {
+				_m.event_game_rounds = new(uuid.UUID)
+				*_m.event_game_rounds = *value.S.(*uuid.UUID)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -58,6 +176,16 @@ func (_m *GameRound) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *GameRound) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryEvent queries the "event" edge of the GameRound entity.
+func (_m *GameRound) QueryEvent() *EventQuery {
+	return NewGameRoundClient(_m.config).QueryEvent(_m)
+}
+
+// QueryGames queries the "games" edge of the GameRound entity.
+func (_m *GameRound) QueryGames() *GameQuery {
+	return NewGameRoundClient(_m.config).QueryGames(_m)
 }
 
 // Update returns a builder for updating this GameRound.
@@ -82,7 +210,32 @@ func (_m *GameRound) Unwrap() *GameRound {
 func (_m *GameRound) String() string {
 	var builder strings.Builder
 	builder.WriteString("GameRound(")
-	builder.WriteString(fmt.Sprintf("id=%v", _m.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("name=")
+	builder.WriteString(_m.Name)
+	builder.WriteString(", ")
+	builder.WriteString("round_type=")
+	builder.WriteString(_m.RoundType)
+	builder.WriteString(", ")
+	builder.WriteString("round_number=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RoundNumber))
+	builder.WriteString(", ")
+	builder.WriteString("start_date=")
+	builder.WriteString(_m.StartDate.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("end_date=")
+	builder.WriteString(_m.EndDate.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

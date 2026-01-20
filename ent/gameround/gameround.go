@@ -3,7 +3,11 @@
 package gameround
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -11,13 +15,61 @@ const (
 	Label = "game_round"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
+	// FieldRoundType holds the string denoting the round_type field in the database.
+	FieldRoundType = "round_type"
+	// FieldRoundNumber holds the string denoting the round_number field in the database.
+	FieldRoundNumber = "round_number"
+	// FieldStartDate holds the string denoting the start_date field in the database.
+	FieldStartDate = "start_date"
+	// FieldEndDate holds the string denoting the end_date field in the database.
+	FieldEndDate = "end_date"
+	// EdgeEvent holds the string denoting the event edge name in mutations.
+	EdgeEvent = "event"
+	// EdgeGames holds the string denoting the games edge name in mutations.
+	EdgeGames = "games"
 	// Table holds the table name of the gameround in the database.
 	Table = "game_rounds"
+	// EventTable is the table that holds the event relation/edge.
+	EventTable = "game_rounds"
+	// EventInverseTable is the table name for the Event entity.
+	// It exists in this package in order to avoid circular dependency with the "event" package.
+	EventInverseTable = "events"
+	// EventColumn is the table column denoting the event relation/edge.
+	EventColumn = "event_game_rounds"
+	// GamesTable is the table that holds the games relation/edge.
+	GamesTable = "games"
+	// GamesInverseTable is the table name for the Game entity.
+	// It exists in this package in order to avoid circular dependency with the "game" package.
+	GamesInverseTable = "games"
+	// GamesColumn is the table column denoting the games relation/edge.
+	GamesColumn = "game_round_games"
 )
 
 // Columns holds all SQL columns for gameround fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
+	FieldName,
+	FieldRoundType,
+	FieldRoundNumber,
+	FieldStartDate,
+	FieldEndDate,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "game_rounds"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"event_game_rounds",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -27,8 +79,28 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
+			return true
+		}
+	}
 	return false
 }
+
+var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
+	// NameValidator is a validator for the "name" field. It is called by the builders before save.
+	NameValidator func(string) error
+	// RoundTypeValidator is a validator for the "round_type" field. It is called by the builders before save.
+	RoundTypeValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
+)
 
 // OrderOption defines the ordering options for the GameRound queries.
 type OrderOption func(*sql.Selector)
@@ -36,4 +108,79 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByRoundType orders the results by the round_type field.
+func ByRoundType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRoundType, opts...).ToFunc()
+}
+
+// ByRoundNumber orders the results by the round_number field.
+func ByRoundNumber(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRoundNumber, opts...).ToFunc()
+}
+
+// ByStartDate orders the results by the start_date field.
+func ByStartDate(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStartDate, opts...).ToFunc()
+}
+
+// ByEndDate orders the results by the end_date field.
+func ByEndDate(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEndDate, opts...).ToFunc()
+}
+
+// ByEventField orders the results by event field.
+func ByEventField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newEventStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByGamesCount orders the results by games count.
+func ByGamesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newGamesStep(), opts...)
+	}
+}
+
+// ByGames orders the results by games terms.
+func ByGames(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGamesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newEventStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(EventInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, EventTable, EventColumn),
+	)
+}
+func newGamesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GamesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, GamesTable, GamesColumn),
+	)
 }

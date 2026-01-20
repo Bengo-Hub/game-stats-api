@@ -16,24 +16,44 @@ type Tx struct {
 	AnalyticSearch *AnalyticSearchClient
 	// AnalyticsEmbedding is the client for interacting with the AnalyticsEmbedding builders.
 	AnalyticsEmbedding *AnalyticsEmbeddingClient
+	// Continent is the client for interacting with the Continent builders.
+	Continent *ContinentClient
+	// Country is the client for interacting with the Country builders.
+	Country *CountryClient
+	// Discipline is the client for interacting with the Discipline builders.
+	Discipline *DisciplineClient
 	// DivisionPool is the client for interacting with the DivisionPool builders.
 	DivisionPool *DivisionPoolClient
 	// Event is the client for interacting with the Event builders.
 	Event *EventClient
+	// EventReconciliation is the client for interacting with the EventReconciliation builders.
+	EventReconciliation *EventReconciliationClient
+	// Field is the client for interacting with the Field builders.
+	Field *FieldClient
 	// Game is the client for interacting with the Game builders.
 	Game *GameClient
+	// GameEvent is the client for interacting with the GameEvent builders.
+	GameEvent *GameEventClient
 	// GameRound is the client for interacting with the GameRound builders.
 	GameRound *GameRoundClient
+	// Location is the client for interacting with the Location builders.
+	Location *LocationClient
+	// MVP_Nomination is the client for interacting with the MVP_Nomination builders.
+	MVP_Nomination *MVPNominationClient
 	// Player is the client for interacting with the Player builders.
 	Player *PlayerClient
 	// Scoring is the client for interacting with the Scoring builders.
 	Scoring *ScoringClient
+	// SpiritNomination is the client for interacting with the SpiritNomination builders.
+	SpiritNomination *SpiritNominationClient
 	// SpiritScore is the client for interacting with the SpiritScore builders.
 	SpiritScore *SpiritScoreClient
 	// Team is the client for interacting with the Team builders.
 	Team *TeamClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// World is the client for interacting with the World builders.
+	World *WorldClient
 
 	// lazily loaded.
 	client     *Client
@@ -167,15 +187,25 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.AnalyticSearch = NewAnalyticSearchClient(tx.config)
 	tx.AnalyticsEmbedding = NewAnalyticsEmbeddingClient(tx.config)
+	tx.Continent = NewContinentClient(tx.config)
+	tx.Country = NewCountryClient(tx.config)
+	tx.Discipline = NewDisciplineClient(tx.config)
 	tx.DivisionPool = NewDivisionPoolClient(tx.config)
 	tx.Event = NewEventClient(tx.config)
+	tx.EventReconciliation = NewEventReconciliationClient(tx.config)
+	tx.Field = NewFieldClient(tx.config)
 	tx.Game = NewGameClient(tx.config)
+	tx.GameEvent = NewGameEventClient(tx.config)
 	tx.GameRound = NewGameRoundClient(tx.config)
+	tx.Location = NewLocationClient(tx.config)
+	tx.MVP_Nomination = NewMVPNominationClient(tx.config)
 	tx.Player = NewPlayerClient(tx.config)
 	tx.Scoring = NewScoringClient(tx.config)
+	tx.SpiritNomination = NewSpiritNominationClient(tx.config)
 	tx.SpiritScore = NewSpiritScoreClient(tx.config)
 	tx.Team = NewTeamClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.World = NewWorldClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

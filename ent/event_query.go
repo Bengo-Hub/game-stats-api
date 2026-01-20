@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -11,17 +12,29 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/discipline"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/gameround"
+	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // EventQuery is the builder for querying Event entities.
 type EventQuery struct {
 	config
-	ctx        *QueryContext
-	order      []event.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Event
+	ctx               *QueryContext
+	order             []event.OrderOption
+	inters            []Interceptor
+	predicates        []predicate.Event
+	withDiscipline    *DisciplineQuery
+	withLocation      *LocationQuery
+	withDivisionPools *DivisionPoolQuery
+	withGameRounds    *GameRoundQuery
+	withManagedBy     *UserQuery
+	withFKs           bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -58,6 +71,116 @@ func (_q *EventQuery) Order(o ...event.OrderOption) *EventQuery {
 	return _q
 }
 
+// QueryDiscipline chains the current query on the "discipline" edge.
+func (_q *EventQuery) QueryDiscipline() *DisciplineQuery {
+	query := (&DisciplineClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, selector),
+			sqlgraph.To(discipline.Table, discipline.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, event.DisciplineTable, event.DisciplineColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryLocation chains the current query on the "location" edge.
+func (_q *EventQuery) QueryLocation() *LocationQuery {
+	query := (&LocationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, selector),
+			sqlgraph.To(location.Table, location.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, event.LocationTable, event.LocationColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDivisionPools chains the current query on the "division_pools" edge.
+func (_q *EventQuery) QueryDivisionPools() *DivisionPoolQuery {
+	query := (&DivisionPoolClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, selector),
+			sqlgraph.To(divisionpool.Table, divisionpool.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, event.DivisionPoolsTable, event.DivisionPoolsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryGameRounds chains the current query on the "game_rounds" edge.
+func (_q *EventQuery) QueryGameRounds() *GameRoundQuery {
+	query := (&GameRoundClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, selector),
+			sqlgraph.To(gameround.Table, gameround.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, event.GameRoundsTable, event.GameRoundsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryManagedBy chains the current query on the "managed_by" edge.
+func (_q *EventQuery) QueryManagedBy() *UserQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, event.ManagedByTable, event.ManagedByColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Event entity from the query.
 // Returns a *NotFoundError when no Event was found.
 func (_q *EventQuery) First(ctx context.Context) (*Event, error) {
@@ -82,8 +205,8 @@ func (_q *EventQuery) FirstX(ctx context.Context) *Event {
 
 // FirstID returns the first Event ID from the query.
 // Returns a *NotFoundError when no Event ID was found.
-func (_q *EventQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *EventQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -95,7 +218,7 @@ func (_q *EventQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *EventQuery) FirstIDX(ctx context.Context) int {
+func (_q *EventQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -133,8 +256,8 @@ func (_q *EventQuery) OnlyX(ctx context.Context) *Event {
 // OnlyID is like Only, but returns the only Event ID in the query.
 // Returns a *NotSingularError when more than one Event ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *EventQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *EventQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -150,7 +273,7 @@ func (_q *EventQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *EventQuery) OnlyIDX(ctx context.Context) int {
+func (_q *EventQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -178,7 +301,7 @@ func (_q *EventQuery) AllX(ctx context.Context) []*Event {
 }
 
 // IDs executes the query and returns a list of Event IDs.
-func (_q *EventQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *EventQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -190,7 +313,7 @@ func (_q *EventQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *EventQuery) IDsX(ctx context.Context) []int {
+func (_q *EventQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -245,19 +368,91 @@ func (_q *EventQuery) Clone() *EventQuery {
 		return nil
 	}
 	return &EventQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]event.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.Event{}, _q.predicates...),
+		config:            _q.config,
+		ctx:               _q.ctx.Clone(),
+		order:             append([]event.OrderOption{}, _q.order...),
+		inters:            append([]Interceptor{}, _q.inters...),
+		predicates:        append([]predicate.Event{}, _q.predicates...),
+		withDiscipline:    _q.withDiscipline.Clone(),
+		withLocation:      _q.withLocation.Clone(),
+		withDivisionPools: _q.withDivisionPools.Clone(),
+		withGameRounds:    _q.withGameRounds.Clone(),
+		withManagedBy:     _q.withManagedBy.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
 }
 
+// WithDiscipline tells the query-builder to eager-load the nodes that are connected to
+// the "discipline" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *EventQuery) WithDiscipline(opts ...func(*DisciplineQuery)) *EventQuery {
+	query := (&DisciplineClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDiscipline = query
+	return _q
+}
+
+// WithLocation tells the query-builder to eager-load the nodes that are connected to
+// the "location" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *EventQuery) WithLocation(opts ...func(*LocationQuery)) *EventQuery {
+	query := (&LocationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withLocation = query
+	return _q
+}
+
+// WithDivisionPools tells the query-builder to eager-load the nodes that are connected to
+// the "division_pools" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *EventQuery) WithDivisionPools(opts ...func(*DivisionPoolQuery)) *EventQuery {
+	query := (&DivisionPoolClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDivisionPools = query
+	return _q
+}
+
+// WithGameRounds tells the query-builder to eager-load the nodes that are connected to
+// the "game_rounds" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *EventQuery) WithGameRounds(opts ...func(*GameRoundQuery)) *EventQuery {
+	query := (&GameRoundClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withGameRounds = query
+	return _q
+}
+
+// WithManagedBy tells the query-builder to eager-load the nodes that are connected to
+// the "managed_by" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *EventQuery) WithManagedBy(opts ...func(*UserQuery)) *EventQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withManagedBy = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Event.Query().
+//		GroupBy(event.FieldCreatedAt).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (_q *EventQuery) GroupBy(field string, fields ...string) *EventGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &EventGroupBy{build: _q}
@@ -269,6 +464,16 @@ func (_q *EventQuery) GroupBy(field string, fields ...string) *EventGroupBy {
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//	}
+//
+//	client.Event.Query().
+//		Select(event.FieldCreatedAt).
+//		Scan(ctx, &v)
 func (_q *EventQuery) Select(fields ...string) *EventSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
 	sbuild := &EventSelect{EventQuery: _q}
@@ -310,15 +515,30 @@ func (_q *EventQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *EventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Event, error) {
 	var (
-		nodes = []*Event{}
-		_spec = _q.querySpec()
+		nodes       = []*Event{}
+		withFKs     = _q.withFKs
+		_spec       = _q.querySpec()
+		loadedTypes = [5]bool{
+			_q.withDiscipline != nil,
+			_q.withLocation != nil,
+			_q.withDivisionPools != nil,
+			_q.withGameRounds != nil,
+			_q.withManagedBy != nil,
+		}
 	)
+	if _q.withDiscipline != nil || _q.withLocation != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, event.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Event).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Event{config: _q.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -330,7 +550,198 @@ func (_q *EventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Event,
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withDiscipline; query != nil {
+		if err := _q.loadDiscipline(ctx, query, nodes, nil,
+			func(n *Event, e *Discipline) { n.Edges.Discipline = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withLocation; query != nil {
+		if err := _q.loadLocation(ctx, query, nodes, nil,
+			func(n *Event, e *Location) { n.Edges.Location = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withDivisionPools; query != nil {
+		if err := _q.loadDivisionPools(ctx, query, nodes,
+			func(n *Event) { n.Edges.DivisionPools = []*DivisionPool{} },
+			func(n *Event, e *DivisionPool) { n.Edges.DivisionPools = append(n.Edges.DivisionPools, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withGameRounds; query != nil {
+		if err := _q.loadGameRounds(ctx, query, nodes,
+			func(n *Event) { n.Edges.GameRounds = []*GameRound{} },
+			func(n *Event, e *GameRound) { n.Edges.GameRounds = append(n.Edges.GameRounds, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withManagedBy; query != nil {
+		if err := _q.loadManagedBy(ctx, query, nodes,
+			func(n *Event) { n.Edges.ManagedBy = []*User{} },
+			func(n *Event, e *User) { n.Edges.ManagedBy = append(n.Edges.ManagedBy, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (_q *EventQuery) loadDiscipline(ctx context.Context, query *DisciplineQuery, nodes []*Event, init func(*Event), assign func(*Event, *Discipline)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Event)
+	for i := range nodes {
+		if nodes[i].discipline_events == nil {
+			continue
+		}
+		fk := *nodes[i].discipline_events
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(discipline.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "discipline_events" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *EventQuery) loadLocation(ctx context.Context, query *LocationQuery, nodes []*Event, init func(*Event), assign func(*Event, *Location)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Event)
+	for i := range nodes {
+		if nodes[i].location_events == nil {
+			continue
+		}
+		fk := *nodes[i].location_events
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(location.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "location_events" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *EventQuery) loadDivisionPools(ctx context.Context, query *DivisionPoolQuery, nodes []*Event, init func(*Event), assign func(*Event, *DivisionPool)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Event)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.DivisionPool(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(event.DivisionPoolsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.event_division_pools
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "event_division_pools" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "event_division_pools" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *EventQuery) loadGameRounds(ctx context.Context, query *GameRoundQuery, nodes []*Event, init func(*Event), assign func(*Event, *GameRound)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Event)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.GameRound(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(event.GameRoundsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.event_game_rounds
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "event_game_rounds" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "event_game_rounds" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *EventQuery) loadManagedBy(ctx context.Context, query *UserQuery, nodes []*Event, init func(*Event), assign func(*Event, *User)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Event)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.User(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(event.ManagedByColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.event_managed_by
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "event_managed_by" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "event_managed_by" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (_q *EventQuery) sqlCount(ctx context.Context) (int, error) {
@@ -343,7 +754,7 @@ func (_q *EventQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *EventQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(event.Table, event.Columns, sqlgraph.NewFieldSpec(event.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(event.Table, event.Columns, sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

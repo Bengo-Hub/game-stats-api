@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -12,7 +13,11 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/google/uuid"
 )
 
 // DivisionPoolQuery is the builder for querying DivisionPool entities.
@@ -22,6 +27,10 @@ type DivisionPoolQuery struct {
 	order      []divisionpool.OrderOption
 	inters     []Interceptor
 	predicates []predicate.DivisionPool
+	withEvent  *EventQuery
+	withTeams  *TeamQuery
+	withGames  *GameQuery
+	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -58,6 +67,72 @@ func (_q *DivisionPoolQuery) Order(o ...divisionpool.OrderOption) *DivisionPoolQ
 	return _q
 }
 
+// QueryEvent chains the current query on the "event" edge.
+func (_q *DivisionPoolQuery) QueryEvent() *EventQuery {
+	query := (&EventClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(divisionpool.Table, divisionpool.FieldID, selector),
+			sqlgraph.To(event.Table, event.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, divisionpool.EventTable, divisionpool.EventColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTeams chains the current query on the "teams" edge.
+func (_q *DivisionPoolQuery) QueryTeams() *TeamQuery {
+	query := (&TeamClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(divisionpool.Table, divisionpool.FieldID, selector),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, divisionpool.TeamsTable, divisionpool.TeamsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryGames chains the current query on the "games" edge.
+func (_q *DivisionPoolQuery) QueryGames() *GameQuery {
+	query := (&GameClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(divisionpool.Table, divisionpool.FieldID, selector),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, divisionpool.GamesTable, divisionpool.GamesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first DivisionPool entity from the query.
 // Returns a *NotFoundError when no DivisionPool was found.
 func (_q *DivisionPoolQuery) First(ctx context.Context) (*DivisionPool, error) {
@@ -82,8 +157,8 @@ func (_q *DivisionPoolQuery) FirstX(ctx context.Context) *DivisionPool {
 
 // FirstID returns the first DivisionPool ID from the query.
 // Returns a *NotFoundError when no DivisionPool ID was found.
-func (_q *DivisionPoolQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *DivisionPoolQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -95,7 +170,7 @@ func (_q *DivisionPoolQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *DivisionPoolQuery) FirstIDX(ctx context.Context) int {
+func (_q *DivisionPoolQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -133,8 +208,8 @@ func (_q *DivisionPoolQuery) OnlyX(ctx context.Context) *DivisionPool {
 // OnlyID is like Only, but returns the only DivisionPool ID in the query.
 // Returns a *NotSingularError when more than one DivisionPool ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *DivisionPoolQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *DivisionPoolQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -150,7 +225,7 @@ func (_q *DivisionPoolQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *DivisionPoolQuery) OnlyIDX(ctx context.Context) int {
+func (_q *DivisionPoolQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -178,7 +253,7 @@ func (_q *DivisionPoolQuery) AllX(ctx context.Context) []*DivisionPool {
 }
 
 // IDs executes the query and returns a list of DivisionPool IDs.
-func (_q *DivisionPoolQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *DivisionPoolQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -190,7 +265,7 @@ func (_q *DivisionPoolQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *DivisionPoolQuery) IDsX(ctx context.Context) []int {
+func (_q *DivisionPoolQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -250,14 +325,62 @@ func (_q *DivisionPoolQuery) Clone() *DivisionPoolQuery {
 		order:      append([]divisionpool.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
 		predicates: append([]predicate.DivisionPool{}, _q.predicates...),
+		withEvent:  _q.withEvent.Clone(),
+		withTeams:  _q.withTeams.Clone(),
+		withGames:  _q.withGames.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
 }
 
+// WithEvent tells the query-builder to eager-load the nodes that are connected to
+// the "event" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *DivisionPoolQuery) WithEvent(opts ...func(*EventQuery)) *DivisionPoolQuery {
+	query := (&EventClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withEvent = query
+	return _q
+}
+
+// WithTeams tells the query-builder to eager-load the nodes that are connected to
+// the "teams" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *DivisionPoolQuery) WithTeams(opts ...func(*TeamQuery)) *DivisionPoolQuery {
+	query := (&TeamClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTeams = query
+	return _q
+}
+
+// WithGames tells the query-builder to eager-load the nodes that are connected to
+// the "games" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *DivisionPoolQuery) WithGames(opts ...func(*GameQuery)) *DivisionPoolQuery {
+	query := (&GameClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withGames = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.DivisionPool.Query().
+//		GroupBy(divisionpool.FieldCreatedAt).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (_q *DivisionPoolQuery) GroupBy(field string, fields ...string) *DivisionPoolGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &DivisionPoolGroupBy{build: _q}
@@ -269,6 +392,16 @@ func (_q *DivisionPoolQuery) GroupBy(field string, fields ...string) *DivisionPo
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//	}
+//
+//	client.DivisionPool.Query().
+//		Select(divisionpool.FieldCreatedAt).
+//		Scan(ctx, &v)
 func (_q *DivisionPoolQuery) Select(fields ...string) *DivisionPoolSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
 	sbuild := &DivisionPoolSelect{DivisionPoolQuery: _q}
@@ -310,15 +443,28 @@ func (_q *DivisionPoolQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *DivisionPoolQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*DivisionPool, error) {
 	var (
-		nodes = []*DivisionPool{}
-		_spec = _q.querySpec()
+		nodes       = []*DivisionPool{}
+		withFKs     = _q.withFKs
+		_spec       = _q.querySpec()
+		loadedTypes = [3]bool{
+			_q.withEvent != nil,
+			_q.withTeams != nil,
+			_q.withGames != nil,
+		}
 	)
+	if _q.withEvent != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, divisionpool.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*DivisionPool).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &DivisionPool{config: _q.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -330,7 +476,122 @@ func (_q *DivisionPoolQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withEvent; query != nil {
+		if err := _q.loadEvent(ctx, query, nodes, nil,
+			func(n *DivisionPool, e *Event) { n.Edges.Event = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withTeams; query != nil {
+		if err := _q.loadTeams(ctx, query, nodes,
+			func(n *DivisionPool) { n.Edges.Teams = []*Team{} },
+			func(n *DivisionPool, e *Team) { n.Edges.Teams = append(n.Edges.Teams, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withGames; query != nil {
+		if err := _q.loadGames(ctx, query, nodes,
+			func(n *DivisionPool) { n.Edges.Games = []*Game{} },
+			func(n *DivisionPool, e *Game) { n.Edges.Games = append(n.Edges.Games, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (_q *DivisionPoolQuery) loadEvent(ctx context.Context, query *EventQuery, nodes []*DivisionPool, init func(*DivisionPool), assign func(*DivisionPool, *Event)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*DivisionPool)
+	for i := range nodes {
+		if nodes[i].event_division_pools == nil {
+			continue
+		}
+		fk := *nodes[i].event_division_pools
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(event.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "event_division_pools" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *DivisionPoolQuery) loadTeams(ctx context.Context, query *TeamQuery, nodes []*DivisionPool, init func(*DivisionPool), assign func(*DivisionPool, *Team)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*DivisionPool)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(divisionpool.TeamsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.division_pool_teams
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "division_pool_teams" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "division_pool_teams" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *DivisionPoolQuery) loadGames(ctx context.Context, query *GameQuery, nodes []*DivisionPool, init func(*DivisionPool), assign func(*DivisionPool, *Game)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*DivisionPool)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(divisionpool.GamesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.division_pool_games
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "division_pool_games" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "division_pool_games" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (_q *DivisionPoolQuery) sqlCount(ctx context.Context) (int, error) {
@@ -343,7 +604,7 @@ func (_q *DivisionPoolQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *DivisionPoolQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(divisionpool.Table, divisionpool.Columns, sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(divisionpool.Table, divisionpool.Columns, sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

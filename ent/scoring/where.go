@@ -3,53 +3,473 @@
 package scoring
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Scoring {
+func ID(id uuid.UUID) predicate.Scoring {
 	return predicate.Scoring(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Scoring {
+func IDEQ(id uuid.UUID) predicate.Scoring {
 	return predicate.Scoring(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Scoring {
+func IDNEQ(id uuid.UUID) predicate.Scoring {
 	return predicate.Scoring(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Scoring {
+func IDIn(ids ...uuid.UUID) predicate.Scoring {
 	return predicate.Scoring(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Scoring {
+func IDNotIn(ids ...uuid.UUID) predicate.Scoring {
 	return predicate.Scoring(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Scoring {
+func IDGT(id uuid.UUID) predicate.Scoring {
 	return predicate.Scoring(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Scoring {
+func IDGTE(id uuid.UUID) predicate.Scoring {
 	return predicate.Scoring(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Scoring {
+func IDLT(id uuid.UUID) predicate.Scoring {
 	return predicate.Scoring(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Scoring {
+func IDLTE(id uuid.UUID) predicate.Scoring {
 	return predicate.Scoring(sql.FieldLTE(FieldID, id))
+}
+
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
+func DeletedAt(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// Goals applies equality check predicate on the "goals" field. It's identical to GoalsEQ.
+func Goals(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldGoals, v))
+}
+
+// Assists applies equality check predicate on the "assists" field. It's identical to AssistsEQ.
+func Assists(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldAssists, v))
+}
+
+// Blocks applies equality check predicate on the "blocks" field. It's identical to BlocksEQ.
+func Blocks(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldBlocks, v))
+}
+
+// Turns applies equality check predicate on the "turns" field. It's identical to TurnsEQ.
+func Turns(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldTurns, v))
+}
+
+// Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
+func Version(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldVersion, v))
+}
+
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNotIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGT(FieldCreatedAt, v))
+}
+
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGTE(FieldCreatedAt, v))
+}
+
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLT(FieldCreatedAt, v))
+}
+
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
+func DeletedAtEQ(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
+func DeletedAtNEQ(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtIn applies the In predicate on the "deleted_at" field.
+func DeletedAtIn(vs ...time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
+func DeletedAtNotIn(vs ...time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNotIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtGT applies the GT predicate on the "deleted_at" field.
+func DeletedAtGT(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGT(FieldDeletedAt, v))
+}
+
+// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
+func DeletedAtGTE(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGTE(FieldDeletedAt, v))
+}
+
+// DeletedAtLT applies the LT predicate on the "deleted_at" field.
+func DeletedAtLT(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLT(FieldDeletedAt, v))
+}
+
+// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
+func DeletedAtLTE(v time.Time) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// DeletedAtIsNil applies the IsNil predicate on the "deleted_at" field.
+func DeletedAtIsNil() predicate.Scoring {
+	return predicate.Scoring(sql.FieldIsNull(FieldDeletedAt))
+}
+
+// DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
+func DeletedAtNotNil() predicate.Scoring {
+	return predicate.Scoring(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// GoalsEQ applies the EQ predicate on the "goals" field.
+func GoalsEQ(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldGoals, v))
+}
+
+// GoalsNEQ applies the NEQ predicate on the "goals" field.
+func GoalsNEQ(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNEQ(FieldGoals, v))
+}
+
+// GoalsIn applies the In predicate on the "goals" field.
+func GoalsIn(vs ...int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldIn(FieldGoals, vs...))
+}
+
+// GoalsNotIn applies the NotIn predicate on the "goals" field.
+func GoalsNotIn(vs ...int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNotIn(FieldGoals, vs...))
+}
+
+// GoalsGT applies the GT predicate on the "goals" field.
+func GoalsGT(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGT(FieldGoals, v))
+}
+
+// GoalsGTE applies the GTE predicate on the "goals" field.
+func GoalsGTE(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGTE(FieldGoals, v))
+}
+
+// GoalsLT applies the LT predicate on the "goals" field.
+func GoalsLT(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLT(FieldGoals, v))
+}
+
+// GoalsLTE applies the LTE predicate on the "goals" field.
+func GoalsLTE(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLTE(FieldGoals, v))
+}
+
+// AssistsEQ applies the EQ predicate on the "assists" field.
+func AssistsEQ(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldAssists, v))
+}
+
+// AssistsNEQ applies the NEQ predicate on the "assists" field.
+func AssistsNEQ(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNEQ(FieldAssists, v))
+}
+
+// AssistsIn applies the In predicate on the "assists" field.
+func AssistsIn(vs ...int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldIn(FieldAssists, vs...))
+}
+
+// AssistsNotIn applies the NotIn predicate on the "assists" field.
+func AssistsNotIn(vs ...int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNotIn(FieldAssists, vs...))
+}
+
+// AssistsGT applies the GT predicate on the "assists" field.
+func AssistsGT(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGT(FieldAssists, v))
+}
+
+// AssistsGTE applies the GTE predicate on the "assists" field.
+func AssistsGTE(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGTE(FieldAssists, v))
+}
+
+// AssistsLT applies the LT predicate on the "assists" field.
+func AssistsLT(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLT(FieldAssists, v))
+}
+
+// AssistsLTE applies the LTE predicate on the "assists" field.
+func AssistsLTE(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLTE(FieldAssists, v))
+}
+
+// BlocksEQ applies the EQ predicate on the "blocks" field.
+func BlocksEQ(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldBlocks, v))
+}
+
+// BlocksNEQ applies the NEQ predicate on the "blocks" field.
+func BlocksNEQ(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNEQ(FieldBlocks, v))
+}
+
+// BlocksIn applies the In predicate on the "blocks" field.
+func BlocksIn(vs ...int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldIn(FieldBlocks, vs...))
+}
+
+// BlocksNotIn applies the NotIn predicate on the "blocks" field.
+func BlocksNotIn(vs ...int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNotIn(FieldBlocks, vs...))
+}
+
+// BlocksGT applies the GT predicate on the "blocks" field.
+func BlocksGT(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGT(FieldBlocks, v))
+}
+
+// BlocksGTE applies the GTE predicate on the "blocks" field.
+func BlocksGTE(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGTE(FieldBlocks, v))
+}
+
+// BlocksLT applies the LT predicate on the "blocks" field.
+func BlocksLT(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLT(FieldBlocks, v))
+}
+
+// BlocksLTE applies the LTE predicate on the "blocks" field.
+func BlocksLTE(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLTE(FieldBlocks, v))
+}
+
+// TurnsEQ applies the EQ predicate on the "turns" field.
+func TurnsEQ(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldTurns, v))
+}
+
+// TurnsNEQ applies the NEQ predicate on the "turns" field.
+func TurnsNEQ(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNEQ(FieldTurns, v))
+}
+
+// TurnsIn applies the In predicate on the "turns" field.
+func TurnsIn(vs ...int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldIn(FieldTurns, vs...))
+}
+
+// TurnsNotIn applies the NotIn predicate on the "turns" field.
+func TurnsNotIn(vs ...int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNotIn(FieldTurns, vs...))
+}
+
+// TurnsGT applies the GT predicate on the "turns" field.
+func TurnsGT(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGT(FieldTurns, v))
+}
+
+// TurnsGTE applies the GTE predicate on the "turns" field.
+func TurnsGTE(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGTE(FieldTurns, v))
+}
+
+// TurnsLT applies the LT predicate on the "turns" field.
+func TurnsLT(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLT(FieldTurns, v))
+}
+
+// TurnsLTE applies the LTE predicate on the "turns" field.
+func TurnsLTE(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLTE(FieldTurns, v))
+}
+
+// VersionEQ applies the EQ predicate on the "version" field.
+func VersionEQ(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldVersion, v))
+}
+
+// VersionNEQ applies the NEQ predicate on the "version" field.
+func VersionNEQ(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNEQ(FieldVersion, v))
+}
+
+// VersionIn applies the In predicate on the "version" field.
+func VersionIn(vs ...int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldIn(FieldVersion, vs...))
+}
+
+// VersionNotIn applies the NotIn predicate on the "version" field.
+func VersionNotIn(vs ...int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNotIn(FieldVersion, vs...))
+}
+
+// VersionGT applies the GT predicate on the "version" field.
+func VersionGT(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGT(FieldVersion, v))
+}
+
+// VersionGTE applies the GTE predicate on the "version" field.
+func VersionGTE(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldGTE(FieldVersion, v))
+}
+
+// VersionLT applies the LT predicate on the "version" field.
+func VersionLT(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLT(FieldVersion, v))
+}
+
+// VersionLTE applies the LTE predicate on the "version" field.
+func VersionLTE(v int) predicate.Scoring {
+	return predicate.Scoring(sql.FieldLTE(FieldVersion, v))
+}
+
+// HasGame applies the HasEdge predicate on the "game" edge.
+func HasGame() predicate.Scoring {
+	return predicate.Scoring(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, GameTable, GameColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGameWith applies the HasEdge predicate on the "game" edge with a given conditions (other predicates).
+func HasGameWith(preds ...predicate.Game) predicate.Scoring {
+	return predicate.Scoring(func(s *sql.Selector) {
+		step := newGameStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasPlayer applies the HasEdge predicate on the "player" edge.
+func HasPlayer() predicate.Scoring {
+	return predicate.Scoring(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, PlayerTable, PlayerColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPlayerWith applies the HasEdge predicate on the "player" edge with a given conditions (other predicates).
+func HasPlayerWith(preds ...predicate.Player) predicate.Scoring {
+	return predicate.Scoring(func(s *sql.Selector) {
+		step := newPlayerStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

@@ -3,53 +3,441 @@
 package analyticsearch
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.AnalyticSearch {
+func ID(id uuid.UUID) predicate.AnalyticSearch {
 	return predicate.AnalyticSearch(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.AnalyticSearch {
+func IDEQ(id uuid.UUID) predicate.AnalyticSearch {
 	return predicate.AnalyticSearch(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.AnalyticSearch {
+func IDNEQ(id uuid.UUID) predicate.AnalyticSearch {
 	return predicate.AnalyticSearch(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.AnalyticSearch {
+func IDIn(ids ...uuid.UUID) predicate.AnalyticSearch {
 	return predicate.AnalyticSearch(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.AnalyticSearch {
+func IDNotIn(ids ...uuid.UUID) predicate.AnalyticSearch {
 	return predicate.AnalyticSearch(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.AnalyticSearch {
+func IDGT(id uuid.UUID) predicate.AnalyticSearch {
 	return predicate.AnalyticSearch(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.AnalyticSearch {
+func IDGTE(id uuid.UUID) predicate.AnalyticSearch {
 	return predicate.AnalyticSearch(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.AnalyticSearch {
+func IDLT(id uuid.UUID) predicate.AnalyticSearch {
 	return predicate.AnalyticSearch(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.AnalyticSearch {
+func IDLTE(id uuid.UUID) predicate.AnalyticSearch {
 	return predicate.AnalyticSearch(sql.FieldLTE(FieldID, id))
+}
+
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
+func DeletedAt(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// Query applies equality check predicate on the "query" field. It's identical to QueryEQ.
+func Query(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEQ(FieldQuery, v))
+}
+
+// Explanation applies equality check predicate on the "explanation" field. It's identical to ExplanationEQ.
+func Explanation(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEQ(FieldExplanation, v))
+}
+
+// GeneratedSQL applies equality check predicate on the "generated_sql" field. It's identical to GeneratedSQLEQ.
+func GeneratedSQL(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEQ(FieldGeneratedSQL, v))
+}
+
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNotIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldGT(FieldCreatedAt, v))
+}
+
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldGTE(FieldCreatedAt, v))
+}
+
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldLT(FieldCreatedAt, v))
+}
+
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
+func DeletedAtEQ(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
+func DeletedAtNEQ(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtIn applies the In predicate on the "deleted_at" field.
+func DeletedAtIn(vs ...time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
+func DeletedAtNotIn(vs ...time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNotIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtGT applies the GT predicate on the "deleted_at" field.
+func DeletedAtGT(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldGT(FieldDeletedAt, v))
+}
+
+// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
+func DeletedAtGTE(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldGTE(FieldDeletedAt, v))
+}
+
+// DeletedAtLT applies the LT predicate on the "deleted_at" field.
+func DeletedAtLT(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldLT(FieldDeletedAt, v))
+}
+
+// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
+func DeletedAtLTE(v time.Time) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// DeletedAtIsNil applies the IsNil predicate on the "deleted_at" field.
+func DeletedAtIsNil() predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldIsNull(FieldDeletedAt))
+}
+
+// DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
+func DeletedAtNotNil() predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// QueryEQ applies the EQ predicate on the "query" field.
+func QueryEQ(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEQ(FieldQuery, v))
+}
+
+// QueryNEQ applies the NEQ predicate on the "query" field.
+func QueryNEQ(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNEQ(FieldQuery, v))
+}
+
+// QueryIn applies the In predicate on the "query" field.
+func QueryIn(vs ...string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldIn(FieldQuery, vs...))
+}
+
+// QueryNotIn applies the NotIn predicate on the "query" field.
+func QueryNotIn(vs ...string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNotIn(FieldQuery, vs...))
+}
+
+// QueryGT applies the GT predicate on the "query" field.
+func QueryGT(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldGT(FieldQuery, v))
+}
+
+// QueryGTE applies the GTE predicate on the "query" field.
+func QueryGTE(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldGTE(FieldQuery, v))
+}
+
+// QueryLT applies the LT predicate on the "query" field.
+func QueryLT(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldLT(FieldQuery, v))
+}
+
+// QueryLTE applies the LTE predicate on the "query" field.
+func QueryLTE(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldLTE(FieldQuery, v))
+}
+
+// QueryContains applies the Contains predicate on the "query" field.
+func QueryContains(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldContains(FieldQuery, v))
+}
+
+// QueryHasPrefix applies the HasPrefix predicate on the "query" field.
+func QueryHasPrefix(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldHasPrefix(FieldQuery, v))
+}
+
+// QueryHasSuffix applies the HasSuffix predicate on the "query" field.
+func QueryHasSuffix(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldHasSuffix(FieldQuery, v))
+}
+
+// QueryEqualFold applies the EqualFold predicate on the "query" field.
+func QueryEqualFold(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEqualFold(FieldQuery, v))
+}
+
+// QueryContainsFold applies the ContainsFold predicate on the "query" field.
+func QueryContainsFold(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldContainsFold(FieldQuery, v))
+}
+
+// ExplanationEQ applies the EQ predicate on the "explanation" field.
+func ExplanationEQ(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEQ(FieldExplanation, v))
+}
+
+// ExplanationNEQ applies the NEQ predicate on the "explanation" field.
+func ExplanationNEQ(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNEQ(FieldExplanation, v))
+}
+
+// ExplanationIn applies the In predicate on the "explanation" field.
+func ExplanationIn(vs ...string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldIn(FieldExplanation, vs...))
+}
+
+// ExplanationNotIn applies the NotIn predicate on the "explanation" field.
+func ExplanationNotIn(vs ...string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNotIn(FieldExplanation, vs...))
+}
+
+// ExplanationGT applies the GT predicate on the "explanation" field.
+func ExplanationGT(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldGT(FieldExplanation, v))
+}
+
+// ExplanationGTE applies the GTE predicate on the "explanation" field.
+func ExplanationGTE(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldGTE(FieldExplanation, v))
+}
+
+// ExplanationLT applies the LT predicate on the "explanation" field.
+func ExplanationLT(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldLT(FieldExplanation, v))
+}
+
+// ExplanationLTE applies the LTE predicate on the "explanation" field.
+func ExplanationLTE(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldLTE(FieldExplanation, v))
+}
+
+// ExplanationContains applies the Contains predicate on the "explanation" field.
+func ExplanationContains(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldContains(FieldExplanation, v))
+}
+
+// ExplanationHasPrefix applies the HasPrefix predicate on the "explanation" field.
+func ExplanationHasPrefix(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldHasPrefix(FieldExplanation, v))
+}
+
+// ExplanationHasSuffix applies the HasSuffix predicate on the "explanation" field.
+func ExplanationHasSuffix(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldHasSuffix(FieldExplanation, v))
+}
+
+// ExplanationIsNil applies the IsNil predicate on the "explanation" field.
+func ExplanationIsNil() predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldIsNull(FieldExplanation))
+}
+
+// ExplanationNotNil applies the NotNil predicate on the "explanation" field.
+func ExplanationNotNil() predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNotNull(FieldExplanation))
+}
+
+// ExplanationEqualFold applies the EqualFold predicate on the "explanation" field.
+func ExplanationEqualFold(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEqualFold(FieldExplanation, v))
+}
+
+// ExplanationContainsFold applies the ContainsFold predicate on the "explanation" field.
+func ExplanationContainsFold(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldContainsFold(FieldExplanation, v))
+}
+
+// GeneratedSQLEQ applies the EQ predicate on the "generated_sql" field.
+func GeneratedSQLEQ(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEQ(FieldGeneratedSQL, v))
+}
+
+// GeneratedSQLNEQ applies the NEQ predicate on the "generated_sql" field.
+func GeneratedSQLNEQ(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNEQ(FieldGeneratedSQL, v))
+}
+
+// GeneratedSQLIn applies the In predicate on the "generated_sql" field.
+func GeneratedSQLIn(vs ...string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldIn(FieldGeneratedSQL, vs...))
+}
+
+// GeneratedSQLNotIn applies the NotIn predicate on the "generated_sql" field.
+func GeneratedSQLNotIn(vs ...string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNotIn(FieldGeneratedSQL, vs...))
+}
+
+// GeneratedSQLGT applies the GT predicate on the "generated_sql" field.
+func GeneratedSQLGT(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldGT(FieldGeneratedSQL, v))
+}
+
+// GeneratedSQLGTE applies the GTE predicate on the "generated_sql" field.
+func GeneratedSQLGTE(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldGTE(FieldGeneratedSQL, v))
+}
+
+// GeneratedSQLLT applies the LT predicate on the "generated_sql" field.
+func GeneratedSQLLT(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldLT(FieldGeneratedSQL, v))
+}
+
+// GeneratedSQLLTE applies the LTE predicate on the "generated_sql" field.
+func GeneratedSQLLTE(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldLTE(FieldGeneratedSQL, v))
+}
+
+// GeneratedSQLContains applies the Contains predicate on the "generated_sql" field.
+func GeneratedSQLContains(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldContains(FieldGeneratedSQL, v))
+}
+
+// GeneratedSQLHasPrefix applies the HasPrefix predicate on the "generated_sql" field.
+func GeneratedSQLHasPrefix(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldHasPrefix(FieldGeneratedSQL, v))
+}
+
+// GeneratedSQLHasSuffix applies the HasSuffix predicate on the "generated_sql" field.
+func GeneratedSQLHasSuffix(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldHasSuffix(FieldGeneratedSQL, v))
+}
+
+// GeneratedSQLIsNil applies the IsNil predicate on the "generated_sql" field.
+func GeneratedSQLIsNil() predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldIsNull(FieldGeneratedSQL))
+}
+
+// GeneratedSQLNotNil applies the NotNil predicate on the "generated_sql" field.
+func GeneratedSQLNotNil() predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNotNull(FieldGeneratedSQL))
+}
+
+// GeneratedSQLEqualFold applies the EqualFold predicate on the "generated_sql" field.
+func GeneratedSQLEqualFold(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldEqualFold(FieldGeneratedSQL, v))
+}
+
+// GeneratedSQLContainsFold applies the ContainsFold predicate on the "generated_sql" field.
+func GeneratedSQLContainsFold(v string) predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldContainsFold(FieldGeneratedSQL, v))
+}
+
+// MetadataIsNil applies the IsNil predicate on the "metadata" field.
+func MetadataIsNil() predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldIsNull(FieldMetadata))
+}
+
+// MetadataNotNil applies the NotNil predicate on the "metadata" field.
+func MetadataNotNil() predicate.AnalyticSearch {
+	return predicate.AnalyticSearch(sql.FieldNotNull(FieldMetadata))
 }
 
 // And groups predicates with the AND operator between them.

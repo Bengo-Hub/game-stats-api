@@ -4,11 +4,17 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/google/uuid"
 )
 
 // DivisionPoolCreate is the builder for creating a DivisionPool entity.
@@ -18,6 +24,149 @@ type DivisionPoolCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *DivisionPoolCreate) SetCreatedAt(v time.Time) *DivisionPoolCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *DivisionPoolCreate) SetNillableCreatedAt(v *time.Time) *DivisionPoolCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *DivisionPoolCreate) SetUpdatedAt(v time.Time) *DivisionPoolCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *DivisionPoolCreate) SetNillableUpdatedAt(v *time.Time) *DivisionPoolCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *DivisionPoolCreate) SetDeletedAt(v time.Time) *DivisionPoolCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *DivisionPoolCreate) SetNillableDeletedAt(v *time.Time) *DivisionPoolCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
+// SetName sets the "name" field.
+func (_c *DivisionPoolCreate) SetName(v string) *DivisionPoolCreate {
+	_c.mutation.SetName(v)
+	return _c
+}
+
+// SetDivisionType sets the "division_type" field.
+func (_c *DivisionPoolCreate) SetDivisionType(v string) *DivisionPoolCreate {
+	_c.mutation.SetDivisionType(v)
+	return _c
+}
+
+// SetMaxTeams sets the "max_teams" field.
+func (_c *DivisionPoolCreate) SetMaxTeams(v int) *DivisionPoolCreate {
+	_c.mutation.SetMaxTeams(v)
+	return _c
+}
+
+// SetNillableMaxTeams sets the "max_teams" field if the given value is not nil.
+func (_c *DivisionPoolCreate) SetNillableMaxTeams(v *int) *DivisionPoolCreate {
+	if v != nil {
+		_c.SetMaxTeams(*v)
+	}
+	return _c
+}
+
+// SetRankingCriteria sets the "ranking_criteria" field.
+func (_c *DivisionPoolCreate) SetRankingCriteria(v map[string]interface{}) *DivisionPoolCreate {
+	_c.mutation.SetRankingCriteria(v)
+	return _c
+}
+
+// SetDescription sets the "description" field.
+func (_c *DivisionPoolCreate) SetDescription(v string) *DivisionPoolCreate {
+	_c.mutation.SetDescription(v)
+	return _c
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_c *DivisionPoolCreate) SetNillableDescription(v *string) *DivisionPoolCreate {
+	if v != nil {
+		_c.SetDescription(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *DivisionPoolCreate) SetID(v uuid.UUID) *DivisionPoolCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *DivisionPoolCreate) SetNillableID(v *uuid.UUID) *DivisionPoolCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// SetEventID sets the "event" edge to the Event entity by ID.
+func (_c *DivisionPoolCreate) SetEventID(id uuid.UUID) *DivisionPoolCreate {
+	_c.mutation.SetEventID(id)
+	return _c
+}
+
+// SetEvent sets the "event" edge to the Event entity.
+func (_c *DivisionPoolCreate) SetEvent(v *Event) *DivisionPoolCreate {
+	return _c.SetEventID(v.ID)
+}
+
+// AddTeamIDs adds the "teams" edge to the Team entity by IDs.
+func (_c *DivisionPoolCreate) AddTeamIDs(ids ...uuid.UUID) *DivisionPoolCreate {
+	_c.mutation.AddTeamIDs(ids...)
+	return _c
+}
+
+// AddTeams adds the "teams" edges to the Team entity.
+func (_c *DivisionPoolCreate) AddTeams(v ...*Team) *DivisionPoolCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddTeamIDs(ids...)
+}
+
+// AddGameIDs adds the "games" edge to the Game entity by IDs.
+func (_c *DivisionPoolCreate) AddGameIDs(ids ...uuid.UUID) *DivisionPoolCreate {
+	_c.mutation.AddGameIDs(ids...)
+	return _c
+}
+
+// AddGames adds the "games" edges to the Game entity.
+func (_c *DivisionPoolCreate) AddGames(v ...*Game) *DivisionPoolCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddGameIDs(ids...)
+}
+
 // Mutation returns the DivisionPoolMutation object of the builder.
 func (_c *DivisionPoolCreate) Mutation() *DivisionPoolMutation {
 	return _c.mutation
@@ -25,6 +174,7 @@ func (_c *DivisionPoolCreate) Mutation() *DivisionPoolMutation {
 
 // Save creates the DivisionPool in the database.
 func (_c *DivisionPoolCreate) Save(ctx context.Context) (*DivisionPool, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -50,8 +200,49 @@ func (_c *DivisionPoolCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *DivisionPoolCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := divisionpool.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := divisionpool.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := divisionpool.DefaultID()
+		_c.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *DivisionPoolCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "DivisionPool.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "DivisionPool.updated_at"`)}
+	}
+	if _, ok := _c.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "DivisionPool.name"`)}
+	}
+	if v, ok := _c.mutation.Name(); ok {
+		if err := divisionpool.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "DivisionPool.name": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.DivisionType(); !ok {
+		return &ValidationError{Name: "division_type", err: errors.New(`ent: missing required field "DivisionPool.division_type"`)}
+	}
+	if v, ok := _c.mutation.DivisionType(); ok {
+		if err := divisionpool.DivisionTypeValidator(v); err != nil {
+			return &ValidationError{Name: "division_type", err: fmt.Errorf(`ent: validator failed for field "DivisionPool.division_type": %w`, err)}
+		}
+	}
+	if len(_c.mutation.EventIDs()) == 0 {
+		return &ValidationError{Name: "event", err: errors.New(`ent: missing required edge "DivisionPool.event"`)}
+	}
 	return nil
 }
 
@@ -66,8 +257,13 @@ func (_c *DivisionPoolCreate) sqlSave(ctx context.Context) (*DivisionPool, error
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -76,8 +272,93 @@ func (_c *DivisionPoolCreate) sqlSave(ctx context.Context) (*DivisionPool, error
 func (_c *DivisionPoolCreate) createSpec() (*DivisionPool, *sqlgraph.CreateSpec) {
 	var (
 		_node = &DivisionPool{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(divisionpool.Table, sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(divisionpool.Table, sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(divisionpool.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(divisionpool.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(divisionpool.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
+	if value, ok := _c.mutation.Name(); ok {
+		_spec.SetField(divisionpool.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
+	if value, ok := _c.mutation.DivisionType(); ok {
+		_spec.SetField(divisionpool.FieldDivisionType, field.TypeString, value)
+		_node.DivisionType = value
+	}
+	if value, ok := _c.mutation.MaxTeams(); ok {
+		_spec.SetField(divisionpool.FieldMaxTeams, field.TypeInt, value)
+		_node.MaxTeams = value
+	}
+	if value, ok := _c.mutation.RankingCriteria(); ok {
+		_spec.SetField(divisionpool.FieldRankingCriteria, field.TypeJSON, value)
+		_node.RankingCriteria = value
+	}
+	if value, ok := _c.mutation.Description(); ok {
+		_spec.SetField(divisionpool.FieldDescription, field.TypeString, value)
+		_node.Description = value
+	}
+	if nodes := _c.mutation.EventIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   divisionpool.EventTable,
+			Columns: []string{divisionpool.EventColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.event_division_pools = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.TeamsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   divisionpool.TeamsTable,
+			Columns: []string{divisionpool.TeamsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.GamesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   divisionpool.GamesTable,
+			Columns: []string{divisionpool.GamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -99,6 +380,7 @@ func (_c *DivisionPoolCreateBulk) Save(ctx context.Context) ([]*DivisionPool, er
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*DivisionPoolMutation)
 				if !ok {
@@ -125,10 +407,6 @@ func (_c *DivisionPoolCreateBulk) Save(ctx context.Context) ([]*DivisionPool, er
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

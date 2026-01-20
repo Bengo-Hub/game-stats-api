@@ -3,7 +3,11 @@
 package team
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -11,13 +15,116 @@ const (
 	Label = "team"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
+	// FieldInitialSeed holds the string denoting the initial_seed field in the database.
+	FieldInitialSeed = "initial_seed"
+	// FieldFinalPlacement holds the string denoting the final_placement field in the database.
+	FieldFinalPlacement = "final_placement"
+	// FieldLogoURL holds the string denoting the logo_url field in the database.
+	FieldLogoURL = "logo_url"
+	// FieldMetadata holds the string denoting the metadata field in the database.
+	FieldMetadata = "metadata"
+	// EdgeDivisionPool holds the string denoting the division_pool edge name in mutations.
+	EdgeDivisionPool = "division_pool"
+	// EdgeHomeLocation holds the string denoting the home_location edge name in mutations.
+	EdgeHomeLocation = "home_location"
+	// EdgePlayers holds the string denoting the players edge name in mutations.
+	EdgePlayers = "players"
+	// EdgeManagedBy holds the string denoting the managed_by edge name in mutations.
+	EdgeManagedBy = "managed_by"
+	// EdgeHomeGames holds the string denoting the home_games edge name in mutations.
+	EdgeHomeGames = "home_games"
+	// EdgeAwayGames holds the string denoting the away_games edge name in mutations.
+	EdgeAwayGames = "away_games"
+	// EdgeSpiritScoresGiven holds the string denoting the spirit_scores_given edge name in mutations.
+	EdgeSpiritScoresGiven = "spirit_scores_given"
+	// EdgeSpiritScoresReceived holds the string denoting the spirit_scores_received edge name in mutations.
+	EdgeSpiritScoresReceived = "spirit_scores_received"
 	// Table holds the table name of the team in the database.
 	Table = "teams"
+	// DivisionPoolTable is the table that holds the division_pool relation/edge.
+	DivisionPoolTable = "teams"
+	// DivisionPoolInverseTable is the table name for the DivisionPool entity.
+	// It exists in this package in order to avoid circular dependency with the "divisionpool" package.
+	DivisionPoolInverseTable = "division_pools"
+	// DivisionPoolColumn is the table column denoting the division_pool relation/edge.
+	DivisionPoolColumn = "division_pool_teams"
+	// HomeLocationTable is the table that holds the home_location relation/edge.
+	HomeLocationTable = "teams"
+	// HomeLocationInverseTable is the table name for the Location entity.
+	// It exists in this package in order to avoid circular dependency with the "location" package.
+	HomeLocationInverseTable = "locations"
+	// HomeLocationColumn is the table column denoting the home_location relation/edge.
+	HomeLocationColumn = "location_teams"
+	// PlayersTable is the table that holds the players relation/edge.
+	PlayersTable = "players"
+	// PlayersInverseTable is the table name for the Player entity.
+	// It exists in this package in order to avoid circular dependency with the "player" package.
+	PlayersInverseTable = "players"
+	// PlayersColumn is the table column denoting the players relation/edge.
+	PlayersColumn = "team_players"
+	// ManagedByTable is the table that holds the managed_by relation/edge.
+	ManagedByTable = "users"
+	// ManagedByInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	ManagedByInverseTable = "users"
+	// ManagedByColumn is the table column denoting the managed_by relation/edge.
+	ManagedByColumn = "team_managed_by"
+	// HomeGamesTable is the table that holds the home_games relation/edge.
+	HomeGamesTable = "games"
+	// HomeGamesInverseTable is the table name for the Game entity.
+	// It exists in this package in order to avoid circular dependency with the "game" package.
+	HomeGamesInverseTable = "games"
+	// HomeGamesColumn is the table column denoting the home_games relation/edge.
+	HomeGamesColumn = "team_home_games"
+	// AwayGamesTable is the table that holds the away_games relation/edge.
+	AwayGamesTable = "games"
+	// AwayGamesInverseTable is the table name for the Game entity.
+	// It exists in this package in order to avoid circular dependency with the "game" package.
+	AwayGamesInverseTable = "games"
+	// AwayGamesColumn is the table column denoting the away_games relation/edge.
+	AwayGamesColumn = "team_away_games"
+	// SpiritScoresGivenTable is the table that holds the spirit_scores_given relation/edge.
+	SpiritScoresGivenTable = "spirit_scores"
+	// SpiritScoresGivenInverseTable is the table name for the SpiritScore entity.
+	// It exists in this package in order to avoid circular dependency with the "spiritscore" package.
+	SpiritScoresGivenInverseTable = "spirit_scores"
+	// SpiritScoresGivenColumn is the table column denoting the spirit_scores_given relation/edge.
+	SpiritScoresGivenColumn = "team_spirit_scores_given"
+	// SpiritScoresReceivedTable is the table that holds the spirit_scores_received relation/edge.
+	SpiritScoresReceivedTable = "spirit_scores"
+	// SpiritScoresReceivedInverseTable is the table name for the SpiritScore entity.
+	// It exists in this package in order to avoid circular dependency with the "spiritscore" package.
+	SpiritScoresReceivedInverseTable = "spirit_scores"
+	// SpiritScoresReceivedColumn is the table column denoting the spirit_scores_received relation/edge.
+	SpiritScoresReceivedColumn = "team_spirit_scores_received"
 )
 
 // Columns holds all SQL columns for team fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
+	FieldName,
+	FieldInitialSeed,
+	FieldFinalPlacement,
+	FieldLogoURL,
+	FieldMetadata,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "teams"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"division_pool_teams",
+	"location_teams",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -27,8 +134,26 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
+			return true
+		}
+	}
 	return false
 }
+
+var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
+	// NameValidator is a validator for the "name" field. It is called by the builders before save.
+	NameValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
+)
 
 // OrderOption defines the ordering options for the Team queries.
 type OrderOption func(*sql.Selector)
@@ -36,4 +161,193 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByInitialSeed orders the results by the initial_seed field.
+func ByInitialSeed(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldInitialSeed, opts...).ToFunc()
+}
+
+// ByFinalPlacement orders the results by the final_placement field.
+func ByFinalPlacement(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFinalPlacement, opts...).ToFunc()
+}
+
+// ByLogoURL orders the results by the logo_url field.
+func ByLogoURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLogoURL, opts...).ToFunc()
+}
+
+// ByDivisionPoolField orders the results by division_pool field.
+func ByDivisionPoolField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDivisionPoolStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByHomeLocationField orders the results by home_location field.
+func ByHomeLocationField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newHomeLocationStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByPlayersCount orders the results by players count.
+func ByPlayersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPlayersStep(), opts...)
+	}
+}
+
+// ByPlayers orders the results by players terms.
+func ByPlayers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPlayersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByManagedByCount orders the results by managed_by count.
+func ByManagedByCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newManagedByStep(), opts...)
+	}
+}
+
+// ByManagedBy orders the results by managed_by terms.
+func ByManagedBy(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newManagedByStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByHomeGamesCount orders the results by home_games count.
+func ByHomeGamesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newHomeGamesStep(), opts...)
+	}
+}
+
+// ByHomeGames orders the results by home_games terms.
+func ByHomeGames(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newHomeGamesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByAwayGamesCount orders the results by away_games count.
+func ByAwayGamesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAwayGamesStep(), opts...)
+	}
+}
+
+// ByAwayGames orders the results by away_games terms.
+func ByAwayGames(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAwayGamesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// BySpiritScoresGivenCount orders the results by spirit_scores_given count.
+func BySpiritScoresGivenCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSpiritScoresGivenStep(), opts...)
+	}
+}
+
+// BySpiritScoresGiven orders the results by spirit_scores_given terms.
+func BySpiritScoresGiven(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSpiritScoresGivenStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// BySpiritScoresReceivedCount orders the results by spirit_scores_received count.
+func BySpiritScoresReceivedCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSpiritScoresReceivedStep(), opts...)
+	}
+}
+
+// BySpiritScoresReceived orders the results by spirit_scores_received terms.
+func BySpiritScoresReceived(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSpiritScoresReceivedStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newDivisionPoolStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DivisionPoolInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, DivisionPoolTable, DivisionPoolColumn),
+	)
+}
+func newHomeLocationStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(HomeLocationInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, HomeLocationTable, HomeLocationColumn),
+	)
+}
+func newPlayersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PlayersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, PlayersTable, PlayersColumn),
+	)
+}
+func newManagedByStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ManagedByInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ManagedByTable, ManagedByColumn),
+	)
+}
+func newHomeGamesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(HomeGamesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, HomeGamesTable, HomeGamesColumn),
+	)
+}
+func newAwayGamesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AwayGamesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AwayGamesTable, AwayGamesColumn),
+	)
+}
+func newSpiritScoresGivenStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SpiritScoresGivenInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SpiritScoresGivenTable, SpiritScoresGivenColumn),
+	)
+}
+func newSpiritScoresReceivedStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SpiritScoresReceivedInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SpiritScoresReceivedTable, SpiritScoresReceivedColumn),
+	)
 }

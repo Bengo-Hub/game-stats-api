@@ -3,19 +3,38 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/game-stats-api/ent/analyticsembedding"
+	"github.com/google/uuid"
 )
 
 // AnalyticsEmbedding is the model entity for the AnalyticsEmbedding schema.
 type AnalyticsEmbedding struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	// EntityType holds the value of the "entity_type" field.
+	EntityType string `json:"entity_type,omitempty"`
+	// EntityID holds the value of the "entity_id" field.
+	EntityID uuid.UUID `json:"entity_id,omitempty"`
+	// Embedding holds the value of the "embedding" field.
+	Embedding []float32 `json:"embedding,omitempty"`
+	// Content holds the value of the "content" field.
+	Content string `json:"content,omitempty"`
+	// Metadata holds the value of the "metadata" field.
+	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -24,8 +43,14 @@ func (*AnalyticsEmbedding) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case analyticsembedding.FieldID:
-			values[i] = new(sql.NullInt64)
+		case analyticsembedding.FieldEmbedding, analyticsembedding.FieldMetadata:
+			values[i] = new([]byte)
+		case analyticsembedding.FieldEntityType, analyticsembedding.FieldContent:
+			values[i] = new(sql.NullString)
+		case analyticsembedding.FieldCreatedAt, analyticsembedding.FieldUpdatedAt, analyticsembedding.FieldDeletedAt:
+			values[i] = new(sql.NullTime)
+		case analyticsembedding.FieldID, analyticsembedding.FieldEntityID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -42,11 +67,64 @@ func (_m *AnalyticsEmbedding) assignValues(columns []string, values []any) error
 	for i := range columns {
 		switch columns[i] {
 		case analyticsembedding.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
+		case analyticsembedding.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case analyticsembedding.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case analyticsembedding.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
+		case analyticsembedding.FieldEntityType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field entity_type", values[i])
+			} else if value.Valid {
+				_m.EntityType = value.String
+			}
+		case analyticsembedding.FieldEntityID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field entity_id", values[i])
+			} else if value != nil {
+				_m.EntityID = *value
+			}
+		case analyticsembedding.FieldEmbedding:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field embedding", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Embedding); err != nil {
+					return fmt.Errorf("unmarshal field embedding: %w", err)
+				}
+			}
+		case analyticsembedding.FieldContent:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field content", values[i])
+			} else if value.Valid {
+				_m.Content = value.String
+			}
+		case analyticsembedding.FieldMetadata:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field metadata", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -82,7 +160,32 @@ func (_m *AnalyticsEmbedding) Unwrap() *AnalyticsEmbedding {
 func (_m *AnalyticsEmbedding) String() string {
 	var builder strings.Builder
 	builder.WriteString("AnalyticsEmbedding(")
-	builder.WriteString(fmt.Sprintf("id=%v", _m.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("entity_type=")
+	builder.WriteString(_m.EntityType)
+	builder.WriteString(", ")
+	builder.WriteString("entity_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.EntityID))
+	builder.WriteString(", ")
+	builder.WriteString("embedding=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Embedding))
+	builder.WriteString(", ")
+	builder.WriteString("content=")
+	builder.WriteString(_m.Content)
+	builder.WriteString(", ")
+	builder.WriteString("metadata=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteByte(')')
 	return builder.String()
 }

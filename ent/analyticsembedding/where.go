@@ -3,53 +3,416 @@
 package analyticsembedding
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.AnalyticsEmbedding {
+func ID(id uuid.UUID) predicate.AnalyticsEmbedding {
 	return predicate.AnalyticsEmbedding(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.AnalyticsEmbedding {
+func IDEQ(id uuid.UUID) predicate.AnalyticsEmbedding {
 	return predicate.AnalyticsEmbedding(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.AnalyticsEmbedding {
+func IDNEQ(id uuid.UUID) predicate.AnalyticsEmbedding {
 	return predicate.AnalyticsEmbedding(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.AnalyticsEmbedding {
+func IDIn(ids ...uuid.UUID) predicate.AnalyticsEmbedding {
 	return predicate.AnalyticsEmbedding(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.AnalyticsEmbedding {
+func IDNotIn(ids ...uuid.UUID) predicate.AnalyticsEmbedding {
 	return predicate.AnalyticsEmbedding(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.AnalyticsEmbedding {
+func IDGT(id uuid.UUID) predicate.AnalyticsEmbedding {
 	return predicate.AnalyticsEmbedding(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.AnalyticsEmbedding {
+func IDGTE(id uuid.UUID) predicate.AnalyticsEmbedding {
 	return predicate.AnalyticsEmbedding(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.AnalyticsEmbedding {
+func IDLT(id uuid.UUID) predicate.AnalyticsEmbedding {
 	return predicate.AnalyticsEmbedding(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.AnalyticsEmbedding {
+func IDLTE(id uuid.UUID) predicate.AnalyticsEmbedding {
 	return predicate.AnalyticsEmbedding(sql.FieldLTE(FieldID, id))
+}
+
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
+func DeletedAt(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// EntityType applies equality check predicate on the "entity_type" field. It's identical to EntityTypeEQ.
+func EntityType(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldEQ(FieldEntityType, v))
+}
+
+// EntityID applies equality check predicate on the "entity_id" field. It's identical to EntityIDEQ.
+func EntityID(v uuid.UUID) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldEQ(FieldEntityID, v))
+}
+
+// Content applies equality check predicate on the "content" field. It's identical to ContentEQ.
+func Content(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldEQ(FieldContent, v))
+}
+
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNotIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldGT(FieldCreatedAt, v))
+}
+
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldGTE(FieldCreatedAt, v))
+}
+
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldLT(FieldCreatedAt, v))
+}
+
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
+func DeletedAtEQ(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
+func DeletedAtNEQ(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtIn applies the In predicate on the "deleted_at" field.
+func DeletedAtIn(vs ...time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
+func DeletedAtNotIn(vs ...time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNotIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtGT applies the GT predicate on the "deleted_at" field.
+func DeletedAtGT(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldGT(FieldDeletedAt, v))
+}
+
+// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
+func DeletedAtGTE(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldGTE(FieldDeletedAt, v))
+}
+
+// DeletedAtLT applies the LT predicate on the "deleted_at" field.
+func DeletedAtLT(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldLT(FieldDeletedAt, v))
+}
+
+// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
+func DeletedAtLTE(v time.Time) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// DeletedAtIsNil applies the IsNil predicate on the "deleted_at" field.
+func DeletedAtIsNil() predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldIsNull(FieldDeletedAt))
+}
+
+// DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
+func DeletedAtNotNil() predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// EntityTypeEQ applies the EQ predicate on the "entity_type" field.
+func EntityTypeEQ(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldEQ(FieldEntityType, v))
+}
+
+// EntityTypeNEQ applies the NEQ predicate on the "entity_type" field.
+func EntityTypeNEQ(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNEQ(FieldEntityType, v))
+}
+
+// EntityTypeIn applies the In predicate on the "entity_type" field.
+func EntityTypeIn(vs ...string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldIn(FieldEntityType, vs...))
+}
+
+// EntityTypeNotIn applies the NotIn predicate on the "entity_type" field.
+func EntityTypeNotIn(vs ...string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNotIn(FieldEntityType, vs...))
+}
+
+// EntityTypeGT applies the GT predicate on the "entity_type" field.
+func EntityTypeGT(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldGT(FieldEntityType, v))
+}
+
+// EntityTypeGTE applies the GTE predicate on the "entity_type" field.
+func EntityTypeGTE(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldGTE(FieldEntityType, v))
+}
+
+// EntityTypeLT applies the LT predicate on the "entity_type" field.
+func EntityTypeLT(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldLT(FieldEntityType, v))
+}
+
+// EntityTypeLTE applies the LTE predicate on the "entity_type" field.
+func EntityTypeLTE(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldLTE(FieldEntityType, v))
+}
+
+// EntityTypeContains applies the Contains predicate on the "entity_type" field.
+func EntityTypeContains(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldContains(FieldEntityType, v))
+}
+
+// EntityTypeHasPrefix applies the HasPrefix predicate on the "entity_type" field.
+func EntityTypeHasPrefix(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldHasPrefix(FieldEntityType, v))
+}
+
+// EntityTypeHasSuffix applies the HasSuffix predicate on the "entity_type" field.
+func EntityTypeHasSuffix(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldHasSuffix(FieldEntityType, v))
+}
+
+// EntityTypeEqualFold applies the EqualFold predicate on the "entity_type" field.
+func EntityTypeEqualFold(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldEqualFold(FieldEntityType, v))
+}
+
+// EntityTypeContainsFold applies the ContainsFold predicate on the "entity_type" field.
+func EntityTypeContainsFold(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldContainsFold(FieldEntityType, v))
+}
+
+// EntityIDEQ applies the EQ predicate on the "entity_id" field.
+func EntityIDEQ(v uuid.UUID) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldEQ(FieldEntityID, v))
+}
+
+// EntityIDNEQ applies the NEQ predicate on the "entity_id" field.
+func EntityIDNEQ(v uuid.UUID) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNEQ(FieldEntityID, v))
+}
+
+// EntityIDIn applies the In predicate on the "entity_id" field.
+func EntityIDIn(vs ...uuid.UUID) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldIn(FieldEntityID, vs...))
+}
+
+// EntityIDNotIn applies the NotIn predicate on the "entity_id" field.
+func EntityIDNotIn(vs ...uuid.UUID) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNotIn(FieldEntityID, vs...))
+}
+
+// EntityIDGT applies the GT predicate on the "entity_id" field.
+func EntityIDGT(v uuid.UUID) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldGT(FieldEntityID, v))
+}
+
+// EntityIDGTE applies the GTE predicate on the "entity_id" field.
+func EntityIDGTE(v uuid.UUID) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldGTE(FieldEntityID, v))
+}
+
+// EntityIDLT applies the LT predicate on the "entity_id" field.
+func EntityIDLT(v uuid.UUID) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldLT(FieldEntityID, v))
+}
+
+// EntityIDLTE applies the LTE predicate on the "entity_id" field.
+func EntityIDLTE(v uuid.UUID) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldLTE(FieldEntityID, v))
+}
+
+// EmbeddingIsNil applies the IsNil predicate on the "embedding" field.
+func EmbeddingIsNil() predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldIsNull(FieldEmbedding))
+}
+
+// EmbeddingNotNil applies the NotNil predicate on the "embedding" field.
+func EmbeddingNotNil() predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNotNull(FieldEmbedding))
+}
+
+// ContentEQ applies the EQ predicate on the "content" field.
+func ContentEQ(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldEQ(FieldContent, v))
+}
+
+// ContentNEQ applies the NEQ predicate on the "content" field.
+func ContentNEQ(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNEQ(FieldContent, v))
+}
+
+// ContentIn applies the In predicate on the "content" field.
+func ContentIn(vs ...string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldIn(FieldContent, vs...))
+}
+
+// ContentNotIn applies the NotIn predicate on the "content" field.
+func ContentNotIn(vs ...string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNotIn(FieldContent, vs...))
+}
+
+// ContentGT applies the GT predicate on the "content" field.
+func ContentGT(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldGT(FieldContent, v))
+}
+
+// ContentGTE applies the GTE predicate on the "content" field.
+func ContentGTE(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldGTE(FieldContent, v))
+}
+
+// ContentLT applies the LT predicate on the "content" field.
+func ContentLT(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldLT(FieldContent, v))
+}
+
+// ContentLTE applies the LTE predicate on the "content" field.
+func ContentLTE(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldLTE(FieldContent, v))
+}
+
+// ContentContains applies the Contains predicate on the "content" field.
+func ContentContains(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldContains(FieldContent, v))
+}
+
+// ContentHasPrefix applies the HasPrefix predicate on the "content" field.
+func ContentHasPrefix(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldHasPrefix(FieldContent, v))
+}
+
+// ContentHasSuffix applies the HasSuffix predicate on the "content" field.
+func ContentHasSuffix(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldHasSuffix(FieldContent, v))
+}
+
+// ContentIsNil applies the IsNil predicate on the "content" field.
+func ContentIsNil() predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldIsNull(FieldContent))
+}
+
+// ContentNotNil applies the NotNil predicate on the "content" field.
+func ContentNotNil() predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNotNull(FieldContent))
+}
+
+// ContentEqualFold applies the EqualFold predicate on the "content" field.
+func ContentEqualFold(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldEqualFold(FieldContent, v))
+}
+
+// ContentContainsFold applies the ContainsFold predicate on the "content" field.
+func ContentContainsFold(v string) predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldContainsFold(FieldContent, v))
+}
+
+// MetadataIsNil applies the IsNil predicate on the "metadata" field.
+func MetadataIsNil() predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldIsNull(FieldMetadata))
+}
+
+// MetadataNotNil applies the NotNil predicate on the "metadata" field.
+func MetadataNotNil() predicate.AnalyticsEmbedding {
+	return predicate.AnalyticsEmbedding(sql.FieldNotNull(FieldMetadata))
 }
 
 // And groups predicates with the AND operator between them.

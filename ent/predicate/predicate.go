@@ -12,23 +12,50 @@ type AnalyticSearch func(*sql.Selector)
 // AnalyticsEmbedding is the predicate function for analyticsembedding builders.
 type AnalyticsEmbedding func(*sql.Selector)
 
+// Continent is the predicate function for continent builders.
+type Continent func(*sql.Selector)
+
+// Country is the predicate function for country builders.
+type Country func(*sql.Selector)
+
+// Discipline is the predicate function for discipline builders.
+type Discipline func(*sql.Selector)
+
 // DivisionPool is the predicate function for divisionpool builders.
 type DivisionPool func(*sql.Selector)
 
 // Event is the predicate function for event builders.
 type Event func(*sql.Selector)
 
+// EventReconciliation is the predicate function for eventreconciliation builders.
+type EventReconciliation func(*sql.Selector)
+
+// Field is the predicate function for entfield builders.
+type Field func(*sql.Selector)
+
 // Game is the predicate function for game builders.
 type Game func(*sql.Selector)
 
+// GameEvent is the predicate function for gameevent builders.
+type GameEvent func(*sql.Selector)
+
 // GameRound is the predicate function for gameround builders.
 type GameRound func(*sql.Selector)
+
+// Location is the predicate function for location builders.
+type Location func(*sql.Selector)
+
+// MVP_Nomination is the predicate function for mvp_nomination builders.
+type MVP_Nomination func(*sql.Selector)
 
 // Player is the predicate function for player builders.
 type Player func(*sql.Selector)
 
 // Scoring is the predicate function for scoring builders.
 type Scoring func(*sql.Selector)
+
+// SpiritNomination is the predicate function for spiritnomination builders.
+type SpiritNomination func(*sql.Selector)
 
 // SpiritScore is the predicate function for spiritscore builders.
 type SpiritScore func(*sql.Selector)
@@ -38,3 +65,6 @@ type Team func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
+
+// World is the predicate function for world builders.
+type World func(*sql.Selector)

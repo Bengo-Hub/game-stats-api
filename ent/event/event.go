@@ -3,7 +3,11 @@
 package event
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -11,13 +15,98 @@ const (
 	Label = "event"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
+	// FieldSlug holds the string denoting the slug field in the database.
+	FieldSlug = "slug"
+	// FieldYear holds the string denoting the year field in the database.
+	FieldYear = "year"
+	// FieldStartDate holds the string denoting the start_date field in the database.
+	FieldStartDate = "start_date"
+	// FieldEndDate holds the string denoting the end_date field in the database.
+	FieldEndDate = "end_date"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
+	// FieldSettings holds the string denoting the settings field in the database.
+	FieldSettings = "settings"
+	// EdgeDiscipline holds the string denoting the discipline edge name in mutations.
+	EdgeDiscipline = "discipline"
+	// EdgeLocation holds the string denoting the location edge name in mutations.
+	EdgeLocation = "location"
+	// EdgeDivisionPools holds the string denoting the division_pools edge name in mutations.
+	EdgeDivisionPools = "division_pools"
+	// EdgeGameRounds holds the string denoting the game_rounds edge name in mutations.
+	EdgeGameRounds = "game_rounds"
+	// EdgeManagedBy holds the string denoting the managed_by edge name in mutations.
+	EdgeManagedBy = "managed_by"
 	// Table holds the table name of the event in the database.
 	Table = "events"
+	// DisciplineTable is the table that holds the discipline relation/edge.
+	DisciplineTable = "events"
+	// DisciplineInverseTable is the table name for the Discipline entity.
+	// It exists in this package in order to avoid circular dependency with the "discipline" package.
+	DisciplineInverseTable = "disciplines"
+	// DisciplineColumn is the table column denoting the discipline relation/edge.
+	DisciplineColumn = "discipline_events"
+	// LocationTable is the table that holds the location relation/edge.
+	LocationTable = "events"
+	// LocationInverseTable is the table name for the Location entity.
+	// It exists in this package in order to avoid circular dependency with the "location" package.
+	LocationInverseTable = "locations"
+	// LocationColumn is the table column denoting the location relation/edge.
+	LocationColumn = "location_events"
+	// DivisionPoolsTable is the table that holds the division_pools relation/edge.
+	DivisionPoolsTable = "division_pools"
+	// DivisionPoolsInverseTable is the table name for the DivisionPool entity.
+	// It exists in this package in order to avoid circular dependency with the "divisionpool" package.
+	DivisionPoolsInverseTable = "division_pools"
+	// DivisionPoolsColumn is the table column denoting the division_pools relation/edge.
+	DivisionPoolsColumn = "event_division_pools"
+	// GameRoundsTable is the table that holds the game_rounds relation/edge.
+	GameRoundsTable = "game_rounds"
+	// GameRoundsInverseTable is the table name for the GameRound entity.
+	// It exists in this package in order to avoid circular dependency with the "gameround" package.
+	GameRoundsInverseTable = "game_rounds"
+	// GameRoundsColumn is the table column denoting the game_rounds relation/edge.
+	GameRoundsColumn = "event_game_rounds"
+	// ManagedByTable is the table that holds the managed_by relation/edge.
+	ManagedByTable = "users"
+	// ManagedByInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	ManagedByInverseTable = "users"
+	// ManagedByColumn is the table column denoting the managed_by relation/edge.
+	ManagedByColumn = "event_managed_by"
 )
 
 // Columns holds all SQL columns for event fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
+	FieldName,
+	FieldSlug,
+	FieldYear,
+	FieldStartDate,
+	FieldEndDate,
+	FieldStatus,
+	FieldDescription,
+	FieldSettings,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "events"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"discipline_events",
+	"location_events",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -27,8 +116,32 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
+			return true
+		}
+	}
 	return false
 }
+
+var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
+	// NameValidator is a validator for the "name" field. It is called by the builders before save.
+	NameValidator func(string) error
+	// SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	SlugValidator func(string) error
+	// DefaultStatus holds the default value on creation for the "status" field.
+	DefaultStatus string
+	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
+	StatusValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
+)
 
 // OrderOption defines the ordering options for the Event queries.
 type OrderOption func(*sql.Selector)
@@ -36,4 +149,145 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// BySlug orders the results by the slug field.
+func BySlug(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSlug, opts...).ToFunc()
+}
+
+// ByYear orders the results by the year field.
+func ByYear(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldYear, opts...).ToFunc()
+}
+
+// ByStartDate orders the results by the start_date field.
+func ByStartDate(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStartDate, opts...).ToFunc()
+}
+
+// ByEndDate orders the results by the end_date field.
+func ByEndDate(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEndDate, opts...).ToFunc()
+}
+
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByDescription orders the results by the description field.
+func ByDescription(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByDisciplineField orders the results by discipline field.
+func ByDisciplineField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDisciplineStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByLocationField orders the results by location field.
+func ByLocationField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newLocationStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByDivisionPoolsCount orders the results by division_pools count.
+func ByDivisionPoolsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newDivisionPoolsStep(), opts...)
+	}
+}
+
+// ByDivisionPools orders the results by division_pools terms.
+func ByDivisionPools(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDivisionPoolsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByGameRoundsCount orders the results by game_rounds count.
+func ByGameRoundsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newGameRoundsStep(), opts...)
+	}
+}
+
+// ByGameRounds orders the results by game_rounds terms.
+func ByGameRounds(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGameRoundsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByManagedByCount orders the results by managed_by count.
+func ByManagedByCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newManagedByStep(), opts...)
+	}
+}
+
+// ByManagedBy orders the results by managed_by terms.
+func ByManagedBy(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newManagedByStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newDisciplineStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DisciplineInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, DisciplineTable, DisciplineColumn),
+	)
+}
+func newLocationStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(LocationInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, LocationTable, LocationColumn),
+	)
+}
+func newDivisionPoolsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DivisionPoolsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, DivisionPoolsTable, DivisionPoolsColumn),
+	)
+}
+func newGameRoundsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GameRoundsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, GameRoundsTable, GameRoundsColumn),
+	)
+}
+func newManagedByStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ManagedByInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ManagedByTable, ManagedByColumn),
+	)
 }

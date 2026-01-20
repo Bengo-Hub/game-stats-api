@@ -6,12 +6,20 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/location"
+	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/ent/spiritscore"
 	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // TeamUpdate is the builder for updating Team entities.
@@ -27,13 +35,398 @@ func (_u *TeamUpdate) Where(ps ...predicate.Team) *TeamUpdate {
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *TeamUpdate) SetUpdatedAt(v time.Time) *TeamUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *TeamUpdate) SetDeletedAt(v time.Time) *TeamUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *TeamUpdate) SetNillableDeletedAt(v *time.Time) *TeamUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *TeamUpdate) ClearDeletedAt() *TeamUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetName sets the "name" field.
+func (_u *TeamUpdate) SetName(v string) *TeamUpdate {
+	_u.mutation.SetName(v)
+	return _u
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (_u *TeamUpdate) SetNillableName(v *string) *TeamUpdate {
+	if v != nil {
+		_u.SetName(*v)
+	}
+	return _u
+}
+
+// SetInitialSeed sets the "initial_seed" field.
+func (_u *TeamUpdate) SetInitialSeed(v int) *TeamUpdate {
+	_u.mutation.ResetInitialSeed()
+	_u.mutation.SetInitialSeed(v)
+	return _u
+}
+
+// SetNillableInitialSeed sets the "initial_seed" field if the given value is not nil.
+func (_u *TeamUpdate) SetNillableInitialSeed(v *int) *TeamUpdate {
+	if v != nil {
+		_u.SetInitialSeed(*v)
+	}
+	return _u
+}
+
+// AddInitialSeed adds value to the "initial_seed" field.
+func (_u *TeamUpdate) AddInitialSeed(v int) *TeamUpdate {
+	_u.mutation.AddInitialSeed(v)
+	return _u
+}
+
+// ClearInitialSeed clears the value of the "initial_seed" field.
+func (_u *TeamUpdate) ClearInitialSeed() *TeamUpdate {
+	_u.mutation.ClearInitialSeed()
+	return _u
+}
+
+// SetFinalPlacement sets the "final_placement" field.
+func (_u *TeamUpdate) SetFinalPlacement(v int) *TeamUpdate {
+	_u.mutation.ResetFinalPlacement()
+	_u.mutation.SetFinalPlacement(v)
+	return _u
+}
+
+// SetNillableFinalPlacement sets the "final_placement" field if the given value is not nil.
+func (_u *TeamUpdate) SetNillableFinalPlacement(v *int) *TeamUpdate {
+	if v != nil {
+		_u.SetFinalPlacement(*v)
+	}
+	return _u
+}
+
+// AddFinalPlacement adds value to the "final_placement" field.
+func (_u *TeamUpdate) AddFinalPlacement(v int) *TeamUpdate {
+	_u.mutation.AddFinalPlacement(v)
+	return _u
+}
+
+// ClearFinalPlacement clears the value of the "final_placement" field.
+func (_u *TeamUpdate) ClearFinalPlacement() *TeamUpdate {
+	_u.mutation.ClearFinalPlacement()
+	return _u
+}
+
+// SetLogoURL sets the "logo_url" field.
+func (_u *TeamUpdate) SetLogoURL(v string) *TeamUpdate {
+	_u.mutation.SetLogoURL(v)
+	return _u
+}
+
+// SetNillableLogoURL sets the "logo_url" field if the given value is not nil.
+func (_u *TeamUpdate) SetNillableLogoURL(v *string) *TeamUpdate {
+	if v != nil {
+		_u.SetLogoURL(*v)
+	}
+	return _u
+}
+
+// ClearLogoURL clears the value of the "logo_url" field.
+func (_u *TeamUpdate) ClearLogoURL() *TeamUpdate {
+	_u.mutation.ClearLogoURL()
+	return _u
+}
+
+// SetMetadata sets the "metadata" field.
+func (_u *TeamUpdate) SetMetadata(v map[string]interface{}) *TeamUpdate {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *TeamUpdate) ClearMetadata() *TeamUpdate {
+	_u.mutation.ClearMetadata()
+	return _u
+}
+
+// SetDivisionPoolID sets the "division_pool" edge to the DivisionPool entity by ID.
+func (_u *TeamUpdate) SetDivisionPoolID(id uuid.UUID) *TeamUpdate {
+	_u.mutation.SetDivisionPoolID(id)
+	return _u
+}
+
+// SetDivisionPool sets the "division_pool" edge to the DivisionPool entity.
+func (_u *TeamUpdate) SetDivisionPool(v *DivisionPool) *TeamUpdate {
+	return _u.SetDivisionPoolID(v.ID)
+}
+
+// SetHomeLocationID sets the "home_location" edge to the Location entity by ID.
+func (_u *TeamUpdate) SetHomeLocationID(id uuid.UUID) *TeamUpdate {
+	_u.mutation.SetHomeLocationID(id)
+	return _u
+}
+
+// SetNillableHomeLocationID sets the "home_location" edge to the Location entity by ID if the given value is not nil.
+func (_u *TeamUpdate) SetNillableHomeLocationID(id *uuid.UUID) *TeamUpdate {
+	if id != nil {
+		_u = _u.SetHomeLocationID(*id)
+	}
+	return _u
+}
+
+// SetHomeLocation sets the "home_location" edge to the Location entity.
+func (_u *TeamUpdate) SetHomeLocation(v *Location) *TeamUpdate {
+	return _u.SetHomeLocationID(v.ID)
+}
+
+// AddPlayerIDs adds the "players" edge to the Player entity by IDs.
+func (_u *TeamUpdate) AddPlayerIDs(ids ...uuid.UUID) *TeamUpdate {
+	_u.mutation.AddPlayerIDs(ids...)
+	return _u
+}
+
+// AddPlayers adds the "players" edges to the Player entity.
+func (_u *TeamUpdate) AddPlayers(v ...*Player) *TeamUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPlayerIDs(ids...)
+}
+
+// AddManagedByIDs adds the "managed_by" edge to the User entity by IDs.
+func (_u *TeamUpdate) AddManagedByIDs(ids ...uuid.UUID) *TeamUpdate {
+	_u.mutation.AddManagedByIDs(ids...)
+	return _u
+}
+
+// AddManagedBy adds the "managed_by" edges to the User entity.
+func (_u *TeamUpdate) AddManagedBy(v ...*User) *TeamUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddManagedByIDs(ids...)
+}
+
+// AddHomeGameIDs adds the "home_games" edge to the Game entity by IDs.
+func (_u *TeamUpdate) AddHomeGameIDs(ids ...uuid.UUID) *TeamUpdate {
+	_u.mutation.AddHomeGameIDs(ids...)
+	return _u
+}
+
+// AddHomeGames adds the "home_games" edges to the Game entity.
+func (_u *TeamUpdate) AddHomeGames(v ...*Game) *TeamUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddHomeGameIDs(ids...)
+}
+
+// AddAwayGameIDs adds the "away_games" edge to the Game entity by IDs.
+func (_u *TeamUpdate) AddAwayGameIDs(ids ...uuid.UUID) *TeamUpdate {
+	_u.mutation.AddAwayGameIDs(ids...)
+	return _u
+}
+
+// AddAwayGames adds the "away_games" edges to the Game entity.
+func (_u *TeamUpdate) AddAwayGames(v ...*Game) *TeamUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddAwayGameIDs(ids...)
+}
+
+// AddSpiritScoresGivenIDs adds the "spirit_scores_given" edge to the SpiritScore entity by IDs.
+func (_u *TeamUpdate) AddSpiritScoresGivenIDs(ids ...uuid.UUID) *TeamUpdate {
+	_u.mutation.AddSpiritScoresGivenIDs(ids...)
+	return _u
+}
+
+// AddSpiritScoresGiven adds the "spirit_scores_given" edges to the SpiritScore entity.
+func (_u *TeamUpdate) AddSpiritScoresGiven(v ...*SpiritScore) *TeamUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpiritScoresGivenIDs(ids...)
+}
+
+// AddSpiritScoresReceivedIDs adds the "spirit_scores_received" edge to the SpiritScore entity by IDs.
+func (_u *TeamUpdate) AddSpiritScoresReceivedIDs(ids ...uuid.UUID) *TeamUpdate {
+	_u.mutation.AddSpiritScoresReceivedIDs(ids...)
+	return _u
+}
+
+// AddSpiritScoresReceived adds the "spirit_scores_received" edges to the SpiritScore entity.
+func (_u *TeamUpdate) AddSpiritScoresReceived(v ...*SpiritScore) *TeamUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpiritScoresReceivedIDs(ids...)
+}
+
 // Mutation returns the TeamMutation object of the builder.
 func (_u *TeamUpdate) Mutation() *TeamMutation {
 	return _u.mutation
 }
 
+// ClearDivisionPool clears the "division_pool" edge to the DivisionPool entity.
+func (_u *TeamUpdate) ClearDivisionPool() *TeamUpdate {
+	_u.mutation.ClearDivisionPool()
+	return _u
+}
+
+// ClearHomeLocation clears the "home_location" edge to the Location entity.
+func (_u *TeamUpdate) ClearHomeLocation() *TeamUpdate {
+	_u.mutation.ClearHomeLocation()
+	return _u
+}
+
+// ClearPlayers clears all "players" edges to the Player entity.
+func (_u *TeamUpdate) ClearPlayers() *TeamUpdate {
+	_u.mutation.ClearPlayers()
+	return _u
+}
+
+// RemovePlayerIDs removes the "players" edge to Player entities by IDs.
+func (_u *TeamUpdate) RemovePlayerIDs(ids ...uuid.UUID) *TeamUpdate {
+	_u.mutation.RemovePlayerIDs(ids...)
+	return _u
+}
+
+// RemovePlayers removes "players" edges to Player entities.
+func (_u *TeamUpdate) RemovePlayers(v ...*Player) *TeamUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePlayerIDs(ids...)
+}
+
+// ClearManagedBy clears all "managed_by" edges to the User entity.
+func (_u *TeamUpdate) ClearManagedBy() *TeamUpdate {
+	_u.mutation.ClearManagedBy()
+	return _u
+}
+
+// RemoveManagedByIDs removes the "managed_by" edge to User entities by IDs.
+func (_u *TeamUpdate) RemoveManagedByIDs(ids ...uuid.UUID) *TeamUpdate {
+	_u.mutation.RemoveManagedByIDs(ids...)
+	return _u
+}
+
+// RemoveManagedBy removes "managed_by" edges to User entities.
+func (_u *TeamUpdate) RemoveManagedBy(v ...*User) *TeamUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveManagedByIDs(ids...)
+}
+
+// ClearHomeGames clears all "home_games" edges to the Game entity.
+func (_u *TeamUpdate) ClearHomeGames() *TeamUpdate {
+	_u.mutation.ClearHomeGames()
+	return _u
+}
+
+// RemoveHomeGameIDs removes the "home_games" edge to Game entities by IDs.
+func (_u *TeamUpdate) RemoveHomeGameIDs(ids ...uuid.UUID) *TeamUpdate {
+	_u.mutation.RemoveHomeGameIDs(ids...)
+	return _u
+}
+
+// RemoveHomeGames removes "home_games" edges to Game entities.
+func (_u *TeamUpdate) RemoveHomeGames(v ...*Game) *TeamUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveHomeGameIDs(ids...)
+}
+
+// ClearAwayGames clears all "away_games" edges to the Game entity.
+func (_u *TeamUpdate) ClearAwayGames() *TeamUpdate {
+	_u.mutation.ClearAwayGames()
+	return _u
+}
+
+// RemoveAwayGameIDs removes the "away_games" edge to Game entities by IDs.
+func (_u *TeamUpdate) RemoveAwayGameIDs(ids ...uuid.UUID) *TeamUpdate {
+	_u.mutation.RemoveAwayGameIDs(ids...)
+	return _u
+}
+
+// RemoveAwayGames removes "away_games" edges to Game entities.
+func (_u *TeamUpdate) RemoveAwayGames(v ...*Game) *TeamUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveAwayGameIDs(ids...)
+}
+
+// ClearSpiritScoresGiven clears all "spirit_scores_given" edges to the SpiritScore entity.
+func (_u *TeamUpdate) ClearSpiritScoresGiven() *TeamUpdate {
+	_u.mutation.ClearSpiritScoresGiven()
+	return _u
+}
+
+// RemoveSpiritScoresGivenIDs removes the "spirit_scores_given" edge to SpiritScore entities by IDs.
+func (_u *TeamUpdate) RemoveSpiritScoresGivenIDs(ids ...uuid.UUID) *TeamUpdate {
+	_u.mutation.RemoveSpiritScoresGivenIDs(ids...)
+	return _u
+}
+
+// RemoveSpiritScoresGiven removes "spirit_scores_given" edges to SpiritScore entities.
+func (_u *TeamUpdate) RemoveSpiritScoresGiven(v ...*SpiritScore) *TeamUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpiritScoresGivenIDs(ids...)
+}
+
+// ClearSpiritScoresReceived clears all "spirit_scores_received" edges to the SpiritScore entity.
+func (_u *TeamUpdate) ClearSpiritScoresReceived() *TeamUpdate {
+	_u.mutation.ClearSpiritScoresReceived()
+	return _u
+}
+
+// RemoveSpiritScoresReceivedIDs removes the "spirit_scores_received" edge to SpiritScore entities by IDs.
+func (_u *TeamUpdate) RemoveSpiritScoresReceivedIDs(ids ...uuid.UUID) *TeamUpdate {
+	_u.mutation.RemoveSpiritScoresReceivedIDs(ids...)
+	return _u
+}
+
+// RemoveSpiritScoresReceived removes "spirit_scores_received" edges to SpiritScore entities.
+func (_u *TeamUpdate) RemoveSpiritScoresReceived(v ...*SpiritScore) *TeamUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpiritScoresReceivedIDs(ids...)
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *TeamUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -59,14 +452,408 @@ func (_u *TeamUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *TeamUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := team.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *TeamUpdate) check() error {
+	if v, ok := _u.mutation.Name(); ok {
+		if err := team.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Team.name": %w`, err)}
+		}
+	}
+	if _u.mutation.DivisionPoolCleared() && len(_u.mutation.DivisionPoolIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Team.division_pool"`)
+	}
+	return nil
+}
+
 func (_u *TeamUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(team.Table, team.Columns, sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(team.Table, team.Columns, sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(team.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(team.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(team.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Name(); ok {
+		_spec.SetField(team.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.InitialSeed(); ok {
+		_spec.SetField(team.FieldInitialSeed, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedInitialSeed(); ok {
+		_spec.AddField(team.FieldInitialSeed, field.TypeInt, value)
+	}
+	if _u.mutation.InitialSeedCleared() {
+		_spec.ClearField(team.FieldInitialSeed, field.TypeInt)
+	}
+	if value, ok := _u.mutation.FinalPlacement(); ok {
+		_spec.SetField(team.FieldFinalPlacement, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedFinalPlacement(); ok {
+		_spec.AddField(team.FieldFinalPlacement, field.TypeInt, value)
+	}
+	if _u.mutation.FinalPlacementCleared() {
+		_spec.ClearField(team.FieldFinalPlacement, field.TypeInt)
+	}
+	if value, ok := _u.mutation.LogoURL(); ok {
+		_spec.SetField(team.FieldLogoURL, field.TypeString, value)
+	}
+	if _u.mutation.LogoURLCleared() {
+		_spec.ClearField(team.FieldLogoURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(team.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(team.FieldMetadata, field.TypeJSON)
+	}
+	if _u.mutation.DivisionPoolCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   team.DivisionPoolTable,
+			Columns: []string{team.DivisionPoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DivisionPoolIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   team.DivisionPoolTable,
+			Columns: []string{team.DivisionPoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.HomeLocationCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   team.HomeLocationTable,
+			Columns: []string{team.HomeLocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.HomeLocationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   team.HomeLocationTable,
+			Columns: []string{team.HomeLocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.PlayersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.PlayersTable,
+			Columns: []string{team.PlayersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPlayersIDs(); len(nodes) > 0 && !_u.mutation.PlayersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.PlayersTable,
+			Columns: []string{team.PlayersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PlayersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.PlayersTable,
+			Columns: []string{team.PlayersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ManagedByCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.ManagedByTable,
+			Columns: []string{team.ManagedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedManagedByIDs(); len(nodes) > 0 && !_u.mutation.ManagedByCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.ManagedByTable,
+			Columns: []string{team.ManagedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ManagedByIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.ManagedByTable,
+			Columns: []string{team.ManagedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.HomeGamesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.HomeGamesTable,
+			Columns: []string{team.HomeGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedHomeGamesIDs(); len(nodes) > 0 && !_u.mutation.HomeGamesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.HomeGamesTable,
+			Columns: []string{team.HomeGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.HomeGamesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.HomeGamesTable,
+			Columns: []string{team.HomeGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AwayGamesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.AwayGamesTable,
+			Columns: []string{team.AwayGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedAwayGamesIDs(); len(nodes) > 0 && !_u.mutation.AwayGamesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.AwayGamesTable,
+			Columns: []string{team.AwayGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AwayGamesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.AwayGamesTable,
+			Columns: []string{team.AwayGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpiritScoresGivenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.SpiritScoresGivenTable,
+			Columns: []string{team.SpiritScoresGivenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpiritScoresGivenIDs(); len(nodes) > 0 && !_u.mutation.SpiritScoresGivenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.SpiritScoresGivenTable,
+			Columns: []string{team.SpiritScoresGivenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpiritScoresGivenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.SpiritScoresGivenTable,
+			Columns: []string{team.SpiritScoresGivenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpiritScoresReceivedCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.SpiritScoresReceivedTable,
+			Columns: []string{team.SpiritScoresReceivedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpiritScoresReceivedIDs(); len(nodes) > 0 && !_u.mutation.SpiritScoresReceivedCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.SpiritScoresReceivedTable,
+			Columns: []string{team.SpiritScoresReceivedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpiritScoresReceivedIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.SpiritScoresReceivedTable,
+			Columns: []string{team.SpiritScoresReceivedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -88,9 +875,393 @@ type TeamUpdateOne struct {
 	mutation *TeamMutation
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *TeamUpdateOne) SetUpdatedAt(v time.Time) *TeamUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *TeamUpdateOne) SetDeletedAt(v time.Time) *TeamUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *TeamUpdateOne) SetNillableDeletedAt(v *time.Time) *TeamUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *TeamUpdateOne) ClearDeletedAt() *TeamUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetName sets the "name" field.
+func (_u *TeamUpdateOne) SetName(v string) *TeamUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (_u *TeamUpdateOne) SetNillableName(v *string) *TeamUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
+	}
+	return _u
+}
+
+// SetInitialSeed sets the "initial_seed" field.
+func (_u *TeamUpdateOne) SetInitialSeed(v int) *TeamUpdateOne {
+	_u.mutation.ResetInitialSeed()
+	_u.mutation.SetInitialSeed(v)
+	return _u
+}
+
+// SetNillableInitialSeed sets the "initial_seed" field if the given value is not nil.
+func (_u *TeamUpdateOne) SetNillableInitialSeed(v *int) *TeamUpdateOne {
+	if v != nil {
+		_u.SetInitialSeed(*v)
+	}
+	return _u
+}
+
+// AddInitialSeed adds value to the "initial_seed" field.
+func (_u *TeamUpdateOne) AddInitialSeed(v int) *TeamUpdateOne {
+	_u.mutation.AddInitialSeed(v)
+	return _u
+}
+
+// ClearInitialSeed clears the value of the "initial_seed" field.
+func (_u *TeamUpdateOne) ClearInitialSeed() *TeamUpdateOne {
+	_u.mutation.ClearInitialSeed()
+	return _u
+}
+
+// SetFinalPlacement sets the "final_placement" field.
+func (_u *TeamUpdateOne) SetFinalPlacement(v int) *TeamUpdateOne {
+	_u.mutation.ResetFinalPlacement()
+	_u.mutation.SetFinalPlacement(v)
+	return _u
+}
+
+// SetNillableFinalPlacement sets the "final_placement" field if the given value is not nil.
+func (_u *TeamUpdateOne) SetNillableFinalPlacement(v *int) *TeamUpdateOne {
+	if v != nil {
+		_u.SetFinalPlacement(*v)
+	}
+	return _u
+}
+
+// AddFinalPlacement adds value to the "final_placement" field.
+func (_u *TeamUpdateOne) AddFinalPlacement(v int) *TeamUpdateOne {
+	_u.mutation.AddFinalPlacement(v)
+	return _u
+}
+
+// ClearFinalPlacement clears the value of the "final_placement" field.
+func (_u *TeamUpdateOne) ClearFinalPlacement() *TeamUpdateOne {
+	_u.mutation.ClearFinalPlacement()
+	return _u
+}
+
+// SetLogoURL sets the "logo_url" field.
+func (_u *TeamUpdateOne) SetLogoURL(v string) *TeamUpdateOne {
+	_u.mutation.SetLogoURL(v)
+	return _u
+}
+
+// SetNillableLogoURL sets the "logo_url" field if the given value is not nil.
+func (_u *TeamUpdateOne) SetNillableLogoURL(v *string) *TeamUpdateOne {
+	if v != nil {
+		_u.SetLogoURL(*v)
+	}
+	return _u
+}
+
+// ClearLogoURL clears the value of the "logo_url" field.
+func (_u *TeamUpdateOne) ClearLogoURL() *TeamUpdateOne {
+	_u.mutation.ClearLogoURL()
+	return _u
+}
+
+// SetMetadata sets the "metadata" field.
+func (_u *TeamUpdateOne) SetMetadata(v map[string]interface{}) *TeamUpdateOne {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *TeamUpdateOne) ClearMetadata() *TeamUpdateOne {
+	_u.mutation.ClearMetadata()
+	return _u
+}
+
+// SetDivisionPoolID sets the "division_pool" edge to the DivisionPool entity by ID.
+func (_u *TeamUpdateOne) SetDivisionPoolID(id uuid.UUID) *TeamUpdateOne {
+	_u.mutation.SetDivisionPoolID(id)
+	return _u
+}
+
+// SetDivisionPool sets the "division_pool" edge to the DivisionPool entity.
+func (_u *TeamUpdateOne) SetDivisionPool(v *DivisionPool) *TeamUpdateOne {
+	return _u.SetDivisionPoolID(v.ID)
+}
+
+// SetHomeLocationID sets the "home_location" edge to the Location entity by ID.
+func (_u *TeamUpdateOne) SetHomeLocationID(id uuid.UUID) *TeamUpdateOne {
+	_u.mutation.SetHomeLocationID(id)
+	return _u
+}
+
+// SetNillableHomeLocationID sets the "home_location" edge to the Location entity by ID if the given value is not nil.
+func (_u *TeamUpdateOne) SetNillableHomeLocationID(id *uuid.UUID) *TeamUpdateOne {
+	if id != nil {
+		_u = _u.SetHomeLocationID(*id)
+	}
+	return _u
+}
+
+// SetHomeLocation sets the "home_location" edge to the Location entity.
+func (_u *TeamUpdateOne) SetHomeLocation(v *Location) *TeamUpdateOne {
+	return _u.SetHomeLocationID(v.ID)
+}
+
+// AddPlayerIDs adds the "players" edge to the Player entity by IDs.
+func (_u *TeamUpdateOne) AddPlayerIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	_u.mutation.AddPlayerIDs(ids...)
+	return _u
+}
+
+// AddPlayers adds the "players" edges to the Player entity.
+func (_u *TeamUpdateOne) AddPlayers(v ...*Player) *TeamUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPlayerIDs(ids...)
+}
+
+// AddManagedByIDs adds the "managed_by" edge to the User entity by IDs.
+func (_u *TeamUpdateOne) AddManagedByIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	_u.mutation.AddManagedByIDs(ids...)
+	return _u
+}
+
+// AddManagedBy adds the "managed_by" edges to the User entity.
+func (_u *TeamUpdateOne) AddManagedBy(v ...*User) *TeamUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddManagedByIDs(ids...)
+}
+
+// AddHomeGameIDs adds the "home_games" edge to the Game entity by IDs.
+func (_u *TeamUpdateOne) AddHomeGameIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	_u.mutation.AddHomeGameIDs(ids...)
+	return _u
+}
+
+// AddHomeGames adds the "home_games" edges to the Game entity.
+func (_u *TeamUpdateOne) AddHomeGames(v ...*Game) *TeamUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddHomeGameIDs(ids...)
+}
+
+// AddAwayGameIDs adds the "away_games" edge to the Game entity by IDs.
+func (_u *TeamUpdateOne) AddAwayGameIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	_u.mutation.AddAwayGameIDs(ids...)
+	return _u
+}
+
+// AddAwayGames adds the "away_games" edges to the Game entity.
+func (_u *TeamUpdateOne) AddAwayGames(v ...*Game) *TeamUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddAwayGameIDs(ids...)
+}
+
+// AddSpiritScoresGivenIDs adds the "spirit_scores_given" edge to the SpiritScore entity by IDs.
+func (_u *TeamUpdateOne) AddSpiritScoresGivenIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	_u.mutation.AddSpiritScoresGivenIDs(ids...)
+	return _u
+}
+
+// AddSpiritScoresGiven adds the "spirit_scores_given" edges to the SpiritScore entity.
+func (_u *TeamUpdateOne) AddSpiritScoresGiven(v ...*SpiritScore) *TeamUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpiritScoresGivenIDs(ids...)
+}
+
+// AddSpiritScoresReceivedIDs adds the "spirit_scores_received" edge to the SpiritScore entity by IDs.
+func (_u *TeamUpdateOne) AddSpiritScoresReceivedIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	_u.mutation.AddSpiritScoresReceivedIDs(ids...)
+	return _u
+}
+
+// AddSpiritScoresReceived adds the "spirit_scores_received" edges to the SpiritScore entity.
+func (_u *TeamUpdateOne) AddSpiritScoresReceived(v ...*SpiritScore) *TeamUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpiritScoresReceivedIDs(ids...)
+}
+
 // Mutation returns the TeamMutation object of the builder.
 func (_u *TeamUpdateOne) Mutation() *TeamMutation {
 	return _u.mutation
+}
+
+// ClearDivisionPool clears the "division_pool" edge to the DivisionPool entity.
+func (_u *TeamUpdateOne) ClearDivisionPool() *TeamUpdateOne {
+	_u.mutation.ClearDivisionPool()
+	return _u
+}
+
+// ClearHomeLocation clears the "home_location" edge to the Location entity.
+func (_u *TeamUpdateOne) ClearHomeLocation() *TeamUpdateOne {
+	_u.mutation.ClearHomeLocation()
+	return _u
+}
+
+// ClearPlayers clears all "players" edges to the Player entity.
+func (_u *TeamUpdateOne) ClearPlayers() *TeamUpdateOne {
+	_u.mutation.ClearPlayers()
+	return _u
+}
+
+// RemovePlayerIDs removes the "players" edge to Player entities by IDs.
+func (_u *TeamUpdateOne) RemovePlayerIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	_u.mutation.RemovePlayerIDs(ids...)
+	return _u
+}
+
+// RemovePlayers removes "players" edges to Player entities.
+func (_u *TeamUpdateOne) RemovePlayers(v ...*Player) *TeamUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePlayerIDs(ids...)
+}
+
+// ClearManagedBy clears all "managed_by" edges to the User entity.
+func (_u *TeamUpdateOne) ClearManagedBy() *TeamUpdateOne {
+	_u.mutation.ClearManagedBy()
+	return _u
+}
+
+// RemoveManagedByIDs removes the "managed_by" edge to User entities by IDs.
+func (_u *TeamUpdateOne) RemoveManagedByIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	_u.mutation.RemoveManagedByIDs(ids...)
+	return _u
+}
+
+// RemoveManagedBy removes "managed_by" edges to User entities.
+func (_u *TeamUpdateOne) RemoveManagedBy(v ...*User) *TeamUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveManagedByIDs(ids...)
+}
+
+// ClearHomeGames clears all "home_games" edges to the Game entity.
+func (_u *TeamUpdateOne) ClearHomeGames() *TeamUpdateOne {
+	_u.mutation.ClearHomeGames()
+	return _u
+}
+
+// RemoveHomeGameIDs removes the "home_games" edge to Game entities by IDs.
+func (_u *TeamUpdateOne) RemoveHomeGameIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	_u.mutation.RemoveHomeGameIDs(ids...)
+	return _u
+}
+
+// RemoveHomeGames removes "home_games" edges to Game entities.
+func (_u *TeamUpdateOne) RemoveHomeGames(v ...*Game) *TeamUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveHomeGameIDs(ids...)
+}
+
+// ClearAwayGames clears all "away_games" edges to the Game entity.
+func (_u *TeamUpdateOne) ClearAwayGames() *TeamUpdateOne {
+	_u.mutation.ClearAwayGames()
+	return _u
+}
+
+// RemoveAwayGameIDs removes the "away_games" edge to Game entities by IDs.
+func (_u *TeamUpdateOne) RemoveAwayGameIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	_u.mutation.RemoveAwayGameIDs(ids...)
+	return _u
+}
+
+// RemoveAwayGames removes "away_games" edges to Game entities.
+func (_u *TeamUpdateOne) RemoveAwayGames(v ...*Game) *TeamUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveAwayGameIDs(ids...)
+}
+
+// ClearSpiritScoresGiven clears all "spirit_scores_given" edges to the SpiritScore entity.
+func (_u *TeamUpdateOne) ClearSpiritScoresGiven() *TeamUpdateOne {
+	_u.mutation.ClearSpiritScoresGiven()
+	return _u
+}
+
+// RemoveSpiritScoresGivenIDs removes the "spirit_scores_given" edge to SpiritScore entities by IDs.
+func (_u *TeamUpdateOne) RemoveSpiritScoresGivenIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	_u.mutation.RemoveSpiritScoresGivenIDs(ids...)
+	return _u
+}
+
+// RemoveSpiritScoresGiven removes "spirit_scores_given" edges to SpiritScore entities.
+func (_u *TeamUpdateOne) RemoveSpiritScoresGiven(v ...*SpiritScore) *TeamUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpiritScoresGivenIDs(ids...)
+}
+
+// ClearSpiritScoresReceived clears all "spirit_scores_received" edges to the SpiritScore entity.
+func (_u *TeamUpdateOne) ClearSpiritScoresReceived() *TeamUpdateOne {
+	_u.mutation.ClearSpiritScoresReceived()
+	return _u
+}
+
+// RemoveSpiritScoresReceivedIDs removes the "spirit_scores_received" edge to SpiritScore entities by IDs.
+func (_u *TeamUpdateOne) RemoveSpiritScoresReceivedIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	_u.mutation.RemoveSpiritScoresReceivedIDs(ids...)
+	return _u
+}
+
+// RemoveSpiritScoresReceived removes "spirit_scores_received" edges to SpiritScore entities.
+func (_u *TeamUpdateOne) RemoveSpiritScoresReceived(v ...*SpiritScore) *TeamUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpiritScoresReceivedIDs(ids...)
 }
 
 // Where appends a list predicates to the TeamUpdate builder.
@@ -108,6 +1279,7 @@ func (_u *TeamUpdateOne) Select(field string, fields ...string) *TeamUpdateOne {
 
 // Save executes the query and returns the updated Team entity.
 func (_u *TeamUpdateOne) Save(ctx context.Context) (*Team, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -133,8 +1305,32 @@ func (_u *TeamUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *TeamUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := team.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *TeamUpdateOne) check() error {
+	if v, ok := _u.mutation.Name(); ok {
+		if err := team.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Team.name": %w`, err)}
+		}
+	}
+	if _u.mutation.DivisionPoolCleared() && len(_u.mutation.DivisionPoolIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Team.division_pool"`)
+	}
+	return nil
+}
+
 func (_u *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) {
-	_spec := sqlgraph.NewUpdateSpec(team.Table, team.Columns, sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(team.Table, team.Columns, sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Team.id" for update`)}
@@ -158,6 +1354,376 @@ func (_u *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(team.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(team.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(team.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Name(); ok {
+		_spec.SetField(team.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.InitialSeed(); ok {
+		_spec.SetField(team.FieldInitialSeed, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedInitialSeed(); ok {
+		_spec.AddField(team.FieldInitialSeed, field.TypeInt, value)
+	}
+	if _u.mutation.InitialSeedCleared() {
+		_spec.ClearField(team.FieldInitialSeed, field.TypeInt)
+	}
+	if value, ok := _u.mutation.FinalPlacement(); ok {
+		_spec.SetField(team.FieldFinalPlacement, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedFinalPlacement(); ok {
+		_spec.AddField(team.FieldFinalPlacement, field.TypeInt, value)
+	}
+	if _u.mutation.FinalPlacementCleared() {
+		_spec.ClearField(team.FieldFinalPlacement, field.TypeInt)
+	}
+	if value, ok := _u.mutation.LogoURL(); ok {
+		_spec.SetField(team.FieldLogoURL, field.TypeString, value)
+	}
+	if _u.mutation.LogoURLCleared() {
+		_spec.ClearField(team.FieldLogoURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(team.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(team.FieldMetadata, field.TypeJSON)
+	}
+	if _u.mutation.DivisionPoolCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   team.DivisionPoolTable,
+			Columns: []string{team.DivisionPoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DivisionPoolIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   team.DivisionPoolTable,
+			Columns: []string{team.DivisionPoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.HomeLocationCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   team.HomeLocationTable,
+			Columns: []string{team.HomeLocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.HomeLocationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   team.HomeLocationTable,
+			Columns: []string{team.HomeLocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.PlayersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.PlayersTable,
+			Columns: []string{team.PlayersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPlayersIDs(); len(nodes) > 0 && !_u.mutation.PlayersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.PlayersTable,
+			Columns: []string{team.PlayersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PlayersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.PlayersTable,
+			Columns: []string{team.PlayersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ManagedByCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.ManagedByTable,
+			Columns: []string{team.ManagedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedManagedByIDs(); len(nodes) > 0 && !_u.mutation.ManagedByCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.ManagedByTable,
+			Columns: []string{team.ManagedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ManagedByIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.ManagedByTable,
+			Columns: []string{team.ManagedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.HomeGamesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.HomeGamesTable,
+			Columns: []string{team.HomeGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedHomeGamesIDs(); len(nodes) > 0 && !_u.mutation.HomeGamesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.HomeGamesTable,
+			Columns: []string{team.HomeGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.HomeGamesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.HomeGamesTable,
+			Columns: []string{team.HomeGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AwayGamesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.AwayGamesTable,
+			Columns: []string{team.AwayGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedAwayGamesIDs(); len(nodes) > 0 && !_u.mutation.AwayGamesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.AwayGamesTable,
+			Columns: []string{team.AwayGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AwayGamesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.AwayGamesTable,
+			Columns: []string{team.AwayGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpiritScoresGivenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.SpiritScoresGivenTable,
+			Columns: []string{team.SpiritScoresGivenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpiritScoresGivenIDs(); len(nodes) > 0 && !_u.mutation.SpiritScoresGivenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.SpiritScoresGivenTable,
+			Columns: []string{team.SpiritScoresGivenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpiritScoresGivenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.SpiritScoresGivenTable,
+			Columns: []string{team.SpiritScoresGivenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpiritScoresReceivedCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.SpiritScoresReceivedTable,
+			Columns: []string{team.SpiritScoresReceivedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpiritScoresReceivedIDs(); len(nodes) > 0 && !_u.mutation.SpiritScoresReceivedCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.SpiritScoresReceivedTable,
+			Columns: []string{team.SpiritScoresReceivedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpiritScoresReceivedIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.SpiritScoresReceivedTable,
+			Columns: []string{team.SpiritScoresReceivedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Team{config: _u.config}
 	_spec.Assign = _node.assignValues

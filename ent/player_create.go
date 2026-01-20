@@ -4,11 +4,19 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/gameevent"
+	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
 	"github.com/bengobox/game-stats-api/ent/player"
+	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/bengobox/game-stats-api/ent/spiritnomination"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/google/uuid"
 )
 
 // PlayerCreate is the builder for creating a Player entity.
@@ -18,6 +26,207 @@ type PlayerCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *PlayerCreate) SetCreatedAt(v time.Time) *PlayerCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *PlayerCreate) SetNillableCreatedAt(v *time.Time) *PlayerCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *PlayerCreate) SetUpdatedAt(v time.Time) *PlayerCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *PlayerCreate) SetNillableUpdatedAt(v *time.Time) *PlayerCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *PlayerCreate) SetDeletedAt(v time.Time) *PlayerCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *PlayerCreate) SetNillableDeletedAt(v *time.Time) *PlayerCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
+// SetName sets the "name" field.
+func (_c *PlayerCreate) SetName(v string) *PlayerCreate {
+	_c.mutation.SetName(v)
+	return _c
+}
+
+// SetEmail sets the "email" field.
+func (_c *PlayerCreate) SetEmail(v string) *PlayerCreate {
+	_c.mutation.SetEmail(v)
+	return _c
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (_c *PlayerCreate) SetNillableEmail(v *string) *PlayerCreate {
+	if v != nil {
+		_c.SetEmail(*v)
+	}
+	return _c
+}
+
+// SetGender sets the "gender" field.
+func (_c *PlayerCreate) SetGender(v string) *PlayerCreate {
+	_c.mutation.SetGender(v)
+	return _c
+}
+
+// SetDateOfBirth sets the "date_of_birth" field.
+func (_c *PlayerCreate) SetDateOfBirth(v time.Time) *PlayerCreate {
+	_c.mutation.SetDateOfBirth(v)
+	return _c
+}
+
+// SetNillableDateOfBirth sets the "date_of_birth" field if the given value is not nil.
+func (_c *PlayerCreate) SetNillableDateOfBirth(v *time.Time) *PlayerCreate {
+	if v != nil {
+		_c.SetDateOfBirth(*v)
+	}
+	return _c
+}
+
+// SetJerseyNumber sets the "jersey_number" field.
+func (_c *PlayerCreate) SetJerseyNumber(v string) *PlayerCreate {
+	_c.mutation.SetJerseyNumber(v)
+	return _c
+}
+
+// SetNillableJerseyNumber sets the "jersey_number" field if the given value is not nil.
+func (_c *PlayerCreate) SetNillableJerseyNumber(v *string) *PlayerCreate {
+	if v != nil {
+		_c.SetJerseyNumber(*v)
+	}
+	return _c
+}
+
+// SetProfileImageURL sets the "profile_image_url" field.
+func (_c *PlayerCreate) SetProfileImageURL(v string) *PlayerCreate {
+	_c.mutation.SetProfileImageURL(v)
+	return _c
+}
+
+// SetNillableProfileImageURL sets the "profile_image_url" field if the given value is not nil.
+func (_c *PlayerCreate) SetNillableProfileImageURL(v *string) *PlayerCreate {
+	if v != nil {
+		_c.SetProfileImageURL(*v)
+	}
+	return _c
+}
+
+// SetMetadata sets the "metadata" field.
+func (_c *PlayerCreate) SetMetadata(v map[string]interface{}) *PlayerCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *PlayerCreate) SetID(v uuid.UUID) *PlayerCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *PlayerCreate) SetNillableID(v *uuid.UUID) *PlayerCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// SetTeamID sets the "team" edge to the Team entity by ID.
+func (_c *PlayerCreate) SetTeamID(id uuid.UUID) *PlayerCreate {
+	_c.mutation.SetTeamID(id)
+	return _c
+}
+
+// SetTeam sets the "team" edge to the Team entity.
+func (_c *PlayerCreate) SetTeam(v *Team) *PlayerCreate {
+	return _c.SetTeamID(v.ID)
+}
+
+// AddScoreIDs adds the "scores" edge to the Scoring entity by IDs.
+func (_c *PlayerCreate) AddScoreIDs(ids ...uuid.UUID) *PlayerCreate {
+	_c.mutation.AddScoreIDs(ids...)
+	return _c
+}
+
+// AddScores adds the "scores" edges to the Scoring entity.
+func (_c *PlayerCreate) AddScores(v ...*Scoring) *PlayerCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddScoreIDs(ids...)
+}
+
+// AddGameEventIDs adds the "game_events" edge to the GameEvent entity by IDs.
+func (_c *PlayerCreate) AddGameEventIDs(ids ...uuid.UUID) *PlayerCreate {
+	_c.mutation.AddGameEventIDs(ids...)
+	return _c
+}
+
+// AddGameEvents adds the "game_events" edges to the GameEvent entity.
+func (_c *PlayerCreate) AddGameEvents(v ...*GameEvent) *PlayerCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddGameEventIDs(ids...)
+}
+
+// AddMvpNominationIDs adds the "mvp_nominations" edge to the MVP_Nomination entity by IDs.
+func (_c *PlayerCreate) AddMvpNominationIDs(ids ...uuid.UUID) *PlayerCreate {
+	_c.mutation.AddMvpNominationIDs(ids...)
+	return _c
+}
+
+// AddMvpNominations adds the "mvp_nominations" edges to the MVP_Nomination entity.
+func (_c *PlayerCreate) AddMvpNominations(v ...*MVP_Nomination) *PlayerCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddMvpNominationIDs(ids...)
+}
+
+// AddSpiritNominationIDs adds the "spirit_nominations" edge to the SpiritNomination entity by IDs.
+func (_c *PlayerCreate) AddSpiritNominationIDs(ids ...uuid.UUID) *PlayerCreate {
+	_c.mutation.AddSpiritNominationIDs(ids...)
+	return _c
+}
+
+// AddSpiritNominations adds the "spirit_nominations" edges to the SpiritNomination entity.
+func (_c *PlayerCreate) AddSpiritNominations(v ...*SpiritNomination) *PlayerCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSpiritNominationIDs(ids...)
+}
+
 // Mutation returns the PlayerMutation object of the builder.
 func (_c *PlayerCreate) Mutation() *PlayerMutation {
 	return _c.mutation
@@ -25,6 +234,7 @@ func (_c *PlayerCreate) Mutation() *PlayerMutation {
 
 // Save creates the Player in the database.
 func (_c *PlayerCreate) Save(ctx context.Context) (*Player, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -50,8 +260,59 @@ func (_c *PlayerCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *PlayerCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := player.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := player.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := player.DefaultID()
+		_c.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *PlayerCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Player.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Player.updated_at"`)}
+	}
+	if _, ok := _c.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Player.name"`)}
+	}
+	if v, ok := _c.mutation.Name(); ok {
+		if err := player.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Player.name": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.Email(); ok {
+		if err := player.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Player.email": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Gender(); !ok {
+		return &ValidationError{Name: "gender", err: errors.New(`ent: missing required field "Player.gender"`)}
+	}
+	if v, ok := _c.mutation.Gender(); ok {
+		if err := player.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Player.gender": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.JerseyNumber(); ok {
+		if err := player.JerseyNumberValidator(v); err != nil {
+			return &ValidationError{Name: "jersey_number", err: fmt.Errorf(`ent: validator failed for field "Player.jersey_number": %w`, err)}
+		}
+	}
+	if len(_c.mutation.TeamIDs()) == 0 {
+		return &ValidationError{Name: "team", err: errors.New(`ent: missing required edge "Player.team"`)}
+	}
 	return nil
 }
 
@@ -66,8 +327,13 @@ func (_c *PlayerCreate) sqlSave(ctx context.Context) (*Player, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -76,8 +342,133 @@ func (_c *PlayerCreate) sqlSave(ctx context.Context) (*Player, error) {
 func (_c *PlayerCreate) createSpec() (*Player, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Player{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(player.Table, sqlgraph.NewFieldSpec(player.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(player.Table, sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(player.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(player.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(player.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
+	if value, ok := _c.mutation.Name(); ok {
+		_spec.SetField(player.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
+	if value, ok := _c.mutation.Email(); ok {
+		_spec.SetField(player.FieldEmail, field.TypeString, value)
+		_node.Email = value
+	}
+	if value, ok := _c.mutation.Gender(); ok {
+		_spec.SetField(player.FieldGender, field.TypeString, value)
+		_node.Gender = value
+	}
+	if value, ok := _c.mutation.DateOfBirth(); ok {
+		_spec.SetField(player.FieldDateOfBirth, field.TypeTime, value)
+		_node.DateOfBirth = value
+	}
+	if value, ok := _c.mutation.JerseyNumber(); ok {
+		_spec.SetField(player.FieldJerseyNumber, field.TypeString, value)
+		_node.JerseyNumber = value
+	}
+	if value, ok := _c.mutation.ProfileImageURL(); ok {
+		_spec.SetField(player.FieldProfileImageURL, field.TypeString, value)
+		_node.ProfileImageURL = value
+	}
+	if value, ok := _c.mutation.Metadata(); ok {
+		_spec.SetField(player.FieldMetadata, field.TypeJSON, value)
+		_node.Metadata = value
+	}
+	if nodes := _c.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   player.TeamTable,
+			Columns: []string{player.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.team_players = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ScoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.ScoresTable,
+			Columns: []string{player.ScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.GameEventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.GameEventsTable,
+			Columns: []string{player.GameEventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameevent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.MvpNominationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.MvpNominationsTable,
+			Columns: []string{player.MvpNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mvp_nomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SpiritNominationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.SpiritNominationsTable,
+			Columns: []string{player.SpiritNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -99,6 +490,7 @@ func (_c *PlayerCreateBulk) Save(ctx context.Context) ([]*Player, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*PlayerMutation)
 				if !ok {
@@ -125,10 +517,6 @@ func (_c *PlayerCreateBulk) Save(ctx context.Context) ([]*Player, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

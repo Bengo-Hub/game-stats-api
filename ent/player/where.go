@@ -3,53 +3,762 @@
 package player
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Player {
+func ID(id uuid.UUID) predicate.Player {
 	return predicate.Player(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Player {
+func IDEQ(id uuid.UUID) predicate.Player {
 	return predicate.Player(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Player {
+func IDNEQ(id uuid.UUID) predicate.Player {
 	return predicate.Player(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Player {
+func IDIn(ids ...uuid.UUID) predicate.Player {
 	return predicate.Player(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Player {
+func IDNotIn(ids ...uuid.UUID) predicate.Player {
 	return predicate.Player(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Player {
+func IDGT(id uuid.UUID) predicate.Player {
 	return predicate.Player(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Player {
+func IDGTE(id uuid.UUID) predicate.Player {
 	return predicate.Player(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Player {
+func IDLT(id uuid.UUID) predicate.Player {
 	return predicate.Player(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Player {
+func IDLTE(id uuid.UUID) predicate.Player {
 	return predicate.Player(sql.FieldLTE(FieldID, id))
+}
+
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
+func DeletedAt(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
+func Name(v string) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldName, v))
+}
+
+// Email applies equality check predicate on the "email" field. It's identical to EmailEQ.
+func Email(v string) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldEmail, v))
+}
+
+// Gender applies equality check predicate on the "gender" field. It's identical to GenderEQ.
+func Gender(v string) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldGender, v))
+}
+
+// DateOfBirth applies equality check predicate on the "date_of_birth" field. It's identical to DateOfBirthEQ.
+func DateOfBirth(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldDateOfBirth, v))
+}
+
+// JerseyNumber applies equality check predicate on the "jersey_number" field. It's identical to JerseyNumberEQ.
+func JerseyNumber(v string) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldJerseyNumber, v))
+}
+
+// ProfileImageURL applies equality check predicate on the "profile_image_url" field. It's identical to ProfileImageURLEQ.
+func ProfileImageURL(v string) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldProfileImageURL, v))
+}
+
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldNEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.Player {
+	return predicate.Player(sql.FieldIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.Player {
+	return predicate.Player(sql.FieldNotIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldGT(FieldCreatedAt, v))
+}
+
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldGTE(FieldCreatedAt, v))
+}
+
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldLT(FieldCreatedAt, v))
+}
+
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.Player {
+	return predicate.Player(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.Player {
+	return predicate.Player(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
+func DeletedAtEQ(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
+func DeletedAtNEQ(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldNEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtIn applies the In predicate on the "deleted_at" field.
+func DeletedAtIn(vs ...time.Time) predicate.Player {
+	return predicate.Player(sql.FieldIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
+func DeletedAtNotIn(vs ...time.Time) predicate.Player {
+	return predicate.Player(sql.FieldNotIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtGT applies the GT predicate on the "deleted_at" field.
+func DeletedAtGT(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldGT(FieldDeletedAt, v))
+}
+
+// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
+func DeletedAtGTE(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldGTE(FieldDeletedAt, v))
+}
+
+// DeletedAtLT applies the LT predicate on the "deleted_at" field.
+func DeletedAtLT(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldLT(FieldDeletedAt, v))
+}
+
+// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
+func DeletedAtLTE(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// DeletedAtIsNil applies the IsNil predicate on the "deleted_at" field.
+func DeletedAtIsNil() predicate.Player {
+	return predicate.Player(sql.FieldIsNull(FieldDeletedAt))
+}
+
+// DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
+func DeletedAtNotNil() predicate.Player {
+	return predicate.Player(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// NameEQ applies the EQ predicate on the "name" field.
+func NameEQ(v string) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldName, v))
+}
+
+// NameNEQ applies the NEQ predicate on the "name" field.
+func NameNEQ(v string) predicate.Player {
+	return predicate.Player(sql.FieldNEQ(FieldName, v))
+}
+
+// NameIn applies the In predicate on the "name" field.
+func NameIn(vs ...string) predicate.Player {
+	return predicate.Player(sql.FieldIn(FieldName, vs...))
+}
+
+// NameNotIn applies the NotIn predicate on the "name" field.
+func NameNotIn(vs ...string) predicate.Player {
+	return predicate.Player(sql.FieldNotIn(FieldName, vs...))
+}
+
+// NameGT applies the GT predicate on the "name" field.
+func NameGT(v string) predicate.Player {
+	return predicate.Player(sql.FieldGT(FieldName, v))
+}
+
+// NameGTE applies the GTE predicate on the "name" field.
+func NameGTE(v string) predicate.Player {
+	return predicate.Player(sql.FieldGTE(FieldName, v))
+}
+
+// NameLT applies the LT predicate on the "name" field.
+func NameLT(v string) predicate.Player {
+	return predicate.Player(sql.FieldLT(FieldName, v))
+}
+
+// NameLTE applies the LTE predicate on the "name" field.
+func NameLTE(v string) predicate.Player {
+	return predicate.Player(sql.FieldLTE(FieldName, v))
+}
+
+// NameContains applies the Contains predicate on the "name" field.
+func NameContains(v string) predicate.Player {
+	return predicate.Player(sql.FieldContains(FieldName, v))
+}
+
+// NameHasPrefix applies the HasPrefix predicate on the "name" field.
+func NameHasPrefix(v string) predicate.Player {
+	return predicate.Player(sql.FieldHasPrefix(FieldName, v))
+}
+
+// NameHasSuffix applies the HasSuffix predicate on the "name" field.
+func NameHasSuffix(v string) predicate.Player {
+	return predicate.Player(sql.FieldHasSuffix(FieldName, v))
+}
+
+// NameEqualFold applies the EqualFold predicate on the "name" field.
+func NameEqualFold(v string) predicate.Player {
+	return predicate.Player(sql.FieldEqualFold(FieldName, v))
+}
+
+// NameContainsFold applies the ContainsFold predicate on the "name" field.
+func NameContainsFold(v string) predicate.Player {
+	return predicate.Player(sql.FieldContainsFold(FieldName, v))
+}
+
+// EmailEQ applies the EQ predicate on the "email" field.
+func EmailEQ(v string) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldEmail, v))
+}
+
+// EmailNEQ applies the NEQ predicate on the "email" field.
+func EmailNEQ(v string) predicate.Player {
+	return predicate.Player(sql.FieldNEQ(FieldEmail, v))
+}
+
+// EmailIn applies the In predicate on the "email" field.
+func EmailIn(vs ...string) predicate.Player {
+	return predicate.Player(sql.FieldIn(FieldEmail, vs...))
+}
+
+// EmailNotIn applies the NotIn predicate on the "email" field.
+func EmailNotIn(vs ...string) predicate.Player {
+	return predicate.Player(sql.FieldNotIn(FieldEmail, vs...))
+}
+
+// EmailGT applies the GT predicate on the "email" field.
+func EmailGT(v string) predicate.Player {
+	return predicate.Player(sql.FieldGT(FieldEmail, v))
+}
+
+// EmailGTE applies the GTE predicate on the "email" field.
+func EmailGTE(v string) predicate.Player {
+	return predicate.Player(sql.FieldGTE(FieldEmail, v))
+}
+
+// EmailLT applies the LT predicate on the "email" field.
+func EmailLT(v string) predicate.Player {
+	return predicate.Player(sql.FieldLT(FieldEmail, v))
+}
+
+// EmailLTE applies the LTE predicate on the "email" field.
+func EmailLTE(v string) predicate.Player {
+	return predicate.Player(sql.FieldLTE(FieldEmail, v))
+}
+
+// EmailContains applies the Contains predicate on the "email" field.
+func EmailContains(v string) predicate.Player {
+	return predicate.Player(sql.FieldContains(FieldEmail, v))
+}
+
+// EmailHasPrefix applies the HasPrefix predicate on the "email" field.
+func EmailHasPrefix(v string) predicate.Player {
+	return predicate.Player(sql.FieldHasPrefix(FieldEmail, v))
+}
+
+// EmailHasSuffix applies the HasSuffix predicate on the "email" field.
+func EmailHasSuffix(v string) predicate.Player {
+	return predicate.Player(sql.FieldHasSuffix(FieldEmail, v))
+}
+
+// EmailIsNil applies the IsNil predicate on the "email" field.
+func EmailIsNil() predicate.Player {
+	return predicate.Player(sql.FieldIsNull(FieldEmail))
+}
+
+// EmailNotNil applies the NotNil predicate on the "email" field.
+func EmailNotNil() predicate.Player {
+	return predicate.Player(sql.FieldNotNull(FieldEmail))
+}
+
+// EmailEqualFold applies the EqualFold predicate on the "email" field.
+func EmailEqualFold(v string) predicate.Player {
+	return predicate.Player(sql.FieldEqualFold(FieldEmail, v))
+}
+
+// EmailContainsFold applies the ContainsFold predicate on the "email" field.
+func EmailContainsFold(v string) predicate.Player {
+	return predicate.Player(sql.FieldContainsFold(FieldEmail, v))
+}
+
+// GenderEQ applies the EQ predicate on the "gender" field.
+func GenderEQ(v string) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldGender, v))
+}
+
+// GenderNEQ applies the NEQ predicate on the "gender" field.
+func GenderNEQ(v string) predicate.Player {
+	return predicate.Player(sql.FieldNEQ(FieldGender, v))
+}
+
+// GenderIn applies the In predicate on the "gender" field.
+func GenderIn(vs ...string) predicate.Player {
+	return predicate.Player(sql.FieldIn(FieldGender, vs...))
+}
+
+// GenderNotIn applies the NotIn predicate on the "gender" field.
+func GenderNotIn(vs ...string) predicate.Player {
+	return predicate.Player(sql.FieldNotIn(FieldGender, vs...))
+}
+
+// GenderGT applies the GT predicate on the "gender" field.
+func GenderGT(v string) predicate.Player {
+	return predicate.Player(sql.FieldGT(FieldGender, v))
+}
+
+// GenderGTE applies the GTE predicate on the "gender" field.
+func GenderGTE(v string) predicate.Player {
+	return predicate.Player(sql.FieldGTE(FieldGender, v))
+}
+
+// GenderLT applies the LT predicate on the "gender" field.
+func GenderLT(v string) predicate.Player {
+	return predicate.Player(sql.FieldLT(FieldGender, v))
+}
+
+// GenderLTE applies the LTE predicate on the "gender" field.
+func GenderLTE(v string) predicate.Player {
+	return predicate.Player(sql.FieldLTE(FieldGender, v))
+}
+
+// GenderContains applies the Contains predicate on the "gender" field.
+func GenderContains(v string) predicate.Player {
+	return predicate.Player(sql.FieldContains(FieldGender, v))
+}
+
+// GenderHasPrefix applies the HasPrefix predicate on the "gender" field.
+func GenderHasPrefix(v string) predicate.Player {
+	return predicate.Player(sql.FieldHasPrefix(FieldGender, v))
+}
+
+// GenderHasSuffix applies the HasSuffix predicate on the "gender" field.
+func GenderHasSuffix(v string) predicate.Player {
+	return predicate.Player(sql.FieldHasSuffix(FieldGender, v))
+}
+
+// GenderEqualFold applies the EqualFold predicate on the "gender" field.
+func GenderEqualFold(v string) predicate.Player {
+	return predicate.Player(sql.FieldEqualFold(FieldGender, v))
+}
+
+// GenderContainsFold applies the ContainsFold predicate on the "gender" field.
+func GenderContainsFold(v string) predicate.Player {
+	return predicate.Player(sql.FieldContainsFold(FieldGender, v))
+}
+
+// DateOfBirthEQ applies the EQ predicate on the "date_of_birth" field.
+func DateOfBirthEQ(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldDateOfBirth, v))
+}
+
+// DateOfBirthNEQ applies the NEQ predicate on the "date_of_birth" field.
+func DateOfBirthNEQ(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldNEQ(FieldDateOfBirth, v))
+}
+
+// DateOfBirthIn applies the In predicate on the "date_of_birth" field.
+func DateOfBirthIn(vs ...time.Time) predicate.Player {
+	return predicate.Player(sql.FieldIn(FieldDateOfBirth, vs...))
+}
+
+// DateOfBirthNotIn applies the NotIn predicate on the "date_of_birth" field.
+func DateOfBirthNotIn(vs ...time.Time) predicate.Player {
+	return predicate.Player(sql.FieldNotIn(FieldDateOfBirth, vs...))
+}
+
+// DateOfBirthGT applies the GT predicate on the "date_of_birth" field.
+func DateOfBirthGT(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldGT(FieldDateOfBirth, v))
+}
+
+// DateOfBirthGTE applies the GTE predicate on the "date_of_birth" field.
+func DateOfBirthGTE(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldGTE(FieldDateOfBirth, v))
+}
+
+// DateOfBirthLT applies the LT predicate on the "date_of_birth" field.
+func DateOfBirthLT(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldLT(FieldDateOfBirth, v))
+}
+
+// DateOfBirthLTE applies the LTE predicate on the "date_of_birth" field.
+func DateOfBirthLTE(v time.Time) predicate.Player {
+	return predicate.Player(sql.FieldLTE(FieldDateOfBirth, v))
+}
+
+// DateOfBirthIsNil applies the IsNil predicate on the "date_of_birth" field.
+func DateOfBirthIsNil() predicate.Player {
+	return predicate.Player(sql.FieldIsNull(FieldDateOfBirth))
+}
+
+// DateOfBirthNotNil applies the NotNil predicate on the "date_of_birth" field.
+func DateOfBirthNotNil() predicate.Player {
+	return predicate.Player(sql.FieldNotNull(FieldDateOfBirth))
+}
+
+// JerseyNumberEQ applies the EQ predicate on the "jersey_number" field.
+func JerseyNumberEQ(v string) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldJerseyNumber, v))
+}
+
+// JerseyNumberNEQ applies the NEQ predicate on the "jersey_number" field.
+func JerseyNumberNEQ(v string) predicate.Player {
+	return predicate.Player(sql.FieldNEQ(FieldJerseyNumber, v))
+}
+
+// JerseyNumberIn applies the In predicate on the "jersey_number" field.
+func JerseyNumberIn(vs ...string) predicate.Player {
+	return predicate.Player(sql.FieldIn(FieldJerseyNumber, vs...))
+}
+
+// JerseyNumberNotIn applies the NotIn predicate on the "jersey_number" field.
+func JerseyNumberNotIn(vs ...string) predicate.Player {
+	return predicate.Player(sql.FieldNotIn(FieldJerseyNumber, vs...))
+}
+
+// JerseyNumberGT applies the GT predicate on the "jersey_number" field.
+func JerseyNumberGT(v string) predicate.Player {
+	return predicate.Player(sql.FieldGT(FieldJerseyNumber, v))
+}
+
+// JerseyNumberGTE applies the GTE predicate on the "jersey_number" field.
+func JerseyNumberGTE(v string) predicate.Player {
+	return predicate.Player(sql.FieldGTE(FieldJerseyNumber, v))
+}
+
+// JerseyNumberLT applies the LT predicate on the "jersey_number" field.
+func JerseyNumberLT(v string) predicate.Player {
+	return predicate.Player(sql.FieldLT(FieldJerseyNumber, v))
+}
+
+// JerseyNumberLTE applies the LTE predicate on the "jersey_number" field.
+func JerseyNumberLTE(v string) predicate.Player {
+	return predicate.Player(sql.FieldLTE(FieldJerseyNumber, v))
+}
+
+// JerseyNumberContains applies the Contains predicate on the "jersey_number" field.
+func JerseyNumberContains(v string) predicate.Player {
+	return predicate.Player(sql.FieldContains(FieldJerseyNumber, v))
+}
+
+// JerseyNumberHasPrefix applies the HasPrefix predicate on the "jersey_number" field.
+func JerseyNumberHasPrefix(v string) predicate.Player {
+	return predicate.Player(sql.FieldHasPrefix(FieldJerseyNumber, v))
+}
+
+// JerseyNumberHasSuffix applies the HasSuffix predicate on the "jersey_number" field.
+func JerseyNumberHasSuffix(v string) predicate.Player {
+	return predicate.Player(sql.FieldHasSuffix(FieldJerseyNumber, v))
+}
+
+// JerseyNumberIsNil applies the IsNil predicate on the "jersey_number" field.
+func JerseyNumberIsNil() predicate.Player {
+	return predicate.Player(sql.FieldIsNull(FieldJerseyNumber))
+}
+
+// JerseyNumberNotNil applies the NotNil predicate on the "jersey_number" field.
+func JerseyNumberNotNil() predicate.Player {
+	return predicate.Player(sql.FieldNotNull(FieldJerseyNumber))
+}
+
+// JerseyNumberEqualFold applies the EqualFold predicate on the "jersey_number" field.
+func JerseyNumberEqualFold(v string) predicate.Player {
+	return predicate.Player(sql.FieldEqualFold(FieldJerseyNumber, v))
+}
+
+// JerseyNumberContainsFold applies the ContainsFold predicate on the "jersey_number" field.
+func JerseyNumberContainsFold(v string) predicate.Player {
+	return predicate.Player(sql.FieldContainsFold(FieldJerseyNumber, v))
+}
+
+// ProfileImageURLEQ applies the EQ predicate on the "profile_image_url" field.
+func ProfileImageURLEQ(v string) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldProfileImageURL, v))
+}
+
+// ProfileImageURLNEQ applies the NEQ predicate on the "profile_image_url" field.
+func ProfileImageURLNEQ(v string) predicate.Player {
+	return predicate.Player(sql.FieldNEQ(FieldProfileImageURL, v))
+}
+
+// ProfileImageURLIn applies the In predicate on the "profile_image_url" field.
+func ProfileImageURLIn(vs ...string) predicate.Player {
+	return predicate.Player(sql.FieldIn(FieldProfileImageURL, vs...))
+}
+
+// ProfileImageURLNotIn applies the NotIn predicate on the "profile_image_url" field.
+func ProfileImageURLNotIn(vs ...string) predicate.Player {
+	return predicate.Player(sql.FieldNotIn(FieldProfileImageURL, vs...))
+}
+
+// ProfileImageURLGT applies the GT predicate on the "profile_image_url" field.
+func ProfileImageURLGT(v string) predicate.Player {
+	return predicate.Player(sql.FieldGT(FieldProfileImageURL, v))
+}
+
+// ProfileImageURLGTE applies the GTE predicate on the "profile_image_url" field.
+func ProfileImageURLGTE(v string) predicate.Player {
+	return predicate.Player(sql.FieldGTE(FieldProfileImageURL, v))
+}
+
+// ProfileImageURLLT applies the LT predicate on the "profile_image_url" field.
+func ProfileImageURLLT(v string) predicate.Player {
+	return predicate.Player(sql.FieldLT(FieldProfileImageURL, v))
+}
+
+// ProfileImageURLLTE applies the LTE predicate on the "profile_image_url" field.
+func ProfileImageURLLTE(v string) predicate.Player {
+	return predicate.Player(sql.FieldLTE(FieldProfileImageURL, v))
+}
+
+// ProfileImageURLContains applies the Contains predicate on the "profile_image_url" field.
+func ProfileImageURLContains(v string) predicate.Player {
+	return predicate.Player(sql.FieldContains(FieldProfileImageURL, v))
+}
+
+// ProfileImageURLHasPrefix applies the HasPrefix predicate on the "profile_image_url" field.
+func ProfileImageURLHasPrefix(v string) predicate.Player {
+	return predicate.Player(sql.FieldHasPrefix(FieldProfileImageURL, v))
+}
+
+// ProfileImageURLHasSuffix applies the HasSuffix predicate on the "profile_image_url" field.
+func ProfileImageURLHasSuffix(v string) predicate.Player {
+	return predicate.Player(sql.FieldHasSuffix(FieldProfileImageURL, v))
+}
+
+// ProfileImageURLIsNil applies the IsNil predicate on the "profile_image_url" field.
+func ProfileImageURLIsNil() predicate.Player {
+	return predicate.Player(sql.FieldIsNull(FieldProfileImageURL))
+}
+
+// ProfileImageURLNotNil applies the NotNil predicate on the "profile_image_url" field.
+func ProfileImageURLNotNil() predicate.Player {
+	return predicate.Player(sql.FieldNotNull(FieldProfileImageURL))
+}
+
+// ProfileImageURLEqualFold applies the EqualFold predicate on the "profile_image_url" field.
+func ProfileImageURLEqualFold(v string) predicate.Player {
+	return predicate.Player(sql.FieldEqualFold(FieldProfileImageURL, v))
+}
+
+// ProfileImageURLContainsFold applies the ContainsFold predicate on the "profile_image_url" field.
+func ProfileImageURLContainsFold(v string) predicate.Player {
+	return predicate.Player(sql.FieldContainsFold(FieldProfileImageURL, v))
+}
+
+// MetadataIsNil applies the IsNil predicate on the "metadata" field.
+func MetadataIsNil() predicate.Player {
+	return predicate.Player(sql.FieldIsNull(FieldMetadata))
+}
+
+// MetadataNotNil applies the NotNil predicate on the "metadata" field.
+func MetadataNotNil() predicate.Player {
+	return predicate.Player(sql.FieldNotNull(FieldMetadata))
+}
+
+// HasTeam applies the HasEdge predicate on the "team" edge.
+func HasTeam() predicate.Player {
+	return predicate.Player(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, TeamTable, TeamColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTeamWith applies the HasEdge predicate on the "team" edge with a given conditions (other predicates).
+func HasTeamWith(preds ...predicate.Team) predicate.Player {
+	return predicate.Player(func(s *sql.Selector) {
+		step := newTeamStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasScores applies the HasEdge predicate on the "scores" edge.
+func HasScores() predicate.Player {
+	return predicate.Player(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ScoresTable, ScoresColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasScoresWith applies the HasEdge predicate on the "scores" edge with a given conditions (other predicates).
+func HasScoresWith(preds ...predicate.Scoring) predicate.Player {
+	return predicate.Player(func(s *sql.Selector) {
+		step := newScoresStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasGameEvents applies the HasEdge predicate on the "game_events" edge.
+func HasGameEvents() predicate.Player {
+	return predicate.Player(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, GameEventsTable, GameEventsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGameEventsWith applies the HasEdge predicate on the "game_events" edge with a given conditions (other predicates).
+func HasGameEventsWith(preds ...predicate.GameEvent) predicate.Player {
+	return predicate.Player(func(s *sql.Selector) {
+		step := newGameEventsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasMvpNominations applies the HasEdge predicate on the "mvp_nominations" edge.
+func HasMvpNominations() predicate.Player {
+	return predicate.Player(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, MvpNominationsTable, MvpNominationsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMvpNominationsWith applies the HasEdge predicate on the "mvp_nominations" edge with a given conditions (other predicates).
+func HasMvpNominationsWith(preds ...predicate.MVP_Nomination) predicate.Player {
+	return predicate.Player(func(s *sql.Selector) {
+		step := newMvpNominationsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasSpiritNominations applies the HasEdge predicate on the "spirit_nominations" edge.
+func HasSpiritNominations() predicate.Player {
+	return predicate.Player(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SpiritNominationsTable, SpiritNominationsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSpiritNominationsWith applies the HasEdge predicate on the "spirit_nominations" edge with a given conditions (other predicates).
+func HasSpiritNominationsWith(preds ...predicate.SpiritNomination) predicate.Player {
+	return predicate.Player(func(s *sql.Selector) {
+		step := newSpiritNominationsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

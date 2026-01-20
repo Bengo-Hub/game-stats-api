@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/game-stats-api/ent/analyticsearch"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // AnalyticSearchQuery is the builder for querying AnalyticSearch entities.
@@ -82,8 +83,8 @@ func (_q *AnalyticSearchQuery) FirstX(ctx context.Context) *AnalyticSearch {
 
 // FirstID returns the first AnalyticSearch ID from the query.
 // Returns a *NotFoundError when no AnalyticSearch ID was found.
-func (_q *AnalyticSearchQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *AnalyticSearchQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -95,7 +96,7 @@ func (_q *AnalyticSearchQuery) FirstID(ctx context.Context) (id int, err error) 
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *AnalyticSearchQuery) FirstIDX(ctx context.Context) int {
+func (_q *AnalyticSearchQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -133,8 +134,8 @@ func (_q *AnalyticSearchQuery) OnlyX(ctx context.Context) *AnalyticSearch {
 // OnlyID is like Only, but returns the only AnalyticSearch ID in the query.
 // Returns a *NotSingularError when more than one AnalyticSearch ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *AnalyticSearchQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *AnalyticSearchQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -150,7 +151,7 @@ func (_q *AnalyticSearchQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *AnalyticSearchQuery) OnlyIDX(ctx context.Context) int {
+func (_q *AnalyticSearchQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -178,7 +179,7 @@ func (_q *AnalyticSearchQuery) AllX(ctx context.Context) []*AnalyticSearch {
 }
 
 // IDs executes the query and returns a list of AnalyticSearch IDs.
-func (_q *AnalyticSearchQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *AnalyticSearchQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -190,7 +191,7 @@ func (_q *AnalyticSearchQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *AnalyticSearchQuery) IDsX(ctx context.Context) []int {
+func (_q *AnalyticSearchQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -258,6 +259,18 @@ func (_q *AnalyticSearchQuery) Clone() *AnalyticSearchQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.AnalyticSearch.Query().
+//		GroupBy(analyticsearch.FieldCreatedAt).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (_q *AnalyticSearchQuery) GroupBy(field string, fields ...string) *AnalyticSearchGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &AnalyticSearchGroupBy{build: _q}
@@ -269,6 +282,16 @@ func (_q *AnalyticSearchQuery) GroupBy(field string, fields ...string) *Analytic
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//	}
+//
+//	client.AnalyticSearch.Query().
+//		Select(analyticsearch.FieldCreatedAt).
+//		Scan(ctx, &v)
 func (_q *AnalyticSearchQuery) Select(fields ...string) *AnalyticSearchSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
 	sbuild := &AnalyticSearchSelect{AnalyticSearchQuery: _q}
@@ -343,7 +366,7 @@ func (_q *AnalyticSearchQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *AnalyticSearchQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(analyticsearch.Table, analyticsearch.Columns, sqlgraph.NewFieldSpec(analyticsearch.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(analyticsearch.Table, analyticsearch.Columns, sqlgraph.NewFieldSpec(analyticsearch.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

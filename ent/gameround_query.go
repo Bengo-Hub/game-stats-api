@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -11,8 +12,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // GameRoundQuery is the builder for querying GameRound entities.
@@ -22,6 +26,9 @@ type GameRoundQuery struct {
 	order      []gameround.OrderOption
 	inters     []Interceptor
 	predicates []predicate.GameRound
+	withEvent  *EventQuery
+	withGames  *GameQuery
+	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -58,6 +65,50 @@ func (_q *GameRoundQuery) Order(o ...gameround.OrderOption) *GameRoundQuery {
 	return _q
 }
 
+// QueryEvent chains the current query on the "event" edge.
+func (_q *GameRoundQuery) QueryEvent() *EventQuery {
+	query := (&EventClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(gameround.Table, gameround.FieldID, selector),
+			sqlgraph.To(event.Table, event.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, gameround.EventTable, gameround.EventColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryGames chains the current query on the "games" edge.
+func (_q *GameRoundQuery) QueryGames() *GameQuery {
+	query := (&GameClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(gameround.Table, gameround.FieldID, selector),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, gameround.GamesTable, gameround.GamesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first GameRound entity from the query.
 // Returns a *NotFoundError when no GameRound was found.
 func (_q *GameRoundQuery) First(ctx context.Context) (*GameRound, error) {
@@ -82,8 +133,8 @@ func (_q *GameRoundQuery) FirstX(ctx context.Context) *GameRound {
 
 // FirstID returns the first GameRound ID from the query.
 // Returns a *NotFoundError when no GameRound ID was found.
-func (_q *GameRoundQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *GameRoundQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -95,7 +146,7 @@ func (_q *GameRoundQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *GameRoundQuery) FirstIDX(ctx context.Context) int {
+func (_q *GameRoundQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -133,8 +184,8 @@ func (_q *GameRoundQuery) OnlyX(ctx context.Context) *GameRound {
 // OnlyID is like Only, but returns the only GameRound ID in the query.
 // Returns a *NotSingularError when more than one GameRound ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *GameRoundQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *GameRoundQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -150,7 +201,7 @@ func (_q *GameRoundQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *GameRoundQuery) OnlyIDX(ctx context.Context) int {
+func (_q *GameRoundQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -178,7 +229,7 @@ func (_q *GameRoundQuery) AllX(ctx context.Context) []*GameRound {
 }
 
 // IDs executes the query and returns a list of GameRound IDs.
-func (_q *GameRoundQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *GameRoundQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -190,7 +241,7 @@ func (_q *GameRoundQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *GameRoundQuery) IDsX(ctx context.Context) []int {
+func (_q *GameRoundQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -250,14 +301,50 @@ func (_q *GameRoundQuery) Clone() *GameRoundQuery {
 		order:      append([]gameround.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
 		predicates: append([]predicate.GameRound{}, _q.predicates...),
+		withEvent:  _q.withEvent.Clone(),
+		withGames:  _q.withGames.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
 }
 
+// WithEvent tells the query-builder to eager-load the nodes that are connected to
+// the "event" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *GameRoundQuery) WithEvent(opts ...func(*EventQuery)) *GameRoundQuery {
+	query := (&EventClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withEvent = query
+	return _q
+}
+
+// WithGames tells the query-builder to eager-load the nodes that are connected to
+// the "games" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *GameRoundQuery) WithGames(opts ...func(*GameQuery)) *GameRoundQuery {
+	query := (&GameClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withGames = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.GameRound.Query().
+//		GroupBy(gameround.FieldCreatedAt).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (_q *GameRoundQuery) GroupBy(field string, fields ...string) *GameRoundGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &GameRoundGroupBy{build: _q}
@@ -269,6 +356,16 @@ func (_q *GameRoundQuery) GroupBy(field string, fields ...string) *GameRoundGrou
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//	}
+//
+//	client.GameRound.Query().
+//		Select(gameround.FieldCreatedAt).
+//		Scan(ctx, &v)
 func (_q *GameRoundQuery) Select(fields ...string) *GameRoundSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
 	sbuild := &GameRoundSelect{GameRoundQuery: _q}
@@ -310,15 +407,27 @@ func (_q *GameRoundQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *GameRoundQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*GameRound, error) {
 	var (
-		nodes = []*GameRound{}
-		_spec = _q.querySpec()
+		nodes       = []*GameRound{}
+		withFKs     = _q.withFKs
+		_spec       = _q.querySpec()
+		loadedTypes = [2]bool{
+			_q.withEvent != nil,
+			_q.withGames != nil,
+		}
 	)
+	if _q.withEvent != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, gameround.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*GameRound).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &GameRound{config: _q.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -330,7 +439,84 @@ func (_q *GameRoundQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Ga
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withEvent; query != nil {
+		if err := _q.loadEvent(ctx, query, nodes, nil,
+			func(n *GameRound, e *Event) { n.Edges.Event = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withGames; query != nil {
+		if err := _q.loadGames(ctx, query, nodes,
+			func(n *GameRound) { n.Edges.Games = []*Game{} },
+			func(n *GameRound, e *Game) { n.Edges.Games = append(n.Edges.Games, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (_q *GameRoundQuery) loadEvent(ctx context.Context, query *EventQuery, nodes []*GameRound, init func(*GameRound), assign func(*GameRound, *Event)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*GameRound)
+	for i := range nodes {
+		if nodes[i].event_game_rounds == nil {
+			continue
+		}
+		fk := *nodes[i].event_game_rounds
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(event.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "event_game_rounds" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *GameRoundQuery) loadGames(ctx context.Context, query *GameQuery, nodes []*GameRound, init func(*GameRound), assign func(*GameRound, *Game)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*GameRound)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(gameround.GamesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.game_round_games
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "game_round_games" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "game_round_games" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (_q *GameRoundQuery) sqlCount(ctx context.Context) (int, error) {
@@ -343,7 +529,7 @@ func (_q *GameRoundQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *GameRoundQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(gameround.Table, gameround.Columns, sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(gameround.Table, gameround.Columns, sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

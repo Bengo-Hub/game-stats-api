@@ -4,11 +4,14 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/game-stats-api/ent/analyticsembedding"
+	"github.com/google/uuid"
 )
 
 // AnalyticsEmbeddingCreate is the builder for creating a AnalyticsEmbedding entity.
@@ -18,6 +21,100 @@ type AnalyticsEmbeddingCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *AnalyticsEmbeddingCreate) SetCreatedAt(v time.Time) *AnalyticsEmbeddingCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *AnalyticsEmbeddingCreate) SetNillableCreatedAt(v *time.Time) *AnalyticsEmbeddingCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *AnalyticsEmbeddingCreate) SetUpdatedAt(v time.Time) *AnalyticsEmbeddingCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *AnalyticsEmbeddingCreate) SetNillableUpdatedAt(v *time.Time) *AnalyticsEmbeddingCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *AnalyticsEmbeddingCreate) SetDeletedAt(v time.Time) *AnalyticsEmbeddingCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *AnalyticsEmbeddingCreate) SetNillableDeletedAt(v *time.Time) *AnalyticsEmbeddingCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
+// SetEntityType sets the "entity_type" field.
+func (_c *AnalyticsEmbeddingCreate) SetEntityType(v string) *AnalyticsEmbeddingCreate {
+	_c.mutation.SetEntityType(v)
+	return _c
+}
+
+// SetEntityID sets the "entity_id" field.
+func (_c *AnalyticsEmbeddingCreate) SetEntityID(v uuid.UUID) *AnalyticsEmbeddingCreate {
+	_c.mutation.SetEntityID(v)
+	return _c
+}
+
+// SetEmbedding sets the "embedding" field.
+func (_c *AnalyticsEmbeddingCreate) SetEmbedding(v []float32) *AnalyticsEmbeddingCreate {
+	_c.mutation.SetEmbedding(v)
+	return _c
+}
+
+// SetContent sets the "content" field.
+func (_c *AnalyticsEmbeddingCreate) SetContent(v string) *AnalyticsEmbeddingCreate {
+	_c.mutation.SetContent(v)
+	return _c
+}
+
+// SetNillableContent sets the "content" field if the given value is not nil.
+func (_c *AnalyticsEmbeddingCreate) SetNillableContent(v *string) *AnalyticsEmbeddingCreate {
+	if v != nil {
+		_c.SetContent(*v)
+	}
+	return _c
+}
+
+// SetMetadata sets the "metadata" field.
+func (_c *AnalyticsEmbeddingCreate) SetMetadata(v map[string]interface{}) *AnalyticsEmbeddingCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *AnalyticsEmbeddingCreate) SetID(v uuid.UUID) *AnalyticsEmbeddingCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *AnalyticsEmbeddingCreate) SetNillableID(v *uuid.UUID) *AnalyticsEmbeddingCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
 // Mutation returns the AnalyticsEmbeddingMutation object of the builder.
 func (_c *AnalyticsEmbeddingCreate) Mutation() *AnalyticsEmbeddingMutation {
 	return _c.mutation
@@ -25,6 +122,7 @@ func (_c *AnalyticsEmbeddingCreate) Mutation() *AnalyticsEmbeddingMutation {
 
 // Save creates the AnalyticsEmbedding in the database.
 func (_c *AnalyticsEmbeddingCreate) Save(ctx context.Context) (*AnalyticsEmbedding, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -50,8 +148,41 @@ func (_c *AnalyticsEmbeddingCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *AnalyticsEmbeddingCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := analyticsembedding.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := analyticsembedding.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := analyticsembedding.DefaultID()
+		_c.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *AnalyticsEmbeddingCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "AnalyticsEmbedding.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "AnalyticsEmbedding.updated_at"`)}
+	}
+	if _, ok := _c.mutation.EntityType(); !ok {
+		return &ValidationError{Name: "entity_type", err: errors.New(`ent: missing required field "AnalyticsEmbedding.entity_type"`)}
+	}
+	if v, ok := _c.mutation.EntityType(); ok {
+		if err := analyticsembedding.EntityTypeValidator(v); err != nil {
+			return &ValidationError{Name: "entity_type", err: fmt.Errorf(`ent: validator failed for field "AnalyticsEmbedding.entity_type": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.EntityID(); !ok {
+		return &ValidationError{Name: "entity_id", err: errors.New(`ent: missing required field "AnalyticsEmbedding.entity_id"`)}
+	}
 	return nil
 }
 
@@ -66,8 +197,13 @@ func (_c *AnalyticsEmbeddingCreate) sqlSave(ctx context.Context) (*AnalyticsEmbe
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -76,8 +212,44 @@ func (_c *AnalyticsEmbeddingCreate) sqlSave(ctx context.Context) (*AnalyticsEmbe
 func (_c *AnalyticsEmbeddingCreate) createSpec() (*AnalyticsEmbedding, *sqlgraph.CreateSpec) {
 	var (
 		_node = &AnalyticsEmbedding{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(analyticsembedding.Table, sqlgraph.NewFieldSpec(analyticsembedding.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(analyticsembedding.Table, sqlgraph.NewFieldSpec(analyticsembedding.FieldID, field.TypeUUID))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(analyticsembedding.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(analyticsembedding.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(analyticsembedding.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
+	if value, ok := _c.mutation.EntityType(); ok {
+		_spec.SetField(analyticsembedding.FieldEntityType, field.TypeString, value)
+		_node.EntityType = value
+	}
+	if value, ok := _c.mutation.EntityID(); ok {
+		_spec.SetField(analyticsembedding.FieldEntityID, field.TypeUUID, value)
+		_node.EntityID = value
+	}
+	if value, ok := _c.mutation.Embedding(); ok {
+		_spec.SetField(analyticsembedding.FieldEmbedding, field.TypeJSON, value)
+		_node.Embedding = value
+	}
+	if value, ok := _c.mutation.Content(); ok {
+		_spec.SetField(analyticsembedding.FieldContent, field.TypeString, value)
+		_node.Content = value
+	}
+	if value, ok := _c.mutation.Metadata(); ok {
+		_spec.SetField(analyticsembedding.FieldMetadata, field.TypeJSON, value)
+		_node.Metadata = value
+	}
 	return _node, _spec
 }
 
@@ -99,6 +271,7 @@ func (_c *AnalyticsEmbeddingCreateBulk) Save(ctx context.Context) ([]*AnalyticsE
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*AnalyticsEmbeddingMutation)
 				if !ok {
@@ -125,10 +298,6 @@ func (_c *AnalyticsEmbeddingCreateBulk) Save(ctx context.Context) ([]*AnalyticsE
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

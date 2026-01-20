@@ -5,18 +5,76 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/google/uuid"
 )
 
 // Scoring is the model entity for the Scoring schema.
 type Scoring struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
-	selectValues sql.SelectValues
+	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	// Goals holds the value of the "goals" field.
+	Goals int `json:"goals,omitempty"`
+	// Assists holds the value of the "assists" field.
+	Assists int `json:"assists,omitempty"`
+	// Blocks holds the value of the "blocks" field.
+	Blocks int `json:"blocks,omitempty"`
+	// Turns holds the value of the "turns" field.
+	Turns int `json:"turns,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int `json:"version,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ScoringQuery when eager-loading is set.
+	Edges         ScoringEdges `json:"edges"`
+	game_scores   *uuid.UUID
+	player_scores *uuid.UUID
+	selectValues  sql.SelectValues
+}
+
+// ScoringEdges holds the relations/edges for other nodes in the graph.
+type ScoringEdges struct {
+	// Game holds the value of the game edge.
+	Game *Game `json:"game,omitempty"`
+	// Player holds the value of the player edge.
+	Player *Player `json:"player,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [2]bool
+}
+
+// GameOrErr returns the Game value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ScoringEdges) GameOrErr() (*Game, error) {
+	if e.Game != nil {
+		return e.Game, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: game.Label}
+	}
+	return nil, &NotLoadedError{edge: "game"}
+}
+
+// PlayerOrErr returns the Player value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ScoringEdges) PlayerOrErr() (*Player, error) {
+	if e.Player != nil {
+		return e.Player, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: player.Label}
+	}
+	return nil, &NotLoadedError{edge: "player"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -24,8 +82,16 @@ func (*Scoring) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case scoring.FieldID:
+		case scoring.FieldGoals, scoring.FieldAssists, scoring.FieldBlocks, scoring.FieldTurns, scoring.FieldVersion:
 			values[i] = new(sql.NullInt64)
+		case scoring.FieldCreatedAt, scoring.FieldUpdatedAt, scoring.FieldDeletedAt:
+			values[i] = new(sql.NullTime)
+		case scoring.FieldID:
+			values[i] = new(uuid.UUID)
+		case scoring.ForeignKeys[0]: // game_scores
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case scoring.ForeignKeys[1]: // player_scores
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -42,11 +108,74 @@ func (_m *Scoring) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case scoring.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
+		case scoring.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case scoring.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case scoring.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
+		case scoring.FieldGoals:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field goals", values[i])
+			} else if value.Valid {
+				_m.Goals = int(value.Int64)
+			}
+		case scoring.FieldAssists:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field assists", values[i])
+			} else if value.Valid {
+				_m.Assists = int(value.Int64)
+			}
+		case scoring.FieldBlocks:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field blocks", values[i])
+			} else if value.Valid {
+				_m.Blocks = int(value.Int64)
+			}
+		case scoring.FieldTurns:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field turns", values[i])
+			} else if value.Valid {
+				_m.Turns = int(value.Int64)
+			}
+		case scoring.FieldVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field version", values[i])
+			} else if value.Valid {
+				_m.Version = int(value.Int64)
+			}
+		case scoring.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field game_scores", values[i])
+			} else if value.Valid {
+				_m.game_scores = new(uuid.UUID)
+				*_m.game_scores = *value.S.(*uuid.UUID)
+			}
+		case scoring.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field player_scores", values[i])
+			} else if value.Valid {
+				_m.player_scores = new(uuid.UUID)
+				*_m.player_scores = *value.S.(*uuid.UUID)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -58,6 +187,16 @@ func (_m *Scoring) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Scoring) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryGame queries the "game" edge of the Scoring entity.
+func (_m *Scoring) QueryGame() *GameQuery {
+	return NewScoringClient(_m.config).QueryGame(_m)
+}
+
+// QueryPlayer queries the "player" edge of the Scoring entity.
+func (_m *Scoring) QueryPlayer() *PlayerQuery {
+	return NewScoringClient(_m.config).QueryPlayer(_m)
 }
 
 // Update returns a builder for updating this Scoring.
@@ -82,7 +221,32 @@ func (_m *Scoring) Unwrap() *Scoring {
 func (_m *Scoring) String() string {
 	var builder strings.Builder
 	builder.WriteString("Scoring(")
-	builder.WriteString(fmt.Sprintf("id=%v", _m.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("goals=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Goals))
+	builder.WriteString(", ")
+	builder.WriteString("assists=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Assists))
+	builder.WriteString(", ")
+	builder.WriteString("blocks=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Blocks))
+	builder.WriteString(", ")
+	builder.WriteString("turns=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Turns))
+	builder.WriteString(", ")
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
 	builder.WriteByte(')')
 	return builder.String()
 }

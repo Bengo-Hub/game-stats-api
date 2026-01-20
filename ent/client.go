@@ -10,21 +10,33 @@ import (
 	"reflect"
 
 	"github.com/bengobox/game-stats-api/ent/migrate"
+	"github.com/google/uuid"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/bengobox/game-stats-api/ent/analyticsearch"
 	"github.com/bengobox/game-stats-api/ent/analyticsembedding"
+	"github.com/bengobox/game-stats-api/ent/continent"
+	"github.com/bengobox/game-stats-api/ent/country"
+	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
+	entfield "github.com/bengobox/game-stats-api/ent/field"
 	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/gameevent"
 	"github.com/bengobox/game-stats-api/ent/gameround"
+	"github.com/bengobox/game-stats-api/ent/location"
+	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
 	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/bengobox/game-stats-api/ent/spiritnomination"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
 	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/bengobox/game-stats-api/ent/world"
 )
 
 // Client is the client that holds all ent builders.
@@ -36,24 +48,44 @@ type Client struct {
 	AnalyticSearch *AnalyticSearchClient
 	// AnalyticsEmbedding is the client for interacting with the AnalyticsEmbedding builders.
 	AnalyticsEmbedding *AnalyticsEmbeddingClient
+	// Continent is the client for interacting with the Continent builders.
+	Continent *ContinentClient
+	// Country is the client for interacting with the Country builders.
+	Country *CountryClient
+	// Discipline is the client for interacting with the Discipline builders.
+	Discipline *DisciplineClient
 	// DivisionPool is the client for interacting with the DivisionPool builders.
 	DivisionPool *DivisionPoolClient
 	// Event is the client for interacting with the Event builders.
 	Event *EventClient
+	// EventReconciliation is the client for interacting with the EventReconciliation builders.
+	EventReconciliation *EventReconciliationClient
+	// Field is the client for interacting with the Field builders.
+	Field *FieldClient
 	// Game is the client for interacting with the Game builders.
 	Game *GameClient
+	// GameEvent is the client for interacting with the GameEvent builders.
+	GameEvent *GameEventClient
 	// GameRound is the client for interacting with the GameRound builders.
 	GameRound *GameRoundClient
+	// Location is the client for interacting with the Location builders.
+	Location *LocationClient
+	// MVP_Nomination is the client for interacting with the MVP_Nomination builders.
+	MVP_Nomination *MVPNominationClient
 	// Player is the client for interacting with the Player builders.
 	Player *PlayerClient
 	// Scoring is the client for interacting with the Scoring builders.
 	Scoring *ScoringClient
+	// SpiritNomination is the client for interacting with the SpiritNomination builders.
+	SpiritNomination *SpiritNominationClient
 	// SpiritScore is the client for interacting with the SpiritScore builders.
 	SpiritScore *SpiritScoreClient
 	// Team is the client for interacting with the Team builders.
 	Team *TeamClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// World is the client for interacting with the World builders.
+	World *WorldClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -67,15 +99,25 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.AnalyticSearch = NewAnalyticSearchClient(c.config)
 	c.AnalyticsEmbedding = NewAnalyticsEmbeddingClient(c.config)
+	c.Continent = NewContinentClient(c.config)
+	c.Country = NewCountryClient(c.config)
+	c.Discipline = NewDisciplineClient(c.config)
 	c.DivisionPool = NewDivisionPoolClient(c.config)
 	c.Event = NewEventClient(c.config)
+	c.EventReconciliation = NewEventReconciliationClient(c.config)
+	c.Field = NewFieldClient(c.config)
 	c.Game = NewGameClient(c.config)
+	c.GameEvent = NewGameEventClient(c.config)
 	c.GameRound = NewGameRoundClient(c.config)
+	c.Location = NewLocationClient(c.config)
+	c.MVP_Nomination = NewMVPNominationClient(c.config)
 	c.Player = NewPlayerClient(c.config)
 	c.Scoring = NewScoringClient(c.config)
+	c.SpiritNomination = NewSpiritNominationClient(c.config)
 	c.SpiritScore = NewSpiritScoreClient(c.config)
 	c.Team = NewTeamClient(c.config)
 	c.User = NewUserClient(c.config)
+	c.World = NewWorldClient(c.config)
 }
 
 type (
@@ -166,19 +208,29 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:                ctx,
-		config:             cfg,
-		AnalyticSearch:     NewAnalyticSearchClient(cfg),
-		AnalyticsEmbedding: NewAnalyticsEmbeddingClient(cfg),
-		DivisionPool:       NewDivisionPoolClient(cfg),
-		Event:              NewEventClient(cfg),
-		Game:               NewGameClient(cfg),
-		GameRound:          NewGameRoundClient(cfg),
-		Player:             NewPlayerClient(cfg),
-		Scoring:            NewScoringClient(cfg),
-		SpiritScore:        NewSpiritScoreClient(cfg),
-		Team:               NewTeamClient(cfg),
-		User:               NewUserClient(cfg),
+		ctx:                 ctx,
+		config:              cfg,
+		AnalyticSearch:      NewAnalyticSearchClient(cfg),
+		AnalyticsEmbedding:  NewAnalyticsEmbeddingClient(cfg),
+		Continent:           NewContinentClient(cfg),
+		Country:             NewCountryClient(cfg),
+		Discipline:          NewDisciplineClient(cfg),
+		DivisionPool:        NewDivisionPoolClient(cfg),
+		Event:               NewEventClient(cfg),
+		EventReconciliation: NewEventReconciliationClient(cfg),
+		Field:               NewFieldClient(cfg),
+		Game:                NewGameClient(cfg),
+		GameEvent:           NewGameEventClient(cfg),
+		GameRound:           NewGameRoundClient(cfg),
+		Location:            NewLocationClient(cfg),
+		MVP_Nomination:      NewMVPNominationClient(cfg),
+		Player:              NewPlayerClient(cfg),
+		Scoring:             NewScoringClient(cfg),
+		SpiritNomination:    NewSpiritNominationClient(cfg),
+		SpiritScore:         NewSpiritScoreClient(cfg),
+		Team:                NewTeamClient(cfg),
+		User:                NewUserClient(cfg),
+		World:               NewWorldClient(cfg),
 	}, nil
 }
 
@@ -196,19 +248,29 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:                ctx,
-		config:             cfg,
-		AnalyticSearch:     NewAnalyticSearchClient(cfg),
-		AnalyticsEmbedding: NewAnalyticsEmbeddingClient(cfg),
-		DivisionPool:       NewDivisionPoolClient(cfg),
-		Event:              NewEventClient(cfg),
-		Game:               NewGameClient(cfg),
-		GameRound:          NewGameRoundClient(cfg),
-		Player:             NewPlayerClient(cfg),
-		Scoring:            NewScoringClient(cfg),
-		SpiritScore:        NewSpiritScoreClient(cfg),
-		Team:               NewTeamClient(cfg),
-		User:               NewUserClient(cfg),
+		ctx:                 ctx,
+		config:              cfg,
+		AnalyticSearch:      NewAnalyticSearchClient(cfg),
+		AnalyticsEmbedding:  NewAnalyticsEmbeddingClient(cfg),
+		Continent:           NewContinentClient(cfg),
+		Country:             NewCountryClient(cfg),
+		Discipline:          NewDisciplineClient(cfg),
+		DivisionPool:        NewDivisionPoolClient(cfg),
+		Event:               NewEventClient(cfg),
+		EventReconciliation: NewEventReconciliationClient(cfg),
+		Field:               NewFieldClient(cfg),
+		Game:                NewGameClient(cfg),
+		GameEvent:           NewGameEventClient(cfg),
+		GameRound:           NewGameRoundClient(cfg),
+		Location:            NewLocationClient(cfg),
+		MVP_Nomination:      NewMVPNominationClient(cfg),
+		Player:              NewPlayerClient(cfg),
+		Scoring:             NewScoringClient(cfg),
+		SpiritNomination:    NewSpiritNominationClient(cfg),
+		SpiritScore:         NewSpiritScoreClient(cfg),
+		Team:                NewTeamClient(cfg),
+		User:                NewUserClient(cfg),
+		World:               NewWorldClient(cfg),
 	}, nil
 }
 
@@ -238,8 +300,10 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AnalyticSearch, c.AnalyticsEmbedding, c.DivisionPool, c.Event, c.Game,
-		c.GameRound, c.Player, c.Scoring, c.SpiritScore, c.Team, c.User,
+		c.AnalyticSearch, c.AnalyticsEmbedding, c.Continent, c.Country, c.Discipline,
+		c.DivisionPool, c.Event, c.EventReconciliation, c.Field, c.Game, c.GameEvent,
+		c.GameRound, c.Location, c.MVP_Nomination, c.Player, c.Scoring,
+		c.SpiritNomination, c.SpiritScore, c.Team, c.User, c.World,
 	} {
 		n.Use(hooks...)
 	}
@@ -249,8 +313,10 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AnalyticSearch, c.AnalyticsEmbedding, c.DivisionPool, c.Event, c.Game,
-		c.GameRound, c.Player, c.Scoring, c.SpiritScore, c.Team, c.User,
+		c.AnalyticSearch, c.AnalyticsEmbedding, c.Continent, c.Country, c.Discipline,
+		c.DivisionPool, c.Event, c.EventReconciliation, c.Field, c.Game, c.GameEvent,
+		c.GameRound, c.Location, c.MVP_Nomination, c.Player, c.Scoring,
+		c.SpiritNomination, c.SpiritScore, c.Team, c.User, c.World,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -263,24 +329,44 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.AnalyticSearch.mutate(ctx, m)
 	case *AnalyticsEmbeddingMutation:
 		return c.AnalyticsEmbedding.mutate(ctx, m)
+	case *ContinentMutation:
+		return c.Continent.mutate(ctx, m)
+	case *CountryMutation:
+		return c.Country.mutate(ctx, m)
+	case *DisciplineMutation:
+		return c.Discipline.mutate(ctx, m)
 	case *DivisionPoolMutation:
 		return c.DivisionPool.mutate(ctx, m)
 	case *EventMutation:
 		return c.Event.mutate(ctx, m)
+	case *EventReconciliationMutation:
+		return c.EventReconciliation.mutate(ctx, m)
+	case *FieldMutation:
+		return c.Field.mutate(ctx, m)
 	case *GameMutation:
 		return c.Game.mutate(ctx, m)
+	case *GameEventMutation:
+		return c.GameEvent.mutate(ctx, m)
 	case *GameRoundMutation:
 		return c.GameRound.mutate(ctx, m)
+	case *LocationMutation:
+		return c.Location.mutate(ctx, m)
+	case *MVPNominationMutation:
+		return c.MVP_Nomination.mutate(ctx, m)
 	case *PlayerMutation:
 		return c.Player.mutate(ctx, m)
 	case *ScoringMutation:
 		return c.Scoring.mutate(ctx, m)
+	case *SpiritNominationMutation:
+		return c.SpiritNomination.mutate(ctx, m)
 	case *SpiritScoreMutation:
 		return c.SpiritScore.mutate(ctx, m)
 	case *TeamMutation:
 		return c.Team.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
+	case *WorldMutation:
+		return c.World.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -347,7 +433,7 @@ func (c *AnalyticSearchClient) UpdateOne(_m *AnalyticSearch) *AnalyticSearchUpda
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *AnalyticSearchClient) UpdateOneID(id int) *AnalyticSearchUpdateOne {
+func (c *AnalyticSearchClient) UpdateOneID(id uuid.UUID) *AnalyticSearchUpdateOne {
 	mutation := newAnalyticSearchMutation(c.config, OpUpdateOne, withAnalyticSearchID(id))
 	return &AnalyticSearchUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -364,7 +450,7 @@ func (c *AnalyticSearchClient) DeleteOne(_m *AnalyticSearch) *AnalyticSearchDele
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *AnalyticSearchClient) DeleteOneID(id int) *AnalyticSearchDeleteOne {
+func (c *AnalyticSearchClient) DeleteOneID(id uuid.UUID) *AnalyticSearchDeleteOne {
 	builder := c.Delete().Where(analyticsearch.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -381,12 +467,12 @@ func (c *AnalyticSearchClient) Query() *AnalyticSearchQuery {
 }
 
 // Get returns a AnalyticSearch entity by its id.
-func (c *AnalyticSearchClient) Get(ctx context.Context, id int) (*AnalyticSearch, error) {
+func (c *AnalyticSearchClient) Get(ctx context.Context, id uuid.UUID) (*AnalyticSearch, error) {
 	return c.Query().Where(analyticsearch.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *AnalyticSearchClient) GetX(ctx context.Context, id int) *AnalyticSearch {
+func (c *AnalyticSearchClient) GetX(ctx context.Context, id uuid.UUID) *AnalyticSearch {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -480,7 +566,7 @@ func (c *AnalyticsEmbeddingClient) UpdateOne(_m *AnalyticsEmbedding) *AnalyticsE
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *AnalyticsEmbeddingClient) UpdateOneID(id int) *AnalyticsEmbeddingUpdateOne {
+func (c *AnalyticsEmbeddingClient) UpdateOneID(id uuid.UUID) *AnalyticsEmbeddingUpdateOne {
 	mutation := newAnalyticsEmbeddingMutation(c.config, OpUpdateOne, withAnalyticsEmbeddingID(id))
 	return &AnalyticsEmbeddingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -497,7 +583,7 @@ func (c *AnalyticsEmbeddingClient) DeleteOne(_m *AnalyticsEmbedding) *AnalyticsE
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *AnalyticsEmbeddingClient) DeleteOneID(id int) *AnalyticsEmbeddingDeleteOne {
+func (c *AnalyticsEmbeddingClient) DeleteOneID(id uuid.UUID) *AnalyticsEmbeddingDeleteOne {
 	builder := c.Delete().Where(analyticsembedding.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -514,12 +600,12 @@ func (c *AnalyticsEmbeddingClient) Query() *AnalyticsEmbeddingQuery {
 }
 
 // Get returns a AnalyticsEmbedding entity by its id.
-func (c *AnalyticsEmbeddingClient) Get(ctx context.Context, id int) (*AnalyticsEmbedding, error) {
+func (c *AnalyticsEmbeddingClient) Get(ctx context.Context, id uuid.UUID) (*AnalyticsEmbedding, error) {
 	return c.Query().Where(analyticsembedding.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *AnalyticsEmbeddingClient) GetX(ctx context.Context, id int) *AnalyticsEmbedding {
+func (c *AnalyticsEmbeddingClient) GetX(ctx context.Context, id uuid.UUID) *AnalyticsEmbedding {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -549,6 +635,565 @@ func (c *AnalyticsEmbeddingClient) mutate(ctx context.Context, m *AnalyticsEmbed
 		return (&AnalyticsEmbeddingDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown AnalyticsEmbedding mutation op: %q", m.Op())
+	}
+}
+
+// ContinentClient is a client for the Continent schema.
+type ContinentClient struct {
+	config
+}
+
+// NewContinentClient returns a client for the Continent from the given config.
+func NewContinentClient(c config) *ContinentClient {
+	return &ContinentClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `continent.Hooks(f(g(h())))`.
+func (c *ContinentClient) Use(hooks ...Hook) {
+	c.hooks.Continent = append(c.hooks.Continent, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `continent.Intercept(f(g(h())))`.
+func (c *ContinentClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Continent = append(c.inters.Continent, interceptors...)
+}
+
+// Create returns a builder for creating a Continent entity.
+func (c *ContinentClient) Create() *ContinentCreate {
+	mutation := newContinentMutation(c.config, OpCreate)
+	return &ContinentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Continent entities.
+func (c *ContinentClient) CreateBulk(builders ...*ContinentCreate) *ContinentCreateBulk {
+	return &ContinentCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ContinentClient) MapCreateBulk(slice any, setFunc func(*ContinentCreate, int)) *ContinentCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ContinentCreateBulk{err: fmt.Errorf("calling to ContinentClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ContinentCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ContinentCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Continent.
+func (c *ContinentClient) Update() *ContinentUpdate {
+	mutation := newContinentMutation(c.config, OpUpdate)
+	return &ContinentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ContinentClient) UpdateOne(_m *Continent) *ContinentUpdateOne {
+	mutation := newContinentMutation(c.config, OpUpdateOne, withContinent(_m))
+	return &ContinentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ContinentClient) UpdateOneID(id uuid.UUID) *ContinentUpdateOne {
+	mutation := newContinentMutation(c.config, OpUpdateOne, withContinentID(id))
+	return &ContinentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Continent.
+func (c *ContinentClient) Delete() *ContinentDelete {
+	mutation := newContinentMutation(c.config, OpDelete)
+	return &ContinentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ContinentClient) DeleteOne(_m *Continent) *ContinentDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ContinentClient) DeleteOneID(id uuid.UUID) *ContinentDeleteOne {
+	builder := c.Delete().Where(continent.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ContinentDeleteOne{builder}
+}
+
+// Query returns a query builder for Continent.
+func (c *ContinentClient) Query() *ContinentQuery {
+	return &ContinentQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeContinent},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Continent entity by its id.
+func (c *ContinentClient) Get(ctx context.Context, id uuid.UUID) (*Continent, error) {
+	return c.Query().Where(continent.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ContinentClient) GetX(ctx context.Context, id uuid.UUID) *Continent {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryWorld queries the world edge of a Continent.
+func (c *ContinentClient) QueryWorld(_m *Continent) *WorldQuery {
+	query := (&WorldClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(continent.Table, continent.FieldID, id),
+			sqlgraph.To(world.Table, world.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, continent.WorldTable, continent.WorldColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCountries queries the countries edge of a Continent.
+func (c *ContinentClient) QueryCountries(_m *Continent) *CountryQuery {
+	query := (&CountryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(continent.Table, continent.FieldID, id),
+			sqlgraph.To(country.Table, country.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, continent.CountriesTable, continent.CountriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryManagedBy queries the managed_by edge of a Continent.
+func (c *ContinentClient) QueryManagedBy(_m *Continent) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(continent.Table, continent.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, continent.ManagedByTable, continent.ManagedByColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ContinentClient) Hooks() []Hook {
+	return c.hooks.Continent
+}
+
+// Interceptors returns the client interceptors.
+func (c *ContinentClient) Interceptors() []Interceptor {
+	return c.inters.Continent
+}
+
+func (c *ContinentClient) mutate(ctx context.Context, m *ContinentMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ContinentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ContinentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ContinentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ContinentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Continent mutation op: %q", m.Op())
+	}
+}
+
+// CountryClient is a client for the Country schema.
+type CountryClient struct {
+	config
+}
+
+// NewCountryClient returns a client for the Country from the given config.
+func NewCountryClient(c config) *CountryClient {
+	return &CountryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `country.Hooks(f(g(h())))`.
+func (c *CountryClient) Use(hooks ...Hook) {
+	c.hooks.Country = append(c.hooks.Country, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `country.Intercept(f(g(h())))`.
+func (c *CountryClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Country = append(c.inters.Country, interceptors...)
+}
+
+// Create returns a builder for creating a Country entity.
+func (c *CountryClient) Create() *CountryCreate {
+	mutation := newCountryMutation(c.config, OpCreate)
+	return &CountryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Country entities.
+func (c *CountryClient) CreateBulk(builders ...*CountryCreate) *CountryCreateBulk {
+	return &CountryCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CountryClient) MapCreateBulk(slice any, setFunc func(*CountryCreate, int)) *CountryCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CountryCreateBulk{err: fmt.Errorf("calling to CountryClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CountryCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CountryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Country.
+func (c *CountryClient) Update() *CountryUpdate {
+	mutation := newCountryMutation(c.config, OpUpdate)
+	return &CountryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CountryClient) UpdateOne(_m *Country) *CountryUpdateOne {
+	mutation := newCountryMutation(c.config, OpUpdateOne, withCountry(_m))
+	return &CountryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CountryClient) UpdateOneID(id uuid.UUID) *CountryUpdateOne {
+	mutation := newCountryMutation(c.config, OpUpdateOne, withCountryID(id))
+	return &CountryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Country.
+func (c *CountryClient) Delete() *CountryDelete {
+	mutation := newCountryMutation(c.config, OpDelete)
+	return &CountryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CountryClient) DeleteOne(_m *Country) *CountryDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *CountryClient) DeleteOneID(id uuid.UUID) *CountryDeleteOne {
+	builder := c.Delete().Where(country.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CountryDeleteOne{builder}
+}
+
+// Query returns a query builder for Country.
+func (c *CountryClient) Query() *CountryQuery {
+	return &CountryQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCountry},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Country entity by its id.
+func (c *CountryClient) Get(ctx context.Context, id uuid.UUID) (*Country, error) {
+	return c.Query().Where(country.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CountryClient) GetX(ctx context.Context, id uuid.UUID) *Country {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryContinent queries the continent edge of a Country.
+func (c *CountryClient) QueryContinent(_m *Country) *ContinentQuery {
+	query := (&ContinentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(country.Table, country.FieldID, id),
+			sqlgraph.To(continent.Table, continent.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, country.ContinentTable, country.ContinentColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryLocations queries the locations edge of a Country.
+func (c *CountryClient) QueryLocations(_m *Country) *LocationQuery {
+	query := (&LocationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(country.Table, country.FieldID, id),
+			sqlgraph.To(location.Table, location.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, country.LocationsTable, country.LocationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDisciplines queries the disciplines edge of a Country.
+func (c *CountryClient) QueryDisciplines(_m *Country) *DisciplineQuery {
+	query := (&DisciplineClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(country.Table, country.FieldID, id),
+			sqlgraph.To(discipline.Table, discipline.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, country.DisciplinesTable, country.DisciplinesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryManagedBy queries the managed_by edge of a Country.
+func (c *CountryClient) QueryManagedBy(_m *Country) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(country.Table, country.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, country.ManagedByTable, country.ManagedByColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *CountryClient) Hooks() []Hook {
+	return c.hooks.Country
+}
+
+// Interceptors returns the client interceptors.
+func (c *CountryClient) Interceptors() []Interceptor {
+	return c.inters.Country
+}
+
+func (c *CountryClient) mutate(ctx context.Context, m *CountryMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CountryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CountryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CountryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CountryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Country mutation op: %q", m.Op())
+	}
+}
+
+// DisciplineClient is a client for the Discipline schema.
+type DisciplineClient struct {
+	config
+}
+
+// NewDisciplineClient returns a client for the Discipline from the given config.
+func NewDisciplineClient(c config) *DisciplineClient {
+	return &DisciplineClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `discipline.Hooks(f(g(h())))`.
+func (c *DisciplineClient) Use(hooks ...Hook) {
+	c.hooks.Discipline = append(c.hooks.Discipline, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `discipline.Intercept(f(g(h())))`.
+func (c *DisciplineClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Discipline = append(c.inters.Discipline, interceptors...)
+}
+
+// Create returns a builder for creating a Discipline entity.
+func (c *DisciplineClient) Create() *DisciplineCreate {
+	mutation := newDisciplineMutation(c.config, OpCreate)
+	return &DisciplineCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Discipline entities.
+func (c *DisciplineClient) CreateBulk(builders ...*DisciplineCreate) *DisciplineCreateBulk {
+	return &DisciplineCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DisciplineClient) MapCreateBulk(slice any, setFunc func(*DisciplineCreate, int)) *DisciplineCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DisciplineCreateBulk{err: fmt.Errorf("calling to DisciplineClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DisciplineCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DisciplineCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Discipline.
+func (c *DisciplineClient) Update() *DisciplineUpdate {
+	mutation := newDisciplineMutation(c.config, OpUpdate)
+	return &DisciplineUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DisciplineClient) UpdateOne(_m *Discipline) *DisciplineUpdateOne {
+	mutation := newDisciplineMutation(c.config, OpUpdateOne, withDiscipline(_m))
+	return &DisciplineUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DisciplineClient) UpdateOneID(id uuid.UUID) *DisciplineUpdateOne {
+	mutation := newDisciplineMutation(c.config, OpUpdateOne, withDisciplineID(id))
+	return &DisciplineUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Discipline.
+func (c *DisciplineClient) Delete() *DisciplineDelete {
+	mutation := newDisciplineMutation(c.config, OpDelete)
+	return &DisciplineDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DisciplineClient) DeleteOne(_m *Discipline) *DisciplineDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DisciplineClient) DeleteOneID(id uuid.UUID) *DisciplineDeleteOne {
+	builder := c.Delete().Where(discipline.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DisciplineDeleteOne{builder}
+}
+
+// Query returns a query builder for Discipline.
+func (c *DisciplineClient) Query() *DisciplineQuery {
+	return &DisciplineQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDiscipline},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Discipline entity by its id.
+func (c *DisciplineClient) Get(ctx context.Context, id uuid.UUID) (*Discipline, error) {
+	return c.Query().Where(discipline.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DisciplineClient) GetX(ctx context.Context, id uuid.UUID) *Discipline {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCountry queries the country edge of a Discipline.
+func (c *DisciplineClient) QueryCountry(_m *Discipline) *CountryQuery {
+	query := (&CountryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discipline.Table, discipline.FieldID, id),
+			sqlgraph.To(country.Table, country.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, discipline.CountryTable, discipline.CountryColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryEvents queries the events edge of a Discipline.
+func (c *DisciplineClient) QueryEvents(_m *Discipline) *EventQuery {
+	query := (&EventClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discipline.Table, discipline.FieldID, id),
+			sqlgraph.To(event.Table, event.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, discipline.EventsTable, discipline.EventsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryManagedBy queries the managed_by edge of a Discipline.
+func (c *DisciplineClient) QueryManagedBy(_m *Discipline) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discipline.Table, discipline.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, discipline.ManagedByTable, discipline.ManagedByColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *DisciplineClient) Hooks() []Hook {
+	return c.hooks.Discipline
+}
+
+// Interceptors returns the client interceptors.
+func (c *DisciplineClient) Interceptors() []Interceptor {
+	return c.inters.Discipline
+}
+
+func (c *DisciplineClient) mutate(ctx context.Context, m *DisciplineMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DisciplineCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DisciplineUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DisciplineUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DisciplineDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Discipline mutation op: %q", m.Op())
 	}
 }
 
@@ -613,7 +1258,7 @@ func (c *DivisionPoolClient) UpdateOne(_m *DivisionPool) *DivisionPoolUpdateOne 
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *DivisionPoolClient) UpdateOneID(id int) *DivisionPoolUpdateOne {
+func (c *DivisionPoolClient) UpdateOneID(id uuid.UUID) *DivisionPoolUpdateOne {
 	mutation := newDivisionPoolMutation(c.config, OpUpdateOne, withDivisionPoolID(id))
 	return &DivisionPoolUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -630,7 +1275,7 @@ func (c *DivisionPoolClient) DeleteOne(_m *DivisionPool) *DivisionPoolDeleteOne 
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *DivisionPoolClient) DeleteOneID(id int) *DivisionPoolDeleteOne {
+func (c *DivisionPoolClient) DeleteOneID(id uuid.UUID) *DivisionPoolDeleteOne {
 	builder := c.Delete().Where(divisionpool.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -647,17 +1292,65 @@ func (c *DivisionPoolClient) Query() *DivisionPoolQuery {
 }
 
 // Get returns a DivisionPool entity by its id.
-func (c *DivisionPoolClient) Get(ctx context.Context, id int) (*DivisionPool, error) {
+func (c *DivisionPoolClient) Get(ctx context.Context, id uuid.UUID) (*DivisionPool, error) {
 	return c.Query().Where(divisionpool.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *DivisionPoolClient) GetX(ctx context.Context, id int) *DivisionPool {
+func (c *DivisionPoolClient) GetX(ctx context.Context, id uuid.UUID) *DivisionPool {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryEvent queries the event edge of a DivisionPool.
+func (c *DivisionPoolClient) QueryEvent(_m *DivisionPool) *EventQuery {
+	query := (&EventClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(divisionpool.Table, divisionpool.FieldID, id),
+			sqlgraph.To(event.Table, event.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, divisionpool.EventTable, divisionpool.EventColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTeams queries the teams edge of a DivisionPool.
+func (c *DivisionPoolClient) QueryTeams(_m *DivisionPool) *TeamQuery {
+	query := (&TeamClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(divisionpool.Table, divisionpool.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, divisionpool.TeamsTable, divisionpool.TeamsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGames queries the games edge of a DivisionPool.
+func (c *DivisionPoolClient) QueryGames(_m *DivisionPool) *GameQuery {
+	query := (&GameClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(divisionpool.Table, divisionpool.FieldID, id),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, divisionpool.GamesTable, divisionpool.GamesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -746,7 +1439,7 @@ func (c *EventClient) UpdateOne(_m *Event) *EventUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *EventClient) UpdateOneID(id int) *EventUpdateOne {
+func (c *EventClient) UpdateOneID(id uuid.UUID) *EventUpdateOne {
 	mutation := newEventMutation(c.config, OpUpdateOne, withEventID(id))
 	return &EventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -763,7 +1456,7 @@ func (c *EventClient) DeleteOne(_m *Event) *EventDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *EventClient) DeleteOneID(id int) *EventDeleteOne {
+func (c *EventClient) DeleteOneID(id uuid.UUID) *EventDeleteOne {
 	builder := c.Delete().Where(event.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -780,17 +1473,97 @@ func (c *EventClient) Query() *EventQuery {
 }
 
 // Get returns a Event entity by its id.
-func (c *EventClient) Get(ctx context.Context, id int) (*Event, error) {
+func (c *EventClient) Get(ctx context.Context, id uuid.UUID) (*Event, error) {
 	return c.Query().Where(event.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *EventClient) GetX(ctx context.Context, id int) *Event {
+func (c *EventClient) GetX(ctx context.Context, id uuid.UUID) *Event {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryDiscipline queries the discipline edge of a Event.
+func (c *EventClient) QueryDiscipline(_m *Event) *DisciplineQuery {
+	query := (&DisciplineClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, id),
+			sqlgraph.To(discipline.Table, discipline.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, event.DisciplineTable, event.DisciplineColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryLocation queries the location edge of a Event.
+func (c *EventClient) QueryLocation(_m *Event) *LocationQuery {
+	query := (&LocationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, id),
+			sqlgraph.To(location.Table, location.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, event.LocationTable, event.LocationColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDivisionPools queries the division_pools edge of a Event.
+func (c *EventClient) QueryDivisionPools(_m *Event) *DivisionPoolQuery {
+	query := (&DivisionPoolClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, id),
+			sqlgraph.To(divisionpool.Table, divisionpool.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, event.DivisionPoolsTable, event.DivisionPoolsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGameRounds queries the game_rounds edge of a Event.
+func (c *EventClient) QueryGameRounds(_m *Event) *GameRoundQuery {
+	query := (&GameRoundClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, id),
+			sqlgraph.To(gameround.Table, gameround.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, event.GameRoundsTable, event.GameRoundsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryManagedBy queries the managed_by edge of a Event.
+func (c *EventClient) QueryManagedBy(_m *Event) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, event.ManagedByTable, event.ManagedByColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -815,6 +1588,304 @@ func (c *EventClient) mutate(ctx context.Context, m *EventMutation) (Value, erro
 		return (&EventDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Event mutation op: %q", m.Op())
+	}
+}
+
+// EventReconciliationClient is a client for the EventReconciliation schema.
+type EventReconciliationClient struct {
+	config
+}
+
+// NewEventReconciliationClient returns a client for the EventReconciliation from the given config.
+func NewEventReconciliationClient(c config) *EventReconciliationClient {
+	return &EventReconciliationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `eventreconciliation.Hooks(f(g(h())))`.
+func (c *EventReconciliationClient) Use(hooks ...Hook) {
+	c.hooks.EventReconciliation = append(c.hooks.EventReconciliation, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `eventreconciliation.Intercept(f(g(h())))`.
+func (c *EventReconciliationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.EventReconciliation = append(c.inters.EventReconciliation, interceptors...)
+}
+
+// Create returns a builder for creating a EventReconciliation entity.
+func (c *EventReconciliationClient) Create() *EventReconciliationCreate {
+	mutation := newEventReconciliationMutation(c.config, OpCreate)
+	return &EventReconciliationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of EventReconciliation entities.
+func (c *EventReconciliationClient) CreateBulk(builders ...*EventReconciliationCreate) *EventReconciliationCreateBulk {
+	return &EventReconciliationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *EventReconciliationClient) MapCreateBulk(slice any, setFunc func(*EventReconciliationCreate, int)) *EventReconciliationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &EventReconciliationCreateBulk{err: fmt.Errorf("calling to EventReconciliationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*EventReconciliationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &EventReconciliationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for EventReconciliation.
+func (c *EventReconciliationClient) Update() *EventReconciliationUpdate {
+	mutation := newEventReconciliationMutation(c.config, OpUpdate)
+	return &EventReconciliationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *EventReconciliationClient) UpdateOne(_m *EventReconciliation) *EventReconciliationUpdateOne {
+	mutation := newEventReconciliationMutation(c.config, OpUpdateOne, withEventReconciliation(_m))
+	return &EventReconciliationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *EventReconciliationClient) UpdateOneID(id uuid.UUID) *EventReconciliationUpdateOne {
+	mutation := newEventReconciliationMutation(c.config, OpUpdateOne, withEventReconciliationID(id))
+	return &EventReconciliationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for EventReconciliation.
+func (c *EventReconciliationClient) Delete() *EventReconciliationDelete {
+	mutation := newEventReconciliationMutation(c.config, OpDelete)
+	return &EventReconciliationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *EventReconciliationClient) DeleteOne(_m *EventReconciliation) *EventReconciliationDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *EventReconciliationClient) DeleteOneID(id uuid.UUID) *EventReconciliationDeleteOne {
+	builder := c.Delete().Where(eventreconciliation.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &EventReconciliationDeleteOne{builder}
+}
+
+// Query returns a query builder for EventReconciliation.
+func (c *EventReconciliationClient) Query() *EventReconciliationQuery {
+	return &EventReconciliationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeEventReconciliation},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a EventReconciliation entity by its id.
+func (c *EventReconciliationClient) Get(ctx context.Context, id uuid.UUID) (*EventReconciliation, error) {
+	return c.Query().Where(eventreconciliation.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *EventReconciliationClient) GetX(ctx context.Context, id uuid.UUID) *EventReconciliation {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *EventReconciliationClient) Hooks() []Hook {
+	return c.hooks.EventReconciliation
+}
+
+// Interceptors returns the client interceptors.
+func (c *EventReconciliationClient) Interceptors() []Interceptor {
+	return c.inters.EventReconciliation
+}
+
+func (c *EventReconciliationClient) mutate(ctx context.Context, m *EventReconciliationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&EventReconciliationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&EventReconciliationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&EventReconciliationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&EventReconciliationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown EventReconciliation mutation op: %q", m.Op())
+	}
+}
+
+// FieldClient is a client for the Field schema.
+type FieldClient struct {
+	config
+}
+
+// NewFieldClient returns a client for the Field from the given config.
+func NewFieldClient(c config) *FieldClient {
+	return &FieldClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `entfield.Hooks(f(g(h())))`.
+func (c *FieldClient) Use(hooks ...Hook) {
+	c.hooks.Field = append(c.hooks.Field, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `entfield.Intercept(f(g(h())))`.
+func (c *FieldClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Field = append(c.inters.Field, interceptors...)
+}
+
+// Create returns a builder for creating a Field entity.
+func (c *FieldClient) Create() *FieldCreate {
+	mutation := newFieldMutation(c.config, OpCreate)
+	return &FieldCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Field entities.
+func (c *FieldClient) CreateBulk(builders ...*FieldCreate) *FieldCreateBulk {
+	return &FieldCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *FieldClient) MapCreateBulk(slice any, setFunc func(*FieldCreate, int)) *FieldCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &FieldCreateBulk{err: fmt.Errorf("calling to FieldClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*FieldCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &FieldCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Field.
+func (c *FieldClient) Update() *FieldUpdate {
+	mutation := newFieldMutation(c.config, OpUpdate)
+	return &FieldUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *FieldClient) UpdateOne(_m *Field) *FieldUpdateOne {
+	mutation := newFieldMutation(c.config, OpUpdateOne, withField(_m))
+	return &FieldUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *FieldClient) UpdateOneID(id uuid.UUID) *FieldUpdateOne {
+	mutation := newFieldMutation(c.config, OpUpdateOne, withFieldID(id))
+	return &FieldUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Field.
+func (c *FieldClient) Delete() *FieldDelete {
+	mutation := newFieldMutation(c.config, OpDelete)
+	return &FieldDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *FieldClient) DeleteOne(_m *Field) *FieldDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *FieldClient) DeleteOneID(id uuid.UUID) *FieldDeleteOne {
+	builder := c.Delete().Where(entfield.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &FieldDeleteOne{builder}
+}
+
+// Query returns a query builder for Field.
+func (c *FieldClient) Query() *FieldQuery {
+	return &FieldQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeField},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Field entity by its id.
+func (c *FieldClient) Get(ctx context.Context, id uuid.UUID) (*Field, error) {
+	return c.Query().Where(entfield.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *FieldClient) GetX(ctx context.Context, id uuid.UUID) *Field {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryLocation queries the location edge of a Field.
+func (c *FieldClient) QueryLocation(_m *Field) *LocationQuery {
+	query := (&LocationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(entfield.Table, entfield.FieldID, id),
+			sqlgraph.To(location.Table, location.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, entfield.LocationTable, entfield.LocationColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGames queries the games edge of a Field.
+func (c *FieldClient) QueryGames(_m *Field) *GameQuery {
+	query := (&GameClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(entfield.Table, entfield.FieldID, id),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, entfield.GamesTable, entfield.GamesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *FieldClient) Hooks() []Hook {
+	return c.hooks.Field
+}
+
+// Interceptors returns the client interceptors.
+func (c *FieldClient) Interceptors() []Interceptor {
+	return c.inters.Field
+}
+
+func (c *FieldClient) mutate(ctx context.Context, m *FieldMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&FieldCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&FieldUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&FieldUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&FieldDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Field mutation op: %q", m.Op())
 	}
 }
 
@@ -879,7 +1950,7 @@ func (c *GameClient) UpdateOne(_m *Game) *GameUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *GameClient) UpdateOneID(id int) *GameUpdateOne {
+func (c *GameClient) UpdateOneID(id uuid.UUID) *GameUpdateOne {
 	mutation := newGameMutation(c.config, OpUpdateOne, withGameID(id))
 	return &GameUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -896,7 +1967,7 @@ func (c *GameClient) DeleteOne(_m *Game) *GameDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *GameClient) DeleteOneID(id int) *GameDeleteOne {
+func (c *GameClient) DeleteOneID(id uuid.UUID) *GameDeleteOne {
 	builder := c.Delete().Where(game.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -913,17 +1984,161 @@ func (c *GameClient) Query() *GameQuery {
 }
 
 // Get returns a Game entity by its id.
-func (c *GameClient) Get(ctx context.Context, id int) (*Game, error) {
+func (c *GameClient) Get(ctx context.Context, id uuid.UUID) (*Game, error) {
 	return c.Query().Where(game.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *GameClient) GetX(ctx context.Context, id int) *Game {
+func (c *GameClient) GetX(ctx context.Context, id uuid.UUID) *Game {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryGameRound queries the game_round edge of a Game.
+func (c *GameClient) QueryGameRound(_m *Game) *GameRoundQuery {
+	query := (&GameRoundClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(gameround.Table, gameround.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.GameRoundTable, game.GameRoundColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryHomeTeam queries the home_team edge of a Game.
+func (c *GameClient) QueryHomeTeam(_m *Game) *TeamQuery {
+	query := (&TeamClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.HomeTeamTable, game.HomeTeamColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAwayTeam queries the away_team edge of a Game.
+func (c *GameClient) QueryAwayTeam(_m *Game) *TeamQuery {
+	query := (&TeamClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.AwayTeamTable, game.AwayTeamColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDivisionPool queries the division_pool edge of a Game.
+func (c *GameClient) QueryDivisionPool(_m *Game) *DivisionPoolQuery {
+	query := (&DivisionPoolClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(divisionpool.Table, divisionpool.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.DivisionPoolTable, game.DivisionPoolColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryField queries the field edge of a Game.
+func (c *GameClient) QueryField(_m *Game) *FieldQuery {
+	query := (&FieldClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(entfield.Table, entfield.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.FieldTable, game.FieldColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryScorekeeper queries the scorekeeper edge of a Game.
+func (c *GameClient) QueryScorekeeper(_m *Game) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.ScorekeeperTable, game.ScorekeeperColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryScores queries the scores edge of a Game.
+func (c *GameClient) QueryScores(_m *Game) *ScoringQuery {
+	query := (&ScoringClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(scoring.Table, scoring.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, game.ScoresTable, game.ScoresColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGameEvents queries the game_events edge of a Game.
+func (c *GameClient) QueryGameEvents(_m *Game) *GameEventQuery {
+	query := (&GameEventClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(gameevent.Table, gameevent.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, game.GameEventsTable, game.GameEventsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySpiritScores queries the spirit_scores edge of a Game.
+func (c *GameClient) QuerySpiritScores(_m *Game) *SpiritScoreQuery {
+	query := (&SpiritScoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(spiritscore.Table, spiritscore.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, game.SpiritScoresTable, game.SpiritScoresColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -948,6 +2163,171 @@ func (c *GameClient) mutate(ctx context.Context, m *GameMutation) (Value, error)
 		return (&GameDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Game mutation op: %q", m.Op())
+	}
+}
+
+// GameEventClient is a client for the GameEvent schema.
+type GameEventClient struct {
+	config
+}
+
+// NewGameEventClient returns a client for the GameEvent from the given config.
+func NewGameEventClient(c config) *GameEventClient {
+	return &GameEventClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `gameevent.Hooks(f(g(h())))`.
+func (c *GameEventClient) Use(hooks ...Hook) {
+	c.hooks.GameEvent = append(c.hooks.GameEvent, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `gameevent.Intercept(f(g(h())))`.
+func (c *GameEventClient) Intercept(interceptors ...Interceptor) {
+	c.inters.GameEvent = append(c.inters.GameEvent, interceptors...)
+}
+
+// Create returns a builder for creating a GameEvent entity.
+func (c *GameEventClient) Create() *GameEventCreate {
+	mutation := newGameEventMutation(c.config, OpCreate)
+	return &GameEventCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of GameEvent entities.
+func (c *GameEventClient) CreateBulk(builders ...*GameEventCreate) *GameEventCreateBulk {
+	return &GameEventCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *GameEventClient) MapCreateBulk(slice any, setFunc func(*GameEventCreate, int)) *GameEventCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &GameEventCreateBulk{err: fmt.Errorf("calling to GameEventClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*GameEventCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &GameEventCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for GameEvent.
+func (c *GameEventClient) Update() *GameEventUpdate {
+	mutation := newGameEventMutation(c.config, OpUpdate)
+	return &GameEventUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *GameEventClient) UpdateOne(_m *GameEvent) *GameEventUpdateOne {
+	mutation := newGameEventMutation(c.config, OpUpdateOne, withGameEvent(_m))
+	return &GameEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *GameEventClient) UpdateOneID(id uuid.UUID) *GameEventUpdateOne {
+	mutation := newGameEventMutation(c.config, OpUpdateOne, withGameEventID(id))
+	return &GameEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for GameEvent.
+func (c *GameEventClient) Delete() *GameEventDelete {
+	mutation := newGameEventMutation(c.config, OpDelete)
+	return &GameEventDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *GameEventClient) DeleteOne(_m *GameEvent) *GameEventDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *GameEventClient) DeleteOneID(id uuid.UUID) *GameEventDeleteOne {
+	builder := c.Delete().Where(gameevent.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &GameEventDeleteOne{builder}
+}
+
+// Query returns a query builder for GameEvent.
+func (c *GameEventClient) Query() *GameEventQuery {
+	return &GameEventQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeGameEvent},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a GameEvent entity by its id.
+func (c *GameEventClient) Get(ctx context.Context, id uuid.UUID) (*GameEvent, error) {
+	return c.Query().Where(gameevent.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *GameEventClient) GetX(ctx context.Context, id uuid.UUID) *GameEvent {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryGame queries the game edge of a GameEvent.
+func (c *GameEventClient) QueryGame(_m *GameEvent) *GameQuery {
+	query := (&GameClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(gameevent.Table, gameevent.FieldID, id),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, gameevent.GameTable, gameevent.GameColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPlayer queries the player edge of a GameEvent.
+func (c *GameEventClient) QueryPlayer(_m *GameEvent) *PlayerQuery {
+	query := (&PlayerClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(gameevent.Table, gameevent.FieldID, id),
+			sqlgraph.To(player.Table, player.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, gameevent.PlayerTable, gameevent.PlayerColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *GameEventClient) Hooks() []Hook {
+	return c.hooks.GameEvent
+}
+
+// Interceptors returns the client interceptors.
+func (c *GameEventClient) Interceptors() []Interceptor {
+	return c.inters.GameEvent
+}
+
+func (c *GameEventClient) mutate(ctx context.Context, m *GameEventMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&GameEventCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&GameEventUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&GameEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&GameEventDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown GameEvent mutation op: %q", m.Op())
 	}
 }
 
@@ -1012,7 +2392,7 @@ func (c *GameRoundClient) UpdateOne(_m *GameRound) *GameRoundUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *GameRoundClient) UpdateOneID(id int) *GameRoundUpdateOne {
+func (c *GameRoundClient) UpdateOneID(id uuid.UUID) *GameRoundUpdateOne {
 	mutation := newGameRoundMutation(c.config, OpUpdateOne, withGameRoundID(id))
 	return &GameRoundUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1029,7 +2409,7 @@ func (c *GameRoundClient) DeleteOne(_m *GameRound) *GameRoundDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *GameRoundClient) DeleteOneID(id int) *GameRoundDeleteOne {
+func (c *GameRoundClient) DeleteOneID(id uuid.UUID) *GameRoundDeleteOne {
 	builder := c.Delete().Where(gameround.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1046,17 +2426,49 @@ func (c *GameRoundClient) Query() *GameRoundQuery {
 }
 
 // Get returns a GameRound entity by its id.
-func (c *GameRoundClient) Get(ctx context.Context, id int) (*GameRound, error) {
+func (c *GameRoundClient) Get(ctx context.Context, id uuid.UUID) (*GameRound, error) {
 	return c.Query().Where(gameround.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *GameRoundClient) GetX(ctx context.Context, id int) *GameRound {
+func (c *GameRoundClient) GetX(ctx context.Context, id uuid.UUID) *GameRound {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryEvent queries the event edge of a GameRound.
+func (c *GameRoundClient) QueryEvent(_m *GameRound) *EventQuery {
+	query := (&EventClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(gameround.Table, gameround.FieldID, id),
+			sqlgraph.To(event.Table, event.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, gameround.EventTable, gameround.EventColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGames queries the games edge of a GameRound.
+func (c *GameRoundClient) QueryGames(_m *GameRound) *GameQuery {
+	query := (&GameClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(gameround.Table, gameround.FieldID, id),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, gameround.GamesTable, gameround.GamesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -1081,6 +2493,368 @@ func (c *GameRoundClient) mutate(ctx context.Context, m *GameRoundMutation) (Val
 		return (&GameRoundDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown GameRound mutation op: %q", m.Op())
+	}
+}
+
+// LocationClient is a client for the Location schema.
+type LocationClient struct {
+	config
+}
+
+// NewLocationClient returns a client for the Location from the given config.
+func NewLocationClient(c config) *LocationClient {
+	return &LocationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `location.Hooks(f(g(h())))`.
+func (c *LocationClient) Use(hooks ...Hook) {
+	c.hooks.Location = append(c.hooks.Location, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `location.Intercept(f(g(h())))`.
+func (c *LocationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Location = append(c.inters.Location, interceptors...)
+}
+
+// Create returns a builder for creating a Location entity.
+func (c *LocationClient) Create() *LocationCreate {
+	mutation := newLocationMutation(c.config, OpCreate)
+	return &LocationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Location entities.
+func (c *LocationClient) CreateBulk(builders ...*LocationCreate) *LocationCreateBulk {
+	return &LocationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *LocationClient) MapCreateBulk(slice any, setFunc func(*LocationCreate, int)) *LocationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &LocationCreateBulk{err: fmt.Errorf("calling to LocationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*LocationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &LocationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Location.
+func (c *LocationClient) Update() *LocationUpdate {
+	mutation := newLocationMutation(c.config, OpUpdate)
+	return &LocationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *LocationClient) UpdateOne(_m *Location) *LocationUpdateOne {
+	mutation := newLocationMutation(c.config, OpUpdateOne, withLocation(_m))
+	return &LocationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *LocationClient) UpdateOneID(id uuid.UUID) *LocationUpdateOne {
+	mutation := newLocationMutation(c.config, OpUpdateOne, withLocationID(id))
+	return &LocationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Location.
+func (c *LocationClient) Delete() *LocationDelete {
+	mutation := newLocationMutation(c.config, OpDelete)
+	return &LocationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *LocationClient) DeleteOne(_m *Location) *LocationDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *LocationClient) DeleteOneID(id uuid.UUID) *LocationDeleteOne {
+	builder := c.Delete().Where(location.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &LocationDeleteOne{builder}
+}
+
+// Query returns a query builder for Location.
+func (c *LocationClient) Query() *LocationQuery {
+	return &LocationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeLocation},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Location entity by its id.
+func (c *LocationClient) Get(ctx context.Context, id uuid.UUID) (*Location, error) {
+	return c.Query().Where(location.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *LocationClient) GetX(ctx context.Context, id uuid.UUID) *Location {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCountry queries the country edge of a Location.
+func (c *LocationClient) QueryCountry(_m *Location) *CountryQuery {
+	query := (&CountryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(location.Table, location.FieldID, id),
+			sqlgraph.To(country.Table, country.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, location.CountryTable, location.CountryColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFields queries the fields edge of a Location.
+func (c *LocationClient) QueryFields(_m *Location) *FieldQuery {
+	query := (&FieldClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(location.Table, location.FieldID, id),
+			sqlgraph.To(entfield.Table, entfield.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, location.FieldsTable, location.FieldsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryEvents queries the events edge of a Location.
+func (c *LocationClient) QueryEvents(_m *Location) *EventQuery {
+	query := (&EventClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(location.Table, location.FieldID, id),
+			sqlgraph.To(event.Table, event.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, location.EventsTable, location.EventsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTeams queries the teams edge of a Location.
+func (c *LocationClient) QueryTeams(_m *Location) *TeamQuery {
+	query := (&TeamClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(location.Table, location.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, location.TeamsTable, location.TeamsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *LocationClient) Hooks() []Hook {
+	return c.hooks.Location
+}
+
+// Interceptors returns the client interceptors.
+func (c *LocationClient) Interceptors() []Interceptor {
+	return c.inters.Location
+}
+
+func (c *LocationClient) mutate(ctx context.Context, m *LocationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&LocationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&LocationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&LocationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&LocationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Location mutation op: %q", m.Op())
+	}
+}
+
+// MVPNominationClient is a client for the MVP_Nomination schema.
+type MVPNominationClient struct {
+	config
+}
+
+// NewMVPNominationClient returns a client for the MVP_Nomination from the given config.
+func NewMVPNominationClient(c config) *MVPNominationClient {
+	return &MVPNominationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `mvp_nomination.Hooks(f(g(h())))`.
+func (c *MVPNominationClient) Use(hooks ...Hook) {
+	c.hooks.MVP_Nomination = append(c.hooks.MVP_Nomination, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `mvp_nomination.Intercept(f(g(h())))`.
+func (c *MVPNominationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.MVP_Nomination = append(c.inters.MVP_Nomination, interceptors...)
+}
+
+// Create returns a builder for creating a MVP_Nomination entity.
+func (c *MVPNominationClient) Create() *MVPNominationCreate {
+	mutation := newMVPNominationMutation(c.config, OpCreate)
+	return &MVPNominationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of MVP_Nomination entities.
+func (c *MVPNominationClient) CreateBulk(builders ...*MVPNominationCreate) *MVPNominationCreateBulk {
+	return &MVPNominationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MVPNominationClient) MapCreateBulk(slice any, setFunc func(*MVPNominationCreate, int)) *MVPNominationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MVPNominationCreateBulk{err: fmt.Errorf("calling to MVPNominationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MVPNominationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MVPNominationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for MVP_Nomination.
+func (c *MVPNominationClient) Update() *MVPNominationUpdate {
+	mutation := newMVPNominationMutation(c.config, OpUpdate)
+	return &MVPNominationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MVPNominationClient) UpdateOne(_m *MVP_Nomination) *MVPNominationUpdateOne {
+	mutation := newMVPNominationMutation(c.config, OpUpdateOne, withMVP_Nomination(_m))
+	return &MVPNominationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MVPNominationClient) UpdateOneID(id uuid.UUID) *MVPNominationUpdateOne {
+	mutation := newMVPNominationMutation(c.config, OpUpdateOne, withMVP_NominationID(id))
+	return &MVPNominationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for MVP_Nomination.
+func (c *MVPNominationClient) Delete() *MVPNominationDelete {
+	mutation := newMVPNominationMutation(c.config, OpDelete)
+	return &MVPNominationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *MVPNominationClient) DeleteOne(_m *MVP_Nomination) *MVPNominationDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *MVPNominationClient) DeleteOneID(id uuid.UUID) *MVPNominationDeleteOne {
+	builder := c.Delete().Where(mvp_nomination.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MVPNominationDeleteOne{builder}
+}
+
+// Query returns a query builder for MVP_Nomination.
+func (c *MVPNominationClient) Query() *MVPNominationQuery {
+	return &MVPNominationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeMVPNomination},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a MVP_Nomination entity by its id.
+func (c *MVPNominationClient) Get(ctx context.Context, id uuid.UUID) (*MVP_Nomination, error) {
+	return c.Query().Where(mvp_nomination.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MVPNominationClient) GetX(ctx context.Context, id uuid.UUID) *MVP_Nomination {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QuerySpiritScore queries the spirit_score edge of a MVP_Nomination.
+func (c *MVPNominationClient) QuerySpiritScore(_m *MVP_Nomination) *SpiritScoreQuery {
+	query := (&SpiritScoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(mvp_nomination.Table, mvp_nomination.FieldID, id),
+			sqlgraph.To(spiritscore.Table, spiritscore.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, mvp_nomination.SpiritScoreTable, mvp_nomination.SpiritScoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPlayer queries the player edge of a MVP_Nomination.
+func (c *MVPNominationClient) QueryPlayer(_m *MVP_Nomination) *PlayerQuery {
+	query := (&PlayerClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(mvp_nomination.Table, mvp_nomination.FieldID, id),
+			sqlgraph.To(player.Table, player.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, mvp_nomination.PlayerTable, mvp_nomination.PlayerColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MVPNominationClient) Hooks() []Hook {
+	return c.hooks.MVP_Nomination
+}
+
+// Interceptors returns the client interceptors.
+func (c *MVPNominationClient) Interceptors() []Interceptor {
+	return c.inters.MVP_Nomination
+}
+
+func (c *MVPNominationClient) mutate(ctx context.Context, m *MVPNominationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&MVPNominationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&MVPNominationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&MVPNominationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&MVPNominationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown MVP_Nomination mutation op: %q", m.Op())
 	}
 }
 
@@ -1145,7 +2919,7 @@ func (c *PlayerClient) UpdateOne(_m *Player) *PlayerUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *PlayerClient) UpdateOneID(id int) *PlayerUpdateOne {
+func (c *PlayerClient) UpdateOneID(id uuid.UUID) *PlayerUpdateOne {
 	mutation := newPlayerMutation(c.config, OpUpdateOne, withPlayerID(id))
 	return &PlayerUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1162,7 +2936,7 @@ func (c *PlayerClient) DeleteOne(_m *Player) *PlayerDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PlayerClient) DeleteOneID(id int) *PlayerDeleteOne {
+func (c *PlayerClient) DeleteOneID(id uuid.UUID) *PlayerDeleteOne {
 	builder := c.Delete().Where(player.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1179,17 +2953,97 @@ func (c *PlayerClient) Query() *PlayerQuery {
 }
 
 // Get returns a Player entity by its id.
-func (c *PlayerClient) Get(ctx context.Context, id int) (*Player, error) {
+func (c *PlayerClient) Get(ctx context.Context, id uuid.UUID) (*Player, error) {
 	return c.Query().Where(player.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *PlayerClient) GetX(ctx context.Context, id int) *Player {
+func (c *PlayerClient) GetX(ctx context.Context, id uuid.UUID) *Player {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryTeam queries the team edge of a Player.
+func (c *PlayerClient) QueryTeam(_m *Player) *TeamQuery {
+	query := (&TeamClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(player.Table, player.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, player.TeamTable, player.TeamColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryScores queries the scores edge of a Player.
+func (c *PlayerClient) QueryScores(_m *Player) *ScoringQuery {
+	query := (&ScoringClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(player.Table, player.FieldID, id),
+			sqlgraph.To(scoring.Table, scoring.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, player.ScoresTable, player.ScoresColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGameEvents queries the game_events edge of a Player.
+func (c *PlayerClient) QueryGameEvents(_m *Player) *GameEventQuery {
+	query := (&GameEventClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(player.Table, player.FieldID, id),
+			sqlgraph.To(gameevent.Table, gameevent.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, player.GameEventsTable, player.GameEventsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMvpNominations queries the mvp_nominations edge of a Player.
+func (c *PlayerClient) QueryMvpNominations(_m *Player) *MVPNominationQuery {
+	query := (&MVPNominationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(player.Table, player.FieldID, id),
+			sqlgraph.To(mvp_nomination.Table, mvp_nomination.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, player.MvpNominationsTable, player.MvpNominationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySpiritNominations queries the spirit_nominations edge of a Player.
+func (c *PlayerClient) QuerySpiritNominations(_m *Player) *SpiritNominationQuery {
+	query := (&SpiritNominationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(player.Table, player.FieldID, id),
+			sqlgraph.To(spiritnomination.Table, spiritnomination.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, player.SpiritNominationsTable, player.SpiritNominationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -1278,7 +3132,7 @@ func (c *ScoringClient) UpdateOne(_m *Scoring) *ScoringUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *ScoringClient) UpdateOneID(id int) *ScoringUpdateOne {
+func (c *ScoringClient) UpdateOneID(id uuid.UUID) *ScoringUpdateOne {
 	mutation := newScoringMutation(c.config, OpUpdateOne, withScoringID(id))
 	return &ScoringUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1295,7 +3149,7 @@ func (c *ScoringClient) DeleteOne(_m *Scoring) *ScoringDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ScoringClient) DeleteOneID(id int) *ScoringDeleteOne {
+func (c *ScoringClient) DeleteOneID(id uuid.UUID) *ScoringDeleteOne {
 	builder := c.Delete().Where(scoring.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1312,17 +3166,49 @@ func (c *ScoringClient) Query() *ScoringQuery {
 }
 
 // Get returns a Scoring entity by its id.
-func (c *ScoringClient) Get(ctx context.Context, id int) (*Scoring, error) {
+func (c *ScoringClient) Get(ctx context.Context, id uuid.UUID) (*Scoring, error) {
 	return c.Query().Where(scoring.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *ScoringClient) GetX(ctx context.Context, id int) *Scoring {
+func (c *ScoringClient) GetX(ctx context.Context, id uuid.UUID) *Scoring {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryGame queries the game edge of a Scoring.
+func (c *ScoringClient) QueryGame(_m *Scoring) *GameQuery {
+	query := (&GameClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(scoring.Table, scoring.FieldID, id),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, scoring.GameTable, scoring.GameColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPlayer queries the player edge of a Scoring.
+func (c *ScoringClient) QueryPlayer(_m *Scoring) *PlayerQuery {
+	query := (&PlayerClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(scoring.Table, scoring.FieldID, id),
+			sqlgraph.To(player.Table, player.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, scoring.PlayerTable, scoring.PlayerColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -1347,6 +3233,171 @@ func (c *ScoringClient) mutate(ctx context.Context, m *ScoringMutation) (Value, 
 		return (&ScoringDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Scoring mutation op: %q", m.Op())
+	}
+}
+
+// SpiritNominationClient is a client for the SpiritNomination schema.
+type SpiritNominationClient struct {
+	config
+}
+
+// NewSpiritNominationClient returns a client for the SpiritNomination from the given config.
+func NewSpiritNominationClient(c config) *SpiritNominationClient {
+	return &SpiritNominationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `spiritnomination.Hooks(f(g(h())))`.
+func (c *SpiritNominationClient) Use(hooks ...Hook) {
+	c.hooks.SpiritNomination = append(c.hooks.SpiritNomination, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `spiritnomination.Intercept(f(g(h())))`.
+func (c *SpiritNominationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.SpiritNomination = append(c.inters.SpiritNomination, interceptors...)
+}
+
+// Create returns a builder for creating a SpiritNomination entity.
+func (c *SpiritNominationClient) Create() *SpiritNominationCreate {
+	mutation := newSpiritNominationMutation(c.config, OpCreate)
+	return &SpiritNominationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of SpiritNomination entities.
+func (c *SpiritNominationClient) CreateBulk(builders ...*SpiritNominationCreate) *SpiritNominationCreateBulk {
+	return &SpiritNominationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *SpiritNominationClient) MapCreateBulk(slice any, setFunc func(*SpiritNominationCreate, int)) *SpiritNominationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &SpiritNominationCreateBulk{err: fmt.Errorf("calling to SpiritNominationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*SpiritNominationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &SpiritNominationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for SpiritNomination.
+func (c *SpiritNominationClient) Update() *SpiritNominationUpdate {
+	mutation := newSpiritNominationMutation(c.config, OpUpdate)
+	return &SpiritNominationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SpiritNominationClient) UpdateOne(_m *SpiritNomination) *SpiritNominationUpdateOne {
+	mutation := newSpiritNominationMutation(c.config, OpUpdateOne, withSpiritNomination(_m))
+	return &SpiritNominationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SpiritNominationClient) UpdateOneID(id uuid.UUID) *SpiritNominationUpdateOne {
+	mutation := newSpiritNominationMutation(c.config, OpUpdateOne, withSpiritNominationID(id))
+	return &SpiritNominationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for SpiritNomination.
+func (c *SpiritNominationClient) Delete() *SpiritNominationDelete {
+	mutation := newSpiritNominationMutation(c.config, OpDelete)
+	return &SpiritNominationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SpiritNominationClient) DeleteOne(_m *SpiritNomination) *SpiritNominationDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *SpiritNominationClient) DeleteOneID(id uuid.UUID) *SpiritNominationDeleteOne {
+	builder := c.Delete().Where(spiritnomination.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SpiritNominationDeleteOne{builder}
+}
+
+// Query returns a query builder for SpiritNomination.
+func (c *SpiritNominationClient) Query() *SpiritNominationQuery {
+	return &SpiritNominationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeSpiritNomination},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a SpiritNomination entity by its id.
+func (c *SpiritNominationClient) Get(ctx context.Context, id uuid.UUID) (*SpiritNomination, error) {
+	return c.Query().Where(spiritnomination.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SpiritNominationClient) GetX(ctx context.Context, id uuid.UUID) *SpiritNomination {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QuerySpiritScore queries the spirit_score edge of a SpiritNomination.
+func (c *SpiritNominationClient) QuerySpiritScore(_m *SpiritNomination) *SpiritScoreQuery {
+	query := (&SpiritScoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(spiritnomination.Table, spiritnomination.FieldID, id),
+			sqlgraph.To(spiritscore.Table, spiritscore.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, spiritnomination.SpiritScoreTable, spiritnomination.SpiritScoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPlayer queries the player edge of a SpiritNomination.
+func (c *SpiritNominationClient) QueryPlayer(_m *SpiritNomination) *PlayerQuery {
+	query := (&PlayerClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(spiritnomination.Table, spiritnomination.FieldID, id),
+			sqlgraph.To(player.Table, player.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, spiritnomination.PlayerTable, spiritnomination.PlayerColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *SpiritNominationClient) Hooks() []Hook {
+	return c.hooks.SpiritNomination
+}
+
+// Interceptors returns the client interceptors.
+func (c *SpiritNominationClient) Interceptors() []Interceptor {
+	return c.inters.SpiritNomination
+}
+
+func (c *SpiritNominationClient) mutate(ctx context.Context, m *SpiritNominationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&SpiritNominationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&SpiritNominationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&SpiritNominationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&SpiritNominationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown SpiritNomination mutation op: %q", m.Op())
 	}
 }
 
@@ -1411,7 +3462,7 @@ func (c *SpiritScoreClient) UpdateOne(_m *SpiritScore) *SpiritScoreUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *SpiritScoreClient) UpdateOneID(id int) *SpiritScoreUpdateOne {
+func (c *SpiritScoreClient) UpdateOneID(id uuid.UUID) *SpiritScoreUpdateOne {
 	mutation := newSpiritScoreMutation(c.config, OpUpdateOne, withSpiritScoreID(id))
 	return &SpiritScoreUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1428,7 +3479,7 @@ func (c *SpiritScoreClient) DeleteOne(_m *SpiritScore) *SpiritScoreDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *SpiritScoreClient) DeleteOneID(id int) *SpiritScoreDeleteOne {
+func (c *SpiritScoreClient) DeleteOneID(id uuid.UUID) *SpiritScoreDeleteOne {
 	builder := c.Delete().Where(spiritscore.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1445,17 +3496,113 @@ func (c *SpiritScoreClient) Query() *SpiritScoreQuery {
 }
 
 // Get returns a SpiritScore entity by its id.
-func (c *SpiritScoreClient) Get(ctx context.Context, id int) (*SpiritScore, error) {
+func (c *SpiritScoreClient) Get(ctx context.Context, id uuid.UUID) (*SpiritScore, error) {
 	return c.Query().Where(spiritscore.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *SpiritScoreClient) GetX(ctx context.Context, id int) *SpiritScore {
+func (c *SpiritScoreClient) GetX(ctx context.Context, id uuid.UUID) *SpiritScore {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryGame queries the game edge of a SpiritScore.
+func (c *SpiritScoreClient) QueryGame(_m *SpiritScore) *GameQuery {
+	query := (&GameClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(spiritscore.Table, spiritscore.FieldID, id),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, spiritscore.GameTable, spiritscore.GameColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryScoredByTeam queries the scored_by_team edge of a SpiritScore.
+func (c *SpiritScoreClient) QueryScoredByTeam(_m *SpiritScore) *TeamQuery {
+	query := (&TeamClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(spiritscore.Table, spiritscore.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, spiritscore.ScoredByTeamTable, spiritscore.ScoredByTeamColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTeam queries the team edge of a SpiritScore.
+func (c *SpiritScoreClient) QueryTeam(_m *SpiritScore) *TeamQuery {
+	query := (&TeamClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(spiritscore.Table, spiritscore.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, spiritscore.TeamTable, spiritscore.TeamColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySubmittedBy queries the submitted_by edge of a SpiritScore.
+func (c *SpiritScoreClient) QuerySubmittedBy(_m *SpiritScore) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(spiritscore.Table, spiritscore.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, spiritscore.SubmittedByTable, spiritscore.SubmittedByColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMvpNominations queries the mvp_nominations edge of a SpiritScore.
+func (c *SpiritScoreClient) QueryMvpNominations(_m *SpiritScore) *MVPNominationQuery {
+	query := (&MVPNominationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(spiritscore.Table, spiritscore.FieldID, id),
+			sqlgraph.To(mvp_nomination.Table, mvp_nomination.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, spiritscore.MvpNominationsTable, spiritscore.MvpNominationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySpiritNominations queries the spirit_nominations edge of a SpiritScore.
+func (c *SpiritScoreClient) QuerySpiritNominations(_m *SpiritScore) *SpiritNominationQuery {
+	query := (&SpiritNominationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(spiritscore.Table, spiritscore.FieldID, id),
+			sqlgraph.To(spiritnomination.Table, spiritnomination.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, spiritscore.SpiritNominationsTable, spiritscore.SpiritNominationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -1544,7 +3691,7 @@ func (c *TeamClient) UpdateOne(_m *Team) *TeamUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *TeamClient) UpdateOneID(id int) *TeamUpdateOne {
+func (c *TeamClient) UpdateOneID(id uuid.UUID) *TeamUpdateOne {
 	mutation := newTeamMutation(c.config, OpUpdateOne, withTeamID(id))
 	return &TeamUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1561,7 +3708,7 @@ func (c *TeamClient) DeleteOne(_m *Team) *TeamDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *TeamClient) DeleteOneID(id int) *TeamDeleteOne {
+func (c *TeamClient) DeleteOneID(id uuid.UUID) *TeamDeleteOne {
 	builder := c.Delete().Where(team.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1578,17 +3725,145 @@ func (c *TeamClient) Query() *TeamQuery {
 }
 
 // Get returns a Team entity by its id.
-func (c *TeamClient) Get(ctx context.Context, id int) (*Team, error) {
+func (c *TeamClient) Get(ctx context.Context, id uuid.UUID) (*Team, error) {
 	return c.Query().Where(team.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *TeamClient) GetX(ctx context.Context, id int) *Team {
+func (c *TeamClient) GetX(ctx context.Context, id uuid.UUID) *Team {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryDivisionPool queries the division_pool edge of a Team.
+func (c *TeamClient) QueryDivisionPool(_m *Team) *DivisionPoolQuery {
+	query := (&DivisionPoolClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(divisionpool.Table, divisionpool.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, team.DivisionPoolTable, team.DivisionPoolColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryHomeLocation queries the home_location edge of a Team.
+func (c *TeamClient) QueryHomeLocation(_m *Team) *LocationQuery {
+	query := (&LocationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(location.Table, location.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, team.HomeLocationTable, team.HomeLocationColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPlayers queries the players edge of a Team.
+func (c *TeamClient) QueryPlayers(_m *Team) *PlayerQuery {
+	query := (&PlayerClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(player.Table, player.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.PlayersTable, team.PlayersColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryManagedBy queries the managed_by edge of a Team.
+func (c *TeamClient) QueryManagedBy(_m *Team) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.ManagedByTable, team.ManagedByColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryHomeGames queries the home_games edge of a Team.
+func (c *TeamClient) QueryHomeGames(_m *Team) *GameQuery {
+	query := (&GameClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.HomeGamesTable, team.HomeGamesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAwayGames queries the away_games edge of a Team.
+func (c *TeamClient) QueryAwayGames(_m *Team) *GameQuery {
+	query := (&GameClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.AwayGamesTable, team.AwayGamesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySpiritScoresGiven queries the spirit_scores_given edge of a Team.
+func (c *TeamClient) QuerySpiritScoresGiven(_m *Team) *SpiritScoreQuery {
+	query := (&SpiritScoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(spiritscore.Table, spiritscore.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.SpiritScoresGivenTable, team.SpiritScoresGivenColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySpiritScoresReceived queries the spirit_scores_received edge of a Team.
+func (c *TeamClient) QuerySpiritScoresReceived(_m *Team) *SpiritScoreQuery {
+	query := (&SpiritScoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(spiritscore.Table, spiritscore.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.SpiritScoresReceivedTable, team.SpiritScoresReceivedColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -1677,7 +3952,7 @@ func (c *UserClient) UpdateOne(_m *User) *UserUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *UserClient) UpdateOneID(id int) *UserUpdateOne {
+func (c *UserClient) UpdateOneID(id uuid.UUID) *UserUpdateOne {
 	mutation := newUserMutation(c.config, OpUpdateOne, withUserID(id))
 	return &UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1694,7 +3969,7 @@ func (c *UserClient) DeleteOne(_m *User) *UserDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *UserClient) DeleteOneID(id int) *UserDeleteOne {
+func (c *UserClient) DeleteOneID(id uuid.UUID) *UserDeleteOne {
 	builder := c.Delete().Where(user.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1711,17 +3986,129 @@ func (c *UserClient) Query() *UserQuery {
 }
 
 // Get returns a User entity by its id.
-func (c *UserClient) Get(ctx context.Context, id int) (*User, error) {
+func (c *UserClient) Get(ctx context.Context, id uuid.UUID) (*User, error) {
 	return c.Query().Where(user.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *UserClient) GetX(ctx context.Context, id int) *User {
+func (c *UserClient) GetX(ctx context.Context, id uuid.UUID) *User {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryManagedContinent queries the managed_continent edge of a User.
+func (c *UserClient) QueryManagedContinent(_m *User) *ContinentQuery {
+	query := (&ContinentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(continent.Table, continent.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedContinentTable, user.ManagedContinentColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryManagedCountry queries the managed_country edge of a User.
+func (c *UserClient) QueryManagedCountry(_m *User) *CountryQuery {
+	query := (&CountryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(country.Table, country.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedCountryTable, user.ManagedCountryColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryManagedDiscipline queries the managed_discipline edge of a User.
+func (c *UserClient) QueryManagedDiscipline(_m *User) *DisciplineQuery {
+	query := (&DisciplineClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(discipline.Table, discipline.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedDisciplineTable, user.ManagedDisciplineColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryManagedEvent queries the managed_event edge of a User.
+func (c *UserClient) QueryManagedEvent(_m *User) *EventQuery {
+	query := (&EventClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(event.Table, event.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedEventTable, user.ManagedEventColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryManagedTeam queries the managed_team edge of a User.
+func (c *UserClient) QueryManagedTeam(_m *User) *TeamQuery {
+	query := (&TeamClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedTeamTable, user.ManagedTeamColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryOfficiatedGames queries the officiated_games edge of a User.
+func (c *UserClient) QueryOfficiatedGames(_m *User) *GameQuery {
+	query := (&GameClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.OfficiatedGamesTable, user.OfficiatedGamesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySubmittedSpiritScores queries the submitted_spirit_scores edge of a User.
+func (c *UserClient) QuerySubmittedSpiritScores(_m *User) *SpiritScoreQuery {
+	query := (&SpiritScoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(spiritscore.Table, spiritscore.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.SubmittedSpiritScoresTable, user.SubmittedSpiritScoresColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -1749,14 +4136,167 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 	}
 }
 
+// WorldClient is a client for the World schema.
+type WorldClient struct {
+	config
+}
+
+// NewWorldClient returns a client for the World from the given config.
+func NewWorldClient(c config) *WorldClient {
+	return &WorldClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `world.Hooks(f(g(h())))`.
+func (c *WorldClient) Use(hooks ...Hook) {
+	c.hooks.World = append(c.hooks.World, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `world.Intercept(f(g(h())))`.
+func (c *WorldClient) Intercept(interceptors ...Interceptor) {
+	c.inters.World = append(c.inters.World, interceptors...)
+}
+
+// Create returns a builder for creating a World entity.
+func (c *WorldClient) Create() *WorldCreate {
+	mutation := newWorldMutation(c.config, OpCreate)
+	return &WorldCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of World entities.
+func (c *WorldClient) CreateBulk(builders ...*WorldCreate) *WorldCreateBulk {
+	return &WorldCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *WorldClient) MapCreateBulk(slice any, setFunc func(*WorldCreate, int)) *WorldCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &WorldCreateBulk{err: fmt.Errorf("calling to WorldClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*WorldCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &WorldCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for World.
+func (c *WorldClient) Update() *WorldUpdate {
+	mutation := newWorldMutation(c.config, OpUpdate)
+	return &WorldUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *WorldClient) UpdateOne(_m *World) *WorldUpdateOne {
+	mutation := newWorldMutation(c.config, OpUpdateOne, withWorld(_m))
+	return &WorldUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *WorldClient) UpdateOneID(id uuid.UUID) *WorldUpdateOne {
+	mutation := newWorldMutation(c.config, OpUpdateOne, withWorldID(id))
+	return &WorldUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for World.
+func (c *WorldClient) Delete() *WorldDelete {
+	mutation := newWorldMutation(c.config, OpDelete)
+	return &WorldDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *WorldClient) DeleteOne(_m *World) *WorldDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *WorldClient) DeleteOneID(id uuid.UUID) *WorldDeleteOne {
+	builder := c.Delete().Where(world.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &WorldDeleteOne{builder}
+}
+
+// Query returns a query builder for World.
+func (c *WorldClient) Query() *WorldQuery {
+	return &WorldQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeWorld},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a World entity by its id.
+func (c *WorldClient) Get(ctx context.Context, id uuid.UUID) (*World, error) {
+	return c.Query().Where(world.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *WorldClient) GetX(ctx context.Context, id uuid.UUID) *World {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryContinents queries the continents edge of a World.
+func (c *WorldClient) QueryContinents(_m *World) *ContinentQuery {
+	query := (&ContinentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(world.Table, world.FieldID, id),
+			sqlgraph.To(continent.Table, continent.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, world.ContinentsTable, world.ContinentsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *WorldClient) Hooks() []Hook {
+	return c.hooks.World
+}
+
+// Interceptors returns the client interceptors.
+func (c *WorldClient) Interceptors() []Interceptor {
+	return c.inters.World
+}
+
+func (c *WorldClient) mutate(ctx context.Context, m *WorldMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&WorldCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&WorldUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&WorldUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&WorldDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown World mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AnalyticSearch, AnalyticsEmbedding, DivisionPool, Event, Game, GameRound,
-		Player, Scoring, SpiritScore, Team, User []ent.Hook
+		AnalyticSearch, AnalyticsEmbedding, Continent, Country, Discipline,
+		DivisionPool, Event, EventReconciliation, Field, Game, GameEvent, GameRound,
+		Location, MVP_Nomination, Player, Scoring, SpiritNomination, SpiritScore, Team,
+		User, World []ent.Hook
 	}
 	inters struct {
-		AnalyticSearch, AnalyticsEmbedding, DivisionPool, Event, Game, GameRound,
-		Player, Scoring, SpiritScore, Team, User []ent.Interceptor
+		AnalyticSearch, AnalyticsEmbedding, Continent, Country, Discipline,
+		DivisionPool, Event, EventReconciliation, Field, Game, GameEvent, GameRound,
+		Location, MVP_Nomination, Player, Scoring, SpiritNomination, SpiritScore, Team,
+		User, World []ent.Interceptor
 	}
 )

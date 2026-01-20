@@ -33,6 +33,42 @@ func (f AnalyticsEmbeddingFunc) Mutate(ctx context.Context, m ent.Mutation) (ent
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AnalyticsEmbeddingMutation", m)
 }
 
+// The ContinentFunc type is an adapter to allow the use of ordinary
+// function as Continent mutator.
+type ContinentFunc func(context.Context, *ent.ContinentMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ContinentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ContinentMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ContinentMutation", m)
+}
+
+// The CountryFunc type is an adapter to allow the use of ordinary
+// function as Country mutator.
+type CountryFunc func(context.Context, *ent.CountryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CountryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CountryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CountryMutation", m)
+}
+
+// The DisciplineFunc type is an adapter to allow the use of ordinary
+// function as Discipline mutator.
+type DisciplineFunc func(context.Context, *ent.DisciplineMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DisciplineFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DisciplineMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DisciplineMutation", m)
+}
+
 // The DivisionPoolFunc type is an adapter to allow the use of ordinary
 // function as DivisionPool mutator.
 type DivisionPoolFunc func(context.Context, *ent.DivisionPoolMutation) (ent.Value, error)
@@ -57,6 +93,30 @@ func (f EventFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EventMutation", m)
 }
 
+// The EventReconciliationFunc type is an adapter to allow the use of ordinary
+// function as EventReconciliation mutator.
+type EventReconciliationFunc func(context.Context, *ent.EventReconciliationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f EventReconciliationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.EventReconciliationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EventReconciliationMutation", m)
+}
+
+// The FieldFunc type is an adapter to allow the use of ordinary
+// function as Field mutator.
+type FieldFunc func(context.Context, *ent.FieldMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f FieldFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.FieldMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FieldMutation", m)
+}
+
 // The GameFunc type is an adapter to allow the use of ordinary
 // function as Game mutator.
 type GameFunc func(context.Context, *ent.GameMutation) (ent.Value, error)
@@ -69,6 +129,18 @@ func (f GameFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GameMutation", m)
 }
 
+// The GameEventFunc type is an adapter to allow the use of ordinary
+// function as GameEvent mutator.
+type GameEventFunc func(context.Context, *ent.GameEventMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f GameEventFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.GameEventMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GameEventMutation", m)
+}
+
 // The GameRoundFunc type is an adapter to allow the use of ordinary
 // function as GameRound mutator.
 type GameRoundFunc func(context.Context, *ent.GameRoundMutation) (ent.Value, error)
@@ -79,6 +151,30 @@ func (f GameRoundFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GameRoundMutation", m)
+}
+
+// The LocationFunc type is an adapter to allow the use of ordinary
+// function as Location mutator.
+type LocationFunc func(context.Context, *ent.LocationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LocationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.LocationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.LocationMutation", m)
+}
+
+// The MVP_NominationFunc type is an adapter to allow the use of ordinary
+// function as MVP_Nomination mutator.
+type MVP_NominationFunc func(context.Context, *ent.MVPNominationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MVP_NominationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MVPNominationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MVPNominationMutation", m)
 }
 
 // The PlayerFunc type is an adapter to allow the use of ordinary
@@ -103,6 +199,18 @@ func (f ScoringFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ScoringMutation", m)
+}
+
+// The SpiritNominationFunc type is an adapter to allow the use of ordinary
+// function as SpiritNomination mutator.
+type SpiritNominationFunc func(context.Context, *ent.SpiritNominationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SpiritNominationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.SpiritNominationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SpiritNominationMutation", m)
 }
 
 // The SpiritScoreFunc type is an adapter to allow the use of ordinary
@@ -139,6 +247,18 @@ func (f UserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserMutation", m)
+}
+
+// The WorldFunc type is an adapter to allow the use of ordinary
+// function as World mutator.
+type WorldFunc func(context.Context, *ent.WorldMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f WorldFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.WorldMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.WorldMutation", m)
 }
 
 // Condition is a hook condition function.

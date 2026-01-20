@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -11,17 +12,36 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	entfield "github.com/bengobox/game-stats-api/ent/field"
 	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/gameevent"
+	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/bengobox/game-stats-api/ent/spiritscore"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // GameQuery is the builder for querying Game entities.
 type GameQuery struct {
 	config
-	ctx        *QueryContext
-	order      []game.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Game
+	ctx              *QueryContext
+	order            []game.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.Game
+	withGameRound    *GameRoundQuery
+	withHomeTeam     *TeamQuery
+	withAwayTeam     *TeamQuery
+	withDivisionPool *DivisionPoolQuery
+	withField        *FieldQuery
+	withScorekeeper  *UserQuery
+	withScores       *ScoringQuery
+	withGameEvents   *GameEventQuery
+	withSpiritScores *SpiritScoreQuery
+	withFKs          bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -58,6 +78,204 @@ func (_q *GameQuery) Order(o ...game.OrderOption) *GameQuery {
 	return _q
 }
 
+// QueryGameRound chains the current query on the "game_round" edge.
+func (_q *GameQuery) QueryGameRound() *GameRoundQuery {
+	query := (&GameRoundClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, selector),
+			sqlgraph.To(gameround.Table, gameround.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.GameRoundTable, game.GameRoundColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryHomeTeam chains the current query on the "home_team" edge.
+func (_q *GameQuery) QueryHomeTeam() *TeamQuery {
+	query := (&TeamClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, selector),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.HomeTeamTable, game.HomeTeamColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAwayTeam chains the current query on the "away_team" edge.
+func (_q *GameQuery) QueryAwayTeam() *TeamQuery {
+	query := (&TeamClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, selector),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.AwayTeamTable, game.AwayTeamColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDivisionPool chains the current query on the "division_pool" edge.
+func (_q *GameQuery) QueryDivisionPool() *DivisionPoolQuery {
+	query := (&DivisionPoolClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, selector),
+			sqlgraph.To(divisionpool.Table, divisionpool.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.DivisionPoolTable, game.DivisionPoolColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryField chains the current query on the "field" edge.
+func (_q *GameQuery) QueryField() *FieldQuery {
+	query := (&FieldClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, selector),
+			sqlgraph.To(entfield.Table, entfield.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.FieldTable, game.FieldColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryScorekeeper chains the current query on the "scorekeeper" edge.
+func (_q *GameQuery) QueryScorekeeper() *UserQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.ScorekeeperTable, game.ScorekeeperColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryScores chains the current query on the "scores" edge.
+func (_q *GameQuery) QueryScores() *ScoringQuery {
+	query := (&ScoringClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, selector),
+			sqlgraph.To(scoring.Table, scoring.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, game.ScoresTable, game.ScoresColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryGameEvents chains the current query on the "game_events" edge.
+func (_q *GameQuery) QueryGameEvents() *GameEventQuery {
+	query := (&GameEventClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, selector),
+			sqlgraph.To(gameevent.Table, gameevent.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, game.GameEventsTable, game.GameEventsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySpiritScores chains the current query on the "spirit_scores" edge.
+func (_q *GameQuery) QuerySpiritScores() *SpiritScoreQuery {
+	query := (&SpiritScoreClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, selector),
+			sqlgraph.To(spiritscore.Table, spiritscore.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, game.SpiritScoresTable, game.SpiritScoresColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Game entity from the query.
 // Returns a *NotFoundError when no Game was found.
 func (_q *GameQuery) First(ctx context.Context) (*Game, error) {
@@ -82,8 +300,8 @@ func (_q *GameQuery) FirstX(ctx context.Context) *Game {
 
 // FirstID returns the first Game ID from the query.
 // Returns a *NotFoundError when no Game ID was found.
-func (_q *GameQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *GameQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -95,7 +313,7 @@ func (_q *GameQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *GameQuery) FirstIDX(ctx context.Context) int {
+func (_q *GameQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -133,8 +351,8 @@ func (_q *GameQuery) OnlyX(ctx context.Context) *Game {
 // OnlyID is like Only, but returns the only Game ID in the query.
 // Returns a *NotSingularError when more than one Game ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *GameQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *GameQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -150,7 +368,7 @@ func (_q *GameQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *GameQuery) OnlyIDX(ctx context.Context) int {
+func (_q *GameQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -178,7 +396,7 @@ func (_q *GameQuery) AllX(ctx context.Context) []*Game {
 }
 
 // IDs executes the query and returns a list of Game IDs.
-func (_q *GameQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *GameQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -190,7 +408,7 @@ func (_q *GameQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *GameQuery) IDsX(ctx context.Context) []int {
+func (_q *GameQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -245,19 +463,139 @@ func (_q *GameQuery) Clone() *GameQuery {
 		return nil
 	}
 	return &GameQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]game.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.Game{}, _q.predicates...),
+		config:           _q.config,
+		ctx:              _q.ctx.Clone(),
+		order:            append([]game.OrderOption{}, _q.order...),
+		inters:           append([]Interceptor{}, _q.inters...),
+		predicates:       append([]predicate.Game{}, _q.predicates...),
+		withGameRound:    _q.withGameRound.Clone(),
+		withHomeTeam:     _q.withHomeTeam.Clone(),
+		withAwayTeam:     _q.withAwayTeam.Clone(),
+		withDivisionPool: _q.withDivisionPool.Clone(),
+		withField:        _q.withField.Clone(),
+		withScorekeeper:  _q.withScorekeeper.Clone(),
+		withScores:       _q.withScores.Clone(),
+		withGameEvents:   _q.withGameEvents.Clone(),
+		withSpiritScores: _q.withSpiritScores.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
 }
 
+// WithGameRound tells the query-builder to eager-load the nodes that are connected to
+// the "game_round" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *GameQuery) WithGameRound(opts ...func(*GameRoundQuery)) *GameQuery {
+	query := (&GameRoundClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withGameRound = query
+	return _q
+}
+
+// WithHomeTeam tells the query-builder to eager-load the nodes that are connected to
+// the "home_team" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *GameQuery) WithHomeTeam(opts ...func(*TeamQuery)) *GameQuery {
+	query := (&TeamClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withHomeTeam = query
+	return _q
+}
+
+// WithAwayTeam tells the query-builder to eager-load the nodes that are connected to
+// the "away_team" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *GameQuery) WithAwayTeam(opts ...func(*TeamQuery)) *GameQuery {
+	query := (&TeamClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withAwayTeam = query
+	return _q
+}
+
+// WithDivisionPool tells the query-builder to eager-load the nodes that are connected to
+// the "division_pool" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *GameQuery) WithDivisionPool(opts ...func(*DivisionPoolQuery)) *GameQuery {
+	query := (&DivisionPoolClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDivisionPool = query
+	return _q
+}
+
+// WithField tells the query-builder to eager-load the nodes that are connected to
+// the "field" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *GameQuery) WithField(opts ...func(*FieldQuery)) *GameQuery {
+	query := (&FieldClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withField = query
+	return _q
+}
+
+// WithScorekeeper tells the query-builder to eager-load the nodes that are connected to
+// the "scorekeeper" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *GameQuery) WithScorekeeper(opts ...func(*UserQuery)) *GameQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withScorekeeper = query
+	return _q
+}
+
+// WithScores tells the query-builder to eager-load the nodes that are connected to
+// the "scores" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *GameQuery) WithScores(opts ...func(*ScoringQuery)) *GameQuery {
+	query := (&ScoringClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withScores = query
+	return _q
+}
+
+// WithGameEvents tells the query-builder to eager-load the nodes that are connected to
+// the "game_events" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *GameQuery) WithGameEvents(opts ...func(*GameEventQuery)) *GameQuery {
+	query := (&GameEventClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withGameEvents = query
+	return _q
+}
+
+// WithSpiritScores tells the query-builder to eager-load the nodes that are connected to
+// the "spirit_scores" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *GameQuery) WithSpiritScores(opts ...func(*SpiritScoreQuery)) *GameQuery {
+	query := (&SpiritScoreClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSpiritScores = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Game.Query().
+//		GroupBy(game.FieldCreatedAt).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (_q *GameQuery) GroupBy(field string, fields ...string) *GameGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &GameGroupBy{build: _q}
@@ -269,6 +607,16 @@ func (_q *GameQuery) GroupBy(field string, fields ...string) *GameGroupBy {
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//	}
+//
+//	client.Game.Query().
+//		Select(game.FieldCreatedAt).
+//		Scan(ctx, &v)
 func (_q *GameQuery) Select(fields ...string) *GameSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
 	sbuild := &GameSelect{GameQuery: _q}
@@ -310,15 +658,34 @@ func (_q *GameQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *GameQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Game, error) {
 	var (
-		nodes = []*Game{}
-		_spec = _q.querySpec()
+		nodes       = []*Game{}
+		withFKs     = _q.withFKs
+		_spec       = _q.querySpec()
+		loadedTypes = [9]bool{
+			_q.withGameRound != nil,
+			_q.withHomeTeam != nil,
+			_q.withAwayTeam != nil,
+			_q.withDivisionPool != nil,
+			_q.withField != nil,
+			_q.withScorekeeper != nil,
+			_q.withScores != nil,
+			_q.withGameEvents != nil,
+			_q.withSpiritScores != nil,
+		}
 	)
+	if _q.withGameRound != nil || _q.withHomeTeam != nil || _q.withAwayTeam != nil || _q.withDivisionPool != nil || _q.withField != nil || _q.withScorekeeper != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, game.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Game).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Game{config: _q.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -330,7 +697,350 @@ func (_q *GameQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Game, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withGameRound; query != nil {
+		if err := _q.loadGameRound(ctx, query, nodes, nil,
+			func(n *Game, e *GameRound) { n.Edges.GameRound = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withHomeTeam; query != nil {
+		if err := _q.loadHomeTeam(ctx, query, nodes, nil,
+			func(n *Game, e *Team) { n.Edges.HomeTeam = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withAwayTeam; query != nil {
+		if err := _q.loadAwayTeam(ctx, query, nodes, nil,
+			func(n *Game, e *Team) { n.Edges.AwayTeam = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withDivisionPool; query != nil {
+		if err := _q.loadDivisionPool(ctx, query, nodes, nil,
+			func(n *Game, e *DivisionPool) { n.Edges.DivisionPool = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withField; query != nil {
+		if err := _q.loadField(ctx, query, nodes, nil,
+			func(n *Game, e *Field) { n.Edges.Field = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withScorekeeper; query != nil {
+		if err := _q.loadScorekeeper(ctx, query, nodes, nil,
+			func(n *Game, e *User) { n.Edges.Scorekeeper = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withScores; query != nil {
+		if err := _q.loadScores(ctx, query, nodes,
+			func(n *Game) { n.Edges.Scores = []*Scoring{} },
+			func(n *Game, e *Scoring) { n.Edges.Scores = append(n.Edges.Scores, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withGameEvents; query != nil {
+		if err := _q.loadGameEvents(ctx, query, nodes,
+			func(n *Game) { n.Edges.GameEvents = []*GameEvent{} },
+			func(n *Game, e *GameEvent) { n.Edges.GameEvents = append(n.Edges.GameEvents, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSpiritScores; query != nil {
+		if err := _q.loadSpiritScores(ctx, query, nodes,
+			func(n *Game) { n.Edges.SpiritScores = []*SpiritScore{} },
+			func(n *Game, e *SpiritScore) { n.Edges.SpiritScores = append(n.Edges.SpiritScores, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (_q *GameQuery) loadGameRound(ctx context.Context, query *GameRoundQuery, nodes []*Game, init func(*Game), assign func(*Game, *GameRound)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Game)
+	for i := range nodes {
+		if nodes[i].game_round_games == nil {
+			continue
+		}
+		fk := *nodes[i].game_round_games
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(gameround.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "game_round_games" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *GameQuery) loadHomeTeam(ctx context.Context, query *TeamQuery, nodes []*Game, init func(*Game), assign func(*Game, *Team)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Game)
+	for i := range nodes {
+		if nodes[i].team_home_games == nil {
+			continue
+		}
+		fk := *nodes[i].team_home_games
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(team.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "team_home_games" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *GameQuery) loadAwayTeam(ctx context.Context, query *TeamQuery, nodes []*Game, init func(*Game), assign func(*Game, *Team)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Game)
+	for i := range nodes {
+		if nodes[i].team_away_games == nil {
+			continue
+		}
+		fk := *nodes[i].team_away_games
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(team.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "team_away_games" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *GameQuery) loadDivisionPool(ctx context.Context, query *DivisionPoolQuery, nodes []*Game, init func(*Game), assign func(*Game, *DivisionPool)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Game)
+	for i := range nodes {
+		if nodes[i].division_pool_games == nil {
+			continue
+		}
+		fk := *nodes[i].division_pool_games
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(divisionpool.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "division_pool_games" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *GameQuery) loadField(ctx context.Context, query *FieldQuery, nodes []*Game, init func(*Game), assign func(*Game, *Field)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Game)
+	for i := range nodes {
+		if nodes[i].field_games == nil {
+			continue
+		}
+		fk := *nodes[i].field_games
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(entfield.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "field_games" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *GameQuery) loadScorekeeper(ctx context.Context, query *UserQuery, nodes []*Game, init func(*Game), assign func(*Game, *User)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Game)
+	for i := range nodes {
+		if nodes[i].user_officiated_games == nil {
+			continue
+		}
+		fk := *nodes[i].user_officiated_games
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(user.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "user_officiated_games" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *GameQuery) loadScores(ctx context.Context, query *ScoringQuery, nodes []*Game, init func(*Game), assign func(*Game, *Scoring)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Game)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Scoring(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(game.ScoresColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.game_scores
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "game_scores" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "game_scores" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *GameQuery) loadGameEvents(ctx context.Context, query *GameEventQuery, nodes []*Game, init func(*Game), assign func(*Game, *GameEvent)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Game)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.GameEvent(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(game.GameEventsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.game_game_events
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "game_game_events" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "game_game_events" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *GameQuery) loadSpiritScores(ctx context.Context, query *SpiritScoreQuery, nodes []*Game, init func(*Game), assign func(*Game, *SpiritScore)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Game)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.SpiritScore(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(game.SpiritScoresColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.game_spirit_scores
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "game_spirit_scores" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "game_spirit_scores" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (_q *GameQuery) sqlCount(ctx context.Context) (int, error) {
@@ -343,7 +1053,7 @@ func (_q *GameQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *GameQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(game.Table, game.Columns, sqlgraph.NewFieldSpec(game.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(game.Table, game.Columns, sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

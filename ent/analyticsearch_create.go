@@ -4,11 +4,14 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/game-stats-api/ent/analyticsearch"
+	"github.com/google/uuid"
 )
 
 // AnalyticSearchCreate is the builder for creating a AnalyticSearch entity.
@@ -18,6 +21,102 @@ type AnalyticSearchCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *AnalyticSearchCreate) SetCreatedAt(v time.Time) *AnalyticSearchCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *AnalyticSearchCreate) SetNillableCreatedAt(v *time.Time) *AnalyticSearchCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *AnalyticSearchCreate) SetUpdatedAt(v time.Time) *AnalyticSearchCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *AnalyticSearchCreate) SetNillableUpdatedAt(v *time.Time) *AnalyticSearchCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *AnalyticSearchCreate) SetDeletedAt(v time.Time) *AnalyticSearchCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *AnalyticSearchCreate) SetNillableDeletedAt(v *time.Time) *AnalyticSearchCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
+// SetQuery sets the "query" field.
+func (_c *AnalyticSearchCreate) SetQuery(v string) *AnalyticSearchCreate {
+	_c.mutation.SetQuery(v)
+	return _c
+}
+
+// SetExplanation sets the "explanation" field.
+func (_c *AnalyticSearchCreate) SetExplanation(v string) *AnalyticSearchCreate {
+	_c.mutation.SetExplanation(v)
+	return _c
+}
+
+// SetNillableExplanation sets the "explanation" field if the given value is not nil.
+func (_c *AnalyticSearchCreate) SetNillableExplanation(v *string) *AnalyticSearchCreate {
+	if v != nil {
+		_c.SetExplanation(*v)
+	}
+	return _c
+}
+
+// SetGeneratedSQL sets the "generated_sql" field.
+func (_c *AnalyticSearchCreate) SetGeneratedSQL(v string) *AnalyticSearchCreate {
+	_c.mutation.SetGeneratedSQL(v)
+	return _c
+}
+
+// SetNillableGeneratedSQL sets the "generated_sql" field if the given value is not nil.
+func (_c *AnalyticSearchCreate) SetNillableGeneratedSQL(v *string) *AnalyticSearchCreate {
+	if v != nil {
+		_c.SetGeneratedSQL(*v)
+	}
+	return _c
+}
+
+// SetMetadata sets the "metadata" field.
+func (_c *AnalyticSearchCreate) SetMetadata(v map[string]interface{}) *AnalyticSearchCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *AnalyticSearchCreate) SetID(v uuid.UUID) *AnalyticSearchCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *AnalyticSearchCreate) SetNillableID(v *uuid.UUID) *AnalyticSearchCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
 // Mutation returns the AnalyticSearchMutation object of the builder.
 func (_c *AnalyticSearchCreate) Mutation() *AnalyticSearchMutation {
 	return _c.mutation
@@ -25,6 +124,7 @@ func (_c *AnalyticSearchCreate) Mutation() *AnalyticSearchMutation {
 
 // Save creates the AnalyticSearch in the database.
 func (_c *AnalyticSearchCreate) Save(ctx context.Context) (*AnalyticSearch, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -50,8 +150,38 @@ func (_c *AnalyticSearchCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *AnalyticSearchCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := analyticsearch.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := analyticsearch.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := analyticsearch.DefaultID()
+		_c.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *AnalyticSearchCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "AnalyticSearch.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "AnalyticSearch.updated_at"`)}
+	}
+	if _, ok := _c.mutation.Query(); !ok {
+		return &ValidationError{Name: "query", err: errors.New(`ent: missing required field "AnalyticSearch.query"`)}
+	}
+	if v, ok := _c.mutation.Query(); ok {
+		if err := analyticsearch.QueryValidator(v); err != nil {
+			return &ValidationError{Name: "query", err: fmt.Errorf(`ent: validator failed for field "AnalyticSearch.query": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -66,8 +196,13 @@ func (_c *AnalyticSearchCreate) sqlSave(ctx context.Context) (*AnalyticSearch, e
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -76,8 +211,40 @@ func (_c *AnalyticSearchCreate) sqlSave(ctx context.Context) (*AnalyticSearch, e
 func (_c *AnalyticSearchCreate) createSpec() (*AnalyticSearch, *sqlgraph.CreateSpec) {
 	var (
 		_node = &AnalyticSearch{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(analyticsearch.Table, sqlgraph.NewFieldSpec(analyticsearch.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(analyticsearch.Table, sqlgraph.NewFieldSpec(analyticsearch.FieldID, field.TypeUUID))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(analyticsearch.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(analyticsearch.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(analyticsearch.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
+	if value, ok := _c.mutation.Query(); ok {
+		_spec.SetField(analyticsearch.FieldQuery, field.TypeString, value)
+		_node.Query = value
+	}
+	if value, ok := _c.mutation.Explanation(); ok {
+		_spec.SetField(analyticsearch.FieldExplanation, field.TypeString, value)
+		_node.Explanation = value
+	}
+	if value, ok := _c.mutation.GeneratedSQL(); ok {
+		_spec.SetField(analyticsearch.FieldGeneratedSQL, field.TypeString, value)
+		_node.GeneratedSQL = value
+	}
+	if value, ok := _c.mutation.Metadata(); ok {
+		_spec.SetField(analyticsearch.FieldMetadata, field.TypeJSON, value)
+		_node.Metadata = value
+	}
 	return _node, _spec
 }
 
@@ -99,6 +266,7 @@ func (_c *AnalyticSearchCreateBulk) Save(ctx context.Context) ([]*AnalyticSearch
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*AnalyticSearchMutation)
 				if !ok {
@@ -125,10 +293,6 @@ func (_c *AnalyticSearchCreateBulk) Save(ctx context.Context) ([]*AnalyticSearch
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

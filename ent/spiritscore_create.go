@@ -4,11 +4,19 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
+	"github.com/bengobox/game-stats-api/ent/spiritnomination"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // SpiritScoreCreate is the builder for creating a SpiritScore entity.
@@ -18,6 +26,180 @@ type SpiritScoreCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *SpiritScoreCreate) SetCreatedAt(v time.Time) *SpiritScoreCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *SpiritScoreCreate) SetNillableCreatedAt(v *time.Time) *SpiritScoreCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *SpiritScoreCreate) SetUpdatedAt(v time.Time) *SpiritScoreCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *SpiritScoreCreate) SetNillableUpdatedAt(v *time.Time) *SpiritScoreCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *SpiritScoreCreate) SetDeletedAt(v time.Time) *SpiritScoreCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *SpiritScoreCreate) SetNillableDeletedAt(v *time.Time) *SpiritScoreCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
+// SetRulesKnowledge sets the "rules_knowledge" field.
+func (_c *SpiritScoreCreate) SetRulesKnowledge(v int) *SpiritScoreCreate {
+	_c.mutation.SetRulesKnowledge(v)
+	return _c
+}
+
+// SetFoulsBodyContact sets the "fouls_body_contact" field.
+func (_c *SpiritScoreCreate) SetFoulsBodyContact(v int) *SpiritScoreCreate {
+	_c.mutation.SetFoulsBodyContact(v)
+	return _c
+}
+
+// SetFairMindedness sets the "fair_mindedness" field.
+func (_c *SpiritScoreCreate) SetFairMindedness(v int) *SpiritScoreCreate {
+	_c.mutation.SetFairMindedness(v)
+	return _c
+}
+
+// SetAttitude sets the "attitude" field.
+func (_c *SpiritScoreCreate) SetAttitude(v int) *SpiritScoreCreate {
+	_c.mutation.SetAttitude(v)
+	return _c
+}
+
+// SetCommunication sets the "communication" field.
+func (_c *SpiritScoreCreate) SetCommunication(v int) *SpiritScoreCreate {
+	_c.mutation.SetCommunication(v)
+	return _c
+}
+
+// SetComments sets the "comments" field.
+func (_c *SpiritScoreCreate) SetComments(v string) *SpiritScoreCreate {
+	_c.mutation.SetComments(v)
+	return _c
+}
+
+// SetNillableComments sets the "comments" field if the given value is not nil.
+func (_c *SpiritScoreCreate) SetNillableComments(v *string) *SpiritScoreCreate {
+	if v != nil {
+		_c.SetComments(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *SpiritScoreCreate) SetID(v uuid.UUID) *SpiritScoreCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *SpiritScoreCreate) SetNillableID(v *uuid.UUID) *SpiritScoreCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// SetGameID sets the "game" edge to the Game entity by ID.
+func (_c *SpiritScoreCreate) SetGameID(id uuid.UUID) *SpiritScoreCreate {
+	_c.mutation.SetGameID(id)
+	return _c
+}
+
+// SetGame sets the "game" edge to the Game entity.
+func (_c *SpiritScoreCreate) SetGame(v *Game) *SpiritScoreCreate {
+	return _c.SetGameID(v.ID)
+}
+
+// SetScoredByTeamID sets the "scored_by_team" edge to the Team entity by ID.
+func (_c *SpiritScoreCreate) SetScoredByTeamID(id uuid.UUID) *SpiritScoreCreate {
+	_c.mutation.SetScoredByTeamID(id)
+	return _c
+}
+
+// SetScoredByTeam sets the "scored_by_team" edge to the Team entity.
+func (_c *SpiritScoreCreate) SetScoredByTeam(v *Team) *SpiritScoreCreate {
+	return _c.SetScoredByTeamID(v.ID)
+}
+
+// SetTeamID sets the "team" edge to the Team entity by ID.
+func (_c *SpiritScoreCreate) SetTeamID(id uuid.UUID) *SpiritScoreCreate {
+	_c.mutation.SetTeamID(id)
+	return _c
+}
+
+// SetTeam sets the "team" edge to the Team entity.
+func (_c *SpiritScoreCreate) SetTeam(v *Team) *SpiritScoreCreate {
+	return _c.SetTeamID(v.ID)
+}
+
+// SetSubmittedByID sets the "submitted_by" edge to the User entity by ID.
+func (_c *SpiritScoreCreate) SetSubmittedByID(id uuid.UUID) *SpiritScoreCreate {
+	_c.mutation.SetSubmittedByID(id)
+	return _c
+}
+
+// SetSubmittedBy sets the "submitted_by" edge to the User entity.
+func (_c *SpiritScoreCreate) SetSubmittedBy(v *User) *SpiritScoreCreate {
+	return _c.SetSubmittedByID(v.ID)
+}
+
+// AddMvpNominationIDs adds the "mvp_nominations" edge to the MVP_Nomination entity by IDs.
+func (_c *SpiritScoreCreate) AddMvpNominationIDs(ids ...uuid.UUID) *SpiritScoreCreate {
+	_c.mutation.AddMvpNominationIDs(ids...)
+	return _c
+}
+
+// AddMvpNominations adds the "mvp_nominations" edges to the MVP_Nomination entity.
+func (_c *SpiritScoreCreate) AddMvpNominations(v ...*MVP_Nomination) *SpiritScoreCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddMvpNominationIDs(ids...)
+}
+
+// AddSpiritNominationIDs adds the "spirit_nominations" edge to the SpiritNomination entity by IDs.
+func (_c *SpiritScoreCreate) AddSpiritNominationIDs(ids ...uuid.UUID) *SpiritScoreCreate {
+	_c.mutation.AddSpiritNominationIDs(ids...)
+	return _c
+}
+
+// AddSpiritNominations adds the "spirit_nominations" edges to the SpiritNomination entity.
+func (_c *SpiritScoreCreate) AddSpiritNominations(v ...*SpiritNomination) *SpiritScoreCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSpiritNominationIDs(ids...)
+}
+
 // Mutation returns the SpiritScoreMutation object of the builder.
 func (_c *SpiritScoreCreate) Mutation() *SpiritScoreMutation {
 	return _c.mutation
@@ -25,6 +207,7 @@ func (_c *SpiritScoreCreate) Mutation() *SpiritScoreMutation {
 
 // Save creates the SpiritScore in the database.
 func (_c *SpiritScoreCreate) Save(ctx context.Context) (*SpiritScore, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -50,8 +233,57 @@ func (_c *SpiritScoreCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *SpiritScoreCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := spiritscore.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := spiritscore.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := spiritscore.DefaultID()
+		_c.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *SpiritScoreCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "SpiritScore.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "SpiritScore.updated_at"`)}
+	}
+	if _, ok := _c.mutation.RulesKnowledge(); !ok {
+		return &ValidationError{Name: "rules_knowledge", err: errors.New(`ent: missing required field "SpiritScore.rules_knowledge"`)}
+	}
+	if _, ok := _c.mutation.FoulsBodyContact(); !ok {
+		return &ValidationError{Name: "fouls_body_contact", err: errors.New(`ent: missing required field "SpiritScore.fouls_body_contact"`)}
+	}
+	if _, ok := _c.mutation.FairMindedness(); !ok {
+		return &ValidationError{Name: "fair_mindedness", err: errors.New(`ent: missing required field "SpiritScore.fair_mindedness"`)}
+	}
+	if _, ok := _c.mutation.Attitude(); !ok {
+		return &ValidationError{Name: "attitude", err: errors.New(`ent: missing required field "SpiritScore.attitude"`)}
+	}
+	if _, ok := _c.mutation.Communication(); !ok {
+		return &ValidationError{Name: "communication", err: errors.New(`ent: missing required field "SpiritScore.communication"`)}
+	}
+	if len(_c.mutation.GameIDs()) == 0 {
+		return &ValidationError{Name: "game", err: errors.New(`ent: missing required edge "SpiritScore.game"`)}
+	}
+	if len(_c.mutation.ScoredByTeamIDs()) == 0 {
+		return &ValidationError{Name: "scored_by_team", err: errors.New(`ent: missing required edge "SpiritScore.scored_by_team"`)}
+	}
+	if len(_c.mutation.TeamIDs()) == 0 {
+		return &ValidationError{Name: "team", err: errors.New(`ent: missing required edge "SpiritScore.team"`)}
+	}
+	if len(_c.mutation.SubmittedByIDs()) == 0 {
+		return &ValidationError{Name: "submitted_by", err: errors.New(`ent: missing required edge "SpiritScore.submitted_by"`)}
+	}
 	return nil
 }
 
@@ -66,8 +298,13 @@ func (_c *SpiritScoreCreate) sqlSave(ctx context.Context) (*SpiritScore, error) 
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -76,8 +313,148 @@ func (_c *SpiritScoreCreate) sqlSave(ctx context.Context) (*SpiritScore, error) 
 func (_c *SpiritScoreCreate) createSpec() (*SpiritScore, *sqlgraph.CreateSpec) {
 	var (
 		_node = &SpiritScore{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(spiritscore.Table, sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(spiritscore.Table, sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(spiritscore.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(spiritscore.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(spiritscore.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
+	if value, ok := _c.mutation.RulesKnowledge(); ok {
+		_spec.SetField(spiritscore.FieldRulesKnowledge, field.TypeInt, value)
+		_node.RulesKnowledge = value
+	}
+	if value, ok := _c.mutation.FoulsBodyContact(); ok {
+		_spec.SetField(spiritscore.FieldFoulsBodyContact, field.TypeInt, value)
+		_node.FoulsBodyContact = value
+	}
+	if value, ok := _c.mutation.FairMindedness(); ok {
+		_spec.SetField(spiritscore.FieldFairMindedness, field.TypeInt, value)
+		_node.FairMindedness = value
+	}
+	if value, ok := _c.mutation.Attitude(); ok {
+		_spec.SetField(spiritscore.FieldAttitude, field.TypeInt, value)
+		_node.Attitude = value
+	}
+	if value, ok := _c.mutation.Communication(); ok {
+		_spec.SetField(spiritscore.FieldCommunication, field.TypeInt, value)
+		_node.Communication = value
+	}
+	if value, ok := _c.mutation.Comments(); ok {
+		_spec.SetField(spiritscore.FieldComments, field.TypeString, value)
+		_node.Comments = value
+	}
+	if nodes := _c.mutation.GameIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.GameTable,
+			Columns: []string{spiritscore.GameColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.game_spirit_scores = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ScoredByTeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.ScoredByTeamTable,
+			Columns: []string{spiritscore.ScoredByTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.team_spirit_scores_given = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.TeamTable,
+			Columns: []string{spiritscore.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.team_spirit_scores_received = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SubmittedByIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.SubmittedByTable,
+			Columns: []string{spiritscore.SubmittedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.user_submitted_spirit_scores = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.MvpNominationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   spiritscore.MvpNominationsTable,
+			Columns: []string{spiritscore.MvpNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mvp_nomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SpiritNominationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   spiritscore.SpiritNominationsTable,
+			Columns: []string{spiritscore.SpiritNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -99,6 +476,7 @@ func (_c *SpiritScoreCreateBulk) Save(ctx context.Context) ([]*SpiritScore, erro
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*SpiritScoreMutation)
 				if !ok {
@@ -125,10 +503,6 @@ func (_c *SpiritScoreCreateBulk) Save(ctx context.Context) ([]*SpiritScore, erro
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

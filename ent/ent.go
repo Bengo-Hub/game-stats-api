@@ -14,15 +14,26 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/bengobox/game-stats-api/ent/analyticsearch"
 	"github.com/bengobox/game-stats-api/ent/analyticsembedding"
+	"github.com/bengobox/game-stats-api/ent/continent"
+	"github.com/bengobox/game-stats-api/ent/country"
+	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
+
+	entfield "github.com/bengobox/game-stats-api/ent/field"
 	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/gameevent"
 	"github.com/bengobox/game-stats-api/ent/gameround"
+	"github.com/bengobox/game-stats-api/ent/location"
+	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
 	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/bengobox/game-stats-api/ent/spiritnomination"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
 	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/bengobox/game-stats-api/ent/world"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -83,17 +94,27 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			analyticsearch.Table:     analyticsearch.ValidColumn,
-			analyticsembedding.Table: analyticsembedding.ValidColumn,
-			divisionpool.Table:       divisionpool.ValidColumn,
-			event.Table:              event.ValidColumn,
-			game.Table:               game.ValidColumn,
-			gameround.Table:          gameround.ValidColumn,
-			player.Table:             player.ValidColumn,
-			scoring.Table:            scoring.ValidColumn,
-			spiritscore.Table:        spiritscore.ValidColumn,
-			team.Table:               team.ValidColumn,
-			user.Table:               user.ValidColumn,
+			analyticsearch.Table:      analyticsearch.ValidColumn,
+			analyticsembedding.Table:  analyticsembedding.ValidColumn,
+			continent.Table:           continent.ValidColumn,
+			country.Table:             country.ValidColumn,
+			discipline.Table:          discipline.ValidColumn,
+			divisionpool.Table:        divisionpool.ValidColumn,
+			event.Table:               event.ValidColumn,
+			eventreconciliation.Table: eventreconciliation.ValidColumn,
+			entfield.Table:            entfield.ValidColumn,
+			game.Table:                game.ValidColumn,
+			gameevent.Table:           gameevent.ValidColumn,
+			gameround.Table:           gameround.ValidColumn,
+			location.Table:            location.ValidColumn,
+			mvp_nomination.Table:      mvp_nomination.ValidColumn,
+			player.Table:              player.ValidColumn,
+			scoring.Table:             scoring.ValidColumn,
+			spiritnomination.Table:    spiritnomination.ValidColumn,
+			spiritscore.Table:         spiritscore.ValidColumn,
+			team.Table:                team.ValidColumn,
+			user.Table:                user.ValidColumn,
+			world.Table:               world.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

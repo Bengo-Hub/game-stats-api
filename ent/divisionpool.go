@@ -3,20 +3,86 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/google/uuid"
 )
 
 // DivisionPool is the model entity for the DivisionPool schema.
 type DivisionPool struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
-	selectValues sql.SelectValues
+	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
+	// DivisionType holds the value of the "division_type" field.
+	DivisionType string `json:"division_type,omitempty"`
+	// MaxTeams holds the value of the "max_teams" field.
+	MaxTeams int `json:"max_teams,omitempty"`
+	// RankingCriteria holds the value of the "ranking_criteria" field.
+	RankingCriteria map[string]interface{} `json:"ranking_criteria,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the DivisionPoolQuery when eager-loading is set.
+	Edges                DivisionPoolEdges `json:"edges"`
+	event_division_pools *uuid.UUID
+	selectValues         sql.SelectValues
+}
+
+// DivisionPoolEdges holds the relations/edges for other nodes in the graph.
+type DivisionPoolEdges struct {
+	// Event holds the value of the event edge.
+	Event *Event `json:"event,omitempty"`
+	// Teams holds the value of the teams edge.
+	Teams []*Team `json:"teams,omitempty"`
+	// Games holds the value of the games edge.
+	Games []*Game `json:"games,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [3]bool
+}
+
+// EventOrErr returns the Event value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e DivisionPoolEdges) EventOrErr() (*Event, error) {
+	if e.Event != nil {
+		return e.Event, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: event.Label}
+	}
+	return nil, &NotLoadedError{edge: "event"}
+}
+
+// TeamsOrErr returns the Teams value or an error if the edge
+// was not loaded in eager-loading.
+func (e DivisionPoolEdges) TeamsOrErr() ([]*Team, error) {
+	if e.loadedTypes[1] {
+		return e.Teams, nil
+	}
+	return nil, &NotLoadedError{edge: "teams"}
+}
+
+// GamesOrErr returns the Games value or an error if the edge
+// was not loaded in eager-loading.
+func (e DivisionPoolEdges) GamesOrErr() ([]*Game, error) {
+	if e.loadedTypes[2] {
+		return e.Games, nil
+	}
+	return nil, &NotLoadedError{edge: "games"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -24,8 +90,18 @@ func (*DivisionPool) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case divisionpool.FieldID:
+		case divisionpool.FieldRankingCriteria:
+			values[i] = new([]byte)
+		case divisionpool.FieldMaxTeams:
 			values[i] = new(sql.NullInt64)
+		case divisionpool.FieldName, divisionpool.FieldDivisionType, divisionpool.FieldDescription:
+			values[i] = new(sql.NullString)
+		case divisionpool.FieldCreatedAt, divisionpool.FieldUpdatedAt, divisionpool.FieldDeletedAt:
+			values[i] = new(sql.NullTime)
+		case divisionpool.FieldID:
+			values[i] = new(uuid.UUID)
+		case divisionpool.ForeignKeys[0]: // event_division_pools
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -42,11 +118,69 @@ func (_m *DivisionPool) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case divisionpool.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
+		case divisionpool.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case divisionpool.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case divisionpool.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
+		case divisionpool.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				_m.Name = value.String
+			}
+		case divisionpool.FieldDivisionType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field division_type", values[i])
+			} else if value.Valid {
+				_m.DivisionType = value.String
+			}
+		case divisionpool.FieldMaxTeams:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field max_teams", values[i])
+			} else if value.Valid {
+				_m.MaxTeams = int(value.Int64)
+			}
+		case divisionpool.FieldRankingCriteria:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field ranking_criteria", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.RankingCriteria); err != nil {
+					return fmt.Errorf("unmarshal field ranking_criteria: %w", err)
+				}
+			}
+		case divisionpool.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
+			} else if value.Valid {
+				_m.Description = value.String
+			}
+		case divisionpool.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field event_division_pools", values[i])
+			} else if value.Valid {
+				_m.event_division_pools = new(uuid.UUID)
+				*_m.event_division_pools = *value.S.(*uuid.UUID)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -58,6 +192,21 @@ func (_m *DivisionPool) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *DivisionPool) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryEvent queries the "event" edge of the DivisionPool entity.
+func (_m *DivisionPool) QueryEvent() *EventQuery {
+	return NewDivisionPoolClient(_m.config).QueryEvent(_m)
+}
+
+// QueryTeams queries the "teams" edge of the DivisionPool entity.
+func (_m *DivisionPool) QueryTeams() *TeamQuery {
+	return NewDivisionPoolClient(_m.config).QueryTeams(_m)
+}
+
+// QueryGames queries the "games" edge of the DivisionPool entity.
+func (_m *DivisionPool) QueryGames() *GameQuery {
+	return NewDivisionPoolClient(_m.config).QueryGames(_m)
 }
 
 // Update returns a builder for updating this DivisionPool.
@@ -82,7 +231,32 @@ func (_m *DivisionPool) Unwrap() *DivisionPool {
 func (_m *DivisionPool) String() string {
 	var builder strings.Builder
 	builder.WriteString("DivisionPool(")
-	builder.WriteString(fmt.Sprintf("id=%v", _m.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("name=")
+	builder.WriteString(_m.Name)
+	builder.WriteString(", ")
+	builder.WriteString("division_type=")
+	builder.WriteString(_m.DivisionType)
+	builder.WriteString(", ")
+	builder.WriteString("max_teams=")
+	builder.WriteString(fmt.Sprintf("%v", _m.MaxTeams))
+	builder.WriteString(", ")
+	builder.WriteString("ranking_criteria=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RankingCriteria))
+	builder.WriteString(", ")
+	builder.WriteString("description=")
+	builder.WriteString(_m.Description)
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -4,11 +4,22 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	entfield "github.com/bengobox/game-stats-api/ent/field"
 	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/gameevent"
+	"github.com/bengobox/game-stats-api/ent/gameround"
+	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/bengobox/game-stats-api/ent/spiritscore"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // GameCreate is the builder for creating a Game entity.
@@ -18,6 +29,325 @@ type GameCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *GameCreate) SetCreatedAt(v time.Time) *GameCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *GameCreate) SetNillableCreatedAt(v *time.Time) *GameCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *GameCreate) SetUpdatedAt(v time.Time) *GameCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *GameCreate) SetNillableUpdatedAt(v *time.Time) *GameCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *GameCreate) SetDeletedAt(v time.Time) *GameCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *GameCreate) SetNillableDeletedAt(v *time.Time) *GameCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
+// SetName sets the "name" field.
+func (_c *GameCreate) SetName(v string) *GameCreate {
+	_c.mutation.SetName(v)
+	return _c
+}
+
+// SetScheduledTime sets the "scheduled_time" field.
+func (_c *GameCreate) SetScheduledTime(v time.Time) *GameCreate {
+	_c.mutation.SetScheduledTime(v)
+	return _c
+}
+
+// SetActualStartTime sets the "actual_start_time" field.
+func (_c *GameCreate) SetActualStartTime(v time.Time) *GameCreate {
+	_c.mutation.SetActualStartTime(v)
+	return _c
+}
+
+// SetNillableActualStartTime sets the "actual_start_time" field if the given value is not nil.
+func (_c *GameCreate) SetNillableActualStartTime(v *time.Time) *GameCreate {
+	if v != nil {
+		_c.SetActualStartTime(*v)
+	}
+	return _c
+}
+
+// SetActualEndTime sets the "actual_end_time" field.
+func (_c *GameCreate) SetActualEndTime(v time.Time) *GameCreate {
+	_c.mutation.SetActualEndTime(v)
+	return _c
+}
+
+// SetNillableActualEndTime sets the "actual_end_time" field if the given value is not nil.
+func (_c *GameCreate) SetNillableActualEndTime(v *time.Time) *GameCreate {
+	if v != nil {
+		_c.SetActualEndTime(*v)
+	}
+	return _c
+}
+
+// SetAllocatedTimeMinutes sets the "allocated_time_minutes" field.
+func (_c *GameCreate) SetAllocatedTimeMinutes(v int) *GameCreate {
+	_c.mutation.SetAllocatedTimeMinutes(v)
+	return _c
+}
+
+// SetStoppageTimeSeconds sets the "stoppage_time_seconds" field.
+func (_c *GameCreate) SetStoppageTimeSeconds(v int) *GameCreate {
+	_c.mutation.SetStoppageTimeSeconds(v)
+	return _c
+}
+
+// SetNillableStoppageTimeSeconds sets the "stoppage_time_seconds" field if the given value is not nil.
+func (_c *GameCreate) SetNillableStoppageTimeSeconds(v *int) *GameCreate {
+	if v != nil {
+		_c.SetStoppageTimeSeconds(*v)
+	}
+	return _c
+}
+
+// SetStatus sets the "status" field.
+func (_c *GameCreate) SetStatus(v string) *GameCreate {
+	_c.mutation.SetStatus(v)
+	return _c
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_c *GameCreate) SetNillableStatus(v *string) *GameCreate {
+	if v != nil {
+		_c.SetStatus(*v)
+	}
+	return _c
+}
+
+// SetHomeTeamScore sets the "home_team_score" field.
+func (_c *GameCreate) SetHomeTeamScore(v int) *GameCreate {
+	_c.mutation.SetHomeTeamScore(v)
+	return _c
+}
+
+// SetNillableHomeTeamScore sets the "home_team_score" field if the given value is not nil.
+func (_c *GameCreate) SetNillableHomeTeamScore(v *int) *GameCreate {
+	if v != nil {
+		_c.SetHomeTeamScore(*v)
+	}
+	return _c
+}
+
+// SetAwayTeamScore sets the "away_team_score" field.
+func (_c *GameCreate) SetAwayTeamScore(v int) *GameCreate {
+	_c.mutation.SetAwayTeamScore(v)
+	return _c
+}
+
+// SetNillableAwayTeamScore sets the "away_team_score" field if the given value is not nil.
+func (_c *GameCreate) SetNillableAwayTeamScore(v *int) *GameCreate {
+	if v != nil {
+		_c.SetAwayTeamScore(*v)
+	}
+	return _c
+}
+
+// SetFirstPullBy sets the "first_pull_by" field.
+func (_c *GameCreate) SetFirstPullBy(v string) *GameCreate {
+	_c.mutation.SetFirstPullBy(v)
+	return _c
+}
+
+// SetNillableFirstPullBy sets the "first_pull_by" field if the given value is not nil.
+func (_c *GameCreate) SetNillableFirstPullBy(v *string) *GameCreate {
+	if v != nil {
+		_c.SetFirstPullBy(*v)
+	}
+	return _c
+}
+
+// SetVersion sets the "version" field.
+func (_c *GameCreate) SetVersion(v int) *GameCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *GameCreate) SetNillableVersion(v *int) *GameCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
+	return _c
+}
+
+// SetMetadata sets the "metadata" field.
+func (_c *GameCreate) SetMetadata(v map[string]interface{}) *GameCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *GameCreate) SetID(v uuid.UUID) *GameCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *GameCreate) SetNillableID(v *uuid.UUID) *GameCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// SetGameRoundID sets the "game_round" edge to the GameRound entity by ID.
+func (_c *GameCreate) SetGameRoundID(id uuid.UUID) *GameCreate {
+	_c.mutation.SetGameRoundID(id)
+	return _c
+}
+
+// SetNillableGameRoundID sets the "game_round" edge to the GameRound entity by ID if the given value is not nil.
+func (_c *GameCreate) SetNillableGameRoundID(id *uuid.UUID) *GameCreate {
+	if id != nil {
+		_c = _c.SetGameRoundID(*id)
+	}
+	return _c
+}
+
+// SetGameRound sets the "game_round" edge to the GameRound entity.
+func (_c *GameCreate) SetGameRound(v *GameRound) *GameCreate {
+	return _c.SetGameRoundID(v.ID)
+}
+
+// SetHomeTeamID sets the "home_team" edge to the Team entity by ID.
+func (_c *GameCreate) SetHomeTeamID(id uuid.UUID) *GameCreate {
+	_c.mutation.SetHomeTeamID(id)
+	return _c
+}
+
+// SetHomeTeam sets the "home_team" edge to the Team entity.
+func (_c *GameCreate) SetHomeTeam(v *Team) *GameCreate {
+	return _c.SetHomeTeamID(v.ID)
+}
+
+// SetAwayTeamID sets the "away_team" edge to the Team entity by ID.
+func (_c *GameCreate) SetAwayTeamID(id uuid.UUID) *GameCreate {
+	_c.mutation.SetAwayTeamID(id)
+	return _c
+}
+
+// SetAwayTeam sets the "away_team" edge to the Team entity.
+func (_c *GameCreate) SetAwayTeam(v *Team) *GameCreate {
+	return _c.SetAwayTeamID(v.ID)
+}
+
+// SetDivisionPoolID sets the "division_pool" edge to the DivisionPool entity by ID.
+func (_c *GameCreate) SetDivisionPoolID(id uuid.UUID) *GameCreate {
+	_c.mutation.SetDivisionPoolID(id)
+	return _c
+}
+
+// SetDivisionPool sets the "division_pool" edge to the DivisionPool entity.
+func (_c *GameCreate) SetDivisionPool(v *DivisionPool) *GameCreate {
+	return _c.SetDivisionPoolID(v.ID)
+}
+
+// SetFieldID sets the "field" edge to the Field entity by ID.
+func (_c *GameCreate) SetFieldID(id uuid.UUID) *GameCreate {
+	_c.mutation.SetFieldID(id)
+	return _c
+}
+
+// SetField sets the "field" edge to the Field entity.
+func (_c *GameCreate) SetField(v *Field) *GameCreate {
+	return _c.SetFieldID(v.ID)
+}
+
+// SetScorekeeperID sets the "scorekeeper" edge to the User entity by ID.
+func (_c *GameCreate) SetScorekeeperID(id uuid.UUID) *GameCreate {
+	_c.mutation.SetScorekeeperID(id)
+	return _c
+}
+
+// SetNillableScorekeeperID sets the "scorekeeper" edge to the User entity by ID if the given value is not nil.
+func (_c *GameCreate) SetNillableScorekeeperID(id *uuid.UUID) *GameCreate {
+	if id != nil {
+		_c = _c.SetScorekeeperID(*id)
+	}
+	return _c
+}
+
+// SetScorekeeper sets the "scorekeeper" edge to the User entity.
+func (_c *GameCreate) SetScorekeeper(v *User) *GameCreate {
+	return _c.SetScorekeeperID(v.ID)
+}
+
+// AddScoreIDs adds the "scores" edge to the Scoring entity by IDs.
+func (_c *GameCreate) AddScoreIDs(ids ...uuid.UUID) *GameCreate {
+	_c.mutation.AddScoreIDs(ids...)
+	return _c
+}
+
+// AddScores adds the "scores" edges to the Scoring entity.
+func (_c *GameCreate) AddScores(v ...*Scoring) *GameCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddScoreIDs(ids...)
+}
+
+// AddGameEventIDs adds the "game_events" edge to the GameEvent entity by IDs.
+func (_c *GameCreate) AddGameEventIDs(ids ...uuid.UUID) *GameCreate {
+	_c.mutation.AddGameEventIDs(ids...)
+	return _c
+}
+
+// AddGameEvents adds the "game_events" edges to the GameEvent entity.
+func (_c *GameCreate) AddGameEvents(v ...*GameEvent) *GameCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddGameEventIDs(ids...)
+}
+
+// AddSpiritScoreIDs adds the "spirit_scores" edge to the SpiritScore entity by IDs.
+func (_c *GameCreate) AddSpiritScoreIDs(ids ...uuid.UUID) *GameCreate {
+	_c.mutation.AddSpiritScoreIDs(ids...)
+	return _c
+}
+
+// AddSpiritScores adds the "spirit_scores" edges to the SpiritScore entity.
+func (_c *GameCreate) AddSpiritScores(v ...*SpiritScore) *GameCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSpiritScoreIDs(ids...)
+}
+
 // Mutation returns the GameMutation object of the builder.
 func (_c *GameCreate) Mutation() *GameMutation {
 	return _c.mutation
@@ -25,6 +355,7 @@ func (_c *GameCreate) Mutation() *GameMutation {
 
 // Save creates the Game in the database.
 func (_c *GameCreate) Save(ctx context.Context) (*Game, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -50,8 +381,96 @@ func (_c *GameCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *GameCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := game.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := game.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.StoppageTimeSeconds(); !ok {
+		v := game.DefaultStoppageTimeSeconds
+		_c.mutation.SetStoppageTimeSeconds(v)
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		v := game.DefaultStatus
+		_c.mutation.SetStatus(v)
+	}
+	if _, ok := _c.mutation.HomeTeamScore(); !ok {
+		v := game.DefaultHomeTeamScore
+		_c.mutation.SetHomeTeamScore(v)
+	}
+	if _, ok := _c.mutation.AwayTeamScore(); !ok {
+		v := game.DefaultAwayTeamScore
+		_c.mutation.SetAwayTeamScore(v)
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		v := game.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := game.DefaultID()
+		_c.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *GameCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Game.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Game.updated_at"`)}
+	}
+	if _, ok := _c.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Game.name"`)}
+	}
+	if v, ok := _c.mutation.Name(); ok {
+		if err := game.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Game.name": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.ScheduledTime(); !ok {
+		return &ValidationError{Name: "scheduled_time", err: errors.New(`ent: missing required field "Game.scheduled_time"`)}
+	}
+	if _, ok := _c.mutation.AllocatedTimeMinutes(); !ok {
+		return &ValidationError{Name: "allocated_time_minutes", err: errors.New(`ent: missing required field "Game.allocated_time_minutes"`)}
+	}
+	if _, ok := _c.mutation.StoppageTimeSeconds(); !ok {
+		return &ValidationError{Name: "stoppage_time_seconds", err: errors.New(`ent: missing required field "Game.stoppage_time_seconds"`)}
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Game.status"`)}
+	}
+	if v, ok := _c.mutation.Status(); ok {
+		if err := game.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Game.status": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.HomeTeamScore(); !ok {
+		return &ValidationError{Name: "home_team_score", err: errors.New(`ent: missing required field "Game.home_team_score"`)}
+	}
+	if _, ok := _c.mutation.AwayTeamScore(); !ok {
+		return &ValidationError{Name: "away_team_score", err: errors.New(`ent: missing required field "Game.away_team_score"`)}
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`ent: missing required field "Game.version"`)}
+	}
+	if len(_c.mutation.HomeTeamIDs()) == 0 {
+		return &ValidationError{Name: "home_team", err: errors.New(`ent: missing required edge "Game.home_team"`)}
+	}
+	if len(_c.mutation.AwayTeamIDs()) == 0 {
+		return &ValidationError{Name: "away_team", err: errors.New(`ent: missing required edge "Game.away_team"`)}
+	}
+	if len(_c.mutation.DivisionPoolIDs()) == 0 {
+		return &ValidationError{Name: "division_pool", err: errors.New(`ent: missing required edge "Game.division_pool"`)}
+	}
+	if len(_c.mutation.FieldIDs()) == 0 {
+		return &ValidationError{Name: "field", err: errors.New(`ent: missing required edge "Game.field"`)}
+	}
 	return nil
 }
 
@@ -66,8 +485,13 @@ func (_c *GameCreate) sqlSave(ctx context.Context) (*Game, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -76,8 +500,222 @@ func (_c *GameCreate) sqlSave(ctx context.Context) (*Game, error) {
 func (_c *GameCreate) createSpec() (*Game, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Game{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(game.Table, sqlgraph.NewFieldSpec(game.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(game.Table, sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(game.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(game.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(game.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
+	if value, ok := _c.mutation.Name(); ok {
+		_spec.SetField(game.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
+	if value, ok := _c.mutation.ScheduledTime(); ok {
+		_spec.SetField(game.FieldScheduledTime, field.TypeTime, value)
+		_node.ScheduledTime = value
+	}
+	if value, ok := _c.mutation.ActualStartTime(); ok {
+		_spec.SetField(game.FieldActualStartTime, field.TypeTime, value)
+		_node.ActualStartTime = &value
+	}
+	if value, ok := _c.mutation.ActualEndTime(); ok {
+		_spec.SetField(game.FieldActualEndTime, field.TypeTime, value)
+		_node.ActualEndTime = &value
+	}
+	if value, ok := _c.mutation.AllocatedTimeMinutes(); ok {
+		_spec.SetField(game.FieldAllocatedTimeMinutes, field.TypeInt, value)
+		_node.AllocatedTimeMinutes = value
+	}
+	if value, ok := _c.mutation.StoppageTimeSeconds(); ok {
+		_spec.SetField(game.FieldStoppageTimeSeconds, field.TypeInt, value)
+		_node.StoppageTimeSeconds = value
+	}
+	if value, ok := _c.mutation.Status(); ok {
+		_spec.SetField(game.FieldStatus, field.TypeString, value)
+		_node.Status = value
+	}
+	if value, ok := _c.mutation.HomeTeamScore(); ok {
+		_spec.SetField(game.FieldHomeTeamScore, field.TypeInt, value)
+		_node.HomeTeamScore = value
+	}
+	if value, ok := _c.mutation.AwayTeamScore(); ok {
+		_spec.SetField(game.FieldAwayTeamScore, field.TypeInt, value)
+		_node.AwayTeamScore = value
+	}
+	if value, ok := _c.mutation.FirstPullBy(); ok {
+		_spec.SetField(game.FieldFirstPullBy, field.TypeString, value)
+		_node.FirstPullBy = value
+	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(game.FieldVersion, field.TypeInt, value)
+		_node.Version = value
+	}
+	if value, ok := _c.mutation.Metadata(); ok {
+		_spec.SetField(game.FieldMetadata, field.TypeJSON, value)
+		_node.Metadata = value
+	}
+	if nodes := _c.mutation.GameRoundIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.GameRoundTable,
+			Columns: []string{game.GameRoundColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.game_round_games = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.HomeTeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.HomeTeamTable,
+			Columns: []string{game.HomeTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.team_home_games = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.AwayTeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.AwayTeamTable,
+			Columns: []string{game.AwayTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.team_away_games = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.DivisionPoolIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.DivisionPoolTable,
+			Columns: []string{game.DivisionPoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.division_pool_games = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.FieldIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.FieldTable,
+			Columns: []string{game.FieldColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(entfield.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.field_games = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ScorekeeperIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.ScorekeeperTable,
+			Columns: []string{game.ScorekeeperColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.user_officiated_games = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ScoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.ScoresTable,
+			Columns: []string{game.ScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.GameEventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.GameEventsTable,
+			Columns: []string{game.GameEventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameevent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SpiritScoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.SpiritScoresTable,
+			Columns: []string{game.SpiritScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -99,6 +737,7 @@ func (_c *GameCreateBulk) Save(ctx context.Context) ([]*Game, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*GameMutation)
 				if !ok {
@@ -125,10 +764,6 @@ func (_c *GameCreateBulk) Save(ctx context.Context) ([]*Game, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

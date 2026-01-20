@@ -3,20 +3,185 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	entfield "github.com/bengobox/game-stats-api/ent/field"
 	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/gameround"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // Game is the model entity for the Game schema.
 type Game struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
-	selectValues sql.SelectValues
+	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
+	// ScheduledTime holds the value of the "scheduled_time" field.
+	ScheduledTime time.Time `json:"scheduled_time,omitempty"`
+	// ActualStartTime holds the value of the "actual_start_time" field.
+	ActualStartTime *time.Time `json:"actual_start_time,omitempty"`
+	// ActualEndTime holds the value of the "actual_end_time" field.
+	ActualEndTime *time.Time `json:"actual_end_time,omitempty"`
+	// AllocatedTimeMinutes holds the value of the "allocated_time_minutes" field.
+	AllocatedTimeMinutes int `json:"allocated_time_minutes,omitempty"`
+	// StoppageTimeSeconds holds the value of the "stoppage_time_seconds" field.
+	StoppageTimeSeconds int `json:"stoppage_time_seconds,omitempty"`
+	// Status holds the value of the "status" field.
+	Status string `json:"status,omitempty"`
+	// HomeTeamScore holds the value of the "home_team_score" field.
+	HomeTeamScore int `json:"home_team_score,omitempty"`
+	// AwayTeamScore holds the value of the "away_team_score" field.
+	AwayTeamScore int `json:"away_team_score,omitempty"`
+	// FirstPullBy holds the value of the "first_pull_by" field.
+	FirstPullBy string `json:"first_pull_by,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int `json:"version,omitempty"`
+	// Metadata holds the value of the "metadata" field.
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the GameQuery when eager-loading is set.
+	Edges                 GameEdges `json:"edges"`
+	division_pool_games   *uuid.UUID
+	field_games           *uuid.UUID
+	game_round_games      *uuid.UUID
+	team_home_games       *uuid.UUID
+	team_away_games       *uuid.UUID
+	user_officiated_games *uuid.UUID
+	selectValues          sql.SelectValues
+}
+
+// GameEdges holds the relations/edges for other nodes in the graph.
+type GameEdges struct {
+	// GameRound holds the value of the game_round edge.
+	GameRound *GameRound `json:"game_round,omitempty"`
+	// HomeTeam holds the value of the home_team edge.
+	HomeTeam *Team `json:"home_team,omitempty"`
+	// AwayTeam holds the value of the away_team edge.
+	AwayTeam *Team `json:"away_team,omitempty"`
+	// DivisionPool holds the value of the division_pool edge.
+	DivisionPool *DivisionPool `json:"division_pool,omitempty"`
+	// Field holds the value of the field edge.
+	Field *Field `json:"field,omitempty"`
+	// Scorekeeper holds the value of the scorekeeper edge.
+	Scorekeeper *User `json:"scorekeeper,omitempty"`
+	// Scores holds the value of the scores edge.
+	Scores []*Scoring `json:"scores,omitempty"`
+	// GameEvents holds the value of the game_events edge.
+	GameEvents []*GameEvent `json:"game_events,omitempty"`
+	// SpiritScores holds the value of the spirit_scores edge.
+	SpiritScores []*SpiritScore `json:"spirit_scores,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [9]bool
+}
+
+// GameRoundOrErr returns the GameRound value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e GameEdges) GameRoundOrErr() (*GameRound, error) {
+	if e.GameRound != nil {
+		return e.GameRound, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: gameround.Label}
+	}
+	return nil, &NotLoadedError{edge: "game_round"}
+}
+
+// HomeTeamOrErr returns the HomeTeam value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e GameEdges) HomeTeamOrErr() (*Team, error) {
+	if e.HomeTeam != nil {
+		return e.HomeTeam, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: team.Label}
+	}
+	return nil, &NotLoadedError{edge: "home_team"}
+}
+
+// AwayTeamOrErr returns the AwayTeam value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e GameEdges) AwayTeamOrErr() (*Team, error) {
+	if e.AwayTeam != nil {
+		return e.AwayTeam, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: team.Label}
+	}
+	return nil, &NotLoadedError{edge: "away_team"}
+}
+
+// DivisionPoolOrErr returns the DivisionPool value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e GameEdges) DivisionPoolOrErr() (*DivisionPool, error) {
+	if e.DivisionPool != nil {
+		return e.DivisionPool, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: divisionpool.Label}
+	}
+	return nil, &NotLoadedError{edge: "division_pool"}
+}
+
+// FieldOrErr returns the Field value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e GameEdges) FieldOrErr() (*Field, error) {
+	if e.Field != nil {
+		return e.Field, nil
+	} else if e.loadedTypes[4] {
+		return nil, &NotFoundError{label: entfield.Label}
+	}
+	return nil, &NotLoadedError{edge: "field"}
+}
+
+// ScorekeeperOrErr returns the Scorekeeper value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e GameEdges) ScorekeeperOrErr() (*User, error) {
+	if e.Scorekeeper != nil {
+		return e.Scorekeeper, nil
+	} else if e.loadedTypes[5] {
+		return nil, &NotFoundError{label: user.Label}
+	}
+	return nil, &NotLoadedError{edge: "scorekeeper"}
+}
+
+// ScoresOrErr returns the Scores value or an error if the edge
+// was not loaded in eager-loading.
+func (e GameEdges) ScoresOrErr() ([]*Scoring, error) {
+	if e.loadedTypes[6] {
+		return e.Scores, nil
+	}
+	return nil, &NotLoadedError{edge: "scores"}
+}
+
+// GameEventsOrErr returns the GameEvents value or an error if the edge
+// was not loaded in eager-loading.
+func (e GameEdges) GameEventsOrErr() ([]*GameEvent, error) {
+	if e.loadedTypes[7] {
+		return e.GameEvents, nil
+	}
+	return nil, &NotLoadedError{edge: "game_events"}
+}
+
+// SpiritScoresOrErr returns the SpiritScores value or an error if the edge
+// was not loaded in eager-loading.
+func (e GameEdges) SpiritScoresOrErr() ([]*SpiritScore, error) {
+	if e.loadedTypes[8] {
+		return e.SpiritScores, nil
+	}
+	return nil, &NotLoadedError{edge: "spirit_scores"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -24,8 +189,28 @@ func (*Game) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case game.FieldID:
+		case game.FieldMetadata:
+			values[i] = new([]byte)
+		case game.FieldAllocatedTimeMinutes, game.FieldStoppageTimeSeconds, game.FieldHomeTeamScore, game.FieldAwayTeamScore, game.FieldVersion:
 			values[i] = new(sql.NullInt64)
+		case game.FieldName, game.FieldStatus, game.FieldFirstPullBy:
+			values[i] = new(sql.NullString)
+		case game.FieldCreatedAt, game.FieldUpdatedAt, game.FieldDeletedAt, game.FieldScheduledTime, game.FieldActualStartTime, game.FieldActualEndTime:
+			values[i] = new(sql.NullTime)
+		case game.FieldID:
+			values[i] = new(uuid.UUID)
+		case game.ForeignKeys[0]: // division_pool_games
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case game.ForeignKeys[1]: // field_games
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case game.ForeignKeys[2]: // game_round_games
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case game.ForeignKeys[3]: // team_home_games
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case game.ForeignKeys[4]: // team_away_games
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case game.ForeignKeys[5]: // user_officiated_games
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -42,11 +227,148 @@ func (_m *Game) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case game.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
+		case game.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case game.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case game.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
+		case game.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				_m.Name = value.String
+			}
+		case game.FieldScheduledTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field scheduled_time", values[i])
+			} else if value.Valid {
+				_m.ScheduledTime = value.Time
+			}
+		case game.FieldActualStartTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field actual_start_time", values[i])
+			} else if value.Valid {
+				_m.ActualStartTime = new(time.Time)
+				*_m.ActualStartTime = value.Time
+			}
+		case game.FieldActualEndTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field actual_end_time", values[i])
+			} else if value.Valid {
+				_m.ActualEndTime = new(time.Time)
+				*_m.ActualEndTime = value.Time
+			}
+		case game.FieldAllocatedTimeMinutes:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field allocated_time_minutes", values[i])
+			} else if value.Valid {
+				_m.AllocatedTimeMinutes = int(value.Int64)
+			}
+		case game.FieldStoppageTimeSeconds:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field stoppage_time_seconds", values[i])
+			} else if value.Valid {
+				_m.StoppageTimeSeconds = int(value.Int64)
+			}
+		case game.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				_m.Status = value.String
+			}
+		case game.FieldHomeTeamScore:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field home_team_score", values[i])
+			} else if value.Valid {
+				_m.HomeTeamScore = int(value.Int64)
+			}
+		case game.FieldAwayTeamScore:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field away_team_score", values[i])
+			} else if value.Valid {
+				_m.AwayTeamScore = int(value.Int64)
+			}
+		case game.FieldFirstPullBy:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field first_pull_by", values[i])
+			} else if value.Valid {
+				_m.FirstPullBy = value.String
+			}
+		case game.FieldVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field version", values[i])
+			} else if value.Valid {
+				_m.Version = int(value.Int64)
+			}
+		case game.FieldMetadata:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field metadata", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
+			}
+		case game.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field division_pool_games", values[i])
+			} else if value.Valid {
+				_m.division_pool_games = new(uuid.UUID)
+				*_m.division_pool_games = *value.S.(*uuid.UUID)
+			}
+		case game.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field field_games", values[i])
+			} else if value.Valid {
+				_m.field_games = new(uuid.UUID)
+				*_m.field_games = *value.S.(*uuid.UUID)
+			}
+		case game.ForeignKeys[2]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field game_round_games", values[i])
+			} else if value.Valid {
+				_m.game_round_games = new(uuid.UUID)
+				*_m.game_round_games = *value.S.(*uuid.UUID)
+			}
+		case game.ForeignKeys[3]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field team_home_games", values[i])
+			} else if value.Valid {
+				_m.team_home_games = new(uuid.UUID)
+				*_m.team_home_games = *value.S.(*uuid.UUID)
+			}
+		case game.ForeignKeys[4]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field team_away_games", values[i])
+			} else if value.Valid {
+				_m.team_away_games = new(uuid.UUID)
+				*_m.team_away_games = *value.S.(*uuid.UUID)
+			}
+		case game.ForeignKeys[5]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field user_officiated_games", values[i])
+			} else if value.Valid {
+				_m.user_officiated_games = new(uuid.UUID)
+				*_m.user_officiated_games = *value.S.(*uuid.UUID)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -58,6 +380,51 @@ func (_m *Game) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Game) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryGameRound queries the "game_round" edge of the Game entity.
+func (_m *Game) QueryGameRound() *GameRoundQuery {
+	return NewGameClient(_m.config).QueryGameRound(_m)
+}
+
+// QueryHomeTeam queries the "home_team" edge of the Game entity.
+func (_m *Game) QueryHomeTeam() *TeamQuery {
+	return NewGameClient(_m.config).QueryHomeTeam(_m)
+}
+
+// QueryAwayTeam queries the "away_team" edge of the Game entity.
+func (_m *Game) QueryAwayTeam() *TeamQuery {
+	return NewGameClient(_m.config).QueryAwayTeam(_m)
+}
+
+// QueryDivisionPool queries the "division_pool" edge of the Game entity.
+func (_m *Game) QueryDivisionPool() *DivisionPoolQuery {
+	return NewGameClient(_m.config).QueryDivisionPool(_m)
+}
+
+// QueryField queries the "field" edge of the Game entity.
+func (_m *Game) QueryField() *FieldQuery {
+	return NewGameClient(_m.config).QueryField(_m)
+}
+
+// QueryScorekeeper queries the "scorekeeper" edge of the Game entity.
+func (_m *Game) QueryScorekeeper() *UserQuery {
+	return NewGameClient(_m.config).QueryScorekeeper(_m)
+}
+
+// QueryScores queries the "scores" edge of the Game entity.
+func (_m *Game) QueryScores() *ScoringQuery {
+	return NewGameClient(_m.config).QueryScores(_m)
+}
+
+// QueryGameEvents queries the "game_events" edge of the Game entity.
+func (_m *Game) QueryGameEvents() *GameEventQuery {
+	return NewGameClient(_m.config).QueryGameEvents(_m)
+}
+
+// QuerySpiritScores queries the "spirit_scores" edge of the Game entity.
+func (_m *Game) QuerySpiritScores() *SpiritScoreQuery {
+	return NewGameClient(_m.config).QuerySpiritScores(_m)
 }
 
 // Update returns a builder for updating this Game.
@@ -82,7 +449,57 @@ func (_m *Game) Unwrap() *Game {
 func (_m *Game) String() string {
 	var builder strings.Builder
 	builder.WriteString("Game(")
-	builder.WriteString(fmt.Sprintf("id=%v", _m.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("name=")
+	builder.WriteString(_m.Name)
+	builder.WriteString(", ")
+	builder.WriteString("scheduled_time=")
+	builder.WriteString(_m.ScheduledTime.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.ActualStartTime; v != nil {
+		builder.WriteString("actual_start_time=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.ActualEndTime; v != nil {
+		builder.WriteString("actual_end_time=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("allocated_time_minutes=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AllocatedTimeMinutes))
+	builder.WriteString(", ")
+	builder.WriteString("stoppage_time_seconds=")
+	builder.WriteString(fmt.Sprintf("%v", _m.StoppageTimeSeconds))
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(_m.Status)
+	builder.WriteString(", ")
+	builder.WriteString("home_team_score=")
+	builder.WriteString(fmt.Sprintf("%v", _m.HomeTeamScore))
+	builder.WriteString(", ")
+	builder.WriteString("away_team_score=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AwayTeamScore))
+	builder.WriteString(", ")
+	builder.WriteString("first_pull_by=")
+	builder.WriteString(_m.FirstPullBy)
+	builder.WriteString(", ")
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
+	builder.WriteString(", ")
+	builder.WriteString("metadata=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteByte(')')
 	return builder.String()
 }

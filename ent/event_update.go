@@ -6,12 +6,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/discipline"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/gameround"
+	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // EventUpdate is the builder for updating Event entities.
@@ -27,13 +34,305 @@ func (_u *EventUpdate) Where(ps ...predicate.Event) *EventUpdate {
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *EventUpdate) SetUpdatedAt(v time.Time) *EventUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *EventUpdate) SetDeletedAt(v time.Time) *EventUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableDeletedAt(v *time.Time) *EventUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *EventUpdate) ClearDeletedAt() *EventUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetName sets the "name" field.
+func (_u *EventUpdate) SetName(v string) *EventUpdate {
+	_u.mutation.SetName(v)
+	return _u
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableName(v *string) *EventUpdate {
+	if v != nil {
+		_u.SetName(*v)
+	}
+	return _u
+}
+
+// SetSlug sets the "slug" field.
+func (_u *EventUpdate) SetSlug(v string) *EventUpdate {
+	_u.mutation.SetSlug(v)
+	return _u
+}
+
+// SetNillableSlug sets the "slug" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableSlug(v *string) *EventUpdate {
+	if v != nil {
+		_u.SetSlug(*v)
+	}
+	return _u
+}
+
+// SetYear sets the "year" field.
+func (_u *EventUpdate) SetYear(v int) *EventUpdate {
+	_u.mutation.ResetYear()
+	_u.mutation.SetYear(v)
+	return _u
+}
+
+// SetNillableYear sets the "year" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableYear(v *int) *EventUpdate {
+	if v != nil {
+		_u.SetYear(*v)
+	}
+	return _u
+}
+
+// AddYear adds value to the "year" field.
+func (_u *EventUpdate) AddYear(v int) *EventUpdate {
+	_u.mutation.AddYear(v)
+	return _u
+}
+
+// SetStartDate sets the "start_date" field.
+func (_u *EventUpdate) SetStartDate(v time.Time) *EventUpdate {
+	_u.mutation.SetStartDate(v)
+	return _u
+}
+
+// SetNillableStartDate sets the "start_date" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableStartDate(v *time.Time) *EventUpdate {
+	if v != nil {
+		_u.SetStartDate(*v)
+	}
+	return _u
+}
+
+// SetEndDate sets the "end_date" field.
+func (_u *EventUpdate) SetEndDate(v time.Time) *EventUpdate {
+	_u.mutation.SetEndDate(v)
+	return _u
+}
+
+// SetNillableEndDate sets the "end_date" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableEndDate(v *time.Time) *EventUpdate {
+	if v != nil {
+		_u.SetEndDate(*v)
+	}
+	return _u
+}
+
+// SetStatus sets the "status" field.
+func (_u *EventUpdate) SetStatus(v string) *EventUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableStatus(v *string) *EventUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
+// SetDescription sets the "description" field.
+func (_u *EventUpdate) SetDescription(v string) *EventUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableDescription(v *string) *EventUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
+	}
+	return _u
+}
+
+// ClearDescription clears the value of the "description" field.
+func (_u *EventUpdate) ClearDescription() *EventUpdate {
+	_u.mutation.ClearDescription()
+	return _u
+}
+
+// SetSettings sets the "settings" field.
+func (_u *EventUpdate) SetSettings(v map[string]interface{}) *EventUpdate {
+	_u.mutation.SetSettings(v)
+	return _u
+}
+
+// ClearSettings clears the value of the "settings" field.
+func (_u *EventUpdate) ClearSettings() *EventUpdate {
+	_u.mutation.ClearSettings()
+	return _u
+}
+
+// SetDisciplineID sets the "discipline" edge to the Discipline entity by ID.
+func (_u *EventUpdate) SetDisciplineID(id uuid.UUID) *EventUpdate {
+	_u.mutation.SetDisciplineID(id)
+	return _u
+}
+
+// SetDiscipline sets the "discipline" edge to the Discipline entity.
+func (_u *EventUpdate) SetDiscipline(v *Discipline) *EventUpdate {
+	return _u.SetDisciplineID(v.ID)
+}
+
+// SetLocationID sets the "location" edge to the Location entity by ID.
+func (_u *EventUpdate) SetLocationID(id uuid.UUID) *EventUpdate {
+	_u.mutation.SetLocationID(id)
+	return _u
+}
+
+// SetLocation sets the "location" edge to the Location entity.
+func (_u *EventUpdate) SetLocation(v *Location) *EventUpdate {
+	return _u.SetLocationID(v.ID)
+}
+
+// AddDivisionPoolIDs adds the "division_pools" edge to the DivisionPool entity by IDs.
+func (_u *EventUpdate) AddDivisionPoolIDs(ids ...uuid.UUID) *EventUpdate {
+	_u.mutation.AddDivisionPoolIDs(ids...)
+	return _u
+}
+
+// AddDivisionPools adds the "division_pools" edges to the DivisionPool entity.
+func (_u *EventUpdate) AddDivisionPools(v ...*DivisionPool) *EventUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddDivisionPoolIDs(ids...)
+}
+
+// AddGameRoundIDs adds the "game_rounds" edge to the GameRound entity by IDs.
+func (_u *EventUpdate) AddGameRoundIDs(ids ...uuid.UUID) *EventUpdate {
+	_u.mutation.AddGameRoundIDs(ids...)
+	return _u
+}
+
+// AddGameRounds adds the "game_rounds" edges to the GameRound entity.
+func (_u *EventUpdate) AddGameRounds(v ...*GameRound) *EventUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddGameRoundIDs(ids...)
+}
+
+// AddManagedByIDs adds the "managed_by" edge to the User entity by IDs.
+func (_u *EventUpdate) AddManagedByIDs(ids ...uuid.UUID) *EventUpdate {
+	_u.mutation.AddManagedByIDs(ids...)
+	return _u
+}
+
+// AddManagedBy adds the "managed_by" edges to the User entity.
+func (_u *EventUpdate) AddManagedBy(v ...*User) *EventUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddManagedByIDs(ids...)
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (_u *EventUpdate) Mutation() *EventMutation {
 	return _u.mutation
 }
 
+// ClearDiscipline clears the "discipline" edge to the Discipline entity.
+func (_u *EventUpdate) ClearDiscipline() *EventUpdate {
+	_u.mutation.ClearDiscipline()
+	return _u
+}
+
+// ClearLocation clears the "location" edge to the Location entity.
+func (_u *EventUpdate) ClearLocation() *EventUpdate {
+	_u.mutation.ClearLocation()
+	return _u
+}
+
+// ClearDivisionPools clears all "division_pools" edges to the DivisionPool entity.
+func (_u *EventUpdate) ClearDivisionPools() *EventUpdate {
+	_u.mutation.ClearDivisionPools()
+	return _u
+}
+
+// RemoveDivisionPoolIDs removes the "division_pools" edge to DivisionPool entities by IDs.
+func (_u *EventUpdate) RemoveDivisionPoolIDs(ids ...uuid.UUID) *EventUpdate {
+	_u.mutation.RemoveDivisionPoolIDs(ids...)
+	return _u
+}
+
+// RemoveDivisionPools removes "division_pools" edges to DivisionPool entities.
+func (_u *EventUpdate) RemoveDivisionPools(v ...*DivisionPool) *EventUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveDivisionPoolIDs(ids...)
+}
+
+// ClearGameRounds clears all "game_rounds" edges to the GameRound entity.
+func (_u *EventUpdate) ClearGameRounds() *EventUpdate {
+	_u.mutation.ClearGameRounds()
+	return _u
+}
+
+// RemoveGameRoundIDs removes the "game_rounds" edge to GameRound entities by IDs.
+func (_u *EventUpdate) RemoveGameRoundIDs(ids ...uuid.UUID) *EventUpdate {
+	_u.mutation.RemoveGameRoundIDs(ids...)
+	return _u
+}
+
+// RemoveGameRounds removes "game_rounds" edges to GameRound entities.
+func (_u *EventUpdate) RemoveGameRounds(v ...*GameRound) *EventUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveGameRoundIDs(ids...)
+}
+
+// ClearManagedBy clears all "managed_by" edges to the User entity.
+func (_u *EventUpdate) ClearManagedBy() *EventUpdate {
+	_u.mutation.ClearManagedBy()
+	return _u
+}
+
+// RemoveManagedByIDs removes the "managed_by" edge to User entities by IDs.
+func (_u *EventUpdate) RemoveManagedByIDs(ids ...uuid.UUID) *EventUpdate {
+	_u.mutation.RemoveManagedByIDs(ids...)
+	return _u
+}
+
+// RemoveManagedBy removes "managed_by" edges to User entities.
+func (_u *EventUpdate) RemoveManagedBy(v ...*User) *EventUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveManagedByIDs(ids...)
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *EventUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -59,14 +358,286 @@ func (_u *EventUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *EventUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := event.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *EventUpdate) check() error {
+	if v, ok := _u.mutation.Name(); ok {
+		if err := event.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Event.name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Slug(); ok {
+		if err := event.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Event.slug": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := event.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Event.status": %w`, err)}
+		}
+	}
+	if _u.mutation.DisciplineCleared() && len(_u.mutation.DisciplineIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Event.discipline"`)
+	}
+	if _u.mutation.LocationCleared() && len(_u.mutation.LocationIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Event.location"`)
+	}
+	return nil
+}
+
 func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(event.Table, event.Columns, sqlgraph.NewFieldSpec(event.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(event.Table, event.Columns, sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(event.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(event.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(event.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Name(); ok {
+		_spec.SetField(event.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Slug(); ok {
+		_spec.SetField(event.FieldSlug, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Year(); ok {
+		_spec.SetField(event.FieldYear, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedYear(); ok {
+		_spec.AddField(event.FieldYear, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.StartDate(); ok {
+		_spec.SetField(event.FieldStartDate, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.EndDate(); ok {
+		_spec.SetField(event.FieldEndDate, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(event.FieldStatus, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Description(); ok {
+		_spec.SetField(event.FieldDescription, field.TypeString, value)
+	}
+	if _u.mutation.DescriptionCleared() {
+		_spec.ClearField(event.FieldDescription, field.TypeString)
+	}
+	if value, ok := _u.mutation.Settings(); ok {
+		_spec.SetField(event.FieldSettings, field.TypeJSON, value)
+	}
+	if _u.mutation.SettingsCleared() {
+		_spec.ClearField(event.FieldSettings, field.TypeJSON)
+	}
+	if _u.mutation.DisciplineCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.DisciplineTable,
+			Columns: []string{event.DisciplineColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discipline.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DisciplineIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.DisciplineTable,
+			Columns: []string{event.DisciplineColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discipline.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.LocationCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.LocationTable,
+			Columns: []string{event.LocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.LocationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.LocationTable,
+			Columns: []string{event.LocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DivisionPoolsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.DivisionPoolsTable,
+			Columns: []string{event.DivisionPoolsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedDivisionPoolsIDs(); len(nodes) > 0 && !_u.mutation.DivisionPoolsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.DivisionPoolsTable,
+			Columns: []string{event.DivisionPoolsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DivisionPoolsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.DivisionPoolsTable,
+			Columns: []string{event.DivisionPoolsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.GameRoundsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.GameRoundsTable,
+			Columns: []string{event.GameRoundsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedGameRoundsIDs(); len(nodes) > 0 && !_u.mutation.GameRoundsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.GameRoundsTable,
+			Columns: []string{event.GameRoundsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GameRoundsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.GameRoundsTable,
+			Columns: []string{event.GameRoundsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ManagedByCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.ManagedByTable,
+			Columns: []string{event.ManagedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedManagedByIDs(); len(nodes) > 0 && !_u.mutation.ManagedByCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.ManagedByTable,
+			Columns: []string{event.ManagedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ManagedByIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.ManagedByTable,
+			Columns: []string{event.ManagedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -88,9 +659,300 @@ type EventUpdateOne struct {
 	mutation *EventMutation
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *EventUpdateOne) SetUpdatedAt(v time.Time) *EventUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *EventUpdateOne) SetDeletedAt(v time.Time) *EventUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableDeletedAt(v *time.Time) *EventUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *EventUpdateOne) ClearDeletedAt() *EventUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetName sets the "name" field.
+func (_u *EventUpdateOne) SetName(v string) *EventUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableName(v *string) *EventUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
+	}
+	return _u
+}
+
+// SetSlug sets the "slug" field.
+func (_u *EventUpdateOne) SetSlug(v string) *EventUpdateOne {
+	_u.mutation.SetSlug(v)
+	return _u
+}
+
+// SetNillableSlug sets the "slug" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableSlug(v *string) *EventUpdateOne {
+	if v != nil {
+		_u.SetSlug(*v)
+	}
+	return _u
+}
+
+// SetYear sets the "year" field.
+func (_u *EventUpdateOne) SetYear(v int) *EventUpdateOne {
+	_u.mutation.ResetYear()
+	_u.mutation.SetYear(v)
+	return _u
+}
+
+// SetNillableYear sets the "year" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableYear(v *int) *EventUpdateOne {
+	if v != nil {
+		_u.SetYear(*v)
+	}
+	return _u
+}
+
+// AddYear adds value to the "year" field.
+func (_u *EventUpdateOne) AddYear(v int) *EventUpdateOne {
+	_u.mutation.AddYear(v)
+	return _u
+}
+
+// SetStartDate sets the "start_date" field.
+func (_u *EventUpdateOne) SetStartDate(v time.Time) *EventUpdateOne {
+	_u.mutation.SetStartDate(v)
+	return _u
+}
+
+// SetNillableStartDate sets the "start_date" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableStartDate(v *time.Time) *EventUpdateOne {
+	if v != nil {
+		_u.SetStartDate(*v)
+	}
+	return _u
+}
+
+// SetEndDate sets the "end_date" field.
+func (_u *EventUpdateOne) SetEndDate(v time.Time) *EventUpdateOne {
+	_u.mutation.SetEndDate(v)
+	return _u
+}
+
+// SetNillableEndDate sets the "end_date" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableEndDate(v *time.Time) *EventUpdateOne {
+	if v != nil {
+		_u.SetEndDate(*v)
+	}
+	return _u
+}
+
+// SetStatus sets the "status" field.
+func (_u *EventUpdateOne) SetStatus(v string) *EventUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableStatus(v *string) *EventUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
+// SetDescription sets the "description" field.
+func (_u *EventUpdateOne) SetDescription(v string) *EventUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableDescription(v *string) *EventUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
+	}
+	return _u
+}
+
+// ClearDescription clears the value of the "description" field.
+func (_u *EventUpdateOne) ClearDescription() *EventUpdateOne {
+	_u.mutation.ClearDescription()
+	return _u
+}
+
+// SetSettings sets the "settings" field.
+func (_u *EventUpdateOne) SetSettings(v map[string]interface{}) *EventUpdateOne {
+	_u.mutation.SetSettings(v)
+	return _u
+}
+
+// ClearSettings clears the value of the "settings" field.
+func (_u *EventUpdateOne) ClearSettings() *EventUpdateOne {
+	_u.mutation.ClearSettings()
+	return _u
+}
+
+// SetDisciplineID sets the "discipline" edge to the Discipline entity by ID.
+func (_u *EventUpdateOne) SetDisciplineID(id uuid.UUID) *EventUpdateOne {
+	_u.mutation.SetDisciplineID(id)
+	return _u
+}
+
+// SetDiscipline sets the "discipline" edge to the Discipline entity.
+func (_u *EventUpdateOne) SetDiscipline(v *Discipline) *EventUpdateOne {
+	return _u.SetDisciplineID(v.ID)
+}
+
+// SetLocationID sets the "location" edge to the Location entity by ID.
+func (_u *EventUpdateOne) SetLocationID(id uuid.UUID) *EventUpdateOne {
+	_u.mutation.SetLocationID(id)
+	return _u
+}
+
+// SetLocation sets the "location" edge to the Location entity.
+func (_u *EventUpdateOne) SetLocation(v *Location) *EventUpdateOne {
+	return _u.SetLocationID(v.ID)
+}
+
+// AddDivisionPoolIDs adds the "division_pools" edge to the DivisionPool entity by IDs.
+func (_u *EventUpdateOne) AddDivisionPoolIDs(ids ...uuid.UUID) *EventUpdateOne {
+	_u.mutation.AddDivisionPoolIDs(ids...)
+	return _u
+}
+
+// AddDivisionPools adds the "division_pools" edges to the DivisionPool entity.
+func (_u *EventUpdateOne) AddDivisionPools(v ...*DivisionPool) *EventUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddDivisionPoolIDs(ids...)
+}
+
+// AddGameRoundIDs adds the "game_rounds" edge to the GameRound entity by IDs.
+func (_u *EventUpdateOne) AddGameRoundIDs(ids ...uuid.UUID) *EventUpdateOne {
+	_u.mutation.AddGameRoundIDs(ids...)
+	return _u
+}
+
+// AddGameRounds adds the "game_rounds" edges to the GameRound entity.
+func (_u *EventUpdateOne) AddGameRounds(v ...*GameRound) *EventUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddGameRoundIDs(ids...)
+}
+
+// AddManagedByIDs adds the "managed_by" edge to the User entity by IDs.
+func (_u *EventUpdateOne) AddManagedByIDs(ids ...uuid.UUID) *EventUpdateOne {
+	_u.mutation.AddManagedByIDs(ids...)
+	return _u
+}
+
+// AddManagedBy adds the "managed_by" edges to the User entity.
+func (_u *EventUpdateOne) AddManagedBy(v ...*User) *EventUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddManagedByIDs(ids...)
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (_u *EventUpdateOne) Mutation() *EventMutation {
 	return _u.mutation
+}
+
+// ClearDiscipline clears the "discipline" edge to the Discipline entity.
+func (_u *EventUpdateOne) ClearDiscipline() *EventUpdateOne {
+	_u.mutation.ClearDiscipline()
+	return _u
+}
+
+// ClearLocation clears the "location" edge to the Location entity.
+func (_u *EventUpdateOne) ClearLocation() *EventUpdateOne {
+	_u.mutation.ClearLocation()
+	return _u
+}
+
+// ClearDivisionPools clears all "division_pools" edges to the DivisionPool entity.
+func (_u *EventUpdateOne) ClearDivisionPools() *EventUpdateOne {
+	_u.mutation.ClearDivisionPools()
+	return _u
+}
+
+// RemoveDivisionPoolIDs removes the "division_pools" edge to DivisionPool entities by IDs.
+func (_u *EventUpdateOne) RemoveDivisionPoolIDs(ids ...uuid.UUID) *EventUpdateOne {
+	_u.mutation.RemoveDivisionPoolIDs(ids...)
+	return _u
+}
+
+// RemoveDivisionPools removes "division_pools" edges to DivisionPool entities.
+func (_u *EventUpdateOne) RemoveDivisionPools(v ...*DivisionPool) *EventUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveDivisionPoolIDs(ids...)
+}
+
+// ClearGameRounds clears all "game_rounds" edges to the GameRound entity.
+func (_u *EventUpdateOne) ClearGameRounds() *EventUpdateOne {
+	_u.mutation.ClearGameRounds()
+	return _u
+}
+
+// RemoveGameRoundIDs removes the "game_rounds" edge to GameRound entities by IDs.
+func (_u *EventUpdateOne) RemoveGameRoundIDs(ids ...uuid.UUID) *EventUpdateOne {
+	_u.mutation.RemoveGameRoundIDs(ids...)
+	return _u
+}
+
+// RemoveGameRounds removes "game_rounds" edges to GameRound entities.
+func (_u *EventUpdateOne) RemoveGameRounds(v ...*GameRound) *EventUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveGameRoundIDs(ids...)
+}
+
+// ClearManagedBy clears all "managed_by" edges to the User entity.
+func (_u *EventUpdateOne) ClearManagedBy() *EventUpdateOne {
+	_u.mutation.ClearManagedBy()
+	return _u
+}
+
+// RemoveManagedByIDs removes the "managed_by" edge to User entities by IDs.
+func (_u *EventUpdateOne) RemoveManagedByIDs(ids ...uuid.UUID) *EventUpdateOne {
+	_u.mutation.RemoveManagedByIDs(ids...)
+	return _u
+}
+
+// RemoveManagedBy removes "managed_by" edges to User entities.
+func (_u *EventUpdateOne) RemoveManagedBy(v ...*User) *EventUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveManagedByIDs(ids...)
 }
 
 // Where appends a list predicates to the EventUpdate builder.
@@ -108,6 +970,7 @@ func (_u *EventUpdateOne) Select(field string, fields ...string) *EventUpdateOne
 
 // Save executes the query and returns the updated Event entity.
 func (_u *EventUpdateOne) Save(ctx context.Context) (*Event, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -133,8 +996,45 @@ func (_u *EventUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *EventUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := event.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *EventUpdateOne) check() error {
+	if v, ok := _u.mutation.Name(); ok {
+		if err := event.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Event.name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Slug(); ok {
+		if err := event.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Event.slug": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := event.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Event.status": %w`, err)}
+		}
+	}
+	if _u.mutation.DisciplineCleared() && len(_u.mutation.DisciplineIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Event.discipline"`)
+	}
+	if _u.mutation.LocationCleared() && len(_u.mutation.LocationIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Event.location"`)
+	}
+	return nil
+}
+
 func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error) {
-	_spec := sqlgraph.NewUpdateSpec(event.Table, event.Columns, sqlgraph.NewFieldSpec(event.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(event.Table, event.Columns, sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Event.id" for update`)}
@@ -158,6 +1058,241 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(event.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(event.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(event.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Name(); ok {
+		_spec.SetField(event.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Slug(); ok {
+		_spec.SetField(event.FieldSlug, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Year(); ok {
+		_spec.SetField(event.FieldYear, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedYear(); ok {
+		_spec.AddField(event.FieldYear, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.StartDate(); ok {
+		_spec.SetField(event.FieldStartDate, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.EndDate(); ok {
+		_spec.SetField(event.FieldEndDate, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(event.FieldStatus, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Description(); ok {
+		_spec.SetField(event.FieldDescription, field.TypeString, value)
+	}
+	if _u.mutation.DescriptionCleared() {
+		_spec.ClearField(event.FieldDescription, field.TypeString)
+	}
+	if value, ok := _u.mutation.Settings(); ok {
+		_spec.SetField(event.FieldSettings, field.TypeJSON, value)
+	}
+	if _u.mutation.SettingsCleared() {
+		_spec.ClearField(event.FieldSettings, field.TypeJSON)
+	}
+	if _u.mutation.DisciplineCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.DisciplineTable,
+			Columns: []string{event.DisciplineColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discipline.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DisciplineIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.DisciplineTable,
+			Columns: []string{event.DisciplineColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discipline.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.LocationCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.LocationTable,
+			Columns: []string{event.LocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.LocationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.LocationTable,
+			Columns: []string{event.LocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DivisionPoolsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.DivisionPoolsTable,
+			Columns: []string{event.DivisionPoolsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedDivisionPoolsIDs(); len(nodes) > 0 && !_u.mutation.DivisionPoolsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.DivisionPoolsTable,
+			Columns: []string{event.DivisionPoolsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DivisionPoolsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.DivisionPoolsTable,
+			Columns: []string{event.DivisionPoolsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.GameRoundsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.GameRoundsTable,
+			Columns: []string{event.GameRoundsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedGameRoundsIDs(); len(nodes) > 0 && !_u.mutation.GameRoundsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.GameRoundsTable,
+			Columns: []string{event.GameRoundsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GameRoundsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.GameRoundsTable,
+			Columns: []string{event.GameRoundsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ManagedByCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.ManagedByTable,
+			Columns: []string{event.ManagedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedManagedByIDs(); len(nodes) > 0 && !_u.mutation.ManagedByCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.ManagedByTable,
+			Columns: []string{event.ManagedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ManagedByIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.ManagedByTable,
+			Columns: []string{event.ManagedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Event{config: _u.config}
 	_spec.Assign = _node.assignValues

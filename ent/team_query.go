@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -11,17 +12,33 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/location"
+	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/ent/spiritscore"
 	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // TeamQuery is the builder for querying Team entities.
 type TeamQuery struct {
 	config
-	ctx        *QueryContext
-	order      []team.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Team
+	ctx                      *QueryContext
+	order                    []team.OrderOption
+	inters                   []Interceptor
+	predicates               []predicate.Team
+	withDivisionPool         *DivisionPoolQuery
+	withHomeLocation         *LocationQuery
+	withPlayers              *PlayerQuery
+	withManagedBy            *UserQuery
+	withHomeGames            *GameQuery
+	withAwayGames            *GameQuery
+	withSpiritScoresGiven    *SpiritScoreQuery
+	withSpiritScoresReceived *SpiritScoreQuery
+	withFKs                  bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -58,6 +75,182 @@ func (_q *TeamQuery) Order(o ...team.OrderOption) *TeamQuery {
 	return _q
 }
 
+// QueryDivisionPool chains the current query on the "division_pool" edge.
+func (_q *TeamQuery) QueryDivisionPool() *DivisionPoolQuery {
+	query := (&DivisionPoolClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, selector),
+			sqlgraph.To(divisionpool.Table, divisionpool.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, team.DivisionPoolTable, team.DivisionPoolColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryHomeLocation chains the current query on the "home_location" edge.
+func (_q *TeamQuery) QueryHomeLocation() *LocationQuery {
+	query := (&LocationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, selector),
+			sqlgraph.To(location.Table, location.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, team.HomeLocationTable, team.HomeLocationColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPlayers chains the current query on the "players" edge.
+func (_q *TeamQuery) QueryPlayers() *PlayerQuery {
+	query := (&PlayerClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, selector),
+			sqlgraph.To(player.Table, player.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.PlayersTable, team.PlayersColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryManagedBy chains the current query on the "managed_by" edge.
+func (_q *TeamQuery) QueryManagedBy() *UserQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.ManagedByTable, team.ManagedByColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryHomeGames chains the current query on the "home_games" edge.
+func (_q *TeamQuery) QueryHomeGames() *GameQuery {
+	query := (&GameClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, selector),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.HomeGamesTable, team.HomeGamesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAwayGames chains the current query on the "away_games" edge.
+func (_q *TeamQuery) QueryAwayGames() *GameQuery {
+	query := (&GameClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, selector),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.AwayGamesTable, team.AwayGamesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySpiritScoresGiven chains the current query on the "spirit_scores_given" edge.
+func (_q *TeamQuery) QuerySpiritScoresGiven() *SpiritScoreQuery {
+	query := (&SpiritScoreClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, selector),
+			sqlgraph.To(spiritscore.Table, spiritscore.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.SpiritScoresGivenTable, team.SpiritScoresGivenColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySpiritScoresReceived chains the current query on the "spirit_scores_received" edge.
+func (_q *TeamQuery) QuerySpiritScoresReceived() *SpiritScoreQuery {
+	query := (&SpiritScoreClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, selector),
+			sqlgraph.To(spiritscore.Table, spiritscore.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.SpiritScoresReceivedTable, team.SpiritScoresReceivedColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Team entity from the query.
 // Returns a *NotFoundError when no Team was found.
 func (_q *TeamQuery) First(ctx context.Context) (*Team, error) {
@@ -82,8 +275,8 @@ func (_q *TeamQuery) FirstX(ctx context.Context) *Team {
 
 // FirstID returns the first Team ID from the query.
 // Returns a *NotFoundError when no Team ID was found.
-func (_q *TeamQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *TeamQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -95,7 +288,7 @@ func (_q *TeamQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *TeamQuery) FirstIDX(ctx context.Context) int {
+func (_q *TeamQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -133,8 +326,8 @@ func (_q *TeamQuery) OnlyX(ctx context.Context) *Team {
 // OnlyID is like Only, but returns the only Team ID in the query.
 // Returns a *NotSingularError when more than one Team ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *TeamQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *TeamQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -150,7 +343,7 @@ func (_q *TeamQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *TeamQuery) OnlyIDX(ctx context.Context) int {
+func (_q *TeamQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -178,7 +371,7 @@ func (_q *TeamQuery) AllX(ctx context.Context) []*Team {
 }
 
 // IDs executes the query and returns a list of Team IDs.
-func (_q *TeamQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *TeamQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -190,7 +383,7 @@ func (_q *TeamQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *TeamQuery) IDsX(ctx context.Context) []int {
+func (_q *TeamQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -245,19 +438,127 @@ func (_q *TeamQuery) Clone() *TeamQuery {
 		return nil
 	}
 	return &TeamQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]team.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.Team{}, _q.predicates...),
+		config:                   _q.config,
+		ctx:                      _q.ctx.Clone(),
+		order:                    append([]team.OrderOption{}, _q.order...),
+		inters:                   append([]Interceptor{}, _q.inters...),
+		predicates:               append([]predicate.Team{}, _q.predicates...),
+		withDivisionPool:         _q.withDivisionPool.Clone(),
+		withHomeLocation:         _q.withHomeLocation.Clone(),
+		withPlayers:              _q.withPlayers.Clone(),
+		withManagedBy:            _q.withManagedBy.Clone(),
+		withHomeGames:            _q.withHomeGames.Clone(),
+		withAwayGames:            _q.withAwayGames.Clone(),
+		withSpiritScoresGiven:    _q.withSpiritScoresGiven.Clone(),
+		withSpiritScoresReceived: _q.withSpiritScoresReceived.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
 }
 
+// WithDivisionPool tells the query-builder to eager-load the nodes that are connected to
+// the "division_pool" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TeamQuery) WithDivisionPool(opts ...func(*DivisionPoolQuery)) *TeamQuery {
+	query := (&DivisionPoolClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDivisionPool = query
+	return _q
+}
+
+// WithHomeLocation tells the query-builder to eager-load the nodes that are connected to
+// the "home_location" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TeamQuery) WithHomeLocation(opts ...func(*LocationQuery)) *TeamQuery {
+	query := (&LocationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withHomeLocation = query
+	return _q
+}
+
+// WithPlayers tells the query-builder to eager-load the nodes that are connected to
+// the "players" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TeamQuery) WithPlayers(opts ...func(*PlayerQuery)) *TeamQuery {
+	query := (&PlayerClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withPlayers = query
+	return _q
+}
+
+// WithManagedBy tells the query-builder to eager-load the nodes that are connected to
+// the "managed_by" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TeamQuery) WithManagedBy(opts ...func(*UserQuery)) *TeamQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withManagedBy = query
+	return _q
+}
+
+// WithHomeGames tells the query-builder to eager-load the nodes that are connected to
+// the "home_games" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TeamQuery) WithHomeGames(opts ...func(*GameQuery)) *TeamQuery {
+	query := (&GameClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withHomeGames = query
+	return _q
+}
+
+// WithAwayGames tells the query-builder to eager-load the nodes that are connected to
+// the "away_games" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TeamQuery) WithAwayGames(opts ...func(*GameQuery)) *TeamQuery {
+	query := (&GameClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withAwayGames = query
+	return _q
+}
+
+// WithSpiritScoresGiven tells the query-builder to eager-load the nodes that are connected to
+// the "spirit_scores_given" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TeamQuery) WithSpiritScoresGiven(opts ...func(*SpiritScoreQuery)) *TeamQuery {
+	query := (&SpiritScoreClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSpiritScoresGiven = query
+	return _q
+}
+
+// WithSpiritScoresReceived tells the query-builder to eager-load the nodes that are connected to
+// the "spirit_scores_received" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TeamQuery) WithSpiritScoresReceived(opts ...func(*SpiritScoreQuery)) *TeamQuery {
+	query := (&SpiritScoreClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSpiritScoresReceived = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Team.Query().
+//		GroupBy(team.FieldCreatedAt).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (_q *TeamQuery) GroupBy(field string, fields ...string) *TeamGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &TeamGroupBy{build: _q}
@@ -269,6 +570,16 @@ func (_q *TeamQuery) GroupBy(field string, fields ...string) *TeamGroupBy {
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//	}
+//
+//	client.Team.Query().
+//		Select(team.FieldCreatedAt).
+//		Scan(ctx, &v)
 func (_q *TeamQuery) Select(fields ...string) *TeamSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
 	sbuild := &TeamSelect{TeamQuery: _q}
@@ -310,15 +621,33 @@ func (_q *TeamQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *TeamQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Team, error) {
 	var (
-		nodes = []*Team{}
-		_spec = _q.querySpec()
+		nodes       = []*Team{}
+		withFKs     = _q.withFKs
+		_spec       = _q.querySpec()
+		loadedTypes = [8]bool{
+			_q.withDivisionPool != nil,
+			_q.withHomeLocation != nil,
+			_q.withPlayers != nil,
+			_q.withManagedBy != nil,
+			_q.withHomeGames != nil,
+			_q.withAwayGames != nil,
+			_q.withSpiritScoresGiven != nil,
+			_q.withSpiritScoresReceived != nil,
+		}
 	)
+	if _q.withDivisionPool != nil || _q.withHomeLocation != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, team.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Team).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Team{config: _q.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -330,7 +659,312 @@ func (_q *TeamQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Team, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withDivisionPool; query != nil {
+		if err := _q.loadDivisionPool(ctx, query, nodes, nil,
+			func(n *Team, e *DivisionPool) { n.Edges.DivisionPool = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withHomeLocation; query != nil {
+		if err := _q.loadHomeLocation(ctx, query, nodes, nil,
+			func(n *Team, e *Location) { n.Edges.HomeLocation = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withPlayers; query != nil {
+		if err := _q.loadPlayers(ctx, query, nodes,
+			func(n *Team) { n.Edges.Players = []*Player{} },
+			func(n *Team, e *Player) { n.Edges.Players = append(n.Edges.Players, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withManagedBy; query != nil {
+		if err := _q.loadManagedBy(ctx, query, nodes,
+			func(n *Team) { n.Edges.ManagedBy = []*User{} },
+			func(n *Team, e *User) { n.Edges.ManagedBy = append(n.Edges.ManagedBy, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withHomeGames; query != nil {
+		if err := _q.loadHomeGames(ctx, query, nodes,
+			func(n *Team) { n.Edges.HomeGames = []*Game{} },
+			func(n *Team, e *Game) { n.Edges.HomeGames = append(n.Edges.HomeGames, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withAwayGames; query != nil {
+		if err := _q.loadAwayGames(ctx, query, nodes,
+			func(n *Team) { n.Edges.AwayGames = []*Game{} },
+			func(n *Team, e *Game) { n.Edges.AwayGames = append(n.Edges.AwayGames, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSpiritScoresGiven; query != nil {
+		if err := _q.loadSpiritScoresGiven(ctx, query, nodes,
+			func(n *Team) { n.Edges.SpiritScoresGiven = []*SpiritScore{} },
+			func(n *Team, e *SpiritScore) { n.Edges.SpiritScoresGiven = append(n.Edges.SpiritScoresGiven, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSpiritScoresReceived; query != nil {
+		if err := _q.loadSpiritScoresReceived(ctx, query, nodes,
+			func(n *Team) { n.Edges.SpiritScoresReceived = []*SpiritScore{} },
+			func(n *Team, e *SpiritScore) { n.Edges.SpiritScoresReceived = append(n.Edges.SpiritScoresReceived, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (_q *TeamQuery) loadDivisionPool(ctx context.Context, query *DivisionPoolQuery, nodes []*Team, init func(*Team), assign func(*Team, *DivisionPool)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Team)
+	for i := range nodes {
+		if nodes[i].division_pool_teams == nil {
+			continue
+		}
+		fk := *nodes[i].division_pool_teams
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(divisionpool.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "division_pool_teams" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *TeamQuery) loadHomeLocation(ctx context.Context, query *LocationQuery, nodes []*Team, init func(*Team), assign func(*Team, *Location)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Team)
+	for i := range nodes {
+		if nodes[i].location_teams == nil {
+			continue
+		}
+		fk := *nodes[i].location_teams
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(location.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "location_teams" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *TeamQuery) loadPlayers(ctx context.Context, query *PlayerQuery, nodes []*Team, init func(*Team), assign func(*Team, *Player)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Team)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Player(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(team.PlayersColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.team_players
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "team_players" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "team_players" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *TeamQuery) loadManagedBy(ctx context.Context, query *UserQuery, nodes []*Team, init func(*Team), assign func(*Team, *User)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Team)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.User(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(team.ManagedByColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.team_managed_by
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "team_managed_by" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "team_managed_by" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *TeamQuery) loadHomeGames(ctx context.Context, query *GameQuery, nodes []*Team, init func(*Team), assign func(*Team, *Game)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Team)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(team.HomeGamesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.team_home_games
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "team_home_games" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "team_home_games" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *TeamQuery) loadAwayGames(ctx context.Context, query *GameQuery, nodes []*Team, init func(*Team), assign func(*Team, *Game)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Team)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(team.AwayGamesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.team_away_games
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "team_away_games" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "team_away_games" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *TeamQuery) loadSpiritScoresGiven(ctx context.Context, query *SpiritScoreQuery, nodes []*Team, init func(*Team), assign func(*Team, *SpiritScore)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Team)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.SpiritScore(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(team.SpiritScoresGivenColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.team_spirit_scores_given
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "team_spirit_scores_given" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "team_spirit_scores_given" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *TeamQuery) loadSpiritScoresReceived(ctx context.Context, query *SpiritScoreQuery, nodes []*Team, init func(*Team), assign func(*Team, *SpiritScore)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Team)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.SpiritScore(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(team.SpiritScoresReceivedColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.team_spirit_scores_received
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "team_spirit_scores_received" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "team_spirit_scores_received" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (_q *TeamQuery) sqlCount(ctx context.Context) (int, error) {
@@ -343,7 +977,7 @@ func (_q *TeamQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *TeamQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(team.Table, team.Columns, sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(team.Table, team.Columns, sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

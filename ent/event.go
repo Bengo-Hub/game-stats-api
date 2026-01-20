@@ -3,20 +3,118 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/location"
+	"github.com/google/uuid"
 )
 
 // Event is the model entity for the Event schema.
 type Event struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
-	selectValues sql.SelectValues
+	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
+	// Slug holds the value of the "slug" field.
+	Slug string `json:"slug,omitempty"`
+	// Year holds the value of the "year" field.
+	Year int `json:"year,omitempty"`
+	// StartDate holds the value of the "start_date" field.
+	StartDate time.Time `json:"start_date,omitempty"`
+	// EndDate holds the value of the "end_date" field.
+	EndDate time.Time `json:"end_date,omitempty"`
+	// Status holds the value of the "status" field.
+	Status string `json:"status,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
+	// Settings holds the value of the "settings" field.
+	Settings map[string]interface{} `json:"settings,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the EventQuery when eager-loading is set.
+	Edges             EventEdges `json:"edges"`
+	discipline_events *uuid.UUID
+	location_events   *uuid.UUID
+	selectValues      sql.SelectValues
+}
+
+// EventEdges holds the relations/edges for other nodes in the graph.
+type EventEdges struct {
+	// Discipline holds the value of the discipline edge.
+	Discipline *Discipline `json:"discipline,omitempty"`
+	// Location holds the value of the location edge.
+	Location *Location `json:"location,omitempty"`
+	// DivisionPools holds the value of the division_pools edge.
+	DivisionPools []*DivisionPool `json:"division_pools,omitempty"`
+	// GameRounds holds the value of the game_rounds edge.
+	GameRounds []*GameRound `json:"game_rounds,omitempty"`
+	// ManagedBy holds the value of the managed_by edge.
+	ManagedBy []*User `json:"managed_by,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [5]bool
+}
+
+// DisciplineOrErr returns the Discipline value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e EventEdges) DisciplineOrErr() (*Discipline, error) {
+	if e.Discipline != nil {
+		return e.Discipline, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: discipline.Label}
+	}
+	return nil, &NotLoadedError{edge: "discipline"}
+}
+
+// LocationOrErr returns the Location value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e EventEdges) LocationOrErr() (*Location, error) {
+	if e.Location != nil {
+		return e.Location, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: location.Label}
+	}
+	return nil, &NotLoadedError{edge: "location"}
+}
+
+// DivisionPoolsOrErr returns the DivisionPools value or an error if the edge
+// was not loaded in eager-loading.
+func (e EventEdges) DivisionPoolsOrErr() ([]*DivisionPool, error) {
+	if e.loadedTypes[2] {
+		return e.DivisionPools, nil
+	}
+	return nil, &NotLoadedError{edge: "division_pools"}
+}
+
+// GameRoundsOrErr returns the GameRounds value or an error if the edge
+// was not loaded in eager-loading.
+func (e EventEdges) GameRoundsOrErr() ([]*GameRound, error) {
+	if e.loadedTypes[3] {
+		return e.GameRounds, nil
+	}
+	return nil, &NotLoadedError{edge: "game_rounds"}
+}
+
+// ManagedByOrErr returns the ManagedBy value or an error if the edge
+// was not loaded in eager-loading.
+func (e EventEdges) ManagedByOrErr() ([]*User, error) {
+	if e.loadedTypes[4] {
+		return e.ManagedBy, nil
+	}
+	return nil, &NotLoadedError{edge: "managed_by"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -24,8 +122,20 @@ func (*Event) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case event.FieldID:
+		case event.FieldSettings:
+			values[i] = new([]byte)
+		case event.FieldYear:
 			values[i] = new(sql.NullInt64)
+		case event.FieldName, event.FieldSlug, event.FieldStatus, event.FieldDescription:
+			values[i] = new(sql.NullString)
+		case event.FieldCreatedAt, event.FieldUpdatedAt, event.FieldDeletedAt, event.FieldStartDate, event.FieldEndDate:
+			values[i] = new(sql.NullTime)
+		case event.FieldID:
+			values[i] = new(uuid.UUID)
+		case event.ForeignKeys[0]: // discipline_events
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case event.ForeignKeys[1]: // location_events
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -42,11 +152,94 @@ func (_m *Event) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case event.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
+		case event.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case event.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case event.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
+		case event.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				_m.Name = value.String
+			}
+		case event.FieldSlug:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field slug", values[i])
+			} else if value.Valid {
+				_m.Slug = value.String
+			}
+		case event.FieldYear:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field year", values[i])
+			} else if value.Valid {
+				_m.Year = int(value.Int64)
+			}
+		case event.FieldStartDate:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field start_date", values[i])
+			} else if value.Valid {
+				_m.StartDate = value.Time
+			}
+		case event.FieldEndDate:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field end_date", values[i])
+			} else if value.Valid {
+				_m.EndDate = value.Time
+			}
+		case event.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				_m.Status = value.String
+			}
+		case event.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
+			} else if value.Valid {
+				_m.Description = value.String
+			}
+		case event.FieldSettings:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field settings", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Settings); err != nil {
+					return fmt.Errorf("unmarshal field settings: %w", err)
+				}
+			}
+		case event.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field discipline_events", values[i])
+			} else if value.Valid {
+				_m.discipline_events = new(uuid.UUID)
+				*_m.discipline_events = *value.S.(*uuid.UUID)
+			}
+		case event.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field location_events", values[i])
+			} else if value.Valid {
+				_m.location_events = new(uuid.UUID)
+				*_m.location_events = *value.S.(*uuid.UUID)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -58,6 +251,31 @@ func (_m *Event) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Event) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryDiscipline queries the "discipline" edge of the Event entity.
+func (_m *Event) QueryDiscipline() *DisciplineQuery {
+	return NewEventClient(_m.config).QueryDiscipline(_m)
+}
+
+// QueryLocation queries the "location" edge of the Event entity.
+func (_m *Event) QueryLocation() *LocationQuery {
+	return NewEventClient(_m.config).QueryLocation(_m)
+}
+
+// QueryDivisionPools queries the "division_pools" edge of the Event entity.
+func (_m *Event) QueryDivisionPools() *DivisionPoolQuery {
+	return NewEventClient(_m.config).QueryDivisionPools(_m)
+}
+
+// QueryGameRounds queries the "game_rounds" edge of the Event entity.
+func (_m *Event) QueryGameRounds() *GameRoundQuery {
+	return NewEventClient(_m.config).QueryGameRounds(_m)
+}
+
+// QueryManagedBy queries the "managed_by" edge of the Event entity.
+func (_m *Event) QueryManagedBy() *UserQuery {
+	return NewEventClient(_m.config).QueryManagedBy(_m)
 }
 
 // Update returns a builder for updating this Event.
@@ -82,7 +300,41 @@ func (_m *Event) Unwrap() *Event {
 func (_m *Event) String() string {
 	var builder strings.Builder
 	builder.WriteString("Event(")
-	builder.WriteString(fmt.Sprintf("id=%v", _m.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("name=")
+	builder.WriteString(_m.Name)
+	builder.WriteString(", ")
+	builder.WriteString("slug=")
+	builder.WriteString(_m.Slug)
+	builder.WriteString(", ")
+	builder.WriteString("year=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Year))
+	builder.WriteString(", ")
+	builder.WriteString("start_date=")
+	builder.WriteString(_m.StartDate.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("end_date=")
+	builder.WriteString(_m.EndDate.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(_m.Status)
+	builder.WriteString(", ")
+	builder.WriteString("description=")
+	builder.WriteString(_m.Description)
+	builder.WriteString(", ")
+	builder.WriteString("settings=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Settings))
 	builder.WriteByte(')')
 	return builder.String()
 }

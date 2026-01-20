@@ -3,20 +3,145 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/google/uuid"
 )
 
 // Team is the model entity for the Team schema.
 type Team struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
-	selectValues sql.SelectValues
+	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
+	// InitialSeed holds the value of the "initial_seed" field.
+	InitialSeed int `json:"initial_seed,omitempty"`
+	// FinalPlacement holds the value of the "final_placement" field.
+	FinalPlacement int `json:"final_placement,omitempty"`
+	// LogoURL holds the value of the "logo_url" field.
+	LogoURL string `json:"logo_url,omitempty"`
+	// Metadata holds the value of the "metadata" field.
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the TeamQuery when eager-loading is set.
+	Edges               TeamEdges `json:"edges"`
+	division_pool_teams *uuid.UUID
+	location_teams      *uuid.UUID
+	selectValues        sql.SelectValues
+}
+
+// TeamEdges holds the relations/edges for other nodes in the graph.
+type TeamEdges struct {
+	// DivisionPool holds the value of the division_pool edge.
+	DivisionPool *DivisionPool `json:"division_pool,omitempty"`
+	// HomeLocation holds the value of the home_location edge.
+	HomeLocation *Location `json:"home_location,omitempty"`
+	// Players holds the value of the players edge.
+	Players []*Player `json:"players,omitempty"`
+	// ManagedBy holds the value of the managed_by edge.
+	ManagedBy []*User `json:"managed_by,omitempty"`
+	// HomeGames holds the value of the home_games edge.
+	HomeGames []*Game `json:"home_games,omitempty"`
+	// AwayGames holds the value of the away_games edge.
+	AwayGames []*Game `json:"away_games,omitempty"`
+	// SpiritScoresGiven holds the value of the spirit_scores_given edge.
+	SpiritScoresGiven []*SpiritScore `json:"spirit_scores_given,omitempty"`
+	// SpiritScoresReceived holds the value of the spirit_scores_received edge.
+	SpiritScoresReceived []*SpiritScore `json:"spirit_scores_received,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [8]bool
+}
+
+// DivisionPoolOrErr returns the DivisionPool value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e TeamEdges) DivisionPoolOrErr() (*DivisionPool, error) {
+	if e.DivisionPool != nil {
+		return e.DivisionPool, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: divisionpool.Label}
+	}
+	return nil, &NotLoadedError{edge: "division_pool"}
+}
+
+// HomeLocationOrErr returns the HomeLocation value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e TeamEdges) HomeLocationOrErr() (*Location, error) {
+	if e.HomeLocation != nil {
+		return e.HomeLocation, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: location.Label}
+	}
+	return nil, &NotLoadedError{edge: "home_location"}
+}
+
+// PlayersOrErr returns the Players value or an error if the edge
+// was not loaded in eager-loading.
+func (e TeamEdges) PlayersOrErr() ([]*Player, error) {
+	if e.loadedTypes[2] {
+		return e.Players, nil
+	}
+	return nil, &NotLoadedError{edge: "players"}
+}
+
+// ManagedByOrErr returns the ManagedBy value or an error if the edge
+// was not loaded in eager-loading.
+func (e TeamEdges) ManagedByOrErr() ([]*User, error) {
+	if e.loadedTypes[3] {
+		return e.ManagedBy, nil
+	}
+	return nil, &NotLoadedError{edge: "managed_by"}
+}
+
+// HomeGamesOrErr returns the HomeGames value or an error if the edge
+// was not loaded in eager-loading.
+func (e TeamEdges) HomeGamesOrErr() ([]*Game, error) {
+	if e.loadedTypes[4] {
+		return e.HomeGames, nil
+	}
+	return nil, &NotLoadedError{edge: "home_games"}
+}
+
+// AwayGamesOrErr returns the AwayGames value or an error if the edge
+// was not loaded in eager-loading.
+func (e TeamEdges) AwayGamesOrErr() ([]*Game, error) {
+	if e.loadedTypes[5] {
+		return e.AwayGames, nil
+	}
+	return nil, &NotLoadedError{edge: "away_games"}
+}
+
+// SpiritScoresGivenOrErr returns the SpiritScoresGiven value or an error if the edge
+// was not loaded in eager-loading.
+func (e TeamEdges) SpiritScoresGivenOrErr() ([]*SpiritScore, error) {
+	if e.loadedTypes[6] {
+		return e.SpiritScoresGiven, nil
+	}
+	return nil, &NotLoadedError{edge: "spirit_scores_given"}
+}
+
+// SpiritScoresReceivedOrErr returns the SpiritScoresReceived value or an error if the edge
+// was not loaded in eager-loading.
+func (e TeamEdges) SpiritScoresReceivedOrErr() ([]*SpiritScore, error) {
+	if e.loadedTypes[7] {
+		return e.SpiritScoresReceived, nil
+	}
+	return nil, &NotLoadedError{edge: "spirit_scores_received"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -24,8 +149,20 @@ func (*Team) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case team.FieldID:
+		case team.FieldMetadata:
+			values[i] = new([]byte)
+		case team.FieldInitialSeed, team.FieldFinalPlacement:
 			values[i] = new(sql.NullInt64)
+		case team.FieldName, team.FieldLogoURL:
+			values[i] = new(sql.NullString)
+		case team.FieldCreatedAt, team.FieldUpdatedAt, team.FieldDeletedAt:
+			values[i] = new(sql.NullTime)
+		case team.FieldID:
+			values[i] = new(uuid.UUID)
+		case team.ForeignKeys[0]: // division_pool_teams
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case team.ForeignKeys[1]: // location_teams
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -42,11 +179,76 @@ func (_m *Team) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case team.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
+		case team.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case team.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case team.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
+		case team.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				_m.Name = value.String
+			}
+		case team.FieldInitialSeed:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field initial_seed", values[i])
+			} else if value.Valid {
+				_m.InitialSeed = int(value.Int64)
+			}
+		case team.FieldFinalPlacement:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field final_placement", values[i])
+			} else if value.Valid {
+				_m.FinalPlacement = int(value.Int64)
+			}
+		case team.FieldLogoURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field logo_url", values[i])
+			} else if value.Valid {
+				_m.LogoURL = value.String
+			}
+		case team.FieldMetadata:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field metadata", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
+			}
+		case team.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field division_pool_teams", values[i])
+			} else if value.Valid {
+				_m.division_pool_teams = new(uuid.UUID)
+				*_m.division_pool_teams = *value.S.(*uuid.UUID)
+			}
+		case team.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field location_teams", values[i])
+			} else if value.Valid {
+				_m.location_teams = new(uuid.UUID)
+				*_m.location_teams = *value.S.(*uuid.UUID)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -58,6 +260,46 @@ func (_m *Team) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Team) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryDivisionPool queries the "division_pool" edge of the Team entity.
+func (_m *Team) QueryDivisionPool() *DivisionPoolQuery {
+	return NewTeamClient(_m.config).QueryDivisionPool(_m)
+}
+
+// QueryHomeLocation queries the "home_location" edge of the Team entity.
+func (_m *Team) QueryHomeLocation() *LocationQuery {
+	return NewTeamClient(_m.config).QueryHomeLocation(_m)
+}
+
+// QueryPlayers queries the "players" edge of the Team entity.
+func (_m *Team) QueryPlayers() *PlayerQuery {
+	return NewTeamClient(_m.config).QueryPlayers(_m)
+}
+
+// QueryManagedBy queries the "managed_by" edge of the Team entity.
+func (_m *Team) QueryManagedBy() *UserQuery {
+	return NewTeamClient(_m.config).QueryManagedBy(_m)
+}
+
+// QueryHomeGames queries the "home_games" edge of the Team entity.
+func (_m *Team) QueryHomeGames() *GameQuery {
+	return NewTeamClient(_m.config).QueryHomeGames(_m)
+}
+
+// QueryAwayGames queries the "away_games" edge of the Team entity.
+func (_m *Team) QueryAwayGames() *GameQuery {
+	return NewTeamClient(_m.config).QueryAwayGames(_m)
+}
+
+// QuerySpiritScoresGiven queries the "spirit_scores_given" edge of the Team entity.
+func (_m *Team) QuerySpiritScoresGiven() *SpiritScoreQuery {
+	return NewTeamClient(_m.config).QuerySpiritScoresGiven(_m)
+}
+
+// QuerySpiritScoresReceived queries the "spirit_scores_received" edge of the Team entity.
+func (_m *Team) QuerySpiritScoresReceived() *SpiritScoreQuery {
+	return NewTeamClient(_m.config).QuerySpiritScoresReceived(_m)
 }
 
 // Update returns a builder for updating this Team.
@@ -82,7 +324,32 @@ func (_m *Team) Unwrap() *Team {
 func (_m *Team) String() string {
 	var builder strings.Builder
 	builder.WriteString("Team(")
-	builder.WriteString(fmt.Sprintf("id=%v", _m.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("name=")
+	builder.WriteString(_m.Name)
+	builder.WriteString(", ")
+	builder.WriteString("initial_seed=")
+	builder.WriteString(fmt.Sprintf("%v", _m.InitialSeed))
+	builder.WriteString(", ")
+	builder.WriteString("final_placement=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FinalPlacement))
+	builder.WriteString(", ")
+	builder.WriteString("logo_url=")
+	builder.WriteString(_m.LogoURL)
+	builder.WriteString(", ")
+	builder.WriteString("metadata=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteByte(')')
 	return builder.String()
 }

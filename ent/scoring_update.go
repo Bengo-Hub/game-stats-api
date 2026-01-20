@@ -6,12 +6,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/predicate"
 	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/google/uuid"
 )
 
 // ScoringUpdate is the builder for updating Scoring entities.
@@ -27,13 +31,179 @@ func (_u *ScoringUpdate) Where(ps ...predicate.Scoring) *ScoringUpdate {
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *ScoringUpdate) SetUpdatedAt(v time.Time) *ScoringUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *ScoringUpdate) SetDeletedAt(v time.Time) *ScoringUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *ScoringUpdate) SetNillableDeletedAt(v *time.Time) *ScoringUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *ScoringUpdate) ClearDeletedAt() *ScoringUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetGoals sets the "goals" field.
+func (_u *ScoringUpdate) SetGoals(v int) *ScoringUpdate {
+	_u.mutation.ResetGoals()
+	_u.mutation.SetGoals(v)
+	return _u
+}
+
+// SetNillableGoals sets the "goals" field if the given value is not nil.
+func (_u *ScoringUpdate) SetNillableGoals(v *int) *ScoringUpdate {
+	if v != nil {
+		_u.SetGoals(*v)
+	}
+	return _u
+}
+
+// AddGoals adds value to the "goals" field.
+func (_u *ScoringUpdate) AddGoals(v int) *ScoringUpdate {
+	_u.mutation.AddGoals(v)
+	return _u
+}
+
+// SetAssists sets the "assists" field.
+func (_u *ScoringUpdate) SetAssists(v int) *ScoringUpdate {
+	_u.mutation.ResetAssists()
+	_u.mutation.SetAssists(v)
+	return _u
+}
+
+// SetNillableAssists sets the "assists" field if the given value is not nil.
+func (_u *ScoringUpdate) SetNillableAssists(v *int) *ScoringUpdate {
+	if v != nil {
+		_u.SetAssists(*v)
+	}
+	return _u
+}
+
+// AddAssists adds value to the "assists" field.
+func (_u *ScoringUpdate) AddAssists(v int) *ScoringUpdate {
+	_u.mutation.AddAssists(v)
+	return _u
+}
+
+// SetBlocks sets the "blocks" field.
+func (_u *ScoringUpdate) SetBlocks(v int) *ScoringUpdate {
+	_u.mutation.ResetBlocks()
+	_u.mutation.SetBlocks(v)
+	return _u
+}
+
+// SetNillableBlocks sets the "blocks" field if the given value is not nil.
+func (_u *ScoringUpdate) SetNillableBlocks(v *int) *ScoringUpdate {
+	if v != nil {
+		_u.SetBlocks(*v)
+	}
+	return _u
+}
+
+// AddBlocks adds value to the "blocks" field.
+func (_u *ScoringUpdate) AddBlocks(v int) *ScoringUpdate {
+	_u.mutation.AddBlocks(v)
+	return _u
+}
+
+// SetTurns sets the "turns" field.
+func (_u *ScoringUpdate) SetTurns(v int) *ScoringUpdate {
+	_u.mutation.ResetTurns()
+	_u.mutation.SetTurns(v)
+	return _u
+}
+
+// SetNillableTurns sets the "turns" field if the given value is not nil.
+func (_u *ScoringUpdate) SetNillableTurns(v *int) *ScoringUpdate {
+	if v != nil {
+		_u.SetTurns(*v)
+	}
+	return _u
+}
+
+// AddTurns adds value to the "turns" field.
+func (_u *ScoringUpdate) AddTurns(v int) *ScoringUpdate {
+	_u.mutation.AddTurns(v)
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *ScoringUpdate) SetVersion(v int) *ScoringUpdate {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *ScoringUpdate) SetNillableVersion(v *int) *ScoringUpdate {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *ScoringUpdate) AddVersion(v int) *ScoringUpdate {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
+// SetGameID sets the "game" edge to the Game entity by ID.
+func (_u *ScoringUpdate) SetGameID(id uuid.UUID) *ScoringUpdate {
+	_u.mutation.SetGameID(id)
+	return _u
+}
+
+// SetGame sets the "game" edge to the Game entity.
+func (_u *ScoringUpdate) SetGame(v *Game) *ScoringUpdate {
+	return _u.SetGameID(v.ID)
+}
+
+// SetPlayerID sets the "player" edge to the Player entity by ID.
+func (_u *ScoringUpdate) SetPlayerID(id uuid.UUID) *ScoringUpdate {
+	_u.mutation.SetPlayerID(id)
+	return _u
+}
+
+// SetPlayer sets the "player" edge to the Player entity.
+func (_u *ScoringUpdate) SetPlayer(v *Player) *ScoringUpdate {
+	return _u.SetPlayerID(v.ID)
+}
+
 // Mutation returns the ScoringMutation object of the builder.
 func (_u *ScoringUpdate) Mutation() *ScoringMutation {
 	return _u.mutation
 }
 
+// ClearGame clears the "game" edge to the Game entity.
+func (_u *ScoringUpdate) ClearGame() *ScoringUpdate {
+	_u.mutation.ClearGame()
+	return _u
+}
+
+// ClearPlayer clears the "player" edge to the Player entity.
+func (_u *ScoringUpdate) ClearPlayer() *ScoringUpdate {
+	_u.mutation.ClearPlayer()
+	return _u
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *ScoringUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -59,14 +229,133 @@ func (_u *ScoringUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *ScoringUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := scoring.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *ScoringUpdate) check() error {
+	if _u.mutation.GameCleared() && len(_u.mutation.GameIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Scoring.game"`)
+	}
+	if _u.mutation.PlayerCleared() && len(_u.mutation.PlayerIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Scoring.player"`)
+	}
+	return nil
+}
+
 func (_u *ScoringUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(scoring.Table, scoring.Columns, sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(scoring.Table, scoring.Columns, sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(scoring.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(scoring.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(scoring.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Goals(); ok {
+		_spec.SetField(scoring.FieldGoals, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedGoals(); ok {
+		_spec.AddField(scoring.FieldGoals, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Assists(); ok {
+		_spec.SetField(scoring.FieldAssists, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAssists(); ok {
+		_spec.AddField(scoring.FieldAssists, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Blocks(); ok {
+		_spec.SetField(scoring.FieldBlocks, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedBlocks(); ok {
+		_spec.AddField(scoring.FieldBlocks, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Turns(); ok {
+		_spec.SetField(scoring.FieldTurns, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedTurns(); ok {
+		_spec.AddField(scoring.FieldTurns, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(scoring.FieldVersion, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(scoring.FieldVersion, field.TypeInt, value)
+	}
+	if _u.mutation.GameCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   scoring.GameTable,
+			Columns: []string{scoring.GameColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GameIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   scoring.GameTable,
+			Columns: []string{scoring.GameColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.PlayerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   scoring.PlayerTable,
+			Columns: []string{scoring.PlayerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PlayerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   scoring.PlayerTable,
+			Columns: []string{scoring.PlayerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -88,9 +377,174 @@ type ScoringUpdateOne struct {
 	mutation *ScoringMutation
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *ScoringUpdateOne) SetUpdatedAt(v time.Time) *ScoringUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *ScoringUpdateOne) SetDeletedAt(v time.Time) *ScoringUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *ScoringUpdateOne) SetNillableDeletedAt(v *time.Time) *ScoringUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *ScoringUpdateOne) ClearDeletedAt() *ScoringUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetGoals sets the "goals" field.
+func (_u *ScoringUpdateOne) SetGoals(v int) *ScoringUpdateOne {
+	_u.mutation.ResetGoals()
+	_u.mutation.SetGoals(v)
+	return _u
+}
+
+// SetNillableGoals sets the "goals" field if the given value is not nil.
+func (_u *ScoringUpdateOne) SetNillableGoals(v *int) *ScoringUpdateOne {
+	if v != nil {
+		_u.SetGoals(*v)
+	}
+	return _u
+}
+
+// AddGoals adds value to the "goals" field.
+func (_u *ScoringUpdateOne) AddGoals(v int) *ScoringUpdateOne {
+	_u.mutation.AddGoals(v)
+	return _u
+}
+
+// SetAssists sets the "assists" field.
+func (_u *ScoringUpdateOne) SetAssists(v int) *ScoringUpdateOne {
+	_u.mutation.ResetAssists()
+	_u.mutation.SetAssists(v)
+	return _u
+}
+
+// SetNillableAssists sets the "assists" field if the given value is not nil.
+func (_u *ScoringUpdateOne) SetNillableAssists(v *int) *ScoringUpdateOne {
+	if v != nil {
+		_u.SetAssists(*v)
+	}
+	return _u
+}
+
+// AddAssists adds value to the "assists" field.
+func (_u *ScoringUpdateOne) AddAssists(v int) *ScoringUpdateOne {
+	_u.mutation.AddAssists(v)
+	return _u
+}
+
+// SetBlocks sets the "blocks" field.
+func (_u *ScoringUpdateOne) SetBlocks(v int) *ScoringUpdateOne {
+	_u.mutation.ResetBlocks()
+	_u.mutation.SetBlocks(v)
+	return _u
+}
+
+// SetNillableBlocks sets the "blocks" field if the given value is not nil.
+func (_u *ScoringUpdateOne) SetNillableBlocks(v *int) *ScoringUpdateOne {
+	if v != nil {
+		_u.SetBlocks(*v)
+	}
+	return _u
+}
+
+// AddBlocks adds value to the "blocks" field.
+func (_u *ScoringUpdateOne) AddBlocks(v int) *ScoringUpdateOne {
+	_u.mutation.AddBlocks(v)
+	return _u
+}
+
+// SetTurns sets the "turns" field.
+func (_u *ScoringUpdateOne) SetTurns(v int) *ScoringUpdateOne {
+	_u.mutation.ResetTurns()
+	_u.mutation.SetTurns(v)
+	return _u
+}
+
+// SetNillableTurns sets the "turns" field if the given value is not nil.
+func (_u *ScoringUpdateOne) SetNillableTurns(v *int) *ScoringUpdateOne {
+	if v != nil {
+		_u.SetTurns(*v)
+	}
+	return _u
+}
+
+// AddTurns adds value to the "turns" field.
+func (_u *ScoringUpdateOne) AddTurns(v int) *ScoringUpdateOne {
+	_u.mutation.AddTurns(v)
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *ScoringUpdateOne) SetVersion(v int) *ScoringUpdateOne {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *ScoringUpdateOne) SetNillableVersion(v *int) *ScoringUpdateOne {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *ScoringUpdateOne) AddVersion(v int) *ScoringUpdateOne {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
+// SetGameID sets the "game" edge to the Game entity by ID.
+func (_u *ScoringUpdateOne) SetGameID(id uuid.UUID) *ScoringUpdateOne {
+	_u.mutation.SetGameID(id)
+	return _u
+}
+
+// SetGame sets the "game" edge to the Game entity.
+func (_u *ScoringUpdateOne) SetGame(v *Game) *ScoringUpdateOne {
+	return _u.SetGameID(v.ID)
+}
+
+// SetPlayerID sets the "player" edge to the Player entity by ID.
+func (_u *ScoringUpdateOne) SetPlayerID(id uuid.UUID) *ScoringUpdateOne {
+	_u.mutation.SetPlayerID(id)
+	return _u
+}
+
+// SetPlayer sets the "player" edge to the Player entity.
+func (_u *ScoringUpdateOne) SetPlayer(v *Player) *ScoringUpdateOne {
+	return _u.SetPlayerID(v.ID)
+}
+
 // Mutation returns the ScoringMutation object of the builder.
 func (_u *ScoringUpdateOne) Mutation() *ScoringMutation {
 	return _u.mutation
+}
+
+// ClearGame clears the "game" edge to the Game entity.
+func (_u *ScoringUpdateOne) ClearGame() *ScoringUpdateOne {
+	_u.mutation.ClearGame()
+	return _u
+}
+
+// ClearPlayer clears the "player" edge to the Player entity.
+func (_u *ScoringUpdateOne) ClearPlayer() *ScoringUpdateOne {
+	_u.mutation.ClearPlayer()
+	return _u
 }
 
 // Where appends a list predicates to the ScoringUpdate builder.
@@ -108,6 +562,7 @@ func (_u *ScoringUpdateOne) Select(field string, fields ...string) *ScoringUpdat
 
 // Save executes the query and returns the updated Scoring entity.
 func (_u *ScoringUpdateOne) Save(ctx context.Context) (*Scoring, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -133,8 +588,30 @@ func (_u *ScoringUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *ScoringUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := scoring.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *ScoringUpdateOne) check() error {
+	if _u.mutation.GameCleared() && len(_u.mutation.GameIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Scoring.game"`)
+	}
+	if _u.mutation.PlayerCleared() && len(_u.mutation.PlayerIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Scoring.player"`)
+	}
+	return nil
+}
+
 func (_u *ScoringUpdateOne) sqlSave(ctx context.Context) (_node *Scoring, err error) {
-	_spec := sqlgraph.NewUpdateSpec(scoring.Table, scoring.Columns, sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(scoring.Table, scoring.Columns, sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Scoring.id" for update`)}
@@ -158,6 +635,103 @@ func (_u *ScoringUpdateOne) sqlSave(ctx context.Context) (_node *Scoring, err er
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(scoring.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(scoring.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(scoring.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Goals(); ok {
+		_spec.SetField(scoring.FieldGoals, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedGoals(); ok {
+		_spec.AddField(scoring.FieldGoals, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Assists(); ok {
+		_spec.SetField(scoring.FieldAssists, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAssists(); ok {
+		_spec.AddField(scoring.FieldAssists, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Blocks(); ok {
+		_spec.SetField(scoring.FieldBlocks, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedBlocks(); ok {
+		_spec.AddField(scoring.FieldBlocks, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Turns(); ok {
+		_spec.SetField(scoring.FieldTurns, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedTurns(); ok {
+		_spec.AddField(scoring.FieldTurns, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(scoring.FieldVersion, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(scoring.FieldVersion, field.TypeInt, value)
+	}
+	if _u.mutation.GameCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   scoring.GameTable,
+			Columns: []string{scoring.GameColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GameIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   scoring.GameTable,
+			Columns: []string{scoring.GameColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.PlayerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   scoring.PlayerTable,
+			Columns: []string{scoring.PlayerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PlayerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   scoring.PlayerTable,
+			Columns: []string{scoring.PlayerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Scoring{config: _u.config}
 	_spec.Assign = _node.assignValues

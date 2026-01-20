@@ -6,12 +6,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/game-stats-api/ent/analyticsembedding"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // AnalyticsEmbeddingUpdate is the builder for updating AnalyticsEmbedding entities.
@@ -27,6 +30,110 @@ func (_u *AnalyticsEmbeddingUpdate) Where(ps ...predicate.AnalyticsEmbedding) *A
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *AnalyticsEmbeddingUpdate) SetUpdatedAt(v time.Time) *AnalyticsEmbeddingUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *AnalyticsEmbeddingUpdate) SetDeletedAt(v time.Time) *AnalyticsEmbeddingUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *AnalyticsEmbeddingUpdate) SetNillableDeletedAt(v *time.Time) *AnalyticsEmbeddingUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *AnalyticsEmbeddingUpdate) ClearDeletedAt() *AnalyticsEmbeddingUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetEntityType sets the "entity_type" field.
+func (_u *AnalyticsEmbeddingUpdate) SetEntityType(v string) *AnalyticsEmbeddingUpdate {
+	_u.mutation.SetEntityType(v)
+	return _u
+}
+
+// SetNillableEntityType sets the "entity_type" field if the given value is not nil.
+func (_u *AnalyticsEmbeddingUpdate) SetNillableEntityType(v *string) *AnalyticsEmbeddingUpdate {
+	if v != nil {
+		_u.SetEntityType(*v)
+	}
+	return _u
+}
+
+// SetEntityID sets the "entity_id" field.
+func (_u *AnalyticsEmbeddingUpdate) SetEntityID(v uuid.UUID) *AnalyticsEmbeddingUpdate {
+	_u.mutation.SetEntityID(v)
+	return _u
+}
+
+// SetNillableEntityID sets the "entity_id" field if the given value is not nil.
+func (_u *AnalyticsEmbeddingUpdate) SetNillableEntityID(v *uuid.UUID) *AnalyticsEmbeddingUpdate {
+	if v != nil {
+		_u.SetEntityID(*v)
+	}
+	return _u
+}
+
+// SetEmbedding sets the "embedding" field.
+func (_u *AnalyticsEmbeddingUpdate) SetEmbedding(v []float32) *AnalyticsEmbeddingUpdate {
+	_u.mutation.SetEmbedding(v)
+	return _u
+}
+
+// AppendEmbedding appends value to the "embedding" field.
+func (_u *AnalyticsEmbeddingUpdate) AppendEmbedding(v []float32) *AnalyticsEmbeddingUpdate {
+	_u.mutation.AppendEmbedding(v)
+	return _u
+}
+
+// ClearEmbedding clears the value of the "embedding" field.
+func (_u *AnalyticsEmbeddingUpdate) ClearEmbedding() *AnalyticsEmbeddingUpdate {
+	_u.mutation.ClearEmbedding()
+	return _u
+}
+
+// SetContent sets the "content" field.
+func (_u *AnalyticsEmbeddingUpdate) SetContent(v string) *AnalyticsEmbeddingUpdate {
+	_u.mutation.SetContent(v)
+	return _u
+}
+
+// SetNillableContent sets the "content" field if the given value is not nil.
+func (_u *AnalyticsEmbeddingUpdate) SetNillableContent(v *string) *AnalyticsEmbeddingUpdate {
+	if v != nil {
+		_u.SetContent(*v)
+	}
+	return _u
+}
+
+// ClearContent clears the value of the "content" field.
+func (_u *AnalyticsEmbeddingUpdate) ClearContent() *AnalyticsEmbeddingUpdate {
+	_u.mutation.ClearContent()
+	return _u
+}
+
+// SetMetadata sets the "metadata" field.
+func (_u *AnalyticsEmbeddingUpdate) SetMetadata(v map[string]interface{}) *AnalyticsEmbeddingUpdate {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *AnalyticsEmbeddingUpdate) ClearMetadata() *AnalyticsEmbeddingUpdate {
+	_u.mutation.ClearMetadata()
+	return _u
+}
+
 // Mutation returns the AnalyticsEmbeddingMutation object of the builder.
 func (_u *AnalyticsEmbeddingUpdate) Mutation() *AnalyticsEmbeddingMutation {
 	return _u.mutation
@@ -34,6 +141,7 @@ func (_u *AnalyticsEmbeddingUpdate) Mutation() *AnalyticsEmbeddingMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *AnalyticsEmbeddingUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -59,14 +167,73 @@ func (_u *AnalyticsEmbeddingUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *AnalyticsEmbeddingUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := analyticsembedding.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *AnalyticsEmbeddingUpdate) check() error {
+	if v, ok := _u.mutation.EntityType(); ok {
+		if err := analyticsembedding.EntityTypeValidator(v); err != nil {
+			return &ValidationError{Name: "entity_type", err: fmt.Errorf(`ent: validator failed for field "AnalyticsEmbedding.entity_type": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *AnalyticsEmbeddingUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(analyticsembedding.Table, analyticsembedding.Columns, sqlgraph.NewFieldSpec(analyticsembedding.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(analyticsembedding.Table, analyticsembedding.Columns, sqlgraph.NewFieldSpec(analyticsembedding.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(analyticsembedding.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(analyticsembedding.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(analyticsembedding.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.EntityType(); ok {
+		_spec.SetField(analyticsembedding.FieldEntityType, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.EntityID(); ok {
+		_spec.SetField(analyticsembedding.FieldEntityID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.Embedding(); ok {
+		_spec.SetField(analyticsembedding.FieldEmbedding, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedEmbedding(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, analyticsembedding.FieldEmbedding, value)
+		})
+	}
+	if _u.mutation.EmbeddingCleared() {
+		_spec.ClearField(analyticsembedding.FieldEmbedding, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.Content(); ok {
+		_spec.SetField(analyticsembedding.FieldContent, field.TypeString, value)
+	}
+	if _u.mutation.ContentCleared() {
+		_spec.ClearField(analyticsembedding.FieldContent, field.TypeString)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(analyticsembedding.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(analyticsembedding.FieldMetadata, field.TypeJSON)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -86,6 +253,110 @@ type AnalyticsEmbeddingUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *AnalyticsEmbeddingMutation
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *AnalyticsEmbeddingUpdateOne) SetUpdatedAt(v time.Time) *AnalyticsEmbeddingUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *AnalyticsEmbeddingUpdateOne) SetDeletedAt(v time.Time) *AnalyticsEmbeddingUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *AnalyticsEmbeddingUpdateOne) SetNillableDeletedAt(v *time.Time) *AnalyticsEmbeddingUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *AnalyticsEmbeddingUpdateOne) ClearDeletedAt() *AnalyticsEmbeddingUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetEntityType sets the "entity_type" field.
+func (_u *AnalyticsEmbeddingUpdateOne) SetEntityType(v string) *AnalyticsEmbeddingUpdateOne {
+	_u.mutation.SetEntityType(v)
+	return _u
+}
+
+// SetNillableEntityType sets the "entity_type" field if the given value is not nil.
+func (_u *AnalyticsEmbeddingUpdateOne) SetNillableEntityType(v *string) *AnalyticsEmbeddingUpdateOne {
+	if v != nil {
+		_u.SetEntityType(*v)
+	}
+	return _u
+}
+
+// SetEntityID sets the "entity_id" field.
+func (_u *AnalyticsEmbeddingUpdateOne) SetEntityID(v uuid.UUID) *AnalyticsEmbeddingUpdateOne {
+	_u.mutation.SetEntityID(v)
+	return _u
+}
+
+// SetNillableEntityID sets the "entity_id" field if the given value is not nil.
+func (_u *AnalyticsEmbeddingUpdateOne) SetNillableEntityID(v *uuid.UUID) *AnalyticsEmbeddingUpdateOne {
+	if v != nil {
+		_u.SetEntityID(*v)
+	}
+	return _u
+}
+
+// SetEmbedding sets the "embedding" field.
+func (_u *AnalyticsEmbeddingUpdateOne) SetEmbedding(v []float32) *AnalyticsEmbeddingUpdateOne {
+	_u.mutation.SetEmbedding(v)
+	return _u
+}
+
+// AppendEmbedding appends value to the "embedding" field.
+func (_u *AnalyticsEmbeddingUpdateOne) AppendEmbedding(v []float32) *AnalyticsEmbeddingUpdateOne {
+	_u.mutation.AppendEmbedding(v)
+	return _u
+}
+
+// ClearEmbedding clears the value of the "embedding" field.
+func (_u *AnalyticsEmbeddingUpdateOne) ClearEmbedding() *AnalyticsEmbeddingUpdateOne {
+	_u.mutation.ClearEmbedding()
+	return _u
+}
+
+// SetContent sets the "content" field.
+func (_u *AnalyticsEmbeddingUpdateOne) SetContent(v string) *AnalyticsEmbeddingUpdateOne {
+	_u.mutation.SetContent(v)
+	return _u
+}
+
+// SetNillableContent sets the "content" field if the given value is not nil.
+func (_u *AnalyticsEmbeddingUpdateOne) SetNillableContent(v *string) *AnalyticsEmbeddingUpdateOne {
+	if v != nil {
+		_u.SetContent(*v)
+	}
+	return _u
+}
+
+// ClearContent clears the value of the "content" field.
+func (_u *AnalyticsEmbeddingUpdateOne) ClearContent() *AnalyticsEmbeddingUpdateOne {
+	_u.mutation.ClearContent()
+	return _u
+}
+
+// SetMetadata sets the "metadata" field.
+func (_u *AnalyticsEmbeddingUpdateOne) SetMetadata(v map[string]interface{}) *AnalyticsEmbeddingUpdateOne {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *AnalyticsEmbeddingUpdateOne) ClearMetadata() *AnalyticsEmbeddingUpdateOne {
+	_u.mutation.ClearMetadata()
+	return _u
 }
 
 // Mutation returns the AnalyticsEmbeddingMutation object of the builder.
@@ -108,6 +379,7 @@ func (_u *AnalyticsEmbeddingUpdateOne) Select(field string, fields ...string) *A
 
 // Save executes the query and returns the updated AnalyticsEmbedding entity.
 func (_u *AnalyticsEmbeddingUpdateOne) Save(ctx context.Context) (*AnalyticsEmbedding, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -133,8 +405,29 @@ func (_u *AnalyticsEmbeddingUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *AnalyticsEmbeddingUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := analyticsembedding.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *AnalyticsEmbeddingUpdateOne) check() error {
+	if v, ok := _u.mutation.EntityType(); ok {
+		if err := analyticsembedding.EntityTypeValidator(v); err != nil {
+			return &ValidationError{Name: "entity_type", err: fmt.Errorf(`ent: validator failed for field "AnalyticsEmbedding.entity_type": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *AnalyticsEmbeddingUpdateOne) sqlSave(ctx context.Context) (_node *AnalyticsEmbedding, err error) {
-	_spec := sqlgraph.NewUpdateSpec(analyticsembedding.Table, analyticsembedding.Columns, sqlgraph.NewFieldSpec(analyticsembedding.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(analyticsembedding.Table, analyticsembedding.Columns, sqlgraph.NewFieldSpec(analyticsembedding.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "AnalyticsEmbedding.id" for update`)}
@@ -158,6 +451,44 @@ func (_u *AnalyticsEmbeddingUpdateOne) sqlSave(ctx context.Context) (_node *Anal
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(analyticsembedding.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(analyticsembedding.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(analyticsembedding.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.EntityType(); ok {
+		_spec.SetField(analyticsembedding.FieldEntityType, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.EntityID(); ok {
+		_spec.SetField(analyticsembedding.FieldEntityID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.Embedding(); ok {
+		_spec.SetField(analyticsembedding.FieldEmbedding, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedEmbedding(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, analyticsembedding.FieldEmbedding, value)
+		})
+	}
+	if _u.mutation.EmbeddingCleared() {
+		_spec.ClearField(analyticsembedding.FieldEmbedding, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.Content(); ok {
+		_spec.SetField(analyticsembedding.FieldContent, field.TypeString, value)
+	}
+	if _u.mutation.ContentCleared() {
+		_spec.ClearField(analyticsembedding.FieldContent, field.TypeString)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(analyticsembedding.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(analyticsembedding.FieldMetadata, field.TypeJSON)
 	}
 	_node = &AnalyticsEmbedding{config: _u.config}
 	_spec.Assign = _node.assignValues

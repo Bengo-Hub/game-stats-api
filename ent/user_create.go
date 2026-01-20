@@ -4,11 +4,21 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/continent"
+	"github.com/bengobox/game-stats-api/ent/country"
+	"github.com/bengobox/game-stats-api/ent/discipline"
+	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/spiritscore"
+	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // UserCreate is the builder for creating a User entity.
@@ -18,6 +28,239 @@ type UserCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *UserCreate) SetCreatedAt(v time.Time) *UserCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *UserCreate) SetNillableCreatedAt(v *time.Time) *UserCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *UserCreate) SetUpdatedAt(v time.Time) *UserCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *UserCreate) SetNillableUpdatedAt(v *time.Time) *UserCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *UserCreate) SetDeletedAt(v time.Time) *UserCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *UserCreate) SetNillableDeletedAt(v *time.Time) *UserCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
+// SetEmail sets the "email" field.
+func (_c *UserCreate) SetEmail(v string) *UserCreate {
+	_c.mutation.SetEmail(v)
+	return _c
+}
+
+// SetPasswordHash sets the "password_hash" field.
+func (_c *UserCreate) SetPasswordHash(v string) *UserCreate {
+	_c.mutation.SetPasswordHash(v)
+	return _c
+}
+
+// SetFullName sets the "full_name" field.
+func (_c *UserCreate) SetFullName(v string) *UserCreate {
+	_c.mutation.SetFullName(v)
+	return _c
+}
+
+// SetRole sets the "role" field.
+func (_c *UserCreate) SetRole(v string) *UserCreate {
+	_c.mutation.SetRole(v)
+	return _c
+}
+
+// SetIsActive sets the "is_active" field.
+func (_c *UserCreate) SetIsActive(v bool) *UserCreate {
+	_c.mutation.SetIsActive(v)
+	return _c
+}
+
+// SetNillableIsActive sets the "is_active" field if the given value is not nil.
+func (_c *UserCreate) SetNillableIsActive(v *bool) *UserCreate {
+	if v != nil {
+		_c.SetIsActive(*v)
+	}
+	return _c
+}
+
+// SetLastLoginAt sets the "last_login_at" field.
+func (_c *UserCreate) SetLastLoginAt(v time.Time) *UserCreate {
+	_c.mutation.SetLastLoginAt(v)
+	return _c
+}
+
+// SetNillableLastLoginAt sets the "last_login_at" field if the given value is not nil.
+func (_c *UserCreate) SetNillableLastLoginAt(v *time.Time) *UserCreate {
+	if v != nil {
+		_c.SetLastLoginAt(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *UserCreate) SetID(v uuid.UUID) *UserCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *UserCreate) SetNillableID(v *uuid.UUID) *UserCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// SetManagedContinentID sets the "managed_continent" edge to the Continent entity by ID.
+func (_c *UserCreate) SetManagedContinentID(id uuid.UUID) *UserCreate {
+	_c.mutation.SetManagedContinentID(id)
+	return _c
+}
+
+// SetNillableManagedContinentID sets the "managed_continent" edge to the Continent entity by ID if the given value is not nil.
+func (_c *UserCreate) SetNillableManagedContinentID(id *uuid.UUID) *UserCreate {
+	if id != nil {
+		_c = _c.SetManagedContinentID(*id)
+	}
+	return _c
+}
+
+// SetManagedContinent sets the "managed_continent" edge to the Continent entity.
+func (_c *UserCreate) SetManagedContinent(v *Continent) *UserCreate {
+	return _c.SetManagedContinentID(v.ID)
+}
+
+// SetManagedCountryID sets the "managed_country" edge to the Country entity by ID.
+func (_c *UserCreate) SetManagedCountryID(id uuid.UUID) *UserCreate {
+	_c.mutation.SetManagedCountryID(id)
+	return _c
+}
+
+// SetNillableManagedCountryID sets the "managed_country" edge to the Country entity by ID if the given value is not nil.
+func (_c *UserCreate) SetNillableManagedCountryID(id *uuid.UUID) *UserCreate {
+	if id != nil {
+		_c = _c.SetManagedCountryID(*id)
+	}
+	return _c
+}
+
+// SetManagedCountry sets the "managed_country" edge to the Country entity.
+func (_c *UserCreate) SetManagedCountry(v *Country) *UserCreate {
+	return _c.SetManagedCountryID(v.ID)
+}
+
+// SetManagedDisciplineID sets the "managed_discipline" edge to the Discipline entity by ID.
+func (_c *UserCreate) SetManagedDisciplineID(id uuid.UUID) *UserCreate {
+	_c.mutation.SetManagedDisciplineID(id)
+	return _c
+}
+
+// SetNillableManagedDisciplineID sets the "managed_discipline" edge to the Discipline entity by ID if the given value is not nil.
+func (_c *UserCreate) SetNillableManagedDisciplineID(id *uuid.UUID) *UserCreate {
+	if id != nil {
+		_c = _c.SetManagedDisciplineID(*id)
+	}
+	return _c
+}
+
+// SetManagedDiscipline sets the "managed_discipline" edge to the Discipline entity.
+func (_c *UserCreate) SetManagedDiscipline(v *Discipline) *UserCreate {
+	return _c.SetManagedDisciplineID(v.ID)
+}
+
+// SetManagedEventID sets the "managed_event" edge to the Event entity by ID.
+func (_c *UserCreate) SetManagedEventID(id uuid.UUID) *UserCreate {
+	_c.mutation.SetManagedEventID(id)
+	return _c
+}
+
+// SetNillableManagedEventID sets the "managed_event" edge to the Event entity by ID if the given value is not nil.
+func (_c *UserCreate) SetNillableManagedEventID(id *uuid.UUID) *UserCreate {
+	if id != nil {
+		_c = _c.SetManagedEventID(*id)
+	}
+	return _c
+}
+
+// SetManagedEvent sets the "managed_event" edge to the Event entity.
+func (_c *UserCreate) SetManagedEvent(v *Event) *UserCreate {
+	return _c.SetManagedEventID(v.ID)
+}
+
+// SetManagedTeamID sets the "managed_team" edge to the Team entity by ID.
+func (_c *UserCreate) SetManagedTeamID(id uuid.UUID) *UserCreate {
+	_c.mutation.SetManagedTeamID(id)
+	return _c
+}
+
+// SetNillableManagedTeamID sets the "managed_team" edge to the Team entity by ID if the given value is not nil.
+func (_c *UserCreate) SetNillableManagedTeamID(id *uuid.UUID) *UserCreate {
+	if id != nil {
+		_c = _c.SetManagedTeamID(*id)
+	}
+	return _c
+}
+
+// SetManagedTeam sets the "managed_team" edge to the Team entity.
+func (_c *UserCreate) SetManagedTeam(v *Team) *UserCreate {
+	return _c.SetManagedTeamID(v.ID)
+}
+
+// AddOfficiatedGameIDs adds the "officiated_games" edge to the Game entity by IDs.
+func (_c *UserCreate) AddOfficiatedGameIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddOfficiatedGameIDs(ids...)
+	return _c
+}
+
+// AddOfficiatedGames adds the "officiated_games" edges to the Game entity.
+func (_c *UserCreate) AddOfficiatedGames(v ...*Game) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddOfficiatedGameIDs(ids...)
+}
+
+// AddSubmittedSpiritScoreIDs adds the "submitted_spirit_scores" edge to the SpiritScore entity by IDs.
+func (_c *UserCreate) AddSubmittedSpiritScoreIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddSubmittedSpiritScoreIDs(ids...)
+	return _c
+}
+
+// AddSubmittedSpiritScores adds the "submitted_spirit_scores" edges to the SpiritScore entity.
+func (_c *UserCreate) AddSubmittedSpiritScores(v ...*SpiritScore) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSubmittedSpiritScoreIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_c *UserCreate) Mutation() *UserMutation {
 	return _c.mutation
@@ -25,6 +268,7 @@ func (_c *UserCreate) Mutation() *UserMutation {
 
 // Save creates the User in the database.
 func (_c *UserCreate) Save(ctx context.Context) (*User, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -50,8 +294,69 @@ func (_c *UserCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *UserCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := user.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := user.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.IsActive(); !ok {
+		v := user.DefaultIsActive
+		_c.mutation.SetIsActive(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := user.DefaultID()
+		_c.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *UserCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "User.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "User.updated_at"`)}
+	}
+	if _, ok := _c.mutation.Email(); !ok {
+		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "User.email"`)}
+	}
+	if v, ok := _c.mutation.Email(); ok {
+		if err := user.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.PasswordHash(); !ok {
+		return &ValidationError{Name: "password_hash", err: errors.New(`ent: missing required field "User.password_hash"`)}
+	}
+	if v, ok := _c.mutation.PasswordHash(); ok {
+		if err := user.PasswordHashValidator(v); err != nil {
+			return &ValidationError{Name: "password_hash", err: fmt.Errorf(`ent: validator failed for field "User.password_hash": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.FullName(); !ok {
+		return &ValidationError{Name: "full_name", err: errors.New(`ent: missing required field "User.full_name"`)}
+	}
+	if v, ok := _c.mutation.FullName(); ok {
+		if err := user.FullNameValidator(v); err != nil {
+			return &ValidationError{Name: "full_name", err: fmt.Errorf(`ent: validator failed for field "User.full_name": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Role(); !ok {
+		return &ValidationError{Name: "role", err: errors.New(`ent: missing required field "User.role"`)}
+	}
+	if v, ok := _c.mutation.Role(); ok {
+		if err := user.RoleValidator(v); err != nil {
+			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.IsActive(); !ok {
+		return &ValidationError{Name: "is_active", err: errors.New(`ent: missing required field "User.is_active"`)}
+	}
 	return nil
 }
 
@@ -66,8 +371,13 @@ func (_c *UserCreate) sqlSave(ctx context.Context) (*User, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -76,8 +386,165 @@ func (_c *UserCreate) sqlSave(ctx context.Context) (*User, error) {
 func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	var (
 		_node = &User{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(user.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
+	if value, ok := _c.mutation.Email(); ok {
+		_spec.SetField(user.FieldEmail, field.TypeString, value)
+		_node.Email = value
+	}
+	if value, ok := _c.mutation.PasswordHash(); ok {
+		_spec.SetField(user.FieldPasswordHash, field.TypeString, value)
+		_node.PasswordHash = value
+	}
+	if value, ok := _c.mutation.FullName(); ok {
+		_spec.SetField(user.FieldFullName, field.TypeString, value)
+		_node.FullName = value
+	}
+	if value, ok := _c.mutation.Role(); ok {
+		_spec.SetField(user.FieldRole, field.TypeString, value)
+		_node.Role = value
+	}
+	if value, ok := _c.mutation.IsActive(); ok {
+		_spec.SetField(user.FieldIsActive, field.TypeBool, value)
+		_node.IsActive = value
+	}
+	if value, ok := _c.mutation.LastLoginAt(); ok {
+		_spec.SetField(user.FieldLastLoginAt, field.TypeTime, value)
+		_node.LastLoginAt = &value
+	}
+	if nodes := _c.mutation.ManagedContinentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.ManagedContinentTable,
+			Columns: []string{user.ManagedContinentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(continent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.continent_managed_by = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ManagedCountryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.ManagedCountryTable,
+			Columns: []string{user.ManagedCountryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(country.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.country_managed_by = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ManagedDisciplineIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.ManagedDisciplineTable,
+			Columns: []string{user.ManagedDisciplineColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discipline.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.discipline_managed_by = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ManagedEventIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.ManagedEventTable,
+			Columns: []string{user.ManagedEventColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.event_managed_by = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ManagedTeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.ManagedTeamTable,
+			Columns: []string{user.ManagedTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.team_managed_by = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.OfficiatedGamesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OfficiatedGamesTable,
+			Columns: []string{user.OfficiatedGamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SubmittedSpiritScoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmittedSpiritScoresTable,
+			Columns: []string{user.SubmittedSpiritScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -99,6 +566,7 @@ func (_c *UserCreateBulk) Save(ctx context.Context) ([]*User, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*UserMutation)
 				if !ok {
@@ -125,10 +593,6 @@ func (_c *UserCreateBulk) Save(ctx context.Context) ([]*User, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

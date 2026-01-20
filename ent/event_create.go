@@ -4,11 +4,19 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/discipline"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/gameround"
+	"github.com/bengobox/game-stats-api/ent/location"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // EventCreate is the builder for creating a Event entity.
@@ -18,6 +26,193 @@ type EventCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *EventCreate) SetCreatedAt(v time.Time) *EventCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *EventCreate) SetNillableCreatedAt(v *time.Time) *EventCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *EventCreate) SetUpdatedAt(v time.Time) *EventCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *EventCreate) SetNillableUpdatedAt(v *time.Time) *EventCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *EventCreate) SetDeletedAt(v time.Time) *EventCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *EventCreate) SetNillableDeletedAt(v *time.Time) *EventCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
+// SetName sets the "name" field.
+func (_c *EventCreate) SetName(v string) *EventCreate {
+	_c.mutation.SetName(v)
+	return _c
+}
+
+// SetSlug sets the "slug" field.
+func (_c *EventCreate) SetSlug(v string) *EventCreate {
+	_c.mutation.SetSlug(v)
+	return _c
+}
+
+// SetYear sets the "year" field.
+func (_c *EventCreate) SetYear(v int) *EventCreate {
+	_c.mutation.SetYear(v)
+	return _c
+}
+
+// SetStartDate sets the "start_date" field.
+func (_c *EventCreate) SetStartDate(v time.Time) *EventCreate {
+	_c.mutation.SetStartDate(v)
+	return _c
+}
+
+// SetEndDate sets the "end_date" field.
+func (_c *EventCreate) SetEndDate(v time.Time) *EventCreate {
+	_c.mutation.SetEndDate(v)
+	return _c
+}
+
+// SetStatus sets the "status" field.
+func (_c *EventCreate) SetStatus(v string) *EventCreate {
+	_c.mutation.SetStatus(v)
+	return _c
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_c *EventCreate) SetNillableStatus(v *string) *EventCreate {
+	if v != nil {
+		_c.SetStatus(*v)
+	}
+	return _c
+}
+
+// SetDescription sets the "description" field.
+func (_c *EventCreate) SetDescription(v string) *EventCreate {
+	_c.mutation.SetDescription(v)
+	return _c
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_c *EventCreate) SetNillableDescription(v *string) *EventCreate {
+	if v != nil {
+		_c.SetDescription(*v)
+	}
+	return _c
+}
+
+// SetSettings sets the "settings" field.
+func (_c *EventCreate) SetSettings(v map[string]interface{}) *EventCreate {
+	_c.mutation.SetSettings(v)
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *EventCreate) SetID(v uuid.UUID) *EventCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *EventCreate) SetNillableID(v *uuid.UUID) *EventCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// SetDisciplineID sets the "discipline" edge to the Discipline entity by ID.
+func (_c *EventCreate) SetDisciplineID(id uuid.UUID) *EventCreate {
+	_c.mutation.SetDisciplineID(id)
+	return _c
+}
+
+// SetDiscipline sets the "discipline" edge to the Discipline entity.
+func (_c *EventCreate) SetDiscipline(v *Discipline) *EventCreate {
+	return _c.SetDisciplineID(v.ID)
+}
+
+// SetLocationID sets the "location" edge to the Location entity by ID.
+func (_c *EventCreate) SetLocationID(id uuid.UUID) *EventCreate {
+	_c.mutation.SetLocationID(id)
+	return _c
+}
+
+// SetLocation sets the "location" edge to the Location entity.
+func (_c *EventCreate) SetLocation(v *Location) *EventCreate {
+	return _c.SetLocationID(v.ID)
+}
+
+// AddDivisionPoolIDs adds the "division_pools" edge to the DivisionPool entity by IDs.
+func (_c *EventCreate) AddDivisionPoolIDs(ids ...uuid.UUID) *EventCreate {
+	_c.mutation.AddDivisionPoolIDs(ids...)
+	return _c
+}
+
+// AddDivisionPools adds the "division_pools" edges to the DivisionPool entity.
+func (_c *EventCreate) AddDivisionPools(v ...*DivisionPool) *EventCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddDivisionPoolIDs(ids...)
+}
+
+// AddGameRoundIDs adds the "game_rounds" edge to the GameRound entity by IDs.
+func (_c *EventCreate) AddGameRoundIDs(ids ...uuid.UUID) *EventCreate {
+	_c.mutation.AddGameRoundIDs(ids...)
+	return _c
+}
+
+// AddGameRounds adds the "game_rounds" edges to the GameRound entity.
+func (_c *EventCreate) AddGameRounds(v ...*GameRound) *EventCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddGameRoundIDs(ids...)
+}
+
+// AddManagedByIDs adds the "managed_by" edge to the User entity by IDs.
+func (_c *EventCreate) AddManagedByIDs(ids ...uuid.UUID) *EventCreate {
+	_c.mutation.AddManagedByIDs(ids...)
+	return _c
+}
+
+// AddManagedBy adds the "managed_by" edges to the User entity.
+func (_c *EventCreate) AddManagedBy(v ...*User) *EventCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddManagedByIDs(ids...)
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (_c *EventCreate) Mutation() *EventMutation {
 	return _c.mutation
@@ -25,6 +220,7 @@ func (_c *EventCreate) Mutation() *EventMutation {
 
 // Save creates the Event in the database.
 func (_c *EventCreate) Save(ctx context.Context) (*Event, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -50,8 +246,73 @@ func (_c *EventCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *EventCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := event.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := event.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		v := event.DefaultStatus
+		_c.mutation.SetStatus(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := event.DefaultID()
+		_c.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *EventCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Event.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Event.updated_at"`)}
+	}
+	if _, ok := _c.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Event.name"`)}
+	}
+	if v, ok := _c.mutation.Name(); ok {
+		if err := event.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Event.name": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Slug(); !ok {
+		return &ValidationError{Name: "slug", err: errors.New(`ent: missing required field "Event.slug"`)}
+	}
+	if v, ok := _c.mutation.Slug(); ok {
+		if err := event.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Event.slug": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Year(); !ok {
+		return &ValidationError{Name: "year", err: errors.New(`ent: missing required field "Event.year"`)}
+	}
+	if _, ok := _c.mutation.StartDate(); !ok {
+		return &ValidationError{Name: "start_date", err: errors.New(`ent: missing required field "Event.start_date"`)}
+	}
+	if _, ok := _c.mutation.EndDate(); !ok {
+		return &ValidationError{Name: "end_date", err: errors.New(`ent: missing required field "Event.end_date"`)}
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Event.status"`)}
+	}
+	if v, ok := _c.mutation.Status(); ok {
+		if err := event.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Event.status": %w`, err)}
+		}
+	}
+	if len(_c.mutation.DisciplineIDs()) == 0 {
+		return &ValidationError{Name: "discipline", err: errors.New(`ent: missing required edge "Event.discipline"`)}
+	}
+	if len(_c.mutation.LocationIDs()) == 0 {
+		return &ValidationError{Name: "location", err: errors.New(`ent: missing required edge "Event.location"`)}
+	}
 	return nil
 }
 
@@ -66,8 +327,13 @@ func (_c *EventCreate) sqlSave(ctx context.Context) (*Event, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -76,8 +342,138 @@ func (_c *EventCreate) sqlSave(ctx context.Context) (*Event, error) {
 func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Event{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(event.Table, sqlgraph.NewFieldSpec(event.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(event.Table, sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(event.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(event.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(event.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
+	if value, ok := _c.mutation.Name(); ok {
+		_spec.SetField(event.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
+	if value, ok := _c.mutation.Slug(); ok {
+		_spec.SetField(event.FieldSlug, field.TypeString, value)
+		_node.Slug = value
+	}
+	if value, ok := _c.mutation.Year(); ok {
+		_spec.SetField(event.FieldYear, field.TypeInt, value)
+		_node.Year = value
+	}
+	if value, ok := _c.mutation.StartDate(); ok {
+		_spec.SetField(event.FieldStartDate, field.TypeTime, value)
+		_node.StartDate = value
+	}
+	if value, ok := _c.mutation.EndDate(); ok {
+		_spec.SetField(event.FieldEndDate, field.TypeTime, value)
+		_node.EndDate = value
+	}
+	if value, ok := _c.mutation.Status(); ok {
+		_spec.SetField(event.FieldStatus, field.TypeString, value)
+		_node.Status = value
+	}
+	if value, ok := _c.mutation.Description(); ok {
+		_spec.SetField(event.FieldDescription, field.TypeString, value)
+		_node.Description = value
+	}
+	if value, ok := _c.mutation.Settings(); ok {
+		_spec.SetField(event.FieldSettings, field.TypeJSON, value)
+		_node.Settings = value
+	}
+	if nodes := _c.mutation.DisciplineIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.DisciplineTable,
+			Columns: []string{event.DisciplineColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discipline.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.discipline_events = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.LocationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.LocationTable,
+			Columns: []string{event.LocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.location_events = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.DivisionPoolsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.DivisionPoolsTable,
+			Columns: []string{event.DivisionPoolsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.GameRoundsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.GameRoundsTable,
+			Columns: []string{event.GameRoundsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ManagedByIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.ManagedByTable,
+			Columns: []string{event.ManagedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -99,6 +495,7 @@ func (_c *EventCreateBulk) Save(ctx context.Context) ([]*Event, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*EventMutation)
 				if !ok {
@@ -125,10 +522,6 @@ func (_c *EventCreateBulk) Save(ctx context.Context) ([]*Event, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

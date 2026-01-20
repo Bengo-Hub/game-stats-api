@@ -3,53 +3,556 @@
 package divisionpool
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.DivisionPool {
+func ID(id uuid.UUID) predicate.DivisionPool {
 	return predicate.DivisionPool(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.DivisionPool {
+func IDEQ(id uuid.UUID) predicate.DivisionPool {
 	return predicate.DivisionPool(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.DivisionPool {
+func IDNEQ(id uuid.UUID) predicate.DivisionPool {
 	return predicate.DivisionPool(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.DivisionPool {
+func IDIn(ids ...uuid.UUID) predicate.DivisionPool {
 	return predicate.DivisionPool(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.DivisionPool {
+func IDNotIn(ids ...uuid.UUID) predicate.DivisionPool {
 	return predicate.DivisionPool(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.DivisionPool {
+func IDGT(id uuid.UUID) predicate.DivisionPool {
 	return predicate.DivisionPool(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.DivisionPool {
+func IDGTE(id uuid.UUID) predicate.DivisionPool {
 	return predicate.DivisionPool(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.DivisionPool {
+func IDLT(id uuid.UUID) predicate.DivisionPool {
 	return predicate.DivisionPool(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.DivisionPool {
+func IDLTE(id uuid.UUID) predicate.DivisionPool {
 	return predicate.DivisionPool(sql.FieldLTE(FieldID, id))
+}
+
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
+func DeletedAt(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
+func Name(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldName, v))
+}
+
+// DivisionType applies equality check predicate on the "division_type" field. It's identical to DivisionTypeEQ.
+func DivisionType(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldDivisionType, v))
+}
+
+// MaxTeams applies equality check predicate on the "max_teams" field. It's identical to MaxTeamsEQ.
+func MaxTeams(v int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldMaxTeams, v))
+}
+
+// Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
+func Description(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldDescription, v))
+}
+
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNotIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGT(FieldCreatedAt, v))
+}
+
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGTE(FieldCreatedAt, v))
+}
+
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLT(FieldCreatedAt, v))
+}
+
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
+func DeletedAtEQ(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
+func DeletedAtNEQ(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtIn applies the In predicate on the "deleted_at" field.
+func DeletedAtIn(vs ...time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
+func DeletedAtNotIn(vs ...time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNotIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtGT applies the GT predicate on the "deleted_at" field.
+func DeletedAtGT(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGT(FieldDeletedAt, v))
+}
+
+// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
+func DeletedAtGTE(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGTE(FieldDeletedAt, v))
+}
+
+// DeletedAtLT applies the LT predicate on the "deleted_at" field.
+func DeletedAtLT(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLT(FieldDeletedAt, v))
+}
+
+// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
+func DeletedAtLTE(v time.Time) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// DeletedAtIsNil applies the IsNil predicate on the "deleted_at" field.
+func DeletedAtIsNil() predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldIsNull(FieldDeletedAt))
+}
+
+// DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
+func DeletedAtNotNil() predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// NameEQ applies the EQ predicate on the "name" field.
+func NameEQ(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldName, v))
+}
+
+// NameNEQ applies the NEQ predicate on the "name" field.
+func NameNEQ(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNEQ(FieldName, v))
+}
+
+// NameIn applies the In predicate on the "name" field.
+func NameIn(vs ...string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldIn(FieldName, vs...))
+}
+
+// NameNotIn applies the NotIn predicate on the "name" field.
+func NameNotIn(vs ...string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNotIn(FieldName, vs...))
+}
+
+// NameGT applies the GT predicate on the "name" field.
+func NameGT(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGT(FieldName, v))
+}
+
+// NameGTE applies the GTE predicate on the "name" field.
+func NameGTE(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGTE(FieldName, v))
+}
+
+// NameLT applies the LT predicate on the "name" field.
+func NameLT(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLT(FieldName, v))
+}
+
+// NameLTE applies the LTE predicate on the "name" field.
+func NameLTE(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLTE(FieldName, v))
+}
+
+// NameContains applies the Contains predicate on the "name" field.
+func NameContains(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldContains(FieldName, v))
+}
+
+// NameHasPrefix applies the HasPrefix predicate on the "name" field.
+func NameHasPrefix(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldHasPrefix(FieldName, v))
+}
+
+// NameHasSuffix applies the HasSuffix predicate on the "name" field.
+func NameHasSuffix(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldHasSuffix(FieldName, v))
+}
+
+// NameEqualFold applies the EqualFold predicate on the "name" field.
+func NameEqualFold(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEqualFold(FieldName, v))
+}
+
+// NameContainsFold applies the ContainsFold predicate on the "name" field.
+func NameContainsFold(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldContainsFold(FieldName, v))
+}
+
+// DivisionTypeEQ applies the EQ predicate on the "division_type" field.
+func DivisionTypeEQ(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldDivisionType, v))
+}
+
+// DivisionTypeNEQ applies the NEQ predicate on the "division_type" field.
+func DivisionTypeNEQ(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNEQ(FieldDivisionType, v))
+}
+
+// DivisionTypeIn applies the In predicate on the "division_type" field.
+func DivisionTypeIn(vs ...string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldIn(FieldDivisionType, vs...))
+}
+
+// DivisionTypeNotIn applies the NotIn predicate on the "division_type" field.
+func DivisionTypeNotIn(vs ...string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNotIn(FieldDivisionType, vs...))
+}
+
+// DivisionTypeGT applies the GT predicate on the "division_type" field.
+func DivisionTypeGT(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGT(FieldDivisionType, v))
+}
+
+// DivisionTypeGTE applies the GTE predicate on the "division_type" field.
+func DivisionTypeGTE(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGTE(FieldDivisionType, v))
+}
+
+// DivisionTypeLT applies the LT predicate on the "division_type" field.
+func DivisionTypeLT(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLT(FieldDivisionType, v))
+}
+
+// DivisionTypeLTE applies the LTE predicate on the "division_type" field.
+func DivisionTypeLTE(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLTE(FieldDivisionType, v))
+}
+
+// DivisionTypeContains applies the Contains predicate on the "division_type" field.
+func DivisionTypeContains(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldContains(FieldDivisionType, v))
+}
+
+// DivisionTypeHasPrefix applies the HasPrefix predicate on the "division_type" field.
+func DivisionTypeHasPrefix(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldHasPrefix(FieldDivisionType, v))
+}
+
+// DivisionTypeHasSuffix applies the HasSuffix predicate on the "division_type" field.
+func DivisionTypeHasSuffix(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldHasSuffix(FieldDivisionType, v))
+}
+
+// DivisionTypeEqualFold applies the EqualFold predicate on the "division_type" field.
+func DivisionTypeEqualFold(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEqualFold(FieldDivisionType, v))
+}
+
+// DivisionTypeContainsFold applies the ContainsFold predicate on the "division_type" field.
+func DivisionTypeContainsFold(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldContainsFold(FieldDivisionType, v))
+}
+
+// MaxTeamsEQ applies the EQ predicate on the "max_teams" field.
+func MaxTeamsEQ(v int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldMaxTeams, v))
+}
+
+// MaxTeamsNEQ applies the NEQ predicate on the "max_teams" field.
+func MaxTeamsNEQ(v int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNEQ(FieldMaxTeams, v))
+}
+
+// MaxTeamsIn applies the In predicate on the "max_teams" field.
+func MaxTeamsIn(vs ...int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldIn(FieldMaxTeams, vs...))
+}
+
+// MaxTeamsNotIn applies the NotIn predicate on the "max_teams" field.
+func MaxTeamsNotIn(vs ...int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNotIn(FieldMaxTeams, vs...))
+}
+
+// MaxTeamsGT applies the GT predicate on the "max_teams" field.
+func MaxTeamsGT(v int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGT(FieldMaxTeams, v))
+}
+
+// MaxTeamsGTE applies the GTE predicate on the "max_teams" field.
+func MaxTeamsGTE(v int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGTE(FieldMaxTeams, v))
+}
+
+// MaxTeamsLT applies the LT predicate on the "max_teams" field.
+func MaxTeamsLT(v int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLT(FieldMaxTeams, v))
+}
+
+// MaxTeamsLTE applies the LTE predicate on the "max_teams" field.
+func MaxTeamsLTE(v int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLTE(FieldMaxTeams, v))
+}
+
+// MaxTeamsIsNil applies the IsNil predicate on the "max_teams" field.
+func MaxTeamsIsNil() predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldIsNull(FieldMaxTeams))
+}
+
+// MaxTeamsNotNil applies the NotNil predicate on the "max_teams" field.
+func MaxTeamsNotNil() predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNotNull(FieldMaxTeams))
+}
+
+// RankingCriteriaIsNil applies the IsNil predicate on the "ranking_criteria" field.
+func RankingCriteriaIsNil() predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldIsNull(FieldRankingCriteria))
+}
+
+// RankingCriteriaNotNil applies the NotNil predicate on the "ranking_criteria" field.
+func RankingCriteriaNotNil() predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNotNull(FieldRankingCriteria))
+}
+
+// DescriptionEQ applies the EQ predicate on the "description" field.
+func DescriptionEQ(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldDescription, v))
+}
+
+// DescriptionNEQ applies the NEQ predicate on the "description" field.
+func DescriptionNEQ(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNEQ(FieldDescription, v))
+}
+
+// DescriptionIn applies the In predicate on the "description" field.
+func DescriptionIn(vs ...string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldIn(FieldDescription, vs...))
+}
+
+// DescriptionNotIn applies the NotIn predicate on the "description" field.
+func DescriptionNotIn(vs ...string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNotIn(FieldDescription, vs...))
+}
+
+// DescriptionGT applies the GT predicate on the "description" field.
+func DescriptionGT(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGT(FieldDescription, v))
+}
+
+// DescriptionGTE applies the GTE predicate on the "description" field.
+func DescriptionGTE(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGTE(FieldDescription, v))
+}
+
+// DescriptionLT applies the LT predicate on the "description" field.
+func DescriptionLT(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLT(FieldDescription, v))
+}
+
+// DescriptionLTE applies the LTE predicate on the "description" field.
+func DescriptionLTE(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLTE(FieldDescription, v))
+}
+
+// DescriptionContains applies the Contains predicate on the "description" field.
+func DescriptionContains(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldContains(FieldDescription, v))
+}
+
+// DescriptionHasPrefix applies the HasPrefix predicate on the "description" field.
+func DescriptionHasPrefix(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldHasPrefix(FieldDescription, v))
+}
+
+// DescriptionHasSuffix applies the HasSuffix predicate on the "description" field.
+func DescriptionHasSuffix(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldHasSuffix(FieldDescription, v))
+}
+
+// DescriptionIsNil applies the IsNil predicate on the "description" field.
+func DescriptionIsNil() predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldIsNull(FieldDescription))
+}
+
+// DescriptionNotNil applies the NotNil predicate on the "description" field.
+func DescriptionNotNil() predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNotNull(FieldDescription))
+}
+
+// DescriptionEqualFold applies the EqualFold predicate on the "description" field.
+func DescriptionEqualFold(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEqualFold(FieldDescription, v))
+}
+
+// DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
+func DescriptionContainsFold(v string) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldContainsFold(FieldDescription, v))
+}
+
+// HasEvent applies the HasEdge predicate on the "event" edge.
+func HasEvent() predicate.DivisionPool {
+	return predicate.DivisionPool(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, EventTable, EventColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasEventWith applies the HasEdge predicate on the "event" edge with a given conditions (other predicates).
+func HasEventWith(preds ...predicate.Event) predicate.DivisionPool {
+	return predicate.DivisionPool(func(s *sql.Selector) {
+		step := newEventStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTeams applies the HasEdge predicate on the "teams" edge.
+func HasTeams() predicate.DivisionPool {
+	return predicate.DivisionPool(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, TeamsTable, TeamsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTeamsWith applies the HasEdge predicate on the "teams" edge with a given conditions (other predicates).
+func HasTeamsWith(preds ...predicate.Team) predicate.DivisionPool {
+	return predicate.DivisionPool(func(s *sql.Selector) {
+		step := newTeamsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasGames applies the HasEdge predicate on the "games" edge.
+func HasGames() predicate.DivisionPool {
+	return predicate.DivisionPool(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, GamesTable, GamesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGamesWith applies the HasEdge predicate on the "games" edge with a given conditions (other predicates).
+func HasGamesWith(preds ...predicate.Game) predicate.DivisionPool {
+	return predicate.DivisionPool(func(s *sql.Selector) {
+		step := newGamesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

@@ -3,7 +3,10 @@
 package analyticsembedding
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 const (
@@ -11,6 +14,22 @@ const (
 	Label = "analytics_embedding"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
+	// FieldEntityType holds the string denoting the entity_type field in the database.
+	FieldEntityType = "entity_type"
+	// FieldEntityID holds the string denoting the entity_id field in the database.
+	FieldEntityID = "entity_id"
+	// FieldEmbedding holds the string denoting the embedding field in the database.
+	FieldEmbedding = "embedding"
+	// FieldContent holds the string denoting the content field in the database.
+	FieldContent = "content"
+	// FieldMetadata holds the string denoting the metadata field in the database.
+	FieldMetadata = "metadata"
 	// Table holds the table name of the analyticsembedding in the database.
 	Table = "analytics_embeddings"
 )
@@ -18,6 +37,14 @@ const (
 // Columns holds all SQL columns for analyticsembedding fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
+	FieldEntityType,
+	FieldEntityID,
+	FieldEmbedding,
+	FieldContent,
+	FieldMetadata,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -30,10 +57,53 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
+	// EntityTypeValidator is a validator for the "entity_type" field. It is called by the builders before save.
+	EntityTypeValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
+)
+
 // OrderOption defines the ordering options for the AnalyticsEmbedding queries.
 type OrderOption func(*sql.Selector)
 
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByEntityType orders the results by the entity_type field.
+func ByEntityType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEntityType, opts...).ToFunc()
+}
+
+// ByEntityID orders the results by the entity_id field.
+func ByEntityID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEntityID, opts...).ToFunc()
+}
+
+// ByContent orders the results by the content field.
+func ByContent(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldContent, opts...).ToFunc()
 }

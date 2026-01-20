@@ -11,8 +11,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/predicate"
 	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/google/uuid"
 )
 
 // ScoringQuery is the builder for querying Scoring entities.
@@ -22,6 +25,9 @@ type ScoringQuery struct {
 	order      []scoring.OrderOption
 	inters     []Interceptor
 	predicates []predicate.Scoring
+	withGame   *GameQuery
+	withPlayer *PlayerQuery
+	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -58,6 +64,50 @@ func (_q *ScoringQuery) Order(o ...scoring.OrderOption) *ScoringQuery {
 	return _q
 }
 
+// QueryGame chains the current query on the "game" edge.
+func (_q *ScoringQuery) QueryGame() *GameQuery {
+	query := (&GameClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(scoring.Table, scoring.FieldID, selector),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, scoring.GameTable, scoring.GameColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPlayer chains the current query on the "player" edge.
+func (_q *ScoringQuery) QueryPlayer() *PlayerQuery {
+	query := (&PlayerClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(scoring.Table, scoring.FieldID, selector),
+			sqlgraph.To(player.Table, player.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, scoring.PlayerTable, scoring.PlayerColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Scoring entity from the query.
 // Returns a *NotFoundError when no Scoring was found.
 func (_q *ScoringQuery) First(ctx context.Context) (*Scoring, error) {
@@ -82,8 +132,8 @@ func (_q *ScoringQuery) FirstX(ctx context.Context) *Scoring {
 
 // FirstID returns the first Scoring ID from the query.
 // Returns a *NotFoundError when no Scoring ID was found.
-func (_q *ScoringQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *ScoringQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -95,7 +145,7 @@ func (_q *ScoringQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *ScoringQuery) FirstIDX(ctx context.Context) int {
+func (_q *ScoringQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -133,8 +183,8 @@ func (_q *ScoringQuery) OnlyX(ctx context.Context) *Scoring {
 // OnlyID is like Only, but returns the only Scoring ID in the query.
 // Returns a *NotSingularError when more than one Scoring ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *ScoringQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *ScoringQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -150,7 +200,7 @@ func (_q *ScoringQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *ScoringQuery) OnlyIDX(ctx context.Context) int {
+func (_q *ScoringQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -178,7 +228,7 @@ func (_q *ScoringQuery) AllX(ctx context.Context) []*Scoring {
 }
 
 // IDs executes the query and returns a list of Scoring IDs.
-func (_q *ScoringQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *ScoringQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -190,7 +240,7 @@ func (_q *ScoringQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *ScoringQuery) IDsX(ctx context.Context) []int {
+func (_q *ScoringQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -250,14 +300,50 @@ func (_q *ScoringQuery) Clone() *ScoringQuery {
 		order:      append([]scoring.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
 		predicates: append([]predicate.Scoring{}, _q.predicates...),
+		withGame:   _q.withGame.Clone(),
+		withPlayer: _q.withPlayer.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
 }
 
+// WithGame tells the query-builder to eager-load the nodes that are connected to
+// the "game" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ScoringQuery) WithGame(opts ...func(*GameQuery)) *ScoringQuery {
+	query := (&GameClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withGame = query
+	return _q
+}
+
+// WithPlayer tells the query-builder to eager-load the nodes that are connected to
+// the "player" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ScoringQuery) WithPlayer(opts ...func(*PlayerQuery)) *ScoringQuery {
+	query := (&PlayerClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withPlayer = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Scoring.Query().
+//		GroupBy(scoring.FieldCreatedAt).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (_q *ScoringQuery) GroupBy(field string, fields ...string) *ScoringGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &ScoringGroupBy{build: _q}
@@ -269,6 +355,16 @@ func (_q *ScoringQuery) GroupBy(field string, fields ...string) *ScoringGroupBy 
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//	}
+//
+//	client.Scoring.Query().
+//		Select(scoring.FieldCreatedAt).
+//		Scan(ctx, &v)
 func (_q *ScoringQuery) Select(fields ...string) *ScoringSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
 	sbuild := &ScoringSelect{ScoringQuery: _q}
@@ -310,15 +406,27 @@ func (_q *ScoringQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *ScoringQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Scoring, error) {
 	var (
-		nodes = []*Scoring{}
-		_spec = _q.querySpec()
+		nodes       = []*Scoring{}
+		withFKs     = _q.withFKs
+		_spec       = _q.querySpec()
+		loadedTypes = [2]bool{
+			_q.withGame != nil,
+			_q.withPlayer != nil,
+		}
 	)
+	if _q.withGame != nil || _q.withPlayer != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, scoring.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Scoring).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Scoring{config: _q.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -330,7 +438,84 @@ func (_q *ScoringQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Scor
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withGame; query != nil {
+		if err := _q.loadGame(ctx, query, nodes, nil,
+			func(n *Scoring, e *Game) { n.Edges.Game = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withPlayer; query != nil {
+		if err := _q.loadPlayer(ctx, query, nodes, nil,
+			func(n *Scoring, e *Player) { n.Edges.Player = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (_q *ScoringQuery) loadGame(ctx context.Context, query *GameQuery, nodes []*Scoring, init func(*Scoring), assign func(*Scoring, *Game)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Scoring)
+	for i := range nodes {
+		if nodes[i].game_scores == nil {
+			continue
+		}
+		fk := *nodes[i].game_scores
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(game.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "game_scores" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *ScoringQuery) loadPlayer(ctx context.Context, query *PlayerQuery, nodes []*Scoring, init func(*Scoring), assign func(*Scoring, *Player)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Scoring)
+	for i := range nodes {
+		if nodes[i].player_scores == nil {
+			continue
+		}
+		fk := *nodes[i].player_scores
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(player.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "player_scores" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (_q *ScoringQuery) sqlCount(ctx context.Context) (int, error) {
@@ -343,7 +528,7 @@ func (_q *ScoringQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *ScoringQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(scoring.Table, scoring.Columns, sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(scoring.Table, scoring.Columns, sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

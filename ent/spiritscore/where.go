@@ -3,53 +3,645 @@
 package spiritscore
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.SpiritScore {
+func ID(id uuid.UUID) predicate.SpiritScore {
 	return predicate.SpiritScore(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.SpiritScore {
+func IDEQ(id uuid.UUID) predicate.SpiritScore {
 	return predicate.SpiritScore(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.SpiritScore {
+func IDNEQ(id uuid.UUID) predicate.SpiritScore {
 	return predicate.SpiritScore(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.SpiritScore {
+func IDIn(ids ...uuid.UUID) predicate.SpiritScore {
 	return predicate.SpiritScore(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.SpiritScore {
+func IDNotIn(ids ...uuid.UUID) predicate.SpiritScore {
 	return predicate.SpiritScore(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.SpiritScore {
+func IDGT(id uuid.UUID) predicate.SpiritScore {
 	return predicate.SpiritScore(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.SpiritScore {
+func IDGTE(id uuid.UUID) predicate.SpiritScore {
 	return predicate.SpiritScore(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.SpiritScore {
+func IDLT(id uuid.UUID) predicate.SpiritScore {
 	return predicate.SpiritScore(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.SpiritScore {
+func IDLTE(id uuid.UUID) predicate.SpiritScore {
 	return predicate.SpiritScore(sql.FieldLTE(FieldID, id))
+}
+
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
+func DeletedAt(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// RulesKnowledge applies equality check predicate on the "rules_knowledge" field. It's identical to RulesKnowledgeEQ.
+func RulesKnowledge(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldRulesKnowledge, v))
+}
+
+// FoulsBodyContact applies equality check predicate on the "fouls_body_contact" field. It's identical to FoulsBodyContactEQ.
+func FoulsBodyContact(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldFoulsBodyContact, v))
+}
+
+// FairMindedness applies equality check predicate on the "fair_mindedness" field. It's identical to FairMindednessEQ.
+func FairMindedness(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldFairMindedness, v))
+}
+
+// Attitude applies equality check predicate on the "attitude" field. It's identical to AttitudeEQ.
+func Attitude(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldAttitude, v))
+}
+
+// Communication applies equality check predicate on the "communication" field. It's identical to CommunicationEQ.
+func Communication(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldCommunication, v))
+}
+
+// Comments applies equality check predicate on the "comments" field. It's identical to CommentsEQ.
+func Comments(v string) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldComments, v))
+}
+
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNotIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGT(FieldCreatedAt, v))
+}
+
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGTE(FieldCreatedAt, v))
+}
+
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLT(FieldCreatedAt, v))
+}
+
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
+func DeletedAtEQ(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
+func DeletedAtNEQ(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtIn applies the In predicate on the "deleted_at" field.
+func DeletedAtIn(vs ...time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
+func DeletedAtNotIn(vs ...time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNotIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtGT applies the GT predicate on the "deleted_at" field.
+func DeletedAtGT(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGT(FieldDeletedAt, v))
+}
+
+// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
+func DeletedAtGTE(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGTE(FieldDeletedAt, v))
+}
+
+// DeletedAtLT applies the LT predicate on the "deleted_at" field.
+func DeletedAtLT(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLT(FieldDeletedAt, v))
+}
+
+// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
+func DeletedAtLTE(v time.Time) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// DeletedAtIsNil applies the IsNil predicate on the "deleted_at" field.
+func DeletedAtIsNil() predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldIsNull(FieldDeletedAt))
+}
+
+// DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
+func DeletedAtNotNil() predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// RulesKnowledgeEQ applies the EQ predicate on the "rules_knowledge" field.
+func RulesKnowledgeEQ(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldRulesKnowledge, v))
+}
+
+// RulesKnowledgeNEQ applies the NEQ predicate on the "rules_knowledge" field.
+func RulesKnowledgeNEQ(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNEQ(FieldRulesKnowledge, v))
+}
+
+// RulesKnowledgeIn applies the In predicate on the "rules_knowledge" field.
+func RulesKnowledgeIn(vs ...int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldIn(FieldRulesKnowledge, vs...))
+}
+
+// RulesKnowledgeNotIn applies the NotIn predicate on the "rules_knowledge" field.
+func RulesKnowledgeNotIn(vs ...int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNotIn(FieldRulesKnowledge, vs...))
+}
+
+// RulesKnowledgeGT applies the GT predicate on the "rules_knowledge" field.
+func RulesKnowledgeGT(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGT(FieldRulesKnowledge, v))
+}
+
+// RulesKnowledgeGTE applies the GTE predicate on the "rules_knowledge" field.
+func RulesKnowledgeGTE(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGTE(FieldRulesKnowledge, v))
+}
+
+// RulesKnowledgeLT applies the LT predicate on the "rules_knowledge" field.
+func RulesKnowledgeLT(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLT(FieldRulesKnowledge, v))
+}
+
+// RulesKnowledgeLTE applies the LTE predicate on the "rules_knowledge" field.
+func RulesKnowledgeLTE(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLTE(FieldRulesKnowledge, v))
+}
+
+// FoulsBodyContactEQ applies the EQ predicate on the "fouls_body_contact" field.
+func FoulsBodyContactEQ(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldFoulsBodyContact, v))
+}
+
+// FoulsBodyContactNEQ applies the NEQ predicate on the "fouls_body_contact" field.
+func FoulsBodyContactNEQ(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNEQ(FieldFoulsBodyContact, v))
+}
+
+// FoulsBodyContactIn applies the In predicate on the "fouls_body_contact" field.
+func FoulsBodyContactIn(vs ...int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldIn(FieldFoulsBodyContact, vs...))
+}
+
+// FoulsBodyContactNotIn applies the NotIn predicate on the "fouls_body_contact" field.
+func FoulsBodyContactNotIn(vs ...int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNotIn(FieldFoulsBodyContact, vs...))
+}
+
+// FoulsBodyContactGT applies the GT predicate on the "fouls_body_contact" field.
+func FoulsBodyContactGT(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGT(FieldFoulsBodyContact, v))
+}
+
+// FoulsBodyContactGTE applies the GTE predicate on the "fouls_body_contact" field.
+func FoulsBodyContactGTE(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGTE(FieldFoulsBodyContact, v))
+}
+
+// FoulsBodyContactLT applies the LT predicate on the "fouls_body_contact" field.
+func FoulsBodyContactLT(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLT(FieldFoulsBodyContact, v))
+}
+
+// FoulsBodyContactLTE applies the LTE predicate on the "fouls_body_contact" field.
+func FoulsBodyContactLTE(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLTE(FieldFoulsBodyContact, v))
+}
+
+// FairMindednessEQ applies the EQ predicate on the "fair_mindedness" field.
+func FairMindednessEQ(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldFairMindedness, v))
+}
+
+// FairMindednessNEQ applies the NEQ predicate on the "fair_mindedness" field.
+func FairMindednessNEQ(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNEQ(FieldFairMindedness, v))
+}
+
+// FairMindednessIn applies the In predicate on the "fair_mindedness" field.
+func FairMindednessIn(vs ...int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldIn(FieldFairMindedness, vs...))
+}
+
+// FairMindednessNotIn applies the NotIn predicate on the "fair_mindedness" field.
+func FairMindednessNotIn(vs ...int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNotIn(FieldFairMindedness, vs...))
+}
+
+// FairMindednessGT applies the GT predicate on the "fair_mindedness" field.
+func FairMindednessGT(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGT(FieldFairMindedness, v))
+}
+
+// FairMindednessGTE applies the GTE predicate on the "fair_mindedness" field.
+func FairMindednessGTE(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGTE(FieldFairMindedness, v))
+}
+
+// FairMindednessLT applies the LT predicate on the "fair_mindedness" field.
+func FairMindednessLT(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLT(FieldFairMindedness, v))
+}
+
+// FairMindednessLTE applies the LTE predicate on the "fair_mindedness" field.
+func FairMindednessLTE(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLTE(FieldFairMindedness, v))
+}
+
+// AttitudeEQ applies the EQ predicate on the "attitude" field.
+func AttitudeEQ(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldAttitude, v))
+}
+
+// AttitudeNEQ applies the NEQ predicate on the "attitude" field.
+func AttitudeNEQ(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNEQ(FieldAttitude, v))
+}
+
+// AttitudeIn applies the In predicate on the "attitude" field.
+func AttitudeIn(vs ...int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldIn(FieldAttitude, vs...))
+}
+
+// AttitudeNotIn applies the NotIn predicate on the "attitude" field.
+func AttitudeNotIn(vs ...int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNotIn(FieldAttitude, vs...))
+}
+
+// AttitudeGT applies the GT predicate on the "attitude" field.
+func AttitudeGT(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGT(FieldAttitude, v))
+}
+
+// AttitudeGTE applies the GTE predicate on the "attitude" field.
+func AttitudeGTE(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGTE(FieldAttitude, v))
+}
+
+// AttitudeLT applies the LT predicate on the "attitude" field.
+func AttitudeLT(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLT(FieldAttitude, v))
+}
+
+// AttitudeLTE applies the LTE predicate on the "attitude" field.
+func AttitudeLTE(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLTE(FieldAttitude, v))
+}
+
+// CommunicationEQ applies the EQ predicate on the "communication" field.
+func CommunicationEQ(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldCommunication, v))
+}
+
+// CommunicationNEQ applies the NEQ predicate on the "communication" field.
+func CommunicationNEQ(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNEQ(FieldCommunication, v))
+}
+
+// CommunicationIn applies the In predicate on the "communication" field.
+func CommunicationIn(vs ...int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldIn(FieldCommunication, vs...))
+}
+
+// CommunicationNotIn applies the NotIn predicate on the "communication" field.
+func CommunicationNotIn(vs ...int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNotIn(FieldCommunication, vs...))
+}
+
+// CommunicationGT applies the GT predicate on the "communication" field.
+func CommunicationGT(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGT(FieldCommunication, v))
+}
+
+// CommunicationGTE applies the GTE predicate on the "communication" field.
+func CommunicationGTE(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGTE(FieldCommunication, v))
+}
+
+// CommunicationLT applies the LT predicate on the "communication" field.
+func CommunicationLT(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLT(FieldCommunication, v))
+}
+
+// CommunicationLTE applies the LTE predicate on the "communication" field.
+func CommunicationLTE(v int) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLTE(FieldCommunication, v))
+}
+
+// CommentsEQ applies the EQ predicate on the "comments" field.
+func CommentsEQ(v string) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEQ(FieldComments, v))
+}
+
+// CommentsNEQ applies the NEQ predicate on the "comments" field.
+func CommentsNEQ(v string) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNEQ(FieldComments, v))
+}
+
+// CommentsIn applies the In predicate on the "comments" field.
+func CommentsIn(vs ...string) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldIn(FieldComments, vs...))
+}
+
+// CommentsNotIn applies the NotIn predicate on the "comments" field.
+func CommentsNotIn(vs ...string) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNotIn(FieldComments, vs...))
+}
+
+// CommentsGT applies the GT predicate on the "comments" field.
+func CommentsGT(v string) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGT(FieldComments, v))
+}
+
+// CommentsGTE applies the GTE predicate on the "comments" field.
+func CommentsGTE(v string) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldGTE(FieldComments, v))
+}
+
+// CommentsLT applies the LT predicate on the "comments" field.
+func CommentsLT(v string) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLT(FieldComments, v))
+}
+
+// CommentsLTE applies the LTE predicate on the "comments" field.
+func CommentsLTE(v string) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldLTE(FieldComments, v))
+}
+
+// CommentsContains applies the Contains predicate on the "comments" field.
+func CommentsContains(v string) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldContains(FieldComments, v))
+}
+
+// CommentsHasPrefix applies the HasPrefix predicate on the "comments" field.
+func CommentsHasPrefix(v string) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldHasPrefix(FieldComments, v))
+}
+
+// CommentsHasSuffix applies the HasSuffix predicate on the "comments" field.
+func CommentsHasSuffix(v string) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldHasSuffix(FieldComments, v))
+}
+
+// CommentsIsNil applies the IsNil predicate on the "comments" field.
+func CommentsIsNil() predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldIsNull(FieldComments))
+}
+
+// CommentsNotNil applies the NotNil predicate on the "comments" field.
+func CommentsNotNil() predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldNotNull(FieldComments))
+}
+
+// CommentsEqualFold applies the EqualFold predicate on the "comments" field.
+func CommentsEqualFold(v string) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldEqualFold(FieldComments, v))
+}
+
+// CommentsContainsFold applies the ContainsFold predicate on the "comments" field.
+func CommentsContainsFold(v string) predicate.SpiritScore {
+	return predicate.SpiritScore(sql.FieldContainsFold(FieldComments, v))
+}
+
+// HasGame applies the HasEdge predicate on the "game" edge.
+func HasGame() predicate.SpiritScore {
+	return predicate.SpiritScore(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, GameTable, GameColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGameWith applies the HasEdge predicate on the "game" edge with a given conditions (other predicates).
+func HasGameWith(preds ...predicate.Game) predicate.SpiritScore {
+	return predicate.SpiritScore(func(s *sql.Selector) {
+		step := newGameStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasScoredByTeam applies the HasEdge predicate on the "scored_by_team" edge.
+func HasScoredByTeam() predicate.SpiritScore {
+	return predicate.SpiritScore(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ScoredByTeamTable, ScoredByTeamColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasScoredByTeamWith applies the HasEdge predicate on the "scored_by_team" edge with a given conditions (other predicates).
+func HasScoredByTeamWith(preds ...predicate.Team) predicate.SpiritScore {
+	return predicate.SpiritScore(func(s *sql.Selector) {
+		step := newScoredByTeamStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTeam applies the HasEdge predicate on the "team" edge.
+func HasTeam() predicate.SpiritScore {
+	return predicate.SpiritScore(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, TeamTable, TeamColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTeamWith applies the HasEdge predicate on the "team" edge with a given conditions (other predicates).
+func HasTeamWith(preds ...predicate.Team) predicate.SpiritScore {
+	return predicate.SpiritScore(func(s *sql.Selector) {
+		step := newTeamStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasSubmittedBy applies the HasEdge predicate on the "submitted_by" edge.
+func HasSubmittedBy() predicate.SpiritScore {
+	return predicate.SpiritScore(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, SubmittedByTable, SubmittedByColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSubmittedByWith applies the HasEdge predicate on the "submitted_by" edge with a given conditions (other predicates).
+func HasSubmittedByWith(preds ...predicate.User) predicate.SpiritScore {
+	return predicate.SpiritScore(func(s *sql.Selector) {
+		step := newSubmittedByStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasMvpNominations applies the HasEdge predicate on the "mvp_nominations" edge.
+func HasMvpNominations() predicate.SpiritScore {
+	return predicate.SpiritScore(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, MvpNominationsTable, MvpNominationsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMvpNominationsWith applies the HasEdge predicate on the "mvp_nominations" edge with a given conditions (other predicates).
+func HasMvpNominationsWith(preds ...predicate.MVP_Nomination) predicate.SpiritScore {
+	return predicate.SpiritScore(func(s *sql.Selector) {
+		step := newMvpNominationsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasSpiritNominations applies the HasEdge predicate on the "spirit_nominations" edge.
+func HasSpiritNominations() predicate.SpiritScore {
+	return predicate.SpiritScore(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SpiritNominationsTable, SpiritNominationsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSpiritNominationsWith applies the HasEdge predicate on the "spirit_nominations" edge with a given conditions (other predicates).
+func HasSpiritNominationsWith(preds ...predicate.SpiritNomination) predicate.SpiritScore {
+	return predicate.SpiritScore(func(s *sql.Selector) {
+		step := newSpiritNominationsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

@@ -3,7 +3,11 @@
 package game
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -11,13 +15,150 @@ const (
 	Label = "game"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
+	// FieldScheduledTime holds the string denoting the scheduled_time field in the database.
+	FieldScheduledTime = "scheduled_time"
+	// FieldActualStartTime holds the string denoting the actual_start_time field in the database.
+	FieldActualStartTime = "actual_start_time"
+	// FieldActualEndTime holds the string denoting the actual_end_time field in the database.
+	FieldActualEndTime = "actual_end_time"
+	// FieldAllocatedTimeMinutes holds the string denoting the allocated_time_minutes field in the database.
+	FieldAllocatedTimeMinutes = "allocated_time_minutes"
+	// FieldStoppageTimeSeconds holds the string denoting the stoppage_time_seconds field in the database.
+	FieldStoppageTimeSeconds = "stoppage_time_seconds"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldHomeTeamScore holds the string denoting the home_team_score field in the database.
+	FieldHomeTeamScore = "home_team_score"
+	// FieldAwayTeamScore holds the string denoting the away_team_score field in the database.
+	FieldAwayTeamScore = "away_team_score"
+	// FieldFirstPullBy holds the string denoting the first_pull_by field in the database.
+	FieldFirstPullBy = "first_pull_by"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
+	// FieldMetadata holds the string denoting the metadata field in the database.
+	FieldMetadata = "metadata"
+	// EdgeGameRound holds the string denoting the game_round edge name in mutations.
+	EdgeGameRound = "game_round"
+	// EdgeHomeTeam holds the string denoting the home_team edge name in mutations.
+	EdgeHomeTeam = "home_team"
+	// EdgeAwayTeam holds the string denoting the away_team edge name in mutations.
+	EdgeAwayTeam = "away_team"
+	// EdgeDivisionPool holds the string denoting the division_pool edge name in mutations.
+	EdgeDivisionPool = "division_pool"
+	// EdgeField holds the string denoting the field edge name in mutations.
+	EdgeField = "field"
+	// EdgeScorekeeper holds the string denoting the scorekeeper edge name in mutations.
+	EdgeScorekeeper = "scorekeeper"
+	// EdgeScores holds the string denoting the scores edge name in mutations.
+	EdgeScores = "scores"
+	// EdgeGameEvents holds the string denoting the game_events edge name in mutations.
+	EdgeGameEvents = "game_events"
+	// EdgeSpiritScores holds the string denoting the spirit_scores edge name in mutations.
+	EdgeSpiritScores = "spirit_scores"
 	// Table holds the table name of the game in the database.
 	Table = "games"
+	// GameRoundTable is the table that holds the game_round relation/edge.
+	GameRoundTable = "games"
+	// GameRoundInverseTable is the table name for the GameRound entity.
+	// It exists in this package in order to avoid circular dependency with the "gameround" package.
+	GameRoundInverseTable = "game_rounds"
+	// GameRoundColumn is the table column denoting the game_round relation/edge.
+	GameRoundColumn = "game_round_games"
+	// HomeTeamTable is the table that holds the home_team relation/edge.
+	HomeTeamTable = "games"
+	// HomeTeamInverseTable is the table name for the Team entity.
+	// It exists in this package in order to avoid circular dependency with the "team" package.
+	HomeTeamInverseTable = "teams"
+	// HomeTeamColumn is the table column denoting the home_team relation/edge.
+	HomeTeamColumn = "team_home_games"
+	// AwayTeamTable is the table that holds the away_team relation/edge.
+	AwayTeamTable = "games"
+	// AwayTeamInverseTable is the table name for the Team entity.
+	// It exists in this package in order to avoid circular dependency with the "team" package.
+	AwayTeamInverseTable = "teams"
+	// AwayTeamColumn is the table column denoting the away_team relation/edge.
+	AwayTeamColumn = "team_away_games"
+	// DivisionPoolTable is the table that holds the division_pool relation/edge.
+	DivisionPoolTable = "games"
+	// DivisionPoolInverseTable is the table name for the DivisionPool entity.
+	// It exists in this package in order to avoid circular dependency with the "divisionpool" package.
+	DivisionPoolInverseTable = "division_pools"
+	// DivisionPoolColumn is the table column denoting the division_pool relation/edge.
+	DivisionPoolColumn = "division_pool_games"
+	// FieldTable is the table that holds the field relation/edge.
+	FieldTable = "games"
+	// FieldInverseTable is the table name for the Field entity.
+	// It exists in this package in order to avoid circular dependency with the "entfield" package.
+	FieldInverseTable = "fields"
+	// FieldColumn is the table column denoting the field relation/edge.
+	FieldColumn = "field_games"
+	// ScorekeeperTable is the table that holds the scorekeeper relation/edge.
+	ScorekeeperTable = "games"
+	// ScorekeeperInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	ScorekeeperInverseTable = "users"
+	// ScorekeeperColumn is the table column denoting the scorekeeper relation/edge.
+	ScorekeeperColumn = "user_officiated_games"
+	// ScoresTable is the table that holds the scores relation/edge.
+	ScoresTable = "scorings"
+	// ScoresInverseTable is the table name for the Scoring entity.
+	// It exists in this package in order to avoid circular dependency with the "scoring" package.
+	ScoresInverseTable = "scorings"
+	// ScoresColumn is the table column denoting the scores relation/edge.
+	ScoresColumn = "game_scores"
+	// GameEventsTable is the table that holds the game_events relation/edge.
+	GameEventsTable = "game_events"
+	// GameEventsInverseTable is the table name for the GameEvent entity.
+	// It exists in this package in order to avoid circular dependency with the "gameevent" package.
+	GameEventsInverseTable = "game_events"
+	// GameEventsColumn is the table column denoting the game_events relation/edge.
+	GameEventsColumn = "game_game_events"
+	// SpiritScoresTable is the table that holds the spirit_scores relation/edge.
+	SpiritScoresTable = "spirit_scores"
+	// SpiritScoresInverseTable is the table name for the SpiritScore entity.
+	// It exists in this package in order to avoid circular dependency with the "spiritscore" package.
+	SpiritScoresInverseTable = "spirit_scores"
+	// SpiritScoresColumn is the table column denoting the spirit_scores relation/edge.
+	SpiritScoresColumn = "game_spirit_scores"
 )
 
 // Columns holds all SQL columns for game fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
+	FieldName,
+	FieldScheduledTime,
+	FieldActualStartTime,
+	FieldActualEndTime,
+	FieldAllocatedTimeMinutes,
+	FieldStoppageTimeSeconds,
+	FieldStatus,
+	FieldHomeTeamScore,
+	FieldAwayTeamScore,
+	FieldFirstPullBy,
+	FieldVersion,
+	FieldMetadata,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "games"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"division_pool_games",
+	"field_games",
+	"game_round_games",
+	"team_home_games",
+	"team_away_games",
+	"user_officiated_games",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -27,8 +168,38 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
+			return true
+		}
+	}
 	return false
 }
+
+var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
+	// NameValidator is a validator for the "name" field. It is called by the builders before save.
+	NameValidator func(string) error
+	// DefaultStoppageTimeSeconds holds the default value on creation for the "stoppage_time_seconds" field.
+	DefaultStoppageTimeSeconds int
+	// DefaultStatus holds the default value on creation for the "status" field.
+	DefaultStatus string
+	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
+	StatusValidator func(string) error
+	// DefaultHomeTeamScore holds the default value on creation for the "home_team_score" field.
+	DefaultHomeTeamScore int
+	// DefaultAwayTeamScore holds the default value on creation for the "away_team_score" field.
+	DefaultAwayTeamScore int
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
+)
 
 // OrderOption defines the ordering options for the Game queries.
 type OrderOption func(*sql.Selector)
@@ -36,4 +207,221 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByScheduledTime orders the results by the scheduled_time field.
+func ByScheduledTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldScheduledTime, opts...).ToFunc()
+}
+
+// ByActualStartTime orders the results by the actual_start_time field.
+func ByActualStartTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldActualStartTime, opts...).ToFunc()
+}
+
+// ByActualEndTime orders the results by the actual_end_time field.
+func ByActualEndTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldActualEndTime, opts...).ToFunc()
+}
+
+// ByAllocatedTimeMinutes orders the results by the allocated_time_minutes field.
+func ByAllocatedTimeMinutes(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAllocatedTimeMinutes, opts...).ToFunc()
+}
+
+// ByStoppageTimeSeconds orders the results by the stoppage_time_seconds field.
+func ByStoppageTimeSeconds(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStoppageTimeSeconds, opts...).ToFunc()
+}
+
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByHomeTeamScore orders the results by the home_team_score field.
+func ByHomeTeamScore(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldHomeTeamScore, opts...).ToFunc()
+}
+
+// ByAwayTeamScore orders the results by the away_team_score field.
+func ByAwayTeamScore(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAwayTeamScore, opts...).ToFunc()
+}
+
+// ByFirstPullBy orders the results by the first_pull_by field.
+func ByFirstPullBy(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFirstPullBy, opts...).ToFunc()
+}
+
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
+}
+
+// ByGameRoundField orders the results by game_round field.
+func ByGameRoundField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGameRoundStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByHomeTeamField orders the results by home_team field.
+func ByHomeTeamField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newHomeTeamStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByAwayTeamField orders the results by away_team field.
+func ByAwayTeamField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAwayTeamStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByDivisionPoolField orders the results by division_pool field.
+func ByDivisionPoolField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDivisionPoolStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByFieldField orders the results by field field.
+func ByFieldField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newFieldStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByScorekeeperField orders the results by scorekeeper field.
+func ByScorekeeperField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newScorekeeperStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByScoresCount orders the results by scores count.
+func ByScoresCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newScoresStep(), opts...)
+	}
+}
+
+// ByScores orders the results by scores terms.
+func ByScores(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newScoresStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByGameEventsCount orders the results by game_events count.
+func ByGameEventsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newGameEventsStep(), opts...)
+	}
+}
+
+// ByGameEvents orders the results by game_events terms.
+func ByGameEvents(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGameEventsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// BySpiritScoresCount orders the results by spirit_scores count.
+func BySpiritScoresCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSpiritScoresStep(), opts...)
+	}
+}
+
+// BySpiritScores orders the results by spirit_scores terms.
+func BySpiritScores(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSpiritScoresStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newGameRoundStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GameRoundInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, GameRoundTable, GameRoundColumn),
+	)
+}
+func newHomeTeamStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(HomeTeamInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, HomeTeamTable, HomeTeamColumn),
+	)
+}
+func newAwayTeamStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AwayTeamInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, AwayTeamTable, AwayTeamColumn),
+	)
+}
+func newDivisionPoolStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DivisionPoolInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, DivisionPoolTable, DivisionPoolColumn),
+	)
+}
+func newFieldStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(FieldInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, FieldTable, FieldColumn),
+	)
+}
+func newScorekeeperStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ScorekeeperInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ScorekeeperTable, ScorekeeperColumn),
+	)
+}
+func newScoresStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ScoresInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ScoresTable, ScoresColumn),
+	)
+}
+func newGameEventsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GameEventsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, GameEventsTable, GameEventsColumn),
+	)
+}
+func newSpiritScoresStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SpiritScoresInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SpiritScoresTable, SpiritScoresColumn),
+	)
 }

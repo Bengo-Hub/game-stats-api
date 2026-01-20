@@ -2,8 +2,976 @@
 
 package ent
 
+import (
+	"time"
+
+	"github.com/bengobox/game-stats-api/ent/analyticsearch"
+	"github.com/bengobox/game-stats-api/ent/analyticsembedding"
+	"github.com/bengobox/game-stats-api/ent/continent"
+	"github.com/bengobox/game-stats-api/ent/country"
+	"github.com/bengobox/game-stats-api/ent/discipline"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
+	entfield "github.com/bengobox/game-stats-api/ent/field"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/gameevent"
+	"github.com/bengobox/game-stats-api/ent/gameround"
+	"github.com/bengobox/game-stats-api/ent/location"
+	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
+	"github.com/bengobox/game-stats-api/ent/player"
+	"github.com/bengobox/game-stats-api/ent/schema"
+	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/bengobox/game-stats-api/ent/spiritnomination"
+	"github.com/bengobox/game-stats-api/ent/spiritscore"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/bengobox/game-stats-api/ent/world"
+	"github.com/google/uuid"
+)
+
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	analyticsearchMixin := schema.AnalyticSearch{}.Mixin()
+	analyticsearchMixinFields0 := analyticsearchMixin[0].Fields()
+	_ = analyticsearchMixinFields0
+	analyticsearchFields := schema.AnalyticSearch{}.Fields()
+	_ = analyticsearchFields
+	// analyticsearchDescCreatedAt is the schema descriptor for created_at field.
+	analyticsearchDescCreatedAt := analyticsearchMixinFields0[0].Descriptor()
+	// analyticsearch.DefaultCreatedAt holds the default value on creation for the created_at field.
+	analyticsearch.DefaultCreatedAt = analyticsearchDescCreatedAt.Default.(func() time.Time)
+	// analyticsearchDescUpdatedAt is the schema descriptor for updated_at field.
+	analyticsearchDescUpdatedAt := analyticsearchMixinFields0[1].Descriptor()
+	// analyticsearch.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	analyticsearch.DefaultUpdatedAt = analyticsearchDescUpdatedAt.Default.(func() time.Time)
+	// analyticsearch.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	analyticsearch.UpdateDefaultUpdatedAt = analyticsearchDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// analyticsearchDescQuery is the schema descriptor for query field.
+	analyticsearchDescQuery := analyticsearchFields[1].Descriptor()
+	// analyticsearch.QueryValidator is a validator for the "query" field. It is called by the builders before save.
+	analyticsearch.QueryValidator = analyticsearchDescQuery.Validators[0].(func(string) error)
+	// analyticsearchDescID is the schema descriptor for id field.
+	analyticsearchDescID := analyticsearchFields[0].Descriptor()
+	// analyticsearch.DefaultID holds the default value on creation for the id field.
+	analyticsearch.DefaultID = analyticsearchDescID.Default.(func() uuid.UUID)
+	analyticsembeddingMixin := schema.AnalyticsEmbedding{}.Mixin()
+	analyticsembeddingMixinFields0 := analyticsembeddingMixin[0].Fields()
+	_ = analyticsembeddingMixinFields0
+	analyticsembeddingFields := schema.AnalyticsEmbedding{}.Fields()
+	_ = analyticsembeddingFields
+	// analyticsembeddingDescCreatedAt is the schema descriptor for created_at field.
+	analyticsembeddingDescCreatedAt := analyticsembeddingMixinFields0[0].Descriptor()
+	// analyticsembedding.DefaultCreatedAt holds the default value on creation for the created_at field.
+	analyticsembedding.DefaultCreatedAt = analyticsembeddingDescCreatedAt.Default.(func() time.Time)
+	// analyticsembeddingDescUpdatedAt is the schema descriptor for updated_at field.
+	analyticsembeddingDescUpdatedAt := analyticsembeddingMixinFields0[1].Descriptor()
+	// analyticsembedding.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	analyticsembedding.DefaultUpdatedAt = analyticsembeddingDescUpdatedAt.Default.(func() time.Time)
+	// analyticsembedding.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	analyticsembedding.UpdateDefaultUpdatedAt = analyticsembeddingDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// analyticsembeddingDescEntityType is the schema descriptor for entity_type field.
+	analyticsembeddingDescEntityType := analyticsembeddingFields[1].Descriptor()
+	// analyticsembedding.EntityTypeValidator is a validator for the "entity_type" field. It is called by the builders before save.
+	analyticsembedding.EntityTypeValidator = analyticsembeddingDescEntityType.Validators[0].(func(string) error)
+	// analyticsembeddingDescID is the schema descriptor for id field.
+	analyticsembeddingDescID := analyticsembeddingFields[0].Descriptor()
+	// analyticsembedding.DefaultID holds the default value on creation for the id field.
+	analyticsembedding.DefaultID = analyticsembeddingDescID.Default.(func() uuid.UUID)
+	continentMixin := schema.Continent{}.Mixin()
+	continentMixinFields0 := continentMixin[0].Fields()
+	_ = continentMixinFields0
+	continentFields := schema.Continent{}.Fields()
+	_ = continentFields
+	// continentDescCreatedAt is the schema descriptor for created_at field.
+	continentDescCreatedAt := continentMixinFields0[0].Descriptor()
+	// continent.DefaultCreatedAt holds the default value on creation for the created_at field.
+	continent.DefaultCreatedAt = continentDescCreatedAt.Default.(func() time.Time)
+	// continentDescUpdatedAt is the schema descriptor for updated_at field.
+	continentDescUpdatedAt := continentMixinFields0[1].Descriptor()
+	// continent.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	continent.DefaultUpdatedAt = continentDescUpdatedAt.Default.(func() time.Time)
+	// continent.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	continent.UpdateDefaultUpdatedAt = continentDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// continentDescName is the schema descriptor for name field.
+	continentDescName := continentFields[1].Descriptor()
+	// continent.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	continent.NameValidator = func() func(string) error {
+		validators := continentDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// continentDescSlug is the schema descriptor for slug field.
+	continentDescSlug := continentFields[2].Descriptor()
+	// continent.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	continent.SlugValidator = func() func(string) error {
+		validators := continentDescSlug.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(slug string) error {
+			for _, fn := range fns {
+				if err := fn(slug); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// continentDescID is the schema descriptor for id field.
+	continentDescID := continentFields[0].Descriptor()
+	// continent.DefaultID holds the default value on creation for the id field.
+	continent.DefaultID = continentDescID.Default.(func() uuid.UUID)
+	countryMixin := schema.Country{}.Mixin()
+	countryMixinFields0 := countryMixin[0].Fields()
+	_ = countryMixinFields0
+	countryFields := schema.Country{}.Fields()
+	_ = countryFields
+	// countryDescCreatedAt is the schema descriptor for created_at field.
+	countryDescCreatedAt := countryMixinFields0[0].Descriptor()
+	// country.DefaultCreatedAt holds the default value on creation for the created_at field.
+	country.DefaultCreatedAt = countryDescCreatedAt.Default.(func() time.Time)
+	// countryDescUpdatedAt is the schema descriptor for updated_at field.
+	countryDescUpdatedAt := countryMixinFields0[1].Descriptor()
+	// country.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	country.DefaultUpdatedAt = countryDescUpdatedAt.Default.(func() time.Time)
+	// country.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	country.UpdateDefaultUpdatedAt = countryDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// countryDescName is the schema descriptor for name field.
+	countryDescName := countryFields[1].Descriptor()
+	// country.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	country.NameValidator = func() func(string) error {
+		validators := countryDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// countryDescSlug is the schema descriptor for slug field.
+	countryDescSlug := countryFields[2].Descriptor()
+	// country.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	country.SlugValidator = func() func(string) error {
+		validators := countryDescSlug.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(slug string) error {
+			for _, fn := range fns {
+				if err := fn(slug); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// countryDescCode is the schema descriptor for code field.
+	countryDescCode := countryFields[3].Descriptor()
+	// country.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	country.CodeValidator = func() func(string) error {
+		validators := countryDescCode.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(code string) error {
+			for _, fn := range fns {
+				if err := fn(code); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// countryDescID is the schema descriptor for id field.
+	countryDescID := countryFields[0].Descriptor()
+	// country.DefaultID holds the default value on creation for the id field.
+	country.DefaultID = countryDescID.Default.(func() uuid.UUID)
+	disciplineMixin := schema.Discipline{}.Mixin()
+	disciplineMixinFields0 := disciplineMixin[0].Fields()
+	_ = disciplineMixinFields0
+	disciplineFields := schema.Discipline{}.Fields()
+	_ = disciplineFields
+	// disciplineDescCreatedAt is the schema descriptor for created_at field.
+	disciplineDescCreatedAt := disciplineMixinFields0[0].Descriptor()
+	// discipline.DefaultCreatedAt holds the default value on creation for the created_at field.
+	discipline.DefaultCreatedAt = disciplineDescCreatedAt.Default.(func() time.Time)
+	// disciplineDescUpdatedAt is the schema descriptor for updated_at field.
+	disciplineDescUpdatedAt := disciplineMixinFields0[1].Descriptor()
+	// discipline.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	discipline.DefaultUpdatedAt = disciplineDescUpdatedAt.Default.(func() time.Time)
+	// discipline.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	discipline.UpdateDefaultUpdatedAt = disciplineDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// disciplineDescName is the schema descriptor for name field.
+	disciplineDescName := disciplineFields[1].Descriptor()
+	// discipline.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	discipline.NameValidator = func() func(string) error {
+		validators := disciplineDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// disciplineDescSlug is the schema descriptor for slug field.
+	disciplineDescSlug := disciplineFields[2].Descriptor()
+	// discipline.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	discipline.SlugValidator = func() func(string) error {
+		validators := disciplineDescSlug.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(slug string) error {
+			for _, fn := range fns {
+				if err := fn(slug); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// disciplineDescID is the schema descriptor for id field.
+	disciplineDescID := disciplineFields[0].Descriptor()
+	// discipline.DefaultID holds the default value on creation for the id field.
+	discipline.DefaultID = disciplineDescID.Default.(func() uuid.UUID)
+	divisionpoolMixin := schema.DivisionPool{}.Mixin()
+	divisionpoolMixinFields0 := divisionpoolMixin[0].Fields()
+	_ = divisionpoolMixinFields0
+	divisionpoolFields := schema.DivisionPool{}.Fields()
+	_ = divisionpoolFields
+	// divisionpoolDescCreatedAt is the schema descriptor for created_at field.
+	divisionpoolDescCreatedAt := divisionpoolMixinFields0[0].Descriptor()
+	// divisionpool.DefaultCreatedAt holds the default value on creation for the created_at field.
+	divisionpool.DefaultCreatedAt = divisionpoolDescCreatedAt.Default.(func() time.Time)
+	// divisionpoolDescUpdatedAt is the schema descriptor for updated_at field.
+	divisionpoolDescUpdatedAt := divisionpoolMixinFields0[1].Descriptor()
+	// divisionpool.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	divisionpool.DefaultUpdatedAt = divisionpoolDescUpdatedAt.Default.(func() time.Time)
+	// divisionpool.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	divisionpool.UpdateDefaultUpdatedAt = divisionpoolDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// divisionpoolDescName is the schema descriptor for name field.
+	divisionpoolDescName := divisionpoolFields[1].Descriptor()
+	// divisionpool.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	divisionpool.NameValidator = func() func(string) error {
+		validators := divisionpoolDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// divisionpoolDescDivisionType is the schema descriptor for division_type field.
+	divisionpoolDescDivisionType := divisionpoolFields[2].Descriptor()
+	// divisionpool.DivisionTypeValidator is a validator for the "division_type" field. It is called by the builders before save.
+	divisionpool.DivisionTypeValidator = func() func(string) error {
+		validators := divisionpoolDescDivisionType.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(division_type string) error {
+			for _, fn := range fns {
+				if err := fn(division_type); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// divisionpoolDescID is the schema descriptor for id field.
+	divisionpoolDescID := divisionpoolFields[0].Descriptor()
+	// divisionpool.DefaultID holds the default value on creation for the id field.
+	divisionpool.DefaultID = divisionpoolDescID.Default.(func() uuid.UUID)
+	eventMixin := schema.Event{}.Mixin()
+	eventMixinFields0 := eventMixin[0].Fields()
+	_ = eventMixinFields0
+	eventFields := schema.Event{}.Fields()
+	_ = eventFields
+	// eventDescCreatedAt is the schema descriptor for created_at field.
+	eventDescCreatedAt := eventMixinFields0[0].Descriptor()
+	// event.DefaultCreatedAt holds the default value on creation for the created_at field.
+	event.DefaultCreatedAt = eventDescCreatedAt.Default.(func() time.Time)
+	// eventDescUpdatedAt is the schema descriptor for updated_at field.
+	eventDescUpdatedAt := eventMixinFields0[1].Descriptor()
+	// event.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	event.DefaultUpdatedAt = eventDescUpdatedAt.Default.(func() time.Time)
+	// event.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	event.UpdateDefaultUpdatedAt = eventDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// eventDescName is the schema descriptor for name field.
+	eventDescName := eventFields[1].Descriptor()
+	// event.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	event.NameValidator = func() func(string) error {
+		validators := eventDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// eventDescSlug is the schema descriptor for slug field.
+	eventDescSlug := eventFields[2].Descriptor()
+	// event.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	event.SlugValidator = func() func(string) error {
+		validators := eventDescSlug.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(slug string) error {
+			for _, fn := range fns {
+				if err := fn(slug); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// eventDescStatus is the schema descriptor for status field.
+	eventDescStatus := eventFields[6].Descriptor()
+	// event.DefaultStatus holds the default value on creation for the status field.
+	event.DefaultStatus = eventDescStatus.Default.(string)
+	// event.StatusValidator is a validator for the "status" field. It is called by the builders before save.
+	event.StatusValidator = eventDescStatus.Validators[0].(func(string) error)
+	// eventDescID is the schema descriptor for id field.
+	eventDescID := eventFields[0].Descriptor()
+	// event.DefaultID holds the default value on creation for the id field.
+	event.DefaultID = eventDescID.Default.(func() uuid.UUID)
+	eventreconciliationMixin := schema.EventReconciliation{}.Mixin()
+	eventreconciliationMixinFields0 := eventreconciliationMixin[0].Fields()
+	_ = eventreconciliationMixinFields0
+	eventreconciliationFields := schema.EventReconciliation{}.Fields()
+	_ = eventreconciliationFields
+	// eventreconciliationDescCreatedAt is the schema descriptor for created_at field.
+	eventreconciliationDescCreatedAt := eventreconciliationMixinFields0[0].Descriptor()
+	// eventreconciliation.DefaultCreatedAt holds the default value on creation for the created_at field.
+	eventreconciliation.DefaultCreatedAt = eventreconciliationDescCreatedAt.Default.(func() time.Time)
+	// eventreconciliationDescUpdatedAt is the schema descriptor for updated_at field.
+	eventreconciliationDescUpdatedAt := eventreconciliationMixinFields0[1].Descriptor()
+	// eventreconciliation.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	eventreconciliation.DefaultUpdatedAt = eventreconciliationDescUpdatedAt.Default.(func() time.Time)
+	// eventreconciliation.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	eventreconciliation.UpdateDefaultUpdatedAt = eventreconciliationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// eventreconciliationDescName is the schema descriptor for name field.
+	eventreconciliationDescName := eventreconciliationFields[1].Descriptor()
+	// eventreconciliation.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	eventreconciliation.NameValidator = eventreconciliationDescName.Validators[0].(func(string) error)
+	// eventreconciliationDescIsActive is the schema descriptor for is_active field.
+	eventreconciliationDescIsActive := eventreconciliationFields[3].Descriptor()
+	// eventreconciliation.DefaultIsActive holds the default value on creation for the is_active field.
+	eventreconciliation.DefaultIsActive = eventreconciliationDescIsActive.Default.(bool)
+	// eventreconciliationDescID is the schema descriptor for id field.
+	eventreconciliationDescID := eventreconciliationFields[0].Descriptor()
+	// eventreconciliation.DefaultID holds the default value on creation for the id field.
+	eventreconciliation.DefaultID = eventreconciliationDescID.Default.(func() uuid.UUID)
+	entfieldMixin := schema.Field{}.Mixin()
+	entfieldMixinFields0 := entfieldMixin[0].Fields()
+	_ = entfieldMixinFields0
+	entfieldFields := schema.Field{}.Fields()
+	_ = entfieldFields
+	// entfieldDescCreatedAt is the schema descriptor for created_at field.
+	entfieldDescCreatedAt := entfieldMixinFields0[0].Descriptor()
+	// entfield.DefaultCreatedAt holds the default value on creation for the created_at field.
+	entfield.DefaultCreatedAt = entfieldDescCreatedAt.Default.(func() time.Time)
+	// entfieldDescUpdatedAt is the schema descriptor for updated_at field.
+	entfieldDescUpdatedAt := entfieldMixinFields0[1].Descriptor()
+	// entfield.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	entfield.DefaultUpdatedAt = entfieldDescUpdatedAt.Default.(func() time.Time)
+	// entfield.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	entfield.UpdateDefaultUpdatedAt = entfieldDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// entfieldDescName is the schema descriptor for name field.
+	entfieldDescName := entfieldFields[1].Descriptor()
+	// entfield.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	entfield.NameValidator = func() func(string) error {
+		validators := entfieldDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// entfieldDescSurfaceType is the schema descriptor for surface_type field.
+	entfieldDescSurfaceType := entfieldFields[3].Descriptor()
+	// entfield.SurfaceTypeValidator is a validator for the "surface_type" field. It is called by the builders before save.
+	entfield.SurfaceTypeValidator = entfieldDescSurfaceType.Validators[0].(func(string) error)
+	// entfieldDescID is the schema descriptor for id field.
+	entfieldDescID := entfieldFields[0].Descriptor()
+	// entfield.DefaultID holds the default value on creation for the id field.
+	entfield.DefaultID = entfieldDescID.Default.(func() uuid.UUID)
+	gameMixin := schema.Game{}.Mixin()
+	gameMixinFields0 := gameMixin[0].Fields()
+	_ = gameMixinFields0
+	gameFields := schema.Game{}.Fields()
+	_ = gameFields
+	// gameDescCreatedAt is the schema descriptor for created_at field.
+	gameDescCreatedAt := gameMixinFields0[0].Descriptor()
+	// game.DefaultCreatedAt holds the default value on creation for the created_at field.
+	game.DefaultCreatedAt = gameDescCreatedAt.Default.(func() time.Time)
+	// gameDescUpdatedAt is the schema descriptor for updated_at field.
+	gameDescUpdatedAt := gameMixinFields0[1].Descriptor()
+	// game.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	game.DefaultUpdatedAt = gameDescUpdatedAt.Default.(func() time.Time)
+	// game.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	game.UpdateDefaultUpdatedAt = gameDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// gameDescName is the schema descriptor for name field.
+	gameDescName := gameFields[1].Descriptor()
+	// game.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	game.NameValidator = func() func(string) error {
+		validators := gameDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// gameDescStoppageTimeSeconds is the schema descriptor for stoppage_time_seconds field.
+	gameDescStoppageTimeSeconds := gameFields[6].Descriptor()
+	// game.DefaultStoppageTimeSeconds holds the default value on creation for the stoppage_time_seconds field.
+	game.DefaultStoppageTimeSeconds = gameDescStoppageTimeSeconds.Default.(int)
+	// gameDescStatus is the schema descriptor for status field.
+	gameDescStatus := gameFields[7].Descriptor()
+	// game.DefaultStatus holds the default value on creation for the status field.
+	game.DefaultStatus = gameDescStatus.Default.(string)
+	// game.StatusValidator is a validator for the "status" field. It is called by the builders before save.
+	game.StatusValidator = gameDescStatus.Validators[0].(func(string) error)
+	// gameDescHomeTeamScore is the schema descriptor for home_team_score field.
+	gameDescHomeTeamScore := gameFields[8].Descriptor()
+	// game.DefaultHomeTeamScore holds the default value on creation for the home_team_score field.
+	game.DefaultHomeTeamScore = gameDescHomeTeamScore.Default.(int)
+	// gameDescAwayTeamScore is the schema descriptor for away_team_score field.
+	gameDescAwayTeamScore := gameFields[9].Descriptor()
+	// game.DefaultAwayTeamScore holds the default value on creation for the away_team_score field.
+	game.DefaultAwayTeamScore = gameDescAwayTeamScore.Default.(int)
+	// gameDescVersion is the schema descriptor for version field.
+	gameDescVersion := gameFields[11].Descriptor()
+	// game.DefaultVersion holds the default value on creation for the version field.
+	game.DefaultVersion = gameDescVersion.Default.(int)
+	// gameDescID is the schema descriptor for id field.
+	gameDescID := gameFields[0].Descriptor()
+	// game.DefaultID holds the default value on creation for the id field.
+	game.DefaultID = gameDescID.Default.(func() uuid.UUID)
+	gameeventFields := schema.GameEvent{}.Fields()
+	_ = gameeventFields
+	// gameeventDescEventType is the schema descriptor for event_type field.
+	gameeventDescEventType := gameeventFields[1].Descriptor()
+	// gameevent.EventTypeValidator is a validator for the "event_type" field. It is called by the builders before save.
+	gameevent.EventTypeValidator = func() func(string) error {
+		validators := gameeventDescEventType.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(event_type string) error {
+			for _, fn := range fns {
+				if err := fn(event_type); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// gameeventDescCreatedAt is the schema descriptor for created_at field.
+	gameeventDescCreatedAt := gameeventFields[6].Descriptor()
+	// gameevent.DefaultCreatedAt holds the default value on creation for the created_at field.
+	gameevent.DefaultCreatedAt = gameeventDescCreatedAt.Default.(func() time.Time)
+	// gameeventDescID is the schema descriptor for id field.
+	gameeventDescID := gameeventFields[0].Descriptor()
+	// gameevent.DefaultID holds the default value on creation for the id field.
+	gameevent.DefaultID = gameeventDescID.Default.(func() uuid.UUID)
+	gameroundMixin := schema.GameRound{}.Mixin()
+	gameroundMixinFields0 := gameroundMixin[0].Fields()
+	_ = gameroundMixinFields0
+	gameroundFields := schema.GameRound{}.Fields()
+	_ = gameroundFields
+	// gameroundDescCreatedAt is the schema descriptor for created_at field.
+	gameroundDescCreatedAt := gameroundMixinFields0[0].Descriptor()
+	// gameround.DefaultCreatedAt holds the default value on creation for the created_at field.
+	gameround.DefaultCreatedAt = gameroundDescCreatedAt.Default.(func() time.Time)
+	// gameroundDescUpdatedAt is the schema descriptor for updated_at field.
+	gameroundDescUpdatedAt := gameroundMixinFields0[1].Descriptor()
+	// gameround.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	gameround.DefaultUpdatedAt = gameroundDescUpdatedAt.Default.(func() time.Time)
+	// gameround.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	gameround.UpdateDefaultUpdatedAt = gameroundDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// gameroundDescName is the schema descriptor for name field.
+	gameroundDescName := gameroundFields[1].Descriptor()
+	// gameround.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	gameround.NameValidator = func() func(string) error {
+		validators := gameroundDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// gameroundDescRoundType is the schema descriptor for round_type field.
+	gameroundDescRoundType := gameroundFields[2].Descriptor()
+	// gameround.RoundTypeValidator is a validator for the "round_type" field. It is called by the builders before save.
+	gameround.RoundTypeValidator = func() func(string) error {
+		validators := gameroundDescRoundType.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(round_type string) error {
+			for _, fn := range fns {
+				if err := fn(round_type); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// gameroundDescID is the schema descriptor for id field.
+	gameroundDescID := gameroundFields[0].Descriptor()
+	// gameround.DefaultID holds the default value on creation for the id field.
+	gameround.DefaultID = gameroundDescID.Default.(func() uuid.UUID)
+	locationMixin := schema.Location{}.Mixin()
+	locationMixinFields0 := locationMixin[0].Fields()
+	_ = locationMixinFields0
+	locationFields := schema.Location{}.Fields()
+	_ = locationFields
+	// locationDescCreatedAt is the schema descriptor for created_at field.
+	locationDescCreatedAt := locationMixinFields0[0].Descriptor()
+	// location.DefaultCreatedAt holds the default value on creation for the created_at field.
+	location.DefaultCreatedAt = locationDescCreatedAt.Default.(func() time.Time)
+	// locationDescUpdatedAt is the schema descriptor for updated_at field.
+	locationDescUpdatedAt := locationMixinFields0[1].Descriptor()
+	// location.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	location.DefaultUpdatedAt = locationDescUpdatedAt.Default.(func() time.Time)
+	// location.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	location.UpdateDefaultUpdatedAt = locationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// locationDescName is the schema descriptor for name field.
+	locationDescName := locationFields[1].Descriptor()
+	// location.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	location.NameValidator = func() func(string) error {
+		validators := locationDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// locationDescSlug is the schema descriptor for slug field.
+	locationDescSlug := locationFields[2].Descriptor()
+	// location.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	location.SlugValidator = func() func(string) error {
+		validators := locationDescSlug.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(slug string) error {
+			for _, fn := range fns {
+				if err := fn(slug); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// locationDescAddress is the schema descriptor for address field.
+	locationDescAddress := locationFields[3].Descriptor()
+	// location.AddressValidator is a validator for the "address" field. It is called by the builders before save.
+	location.AddressValidator = locationDescAddress.Validators[0].(func(string) error)
+	// locationDescCity is the schema descriptor for city field.
+	locationDescCity := locationFields[4].Descriptor()
+	// location.CityValidator is a validator for the "city" field. It is called by the builders before save.
+	location.CityValidator = locationDescCity.Validators[0].(func(string) error)
+	// locationDescID is the schema descriptor for id field.
+	locationDescID := locationFields[0].Descriptor()
+	// location.DefaultID holds the default value on creation for the id field.
+	location.DefaultID = locationDescID.Default.(func() uuid.UUID)
+	mvp_nominationFields := schema.MVP_Nomination{}.Fields()
+	_ = mvp_nominationFields
+	// mvp_nominationDescCategory is the schema descriptor for category field.
+	mvp_nominationDescCategory := mvp_nominationFields[1].Descriptor()
+	// mvp_nomination.CategoryValidator is a validator for the "category" field. It is called by the builders before save.
+	mvp_nomination.CategoryValidator = func() func(string) error {
+		validators := mvp_nominationDescCategory.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(category string) error {
+			for _, fn := range fns {
+				if err := fn(category); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// mvp_nominationDescCreatedAt is the schema descriptor for created_at field.
+	mvp_nominationDescCreatedAt := mvp_nominationFields[2].Descriptor()
+	// mvp_nomination.DefaultCreatedAt holds the default value on creation for the created_at field.
+	mvp_nomination.DefaultCreatedAt = mvp_nominationDescCreatedAt.Default.(func() time.Time)
+	// mvp_nominationDescID is the schema descriptor for id field.
+	mvp_nominationDescID := mvp_nominationFields[0].Descriptor()
+	// mvp_nomination.DefaultID holds the default value on creation for the id field.
+	mvp_nomination.DefaultID = mvp_nominationDescID.Default.(func() uuid.UUID)
+	playerMixin := schema.Player{}.Mixin()
+	playerMixinFields0 := playerMixin[0].Fields()
+	_ = playerMixinFields0
+	playerFields := schema.Player{}.Fields()
+	_ = playerFields
+	// playerDescCreatedAt is the schema descriptor for created_at field.
+	playerDescCreatedAt := playerMixinFields0[0].Descriptor()
+	// player.DefaultCreatedAt holds the default value on creation for the created_at field.
+	player.DefaultCreatedAt = playerDescCreatedAt.Default.(func() time.Time)
+	// playerDescUpdatedAt is the schema descriptor for updated_at field.
+	playerDescUpdatedAt := playerMixinFields0[1].Descriptor()
+	// player.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	player.DefaultUpdatedAt = playerDescUpdatedAt.Default.(func() time.Time)
+	// player.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	player.UpdateDefaultUpdatedAt = playerDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// playerDescName is the schema descriptor for name field.
+	playerDescName := playerFields[1].Descriptor()
+	// player.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	player.NameValidator = func() func(string) error {
+		validators := playerDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// playerDescEmail is the schema descriptor for email field.
+	playerDescEmail := playerFields[2].Descriptor()
+	// player.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	player.EmailValidator = playerDescEmail.Validators[0].(func(string) error)
+	// playerDescGender is the schema descriptor for gender field.
+	playerDescGender := playerFields[3].Descriptor()
+	// player.GenderValidator is a validator for the "gender" field. It is called by the builders before save.
+	player.GenderValidator = func() func(string) error {
+		validators := playerDescGender.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(gender string) error {
+			for _, fn := range fns {
+				if err := fn(gender); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// playerDescJerseyNumber is the schema descriptor for jersey_number field.
+	playerDescJerseyNumber := playerFields[5].Descriptor()
+	// player.JerseyNumberValidator is a validator for the "jersey_number" field. It is called by the builders before save.
+	player.JerseyNumberValidator = playerDescJerseyNumber.Validators[0].(func(string) error)
+	// playerDescID is the schema descriptor for id field.
+	playerDescID := playerFields[0].Descriptor()
+	// player.DefaultID holds the default value on creation for the id field.
+	player.DefaultID = playerDescID.Default.(func() uuid.UUID)
+	scoringMixin := schema.Scoring{}.Mixin()
+	scoringMixinFields0 := scoringMixin[0].Fields()
+	_ = scoringMixinFields0
+	scoringFields := schema.Scoring{}.Fields()
+	_ = scoringFields
+	// scoringDescCreatedAt is the schema descriptor for created_at field.
+	scoringDescCreatedAt := scoringMixinFields0[0].Descriptor()
+	// scoring.DefaultCreatedAt holds the default value on creation for the created_at field.
+	scoring.DefaultCreatedAt = scoringDescCreatedAt.Default.(func() time.Time)
+	// scoringDescUpdatedAt is the schema descriptor for updated_at field.
+	scoringDescUpdatedAt := scoringMixinFields0[1].Descriptor()
+	// scoring.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	scoring.DefaultUpdatedAt = scoringDescUpdatedAt.Default.(func() time.Time)
+	// scoring.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	scoring.UpdateDefaultUpdatedAt = scoringDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// scoringDescGoals is the schema descriptor for goals field.
+	scoringDescGoals := scoringFields[1].Descriptor()
+	// scoring.DefaultGoals holds the default value on creation for the goals field.
+	scoring.DefaultGoals = scoringDescGoals.Default.(int)
+	// scoringDescAssists is the schema descriptor for assists field.
+	scoringDescAssists := scoringFields[2].Descriptor()
+	// scoring.DefaultAssists holds the default value on creation for the assists field.
+	scoring.DefaultAssists = scoringDescAssists.Default.(int)
+	// scoringDescBlocks is the schema descriptor for blocks field.
+	scoringDescBlocks := scoringFields[3].Descriptor()
+	// scoring.DefaultBlocks holds the default value on creation for the blocks field.
+	scoring.DefaultBlocks = scoringDescBlocks.Default.(int)
+	// scoringDescTurns is the schema descriptor for turns field.
+	scoringDescTurns := scoringFields[4].Descriptor()
+	// scoring.DefaultTurns holds the default value on creation for the turns field.
+	scoring.DefaultTurns = scoringDescTurns.Default.(int)
+	// scoringDescVersion is the schema descriptor for version field.
+	scoringDescVersion := scoringFields[5].Descriptor()
+	// scoring.DefaultVersion holds the default value on creation for the version field.
+	scoring.DefaultVersion = scoringDescVersion.Default.(int)
+	// scoringDescID is the schema descriptor for id field.
+	scoringDescID := scoringFields[0].Descriptor()
+	// scoring.DefaultID holds the default value on creation for the id field.
+	scoring.DefaultID = scoringDescID.Default.(func() uuid.UUID)
+	spiritnominationFields := schema.SpiritNomination{}.Fields()
+	_ = spiritnominationFields
+	// spiritnominationDescCategory is the schema descriptor for category field.
+	spiritnominationDescCategory := spiritnominationFields[1].Descriptor()
+	// spiritnomination.CategoryValidator is a validator for the "category" field. It is called by the builders before save.
+	spiritnomination.CategoryValidator = func() func(string) error {
+		validators := spiritnominationDescCategory.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(category string) error {
+			for _, fn := range fns {
+				if err := fn(category); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// spiritnominationDescCreatedAt is the schema descriptor for created_at field.
+	spiritnominationDescCreatedAt := spiritnominationFields[2].Descriptor()
+	// spiritnomination.DefaultCreatedAt holds the default value on creation for the created_at field.
+	spiritnomination.DefaultCreatedAt = spiritnominationDescCreatedAt.Default.(func() time.Time)
+	// spiritnominationDescID is the schema descriptor for id field.
+	spiritnominationDescID := spiritnominationFields[0].Descriptor()
+	// spiritnomination.DefaultID holds the default value on creation for the id field.
+	spiritnomination.DefaultID = spiritnominationDescID.Default.(func() uuid.UUID)
+	spiritscoreMixin := schema.SpiritScore{}.Mixin()
+	spiritscoreMixinFields0 := spiritscoreMixin[0].Fields()
+	_ = spiritscoreMixinFields0
+	spiritscoreFields := schema.SpiritScore{}.Fields()
+	_ = spiritscoreFields
+	// spiritscoreDescCreatedAt is the schema descriptor for created_at field.
+	spiritscoreDescCreatedAt := spiritscoreMixinFields0[0].Descriptor()
+	// spiritscore.DefaultCreatedAt holds the default value on creation for the created_at field.
+	spiritscore.DefaultCreatedAt = spiritscoreDescCreatedAt.Default.(func() time.Time)
+	// spiritscoreDescUpdatedAt is the schema descriptor for updated_at field.
+	spiritscoreDescUpdatedAt := spiritscoreMixinFields0[1].Descriptor()
+	// spiritscore.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	spiritscore.DefaultUpdatedAt = spiritscoreDescUpdatedAt.Default.(func() time.Time)
+	// spiritscore.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	spiritscore.UpdateDefaultUpdatedAt = spiritscoreDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// spiritscoreDescID is the schema descriptor for id field.
+	spiritscoreDescID := spiritscoreFields[0].Descriptor()
+	// spiritscore.DefaultID holds the default value on creation for the id field.
+	spiritscore.DefaultID = spiritscoreDescID.Default.(func() uuid.UUID)
+	teamMixin := schema.Team{}.Mixin()
+	teamMixinFields0 := teamMixin[0].Fields()
+	_ = teamMixinFields0
+	teamFields := schema.Team{}.Fields()
+	_ = teamFields
+	// teamDescCreatedAt is the schema descriptor for created_at field.
+	teamDescCreatedAt := teamMixinFields0[0].Descriptor()
+	// team.DefaultCreatedAt holds the default value on creation for the created_at field.
+	team.DefaultCreatedAt = teamDescCreatedAt.Default.(func() time.Time)
+	// teamDescUpdatedAt is the schema descriptor for updated_at field.
+	teamDescUpdatedAt := teamMixinFields0[1].Descriptor()
+	// team.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	team.DefaultUpdatedAt = teamDescUpdatedAt.Default.(func() time.Time)
+	// team.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	team.UpdateDefaultUpdatedAt = teamDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// teamDescName is the schema descriptor for name field.
+	teamDescName := teamFields[1].Descriptor()
+	// team.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	team.NameValidator = func() func(string) error {
+		validators := teamDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// teamDescID is the schema descriptor for id field.
+	teamDescID := teamFields[0].Descriptor()
+	// team.DefaultID holds the default value on creation for the id field.
+	team.DefaultID = teamDescID.Default.(func() uuid.UUID)
+	userMixin := schema.User{}.Mixin()
+	userMixinFields0 := userMixin[0].Fields()
+	_ = userMixinFields0
+	userFields := schema.User{}.Fields()
+	_ = userFields
+	// userDescCreatedAt is the schema descriptor for created_at field.
+	userDescCreatedAt := userMixinFields0[0].Descriptor()
+	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
+	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
+	// userDescUpdatedAt is the schema descriptor for updated_at field.
+	userDescUpdatedAt := userMixinFields0[1].Descriptor()
+	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
+	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// userDescEmail is the schema descriptor for email field.
+	userDescEmail := userFields[1].Descriptor()
+	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	user.EmailValidator = userDescEmail.Validators[0].(func(string) error)
+	// userDescPasswordHash is the schema descriptor for password_hash field.
+	userDescPasswordHash := userFields[2].Descriptor()
+	// user.PasswordHashValidator is a validator for the "password_hash" field. It is called by the builders before save.
+	user.PasswordHashValidator = userDescPasswordHash.Validators[0].(func(string) error)
+	// userDescFullName is the schema descriptor for full_name field.
+	userDescFullName := userFields[3].Descriptor()
+	// user.FullNameValidator is a validator for the "full_name" field. It is called by the builders before save.
+	user.FullNameValidator = func() func(string) error {
+		validators := userDescFullName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(full_name string) error {
+			for _, fn := range fns {
+				if err := fn(full_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// userDescRole is the schema descriptor for role field.
+	userDescRole := userFields[4].Descriptor()
+	// user.RoleValidator is a validator for the "role" field. It is called by the builders before save.
+	user.RoleValidator = userDescRole.Validators[0].(func(string) error)
+	// userDescIsActive is the schema descriptor for is_active field.
+	userDescIsActive := userFields[5].Descriptor()
+	// user.DefaultIsActive holds the default value on creation for the is_active field.
+	user.DefaultIsActive = userDescIsActive.Default.(bool)
+	// userDescID is the schema descriptor for id field.
+	userDescID := userFields[0].Descriptor()
+	// user.DefaultID holds the default value on creation for the id field.
+	user.DefaultID = userDescID.Default.(func() uuid.UUID)
+	worldMixin := schema.World{}.Mixin()
+	worldMixinFields0 := worldMixin[0].Fields()
+	_ = worldMixinFields0
+	worldFields := schema.World{}.Fields()
+	_ = worldFields
+	// worldDescCreatedAt is the schema descriptor for created_at field.
+	worldDescCreatedAt := worldMixinFields0[0].Descriptor()
+	// world.DefaultCreatedAt holds the default value on creation for the created_at field.
+	world.DefaultCreatedAt = worldDescCreatedAt.Default.(func() time.Time)
+	// worldDescUpdatedAt is the schema descriptor for updated_at field.
+	worldDescUpdatedAt := worldMixinFields0[1].Descriptor()
+	// world.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	world.DefaultUpdatedAt = worldDescUpdatedAt.Default.(func() time.Time)
+	// world.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	world.UpdateDefaultUpdatedAt = worldDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// worldDescName is the schema descriptor for name field.
+	worldDescName := worldFields[1].Descriptor()
+	// world.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	world.NameValidator = func() func(string) error {
+		validators := worldDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// worldDescSlug is the schema descriptor for slug field.
+	worldDescSlug := worldFields[2].Descriptor()
+	// world.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	world.SlugValidator = func() func(string) error {
+		validators := worldDescSlug.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(slug string) error {
+			for _, fn := range fns {
+				if err := fn(slug); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// worldDescID is the schema descriptor for id field.
+	worldDescID := worldFields[0].Descriptor()
+	// world.DefaultID holds the default value on creation for the id field.
+	world.DefaultID = worldDescID.Default.(func() uuid.UUID)
 }

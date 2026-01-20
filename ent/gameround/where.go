@@ -3,53 +3,553 @@
 package gameround
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.GameRound {
+func ID(id uuid.UUID) predicate.GameRound {
 	return predicate.GameRound(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.GameRound {
+func IDEQ(id uuid.UUID) predicate.GameRound {
 	return predicate.GameRound(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.GameRound {
+func IDNEQ(id uuid.UUID) predicate.GameRound {
 	return predicate.GameRound(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.GameRound {
+func IDIn(ids ...uuid.UUID) predicate.GameRound {
 	return predicate.GameRound(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.GameRound {
+func IDNotIn(ids ...uuid.UUID) predicate.GameRound {
 	return predicate.GameRound(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.GameRound {
+func IDGT(id uuid.UUID) predicate.GameRound {
 	return predicate.GameRound(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.GameRound {
+func IDGTE(id uuid.UUID) predicate.GameRound {
 	return predicate.GameRound(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.GameRound {
+func IDLT(id uuid.UUID) predicate.GameRound {
 	return predicate.GameRound(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.GameRound {
+func IDLTE(id uuid.UUID) predicate.GameRound {
 	return predicate.GameRound(sql.FieldLTE(FieldID, id))
+}
+
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
+func DeletedAt(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
+func Name(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldName, v))
+}
+
+// RoundType applies equality check predicate on the "round_type" field. It's identical to RoundTypeEQ.
+func RoundType(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldRoundType, v))
+}
+
+// RoundNumber applies equality check predicate on the "round_number" field. It's identical to RoundNumberEQ.
+func RoundNumber(v int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldRoundNumber, v))
+}
+
+// StartDate applies equality check predicate on the "start_date" field. It's identical to StartDateEQ.
+func StartDate(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldStartDate, v))
+}
+
+// EndDate applies equality check predicate on the "end_date" field. It's identical to EndDateEQ.
+func EndDate(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldEndDate, v))
+}
+
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNotIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGT(FieldCreatedAt, v))
+}
+
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGTE(FieldCreatedAt, v))
+}
+
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLT(FieldCreatedAt, v))
+}
+
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
+func DeletedAtEQ(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
+func DeletedAtNEQ(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtIn applies the In predicate on the "deleted_at" field.
+func DeletedAtIn(vs ...time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
+func DeletedAtNotIn(vs ...time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNotIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtGT applies the GT predicate on the "deleted_at" field.
+func DeletedAtGT(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGT(FieldDeletedAt, v))
+}
+
+// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
+func DeletedAtGTE(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGTE(FieldDeletedAt, v))
+}
+
+// DeletedAtLT applies the LT predicate on the "deleted_at" field.
+func DeletedAtLT(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLT(FieldDeletedAt, v))
+}
+
+// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
+func DeletedAtLTE(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// DeletedAtIsNil applies the IsNil predicate on the "deleted_at" field.
+func DeletedAtIsNil() predicate.GameRound {
+	return predicate.GameRound(sql.FieldIsNull(FieldDeletedAt))
+}
+
+// DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
+func DeletedAtNotNil() predicate.GameRound {
+	return predicate.GameRound(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// NameEQ applies the EQ predicate on the "name" field.
+func NameEQ(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldName, v))
+}
+
+// NameNEQ applies the NEQ predicate on the "name" field.
+func NameNEQ(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNEQ(FieldName, v))
+}
+
+// NameIn applies the In predicate on the "name" field.
+func NameIn(vs ...string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldIn(FieldName, vs...))
+}
+
+// NameNotIn applies the NotIn predicate on the "name" field.
+func NameNotIn(vs ...string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNotIn(FieldName, vs...))
+}
+
+// NameGT applies the GT predicate on the "name" field.
+func NameGT(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGT(FieldName, v))
+}
+
+// NameGTE applies the GTE predicate on the "name" field.
+func NameGTE(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGTE(FieldName, v))
+}
+
+// NameLT applies the LT predicate on the "name" field.
+func NameLT(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLT(FieldName, v))
+}
+
+// NameLTE applies the LTE predicate on the "name" field.
+func NameLTE(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLTE(FieldName, v))
+}
+
+// NameContains applies the Contains predicate on the "name" field.
+func NameContains(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldContains(FieldName, v))
+}
+
+// NameHasPrefix applies the HasPrefix predicate on the "name" field.
+func NameHasPrefix(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldHasPrefix(FieldName, v))
+}
+
+// NameHasSuffix applies the HasSuffix predicate on the "name" field.
+func NameHasSuffix(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldHasSuffix(FieldName, v))
+}
+
+// NameEqualFold applies the EqualFold predicate on the "name" field.
+func NameEqualFold(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEqualFold(FieldName, v))
+}
+
+// NameContainsFold applies the ContainsFold predicate on the "name" field.
+func NameContainsFold(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldContainsFold(FieldName, v))
+}
+
+// RoundTypeEQ applies the EQ predicate on the "round_type" field.
+func RoundTypeEQ(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldRoundType, v))
+}
+
+// RoundTypeNEQ applies the NEQ predicate on the "round_type" field.
+func RoundTypeNEQ(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNEQ(FieldRoundType, v))
+}
+
+// RoundTypeIn applies the In predicate on the "round_type" field.
+func RoundTypeIn(vs ...string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldIn(FieldRoundType, vs...))
+}
+
+// RoundTypeNotIn applies the NotIn predicate on the "round_type" field.
+func RoundTypeNotIn(vs ...string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNotIn(FieldRoundType, vs...))
+}
+
+// RoundTypeGT applies the GT predicate on the "round_type" field.
+func RoundTypeGT(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGT(FieldRoundType, v))
+}
+
+// RoundTypeGTE applies the GTE predicate on the "round_type" field.
+func RoundTypeGTE(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGTE(FieldRoundType, v))
+}
+
+// RoundTypeLT applies the LT predicate on the "round_type" field.
+func RoundTypeLT(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLT(FieldRoundType, v))
+}
+
+// RoundTypeLTE applies the LTE predicate on the "round_type" field.
+func RoundTypeLTE(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLTE(FieldRoundType, v))
+}
+
+// RoundTypeContains applies the Contains predicate on the "round_type" field.
+func RoundTypeContains(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldContains(FieldRoundType, v))
+}
+
+// RoundTypeHasPrefix applies the HasPrefix predicate on the "round_type" field.
+func RoundTypeHasPrefix(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldHasPrefix(FieldRoundType, v))
+}
+
+// RoundTypeHasSuffix applies the HasSuffix predicate on the "round_type" field.
+func RoundTypeHasSuffix(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldHasSuffix(FieldRoundType, v))
+}
+
+// RoundTypeEqualFold applies the EqualFold predicate on the "round_type" field.
+func RoundTypeEqualFold(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEqualFold(FieldRoundType, v))
+}
+
+// RoundTypeContainsFold applies the ContainsFold predicate on the "round_type" field.
+func RoundTypeContainsFold(v string) predicate.GameRound {
+	return predicate.GameRound(sql.FieldContainsFold(FieldRoundType, v))
+}
+
+// RoundNumberEQ applies the EQ predicate on the "round_number" field.
+func RoundNumberEQ(v int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldRoundNumber, v))
+}
+
+// RoundNumberNEQ applies the NEQ predicate on the "round_number" field.
+func RoundNumberNEQ(v int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNEQ(FieldRoundNumber, v))
+}
+
+// RoundNumberIn applies the In predicate on the "round_number" field.
+func RoundNumberIn(vs ...int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldIn(FieldRoundNumber, vs...))
+}
+
+// RoundNumberNotIn applies the NotIn predicate on the "round_number" field.
+func RoundNumberNotIn(vs ...int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNotIn(FieldRoundNumber, vs...))
+}
+
+// RoundNumberGT applies the GT predicate on the "round_number" field.
+func RoundNumberGT(v int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGT(FieldRoundNumber, v))
+}
+
+// RoundNumberGTE applies the GTE predicate on the "round_number" field.
+func RoundNumberGTE(v int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGTE(FieldRoundNumber, v))
+}
+
+// RoundNumberLT applies the LT predicate on the "round_number" field.
+func RoundNumberLT(v int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLT(FieldRoundNumber, v))
+}
+
+// RoundNumberLTE applies the LTE predicate on the "round_number" field.
+func RoundNumberLTE(v int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLTE(FieldRoundNumber, v))
+}
+
+// RoundNumberIsNil applies the IsNil predicate on the "round_number" field.
+func RoundNumberIsNil() predicate.GameRound {
+	return predicate.GameRound(sql.FieldIsNull(FieldRoundNumber))
+}
+
+// RoundNumberNotNil applies the NotNil predicate on the "round_number" field.
+func RoundNumberNotNil() predicate.GameRound {
+	return predicate.GameRound(sql.FieldNotNull(FieldRoundNumber))
+}
+
+// StartDateEQ applies the EQ predicate on the "start_date" field.
+func StartDateEQ(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldStartDate, v))
+}
+
+// StartDateNEQ applies the NEQ predicate on the "start_date" field.
+func StartDateNEQ(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNEQ(FieldStartDate, v))
+}
+
+// StartDateIn applies the In predicate on the "start_date" field.
+func StartDateIn(vs ...time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldIn(FieldStartDate, vs...))
+}
+
+// StartDateNotIn applies the NotIn predicate on the "start_date" field.
+func StartDateNotIn(vs ...time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNotIn(FieldStartDate, vs...))
+}
+
+// StartDateGT applies the GT predicate on the "start_date" field.
+func StartDateGT(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGT(FieldStartDate, v))
+}
+
+// StartDateGTE applies the GTE predicate on the "start_date" field.
+func StartDateGTE(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGTE(FieldStartDate, v))
+}
+
+// StartDateLT applies the LT predicate on the "start_date" field.
+func StartDateLT(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLT(FieldStartDate, v))
+}
+
+// StartDateLTE applies the LTE predicate on the "start_date" field.
+func StartDateLTE(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLTE(FieldStartDate, v))
+}
+
+// StartDateIsNil applies the IsNil predicate on the "start_date" field.
+func StartDateIsNil() predicate.GameRound {
+	return predicate.GameRound(sql.FieldIsNull(FieldStartDate))
+}
+
+// StartDateNotNil applies the NotNil predicate on the "start_date" field.
+func StartDateNotNil() predicate.GameRound {
+	return predicate.GameRound(sql.FieldNotNull(FieldStartDate))
+}
+
+// EndDateEQ applies the EQ predicate on the "end_date" field.
+func EndDateEQ(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldEndDate, v))
+}
+
+// EndDateNEQ applies the NEQ predicate on the "end_date" field.
+func EndDateNEQ(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNEQ(FieldEndDate, v))
+}
+
+// EndDateIn applies the In predicate on the "end_date" field.
+func EndDateIn(vs ...time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldIn(FieldEndDate, vs...))
+}
+
+// EndDateNotIn applies the NotIn predicate on the "end_date" field.
+func EndDateNotIn(vs ...time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNotIn(FieldEndDate, vs...))
+}
+
+// EndDateGT applies the GT predicate on the "end_date" field.
+func EndDateGT(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGT(FieldEndDate, v))
+}
+
+// EndDateGTE applies the GTE predicate on the "end_date" field.
+func EndDateGTE(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGTE(FieldEndDate, v))
+}
+
+// EndDateLT applies the LT predicate on the "end_date" field.
+func EndDateLT(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLT(FieldEndDate, v))
+}
+
+// EndDateLTE applies the LTE predicate on the "end_date" field.
+func EndDateLTE(v time.Time) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLTE(FieldEndDate, v))
+}
+
+// EndDateIsNil applies the IsNil predicate on the "end_date" field.
+func EndDateIsNil() predicate.GameRound {
+	return predicate.GameRound(sql.FieldIsNull(FieldEndDate))
+}
+
+// EndDateNotNil applies the NotNil predicate on the "end_date" field.
+func EndDateNotNil() predicate.GameRound {
+	return predicate.GameRound(sql.FieldNotNull(FieldEndDate))
+}
+
+// HasEvent applies the HasEdge predicate on the "event" edge.
+func HasEvent() predicate.GameRound {
+	return predicate.GameRound(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, EventTable, EventColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasEventWith applies the HasEdge predicate on the "event" edge with a given conditions (other predicates).
+func HasEventWith(preds ...predicate.Event) predicate.GameRound {
+	return predicate.GameRound(func(s *sql.Selector) {
+		step := newEventStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasGames applies the HasEdge predicate on the "games" edge.
+func HasGames() predicate.GameRound {
+	return predicate.GameRound(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, GamesTable, GamesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGamesWith applies the HasEdge predicate on the "games" edge with a given conditions (other predicates).
+func HasGamesWith(preds ...predicate.Game) predicate.GameRound {
+	return predicate.GameRound(func(s *sql.Selector) {
+		step := newGamesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

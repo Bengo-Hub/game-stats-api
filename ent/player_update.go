@@ -6,12 +6,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/gameevent"
+	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
 	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/bengobox/game-stats-api/ent/spiritnomination"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/google/uuid"
 )
 
 // PlayerUpdate is the builder for updating Player entities.
@@ -27,13 +34,321 @@ func (_u *PlayerUpdate) Where(ps ...predicate.Player) *PlayerUpdate {
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *PlayerUpdate) SetUpdatedAt(v time.Time) *PlayerUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *PlayerUpdate) SetDeletedAt(v time.Time) *PlayerUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *PlayerUpdate) SetNillableDeletedAt(v *time.Time) *PlayerUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *PlayerUpdate) ClearDeletedAt() *PlayerUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetName sets the "name" field.
+func (_u *PlayerUpdate) SetName(v string) *PlayerUpdate {
+	_u.mutation.SetName(v)
+	return _u
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (_u *PlayerUpdate) SetNillableName(v *string) *PlayerUpdate {
+	if v != nil {
+		_u.SetName(*v)
+	}
+	return _u
+}
+
+// SetEmail sets the "email" field.
+func (_u *PlayerUpdate) SetEmail(v string) *PlayerUpdate {
+	_u.mutation.SetEmail(v)
+	return _u
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (_u *PlayerUpdate) SetNillableEmail(v *string) *PlayerUpdate {
+	if v != nil {
+		_u.SetEmail(*v)
+	}
+	return _u
+}
+
+// ClearEmail clears the value of the "email" field.
+func (_u *PlayerUpdate) ClearEmail() *PlayerUpdate {
+	_u.mutation.ClearEmail()
+	return _u
+}
+
+// SetGender sets the "gender" field.
+func (_u *PlayerUpdate) SetGender(v string) *PlayerUpdate {
+	_u.mutation.SetGender(v)
+	return _u
+}
+
+// SetNillableGender sets the "gender" field if the given value is not nil.
+func (_u *PlayerUpdate) SetNillableGender(v *string) *PlayerUpdate {
+	if v != nil {
+		_u.SetGender(*v)
+	}
+	return _u
+}
+
+// SetDateOfBirth sets the "date_of_birth" field.
+func (_u *PlayerUpdate) SetDateOfBirth(v time.Time) *PlayerUpdate {
+	_u.mutation.SetDateOfBirth(v)
+	return _u
+}
+
+// SetNillableDateOfBirth sets the "date_of_birth" field if the given value is not nil.
+func (_u *PlayerUpdate) SetNillableDateOfBirth(v *time.Time) *PlayerUpdate {
+	if v != nil {
+		_u.SetDateOfBirth(*v)
+	}
+	return _u
+}
+
+// ClearDateOfBirth clears the value of the "date_of_birth" field.
+func (_u *PlayerUpdate) ClearDateOfBirth() *PlayerUpdate {
+	_u.mutation.ClearDateOfBirth()
+	return _u
+}
+
+// SetJerseyNumber sets the "jersey_number" field.
+func (_u *PlayerUpdate) SetJerseyNumber(v string) *PlayerUpdate {
+	_u.mutation.SetJerseyNumber(v)
+	return _u
+}
+
+// SetNillableJerseyNumber sets the "jersey_number" field if the given value is not nil.
+func (_u *PlayerUpdate) SetNillableJerseyNumber(v *string) *PlayerUpdate {
+	if v != nil {
+		_u.SetJerseyNumber(*v)
+	}
+	return _u
+}
+
+// ClearJerseyNumber clears the value of the "jersey_number" field.
+func (_u *PlayerUpdate) ClearJerseyNumber() *PlayerUpdate {
+	_u.mutation.ClearJerseyNumber()
+	return _u
+}
+
+// SetProfileImageURL sets the "profile_image_url" field.
+func (_u *PlayerUpdate) SetProfileImageURL(v string) *PlayerUpdate {
+	_u.mutation.SetProfileImageURL(v)
+	return _u
+}
+
+// SetNillableProfileImageURL sets the "profile_image_url" field if the given value is not nil.
+func (_u *PlayerUpdate) SetNillableProfileImageURL(v *string) *PlayerUpdate {
+	if v != nil {
+		_u.SetProfileImageURL(*v)
+	}
+	return _u
+}
+
+// ClearProfileImageURL clears the value of the "profile_image_url" field.
+func (_u *PlayerUpdate) ClearProfileImageURL() *PlayerUpdate {
+	_u.mutation.ClearProfileImageURL()
+	return _u
+}
+
+// SetMetadata sets the "metadata" field.
+func (_u *PlayerUpdate) SetMetadata(v map[string]interface{}) *PlayerUpdate {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *PlayerUpdate) ClearMetadata() *PlayerUpdate {
+	_u.mutation.ClearMetadata()
+	return _u
+}
+
+// SetTeamID sets the "team" edge to the Team entity by ID.
+func (_u *PlayerUpdate) SetTeamID(id uuid.UUID) *PlayerUpdate {
+	_u.mutation.SetTeamID(id)
+	return _u
+}
+
+// SetTeam sets the "team" edge to the Team entity.
+func (_u *PlayerUpdate) SetTeam(v *Team) *PlayerUpdate {
+	return _u.SetTeamID(v.ID)
+}
+
+// AddScoreIDs adds the "scores" edge to the Scoring entity by IDs.
+func (_u *PlayerUpdate) AddScoreIDs(ids ...uuid.UUID) *PlayerUpdate {
+	_u.mutation.AddScoreIDs(ids...)
+	return _u
+}
+
+// AddScores adds the "scores" edges to the Scoring entity.
+func (_u *PlayerUpdate) AddScores(v ...*Scoring) *PlayerUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddScoreIDs(ids...)
+}
+
+// AddGameEventIDs adds the "game_events" edge to the GameEvent entity by IDs.
+func (_u *PlayerUpdate) AddGameEventIDs(ids ...uuid.UUID) *PlayerUpdate {
+	_u.mutation.AddGameEventIDs(ids...)
+	return _u
+}
+
+// AddGameEvents adds the "game_events" edges to the GameEvent entity.
+func (_u *PlayerUpdate) AddGameEvents(v ...*GameEvent) *PlayerUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddGameEventIDs(ids...)
+}
+
+// AddMvpNominationIDs adds the "mvp_nominations" edge to the MVP_Nomination entity by IDs.
+func (_u *PlayerUpdate) AddMvpNominationIDs(ids ...uuid.UUID) *PlayerUpdate {
+	_u.mutation.AddMvpNominationIDs(ids...)
+	return _u
+}
+
+// AddMvpNominations adds the "mvp_nominations" edges to the MVP_Nomination entity.
+func (_u *PlayerUpdate) AddMvpNominations(v ...*MVP_Nomination) *PlayerUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddMvpNominationIDs(ids...)
+}
+
+// AddSpiritNominationIDs adds the "spirit_nominations" edge to the SpiritNomination entity by IDs.
+func (_u *PlayerUpdate) AddSpiritNominationIDs(ids ...uuid.UUID) *PlayerUpdate {
+	_u.mutation.AddSpiritNominationIDs(ids...)
+	return _u
+}
+
+// AddSpiritNominations adds the "spirit_nominations" edges to the SpiritNomination entity.
+func (_u *PlayerUpdate) AddSpiritNominations(v ...*SpiritNomination) *PlayerUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpiritNominationIDs(ids...)
+}
+
 // Mutation returns the PlayerMutation object of the builder.
 func (_u *PlayerUpdate) Mutation() *PlayerMutation {
 	return _u.mutation
 }
 
+// ClearTeam clears the "team" edge to the Team entity.
+func (_u *PlayerUpdate) ClearTeam() *PlayerUpdate {
+	_u.mutation.ClearTeam()
+	return _u
+}
+
+// ClearScores clears all "scores" edges to the Scoring entity.
+func (_u *PlayerUpdate) ClearScores() *PlayerUpdate {
+	_u.mutation.ClearScores()
+	return _u
+}
+
+// RemoveScoreIDs removes the "scores" edge to Scoring entities by IDs.
+func (_u *PlayerUpdate) RemoveScoreIDs(ids ...uuid.UUID) *PlayerUpdate {
+	_u.mutation.RemoveScoreIDs(ids...)
+	return _u
+}
+
+// RemoveScores removes "scores" edges to Scoring entities.
+func (_u *PlayerUpdate) RemoveScores(v ...*Scoring) *PlayerUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveScoreIDs(ids...)
+}
+
+// ClearGameEvents clears all "game_events" edges to the GameEvent entity.
+func (_u *PlayerUpdate) ClearGameEvents() *PlayerUpdate {
+	_u.mutation.ClearGameEvents()
+	return _u
+}
+
+// RemoveGameEventIDs removes the "game_events" edge to GameEvent entities by IDs.
+func (_u *PlayerUpdate) RemoveGameEventIDs(ids ...uuid.UUID) *PlayerUpdate {
+	_u.mutation.RemoveGameEventIDs(ids...)
+	return _u
+}
+
+// RemoveGameEvents removes "game_events" edges to GameEvent entities.
+func (_u *PlayerUpdate) RemoveGameEvents(v ...*GameEvent) *PlayerUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveGameEventIDs(ids...)
+}
+
+// ClearMvpNominations clears all "mvp_nominations" edges to the MVP_Nomination entity.
+func (_u *PlayerUpdate) ClearMvpNominations() *PlayerUpdate {
+	_u.mutation.ClearMvpNominations()
+	return _u
+}
+
+// RemoveMvpNominationIDs removes the "mvp_nominations" edge to MVP_Nomination entities by IDs.
+func (_u *PlayerUpdate) RemoveMvpNominationIDs(ids ...uuid.UUID) *PlayerUpdate {
+	_u.mutation.RemoveMvpNominationIDs(ids...)
+	return _u
+}
+
+// RemoveMvpNominations removes "mvp_nominations" edges to MVP_Nomination entities.
+func (_u *PlayerUpdate) RemoveMvpNominations(v ...*MVP_Nomination) *PlayerUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveMvpNominationIDs(ids...)
+}
+
+// ClearSpiritNominations clears all "spirit_nominations" edges to the SpiritNomination entity.
+func (_u *PlayerUpdate) ClearSpiritNominations() *PlayerUpdate {
+	_u.mutation.ClearSpiritNominations()
+	return _u
+}
+
+// RemoveSpiritNominationIDs removes the "spirit_nominations" edge to SpiritNomination entities by IDs.
+func (_u *PlayerUpdate) RemoveSpiritNominationIDs(ids ...uuid.UUID) *PlayerUpdate {
+	_u.mutation.RemoveSpiritNominationIDs(ids...)
+	return _u
+}
+
+// RemoveSpiritNominations removes "spirit_nominations" edges to SpiritNomination entities.
+func (_u *PlayerUpdate) RemoveSpiritNominations(v ...*SpiritNomination) *PlayerUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpiritNominationIDs(ids...)
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *PlayerUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -59,14 +374,307 @@ func (_u *PlayerUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *PlayerUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := player.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *PlayerUpdate) check() error {
+	if v, ok := _u.mutation.Name(); ok {
+		if err := player.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Player.name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Email(); ok {
+		if err := player.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Player.email": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Gender(); ok {
+		if err := player.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Player.gender": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.JerseyNumber(); ok {
+		if err := player.JerseyNumberValidator(v); err != nil {
+			return &ValidationError{Name: "jersey_number", err: fmt.Errorf(`ent: validator failed for field "Player.jersey_number": %w`, err)}
+		}
+	}
+	if _u.mutation.TeamCleared() && len(_u.mutation.TeamIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Player.team"`)
+	}
+	return nil
+}
+
 func (_u *PlayerUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(player.Table, player.Columns, sqlgraph.NewFieldSpec(player.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(player.Table, player.Columns, sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(player.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(player.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(player.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Name(); ok {
+		_spec.SetField(player.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Email(); ok {
+		_spec.SetField(player.FieldEmail, field.TypeString, value)
+	}
+	if _u.mutation.EmailCleared() {
+		_spec.ClearField(player.FieldEmail, field.TypeString)
+	}
+	if value, ok := _u.mutation.Gender(); ok {
+		_spec.SetField(player.FieldGender, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DateOfBirth(); ok {
+		_spec.SetField(player.FieldDateOfBirth, field.TypeTime, value)
+	}
+	if _u.mutation.DateOfBirthCleared() {
+		_spec.ClearField(player.FieldDateOfBirth, field.TypeTime)
+	}
+	if value, ok := _u.mutation.JerseyNumber(); ok {
+		_spec.SetField(player.FieldJerseyNumber, field.TypeString, value)
+	}
+	if _u.mutation.JerseyNumberCleared() {
+		_spec.ClearField(player.FieldJerseyNumber, field.TypeString)
+	}
+	if value, ok := _u.mutation.ProfileImageURL(); ok {
+		_spec.SetField(player.FieldProfileImageURL, field.TypeString, value)
+	}
+	if _u.mutation.ProfileImageURLCleared() {
+		_spec.ClearField(player.FieldProfileImageURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(player.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(player.FieldMetadata, field.TypeJSON)
+	}
+	if _u.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   player.TeamTable,
+			Columns: []string{player.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   player.TeamTable,
+			Columns: []string{player.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ScoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.ScoresTable,
+			Columns: []string{player.ScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedScoresIDs(); len(nodes) > 0 && !_u.mutation.ScoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.ScoresTable,
+			Columns: []string{player.ScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ScoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.ScoresTable,
+			Columns: []string{player.ScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.GameEventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.GameEventsTable,
+			Columns: []string{player.GameEventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameevent.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedGameEventsIDs(); len(nodes) > 0 && !_u.mutation.GameEventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.GameEventsTable,
+			Columns: []string{player.GameEventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameevent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GameEventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.GameEventsTable,
+			Columns: []string{player.GameEventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameevent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.MvpNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.MvpNominationsTable,
+			Columns: []string{player.MvpNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mvp_nomination.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedMvpNominationsIDs(); len(nodes) > 0 && !_u.mutation.MvpNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.MvpNominationsTable,
+			Columns: []string{player.MvpNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mvp_nomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.MvpNominationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.MvpNominationsTable,
+			Columns: []string{player.MvpNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mvp_nomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpiritNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.SpiritNominationsTable,
+			Columns: []string{player.SpiritNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpiritNominationsIDs(); len(nodes) > 0 && !_u.mutation.SpiritNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.SpiritNominationsTable,
+			Columns: []string{player.SpiritNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpiritNominationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.SpiritNominationsTable,
+			Columns: []string{player.SpiritNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -88,9 +696,316 @@ type PlayerUpdateOne struct {
 	mutation *PlayerMutation
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *PlayerUpdateOne) SetUpdatedAt(v time.Time) *PlayerUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *PlayerUpdateOne) SetDeletedAt(v time.Time) *PlayerUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *PlayerUpdateOne) SetNillableDeletedAt(v *time.Time) *PlayerUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *PlayerUpdateOne) ClearDeletedAt() *PlayerUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetName sets the "name" field.
+func (_u *PlayerUpdateOne) SetName(v string) *PlayerUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (_u *PlayerUpdateOne) SetNillableName(v *string) *PlayerUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
+	}
+	return _u
+}
+
+// SetEmail sets the "email" field.
+func (_u *PlayerUpdateOne) SetEmail(v string) *PlayerUpdateOne {
+	_u.mutation.SetEmail(v)
+	return _u
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (_u *PlayerUpdateOne) SetNillableEmail(v *string) *PlayerUpdateOne {
+	if v != nil {
+		_u.SetEmail(*v)
+	}
+	return _u
+}
+
+// ClearEmail clears the value of the "email" field.
+func (_u *PlayerUpdateOne) ClearEmail() *PlayerUpdateOne {
+	_u.mutation.ClearEmail()
+	return _u
+}
+
+// SetGender sets the "gender" field.
+func (_u *PlayerUpdateOne) SetGender(v string) *PlayerUpdateOne {
+	_u.mutation.SetGender(v)
+	return _u
+}
+
+// SetNillableGender sets the "gender" field if the given value is not nil.
+func (_u *PlayerUpdateOne) SetNillableGender(v *string) *PlayerUpdateOne {
+	if v != nil {
+		_u.SetGender(*v)
+	}
+	return _u
+}
+
+// SetDateOfBirth sets the "date_of_birth" field.
+func (_u *PlayerUpdateOne) SetDateOfBirth(v time.Time) *PlayerUpdateOne {
+	_u.mutation.SetDateOfBirth(v)
+	return _u
+}
+
+// SetNillableDateOfBirth sets the "date_of_birth" field if the given value is not nil.
+func (_u *PlayerUpdateOne) SetNillableDateOfBirth(v *time.Time) *PlayerUpdateOne {
+	if v != nil {
+		_u.SetDateOfBirth(*v)
+	}
+	return _u
+}
+
+// ClearDateOfBirth clears the value of the "date_of_birth" field.
+func (_u *PlayerUpdateOne) ClearDateOfBirth() *PlayerUpdateOne {
+	_u.mutation.ClearDateOfBirth()
+	return _u
+}
+
+// SetJerseyNumber sets the "jersey_number" field.
+func (_u *PlayerUpdateOne) SetJerseyNumber(v string) *PlayerUpdateOne {
+	_u.mutation.SetJerseyNumber(v)
+	return _u
+}
+
+// SetNillableJerseyNumber sets the "jersey_number" field if the given value is not nil.
+func (_u *PlayerUpdateOne) SetNillableJerseyNumber(v *string) *PlayerUpdateOne {
+	if v != nil {
+		_u.SetJerseyNumber(*v)
+	}
+	return _u
+}
+
+// ClearJerseyNumber clears the value of the "jersey_number" field.
+func (_u *PlayerUpdateOne) ClearJerseyNumber() *PlayerUpdateOne {
+	_u.mutation.ClearJerseyNumber()
+	return _u
+}
+
+// SetProfileImageURL sets the "profile_image_url" field.
+func (_u *PlayerUpdateOne) SetProfileImageURL(v string) *PlayerUpdateOne {
+	_u.mutation.SetProfileImageURL(v)
+	return _u
+}
+
+// SetNillableProfileImageURL sets the "profile_image_url" field if the given value is not nil.
+func (_u *PlayerUpdateOne) SetNillableProfileImageURL(v *string) *PlayerUpdateOne {
+	if v != nil {
+		_u.SetProfileImageURL(*v)
+	}
+	return _u
+}
+
+// ClearProfileImageURL clears the value of the "profile_image_url" field.
+func (_u *PlayerUpdateOne) ClearProfileImageURL() *PlayerUpdateOne {
+	_u.mutation.ClearProfileImageURL()
+	return _u
+}
+
+// SetMetadata sets the "metadata" field.
+func (_u *PlayerUpdateOne) SetMetadata(v map[string]interface{}) *PlayerUpdateOne {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *PlayerUpdateOne) ClearMetadata() *PlayerUpdateOne {
+	_u.mutation.ClearMetadata()
+	return _u
+}
+
+// SetTeamID sets the "team" edge to the Team entity by ID.
+func (_u *PlayerUpdateOne) SetTeamID(id uuid.UUID) *PlayerUpdateOne {
+	_u.mutation.SetTeamID(id)
+	return _u
+}
+
+// SetTeam sets the "team" edge to the Team entity.
+func (_u *PlayerUpdateOne) SetTeam(v *Team) *PlayerUpdateOne {
+	return _u.SetTeamID(v.ID)
+}
+
+// AddScoreIDs adds the "scores" edge to the Scoring entity by IDs.
+func (_u *PlayerUpdateOne) AddScoreIDs(ids ...uuid.UUID) *PlayerUpdateOne {
+	_u.mutation.AddScoreIDs(ids...)
+	return _u
+}
+
+// AddScores adds the "scores" edges to the Scoring entity.
+func (_u *PlayerUpdateOne) AddScores(v ...*Scoring) *PlayerUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddScoreIDs(ids...)
+}
+
+// AddGameEventIDs adds the "game_events" edge to the GameEvent entity by IDs.
+func (_u *PlayerUpdateOne) AddGameEventIDs(ids ...uuid.UUID) *PlayerUpdateOne {
+	_u.mutation.AddGameEventIDs(ids...)
+	return _u
+}
+
+// AddGameEvents adds the "game_events" edges to the GameEvent entity.
+func (_u *PlayerUpdateOne) AddGameEvents(v ...*GameEvent) *PlayerUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddGameEventIDs(ids...)
+}
+
+// AddMvpNominationIDs adds the "mvp_nominations" edge to the MVP_Nomination entity by IDs.
+func (_u *PlayerUpdateOne) AddMvpNominationIDs(ids ...uuid.UUID) *PlayerUpdateOne {
+	_u.mutation.AddMvpNominationIDs(ids...)
+	return _u
+}
+
+// AddMvpNominations adds the "mvp_nominations" edges to the MVP_Nomination entity.
+func (_u *PlayerUpdateOne) AddMvpNominations(v ...*MVP_Nomination) *PlayerUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddMvpNominationIDs(ids...)
+}
+
+// AddSpiritNominationIDs adds the "spirit_nominations" edge to the SpiritNomination entity by IDs.
+func (_u *PlayerUpdateOne) AddSpiritNominationIDs(ids ...uuid.UUID) *PlayerUpdateOne {
+	_u.mutation.AddSpiritNominationIDs(ids...)
+	return _u
+}
+
+// AddSpiritNominations adds the "spirit_nominations" edges to the SpiritNomination entity.
+func (_u *PlayerUpdateOne) AddSpiritNominations(v ...*SpiritNomination) *PlayerUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpiritNominationIDs(ids...)
+}
+
 // Mutation returns the PlayerMutation object of the builder.
 func (_u *PlayerUpdateOne) Mutation() *PlayerMutation {
 	return _u.mutation
+}
+
+// ClearTeam clears the "team" edge to the Team entity.
+func (_u *PlayerUpdateOne) ClearTeam() *PlayerUpdateOne {
+	_u.mutation.ClearTeam()
+	return _u
+}
+
+// ClearScores clears all "scores" edges to the Scoring entity.
+func (_u *PlayerUpdateOne) ClearScores() *PlayerUpdateOne {
+	_u.mutation.ClearScores()
+	return _u
+}
+
+// RemoveScoreIDs removes the "scores" edge to Scoring entities by IDs.
+func (_u *PlayerUpdateOne) RemoveScoreIDs(ids ...uuid.UUID) *PlayerUpdateOne {
+	_u.mutation.RemoveScoreIDs(ids...)
+	return _u
+}
+
+// RemoveScores removes "scores" edges to Scoring entities.
+func (_u *PlayerUpdateOne) RemoveScores(v ...*Scoring) *PlayerUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveScoreIDs(ids...)
+}
+
+// ClearGameEvents clears all "game_events" edges to the GameEvent entity.
+func (_u *PlayerUpdateOne) ClearGameEvents() *PlayerUpdateOne {
+	_u.mutation.ClearGameEvents()
+	return _u
+}
+
+// RemoveGameEventIDs removes the "game_events" edge to GameEvent entities by IDs.
+func (_u *PlayerUpdateOne) RemoveGameEventIDs(ids ...uuid.UUID) *PlayerUpdateOne {
+	_u.mutation.RemoveGameEventIDs(ids...)
+	return _u
+}
+
+// RemoveGameEvents removes "game_events" edges to GameEvent entities.
+func (_u *PlayerUpdateOne) RemoveGameEvents(v ...*GameEvent) *PlayerUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveGameEventIDs(ids...)
+}
+
+// ClearMvpNominations clears all "mvp_nominations" edges to the MVP_Nomination entity.
+func (_u *PlayerUpdateOne) ClearMvpNominations() *PlayerUpdateOne {
+	_u.mutation.ClearMvpNominations()
+	return _u
+}
+
+// RemoveMvpNominationIDs removes the "mvp_nominations" edge to MVP_Nomination entities by IDs.
+func (_u *PlayerUpdateOne) RemoveMvpNominationIDs(ids ...uuid.UUID) *PlayerUpdateOne {
+	_u.mutation.RemoveMvpNominationIDs(ids...)
+	return _u
+}
+
+// RemoveMvpNominations removes "mvp_nominations" edges to MVP_Nomination entities.
+func (_u *PlayerUpdateOne) RemoveMvpNominations(v ...*MVP_Nomination) *PlayerUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveMvpNominationIDs(ids...)
+}
+
+// ClearSpiritNominations clears all "spirit_nominations" edges to the SpiritNomination entity.
+func (_u *PlayerUpdateOne) ClearSpiritNominations() *PlayerUpdateOne {
+	_u.mutation.ClearSpiritNominations()
+	return _u
+}
+
+// RemoveSpiritNominationIDs removes the "spirit_nominations" edge to SpiritNomination entities by IDs.
+func (_u *PlayerUpdateOne) RemoveSpiritNominationIDs(ids ...uuid.UUID) *PlayerUpdateOne {
+	_u.mutation.RemoveSpiritNominationIDs(ids...)
+	return _u
+}
+
+// RemoveSpiritNominations removes "spirit_nominations" edges to SpiritNomination entities.
+func (_u *PlayerUpdateOne) RemoveSpiritNominations(v ...*SpiritNomination) *PlayerUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpiritNominationIDs(ids...)
 }
 
 // Where appends a list predicates to the PlayerUpdate builder.
@@ -108,6 +1023,7 @@ func (_u *PlayerUpdateOne) Select(field string, fields ...string) *PlayerUpdateO
 
 // Save executes the query and returns the updated Player entity.
 func (_u *PlayerUpdateOne) Save(ctx context.Context) (*Player, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -133,8 +1049,47 @@ func (_u *PlayerUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *PlayerUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := player.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *PlayerUpdateOne) check() error {
+	if v, ok := _u.mutation.Name(); ok {
+		if err := player.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Player.name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Email(); ok {
+		if err := player.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Player.email": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Gender(); ok {
+		if err := player.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Player.gender": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.JerseyNumber(); ok {
+		if err := player.JerseyNumberValidator(v); err != nil {
+			return &ValidationError{Name: "jersey_number", err: fmt.Errorf(`ent: validator failed for field "Player.jersey_number": %w`, err)}
+		}
+	}
+	if _u.mutation.TeamCleared() && len(_u.mutation.TeamIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Player.team"`)
+	}
+	return nil
+}
+
 func (_u *PlayerUpdateOne) sqlSave(ctx context.Context) (_node *Player, err error) {
-	_spec := sqlgraph.NewUpdateSpec(player.Table, player.Columns, sqlgraph.NewFieldSpec(player.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(player.Table, player.Columns, sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Player.id" for update`)}
@@ -158,6 +1113,260 @@ func (_u *PlayerUpdateOne) sqlSave(ctx context.Context) (_node *Player, err erro
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(player.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(player.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(player.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Name(); ok {
+		_spec.SetField(player.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Email(); ok {
+		_spec.SetField(player.FieldEmail, field.TypeString, value)
+	}
+	if _u.mutation.EmailCleared() {
+		_spec.ClearField(player.FieldEmail, field.TypeString)
+	}
+	if value, ok := _u.mutation.Gender(); ok {
+		_spec.SetField(player.FieldGender, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DateOfBirth(); ok {
+		_spec.SetField(player.FieldDateOfBirth, field.TypeTime, value)
+	}
+	if _u.mutation.DateOfBirthCleared() {
+		_spec.ClearField(player.FieldDateOfBirth, field.TypeTime)
+	}
+	if value, ok := _u.mutation.JerseyNumber(); ok {
+		_spec.SetField(player.FieldJerseyNumber, field.TypeString, value)
+	}
+	if _u.mutation.JerseyNumberCleared() {
+		_spec.ClearField(player.FieldJerseyNumber, field.TypeString)
+	}
+	if value, ok := _u.mutation.ProfileImageURL(); ok {
+		_spec.SetField(player.FieldProfileImageURL, field.TypeString, value)
+	}
+	if _u.mutation.ProfileImageURLCleared() {
+		_spec.ClearField(player.FieldProfileImageURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(player.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(player.FieldMetadata, field.TypeJSON)
+	}
+	if _u.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   player.TeamTable,
+			Columns: []string{player.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   player.TeamTable,
+			Columns: []string{player.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ScoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.ScoresTable,
+			Columns: []string{player.ScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedScoresIDs(); len(nodes) > 0 && !_u.mutation.ScoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.ScoresTable,
+			Columns: []string{player.ScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ScoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.ScoresTable,
+			Columns: []string{player.ScoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.GameEventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.GameEventsTable,
+			Columns: []string{player.GameEventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameevent.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedGameEventsIDs(); len(nodes) > 0 && !_u.mutation.GameEventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.GameEventsTable,
+			Columns: []string{player.GameEventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameevent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GameEventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.GameEventsTable,
+			Columns: []string{player.GameEventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameevent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.MvpNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.MvpNominationsTable,
+			Columns: []string{player.MvpNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mvp_nomination.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedMvpNominationsIDs(); len(nodes) > 0 && !_u.mutation.MvpNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.MvpNominationsTable,
+			Columns: []string{player.MvpNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mvp_nomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.MvpNominationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.MvpNominationsTable,
+			Columns: []string{player.MvpNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mvp_nomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpiritNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.SpiritNominationsTable,
+			Columns: []string{player.SpiritNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpiritNominationsIDs(); len(nodes) > 0 && !_u.mutation.SpiritNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.SpiritNominationsTable,
+			Columns: []string{player.SpiritNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpiritNominationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.SpiritNominationsTable,
+			Columns: []string{player.SpiritNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Player{config: _u.config}
 	_spec.Assign = _node.assignValues

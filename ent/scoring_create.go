@@ -4,11 +4,16 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/google/uuid"
 )
 
 // ScoringCreate is the builder for creating a Scoring entity.
@@ -18,6 +23,154 @@ type ScoringCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *ScoringCreate) SetCreatedAt(v time.Time) *ScoringCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *ScoringCreate) SetNillableCreatedAt(v *time.Time) *ScoringCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *ScoringCreate) SetUpdatedAt(v time.Time) *ScoringCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *ScoringCreate) SetNillableUpdatedAt(v *time.Time) *ScoringCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *ScoringCreate) SetDeletedAt(v time.Time) *ScoringCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *ScoringCreate) SetNillableDeletedAt(v *time.Time) *ScoringCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
+// SetGoals sets the "goals" field.
+func (_c *ScoringCreate) SetGoals(v int) *ScoringCreate {
+	_c.mutation.SetGoals(v)
+	return _c
+}
+
+// SetNillableGoals sets the "goals" field if the given value is not nil.
+func (_c *ScoringCreate) SetNillableGoals(v *int) *ScoringCreate {
+	if v != nil {
+		_c.SetGoals(*v)
+	}
+	return _c
+}
+
+// SetAssists sets the "assists" field.
+func (_c *ScoringCreate) SetAssists(v int) *ScoringCreate {
+	_c.mutation.SetAssists(v)
+	return _c
+}
+
+// SetNillableAssists sets the "assists" field if the given value is not nil.
+func (_c *ScoringCreate) SetNillableAssists(v *int) *ScoringCreate {
+	if v != nil {
+		_c.SetAssists(*v)
+	}
+	return _c
+}
+
+// SetBlocks sets the "blocks" field.
+func (_c *ScoringCreate) SetBlocks(v int) *ScoringCreate {
+	_c.mutation.SetBlocks(v)
+	return _c
+}
+
+// SetNillableBlocks sets the "blocks" field if the given value is not nil.
+func (_c *ScoringCreate) SetNillableBlocks(v *int) *ScoringCreate {
+	if v != nil {
+		_c.SetBlocks(*v)
+	}
+	return _c
+}
+
+// SetTurns sets the "turns" field.
+func (_c *ScoringCreate) SetTurns(v int) *ScoringCreate {
+	_c.mutation.SetTurns(v)
+	return _c
+}
+
+// SetNillableTurns sets the "turns" field if the given value is not nil.
+func (_c *ScoringCreate) SetNillableTurns(v *int) *ScoringCreate {
+	if v != nil {
+		_c.SetTurns(*v)
+	}
+	return _c
+}
+
+// SetVersion sets the "version" field.
+func (_c *ScoringCreate) SetVersion(v int) *ScoringCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *ScoringCreate) SetNillableVersion(v *int) *ScoringCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *ScoringCreate) SetID(v uuid.UUID) *ScoringCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *ScoringCreate) SetNillableID(v *uuid.UUID) *ScoringCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// SetGameID sets the "game" edge to the Game entity by ID.
+func (_c *ScoringCreate) SetGameID(id uuid.UUID) *ScoringCreate {
+	_c.mutation.SetGameID(id)
+	return _c
+}
+
+// SetGame sets the "game" edge to the Game entity.
+func (_c *ScoringCreate) SetGame(v *Game) *ScoringCreate {
+	return _c.SetGameID(v.ID)
+}
+
+// SetPlayerID sets the "player" edge to the Player entity by ID.
+func (_c *ScoringCreate) SetPlayerID(id uuid.UUID) *ScoringCreate {
+	_c.mutation.SetPlayerID(id)
+	return _c
+}
+
+// SetPlayer sets the "player" edge to the Player entity.
+func (_c *ScoringCreate) SetPlayer(v *Player) *ScoringCreate {
+	return _c.SetPlayerID(v.ID)
+}
+
 // Mutation returns the ScoringMutation object of the builder.
 func (_c *ScoringCreate) Mutation() *ScoringMutation {
 	return _c.mutation
@@ -25,6 +178,7 @@ func (_c *ScoringCreate) Mutation() *ScoringMutation {
 
 // Save creates the Scoring in the database.
 func (_c *ScoringCreate) Save(ctx context.Context) (*Scoring, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -50,8 +204,71 @@ func (_c *ScoringCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *ScoringCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := scoring.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := scoring.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.Goals(); !ok {
+		v := scoring.DefaultGoals
+		_c.mutation.SetGoals(v)
+	}
+	if _, ok := _c.mutation.Assists(); !ok {
+		v := scoring.DefaultAssists
+		_c.mutation.SetAssists(v)
+	}
+	if _, ok := _c.mutation.Blocks(); !ok {
+		v := scoring.DefaultBlocks
+		_c.mutation.SetBlocks(v)
+	}
+	if _, ok := _c.mutation.Turns(); !ok {
+		v := scoring.DefaultTurns
+		_c.mutation.SetTurns(v)
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		v := scoring.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := scoring.DefaultID()
+		_c.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *ScoringCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Scoring.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Scoring.updated_at"`)}
+	}
+	if _, ok := _c.mutation.Goals(); !ok {
+		return &ValidationError{Name: "goals", err: errors.New(`ent: missing required field "Scoring.goals"`)}
+	}
+	if _, ok := _c.mutation.Assists(); !ok {
+		return &ValidationError{Name: "assists", err: errors.New(`ent: missing required field "Scoring.assists"`)}
+	}
+	if _, ok := _c.mutation.Blocks(); !ok {
+		return &ValidationError{Name: "blocks", err: errors.New(`ent: missing required field "Scoring.blocks"`)}
+	}
+	if _, ok := _c.mutation.Turns(); !ok {
+		return &ValidationError{Name: "turns", err: errors.New(`ent: missing required field "Scoring.turns"`)}
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`ent: missing required field "Scoring.version"`)}
+	}
+	if len(_c.mutation.GameIDs()) == 0 {
+		return &ValidationError{Name: "game", err: errors.New(`ent: missing required edge "Scoring.game"`)}
+	}
+	if len(_c.mutation.PlayerIDs()) == 0 {
+		return &ValidationError{Name: "player", err: errors.New(`ent: missing required edge "Scoring.player"`)}
+	}
 	return nil
 }
 
@@ -66,8 +283,13 @@ func (_c *ScoringCreate) sqlSave(ctx context.Context) (*Scoring, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -76,8 +298,78 @@ func (_c *ScoringCreate) sqlSave(ctx context.Context) (*Scoring, error) {
 func (_c *ScoringCreate) createSpec() (*Scoring, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Scoring{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(scoring.Table, sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(scoring.Table, sqlgraph.NewFieldSpec(scoring.FieldID, field.TypeUUID))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(scoring.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(scoring.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(scoring.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
+	if value, ok := _c.mutation.Goals(); ok {
+		_spec.SetField(scoring.FieldGoals, field.TypeInt, value)
+		_node.Goals = value
+	}
+	if value, ok := _c.mutation.Assists(); ok {
+		_spec.SetField(scoring.FieldAssists, field.TypeInt, value)
+		_node.Assists = value
+	}
+	if value, ok := _c.mutation.Blocks(); ok {
+		_spec.SetField(scoring.FieldBlocks, field.TypeInt, value)
+		_node.Blocks = value
+	}
+	if value, ok := _c.mutation.Turns(); ok {
+		_spec.SetField(scoring.FieldTurns, field.TypeInt, value)
+		_node.Turns = value
+	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(scoring.FieldVersion, field.TypeInt, value)
+		_node.Version = value
+	}
+	if nodes := _c.mutation.GameIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   scoring.GameTable,
+			Columns: []string{scoring.GameColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.game_scores = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.PlayerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   scoring.PlayerTable,
+			Columns: []string{scoring.PlayerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.player_scores = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -99,6 +391,7 @@ func (_c *ScoringCreateBulk) Save(ctx context.Context) ([]*Scoring, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ScoringMutation)
 				if !ok {
@@ -125,10 +418,6 @@ func (_c *ScoringCreateBulk) Save(ctx context.Context) ([]*Scoring, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

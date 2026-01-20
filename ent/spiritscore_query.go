@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -11,17 +12,30 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/ent/spiritnomination"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // SpiritScoreQuery is the builder for querying SpiritScore entities.
 type SpiritScoreQuery struct {
 	config
-	ctx        *QueryContext
-	order      []spiritscore.OrderOption
-	inters     []Interceptor
-	predicates []predicate.SpiritScore
+	ctx                   *QueryContext
+	order                 []spiritscore.OrderOption
+	inters                []Interceptor
+	predicates            []predicate.SpiritScore
+	withGame              *GameQuery
+	withScoredByTeam      *TeamQuery
+	withTeam              *TeamQuery
+	withSubmittedBy       *UserQuery
+	withMvpNominations    *MVPNominationQuery
+	withSpiritNominations *SpiritNominationQuery
+	withFKs               bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -58,6 +72,138 @@ func (_q *SpiritScoreQuery) Order(o ...spiritscore.OrderOption) *SpiritScoreQuer
 	return _q
 }
 
+// QueryGame chains the current query on the "game" edge.
+func (_q *SpiritScoreQuery) QueryGame() *GameQuery {
+	query := (&GameClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(spiritscore.Table, spiritscore.FieldID, selector),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, spiritscore.GameTable, spiritscore.GameColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryScoredByTeam chains the current query on the "scored_by_team" edge.
+func (_q *SpiritScoreQuery) QueryScoredByTeam() *TeamQuery {
+	query := (&TeamClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(spiritscore.Table, spiritscore.FieldID, selector),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, spiritscore.ScoredByTeamTable, spiritscore.ScoredByTeamColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTeam chains the current query on the "team" edge.
+func (_q *SpiritScoreQuery) QueryTeam() *TeamQuery {
+	query := (&TeamClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(spiritscore.Table, spiritscore.FieldID, selector),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, spiritscore.TeamTable, spiritscore.TeamColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySubmittedBy chains the current query on the "submitted_by" edge.
+func (_q *SpiritScoreQuery) QuerySubmittedBy() *UserQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(spiritscore.Table, spiritscore.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, spiritscore.SubmittedByTable, spiritscore.SubmittedByColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryMvpNominations chains the current query on the "mvp_nominations" edge.
+func (_q *SpiritScoreQuery) QueryMvpNominations() *MVPNominationQuery {
+	query := (&MVPNominationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(spiritscore.Table, spiritscore.FieldID, selector),
+			sqlgraph.To(mvp_nomination.Table, mvp_nomination.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, spiritscore.MvpNominationsTable, spiritscore.MvpNominationsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySpiritNominations chains the current query on the "spirit_nominations" edge.
+func (_q *SpiritScoreQuery) QuerySpiritNominations() *SpiritNominationQuery {
+	query := (&SpiritNominationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(spiritscore.Table, spiritscore.FieldID, selector),
+			sqlgraph.To(spiritnomination.Table, spiritnomination.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, spiritscore.SpiritNominationsTable, spiritscore.SpiritNominationsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first SpiritScore entity from the query.
 // Returns a *NotFoundError when no SpiritScore was found.
 func (_q *SpiritScoreQuery) First(ctx context.Context) (*SpiritScore, error) {
@@ -82,8 +228,8 @@ func (_q *SpiritScoreQuery) FirstX(ctx context.Context) *SpiritScore {
 
 // FirstID returns the first SpiritScore ID from the query.
 // Returns a *NotFoundError when no SpiritScore ID was found.
-func (_q *SpiritScoreQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *SpiritScoreQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -95,7 +241,7 @@ func (_q *SpiritScoreQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *SpiritScoreQuery) FirstIDX(ctx context.Context) int {
+func (_q *SpiritScoreQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -133,8 +279,8 @@ func (_q *SpiritScoreQuery) OnlyX(ctx context.Context) *SpiritScore {
 // OnlyID is like Only, but returns the only SpiritScore ID in the query.
 // Returns a *NotSingularError when more than one SpiritScore ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *SpiritScoreQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *SpiritScoreQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -150,7 +296,7 @@ func (_q *SpiritScoreQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *SpiritScoreQuery) OnlyIDX(ctx context.Context) int {
+func (_q *SpiritScoreQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -178,7 +324,7 @@ func (_q *SpiritScoreQuery) AllX(ctx context.Context) []*SpiritScore {
 }
 
 // IDs executes the query and returns a list of SpiritScore IDs.
-func (_q *SpiritScoreQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *SpiritScoreQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -190,7 +336,7 @@ func (_q *SpiritScoreQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *SpiritScoreQuery) IDsX(ctx context.Context) []int {
+func (_q *SpiritScoreQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -245,19 +391,103 @@ func (_q *SpiritScoreQuery) Clone() *SpiritScoreQuery {
 		return nil
 	}
 	return &SpiritScoreQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]spiritscore.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.SpiritScore{}, _q.predicates...),
+		config:                _q.config,
+		ctx:                   _q.ctx.Clone(),
+		order:                 append([]spiritscore.OrderOption{}, _q.order...),
+		inters:                append([]Interceptor{}, _q.inters...),
+		predicates:            append([]predicate.SpiritScore{}, _q.predicates...),
+		withGame:              _q.withGame.Clone(),
+		withScoredByTeam:      _q.withScoredByTeam.Clone(),
+		withTeam:              _q.withTeam.Clone(),
+		withSubmittedBy:       _q.withSubmittedBy.Clone(),
+		withMvpNominations:    _q.withMvpNominations.Clone(),
+		withSpiritNominations: _q.withSpiritNominations.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
 }
 
+// WithGame tells the query-builder to eager-load the nodes that are connected to
+// the "game" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SpiritScoreQuery) WithGame(opts ...func(*GameQuery)) *SpiritScoreQuery {
+	query := (&GameClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withGame = query
+	return _q
+}
+
+// WithScoredByTeam tells the query-builder to eager-load the nodes that are connected to
+// the "scored_by_team" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SpiritScoreQuery) WithScoredByTeam(opts ...func(*TeamQuery)) *SpiritScoreQuery {
+	query := (&TeamClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withScoredByTeam = query
+	return _q
+}
+
+// WithTeam tells the query-builder to eager-load the nodes that are connected to
+// the "team" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SpiritScoreQuery) WithTeam(opts ...func(*TeamQuery)) *SpiritScoreQuery {
+	query := (&TeamClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTeam = query
+	return _q
+}
+
+// WithSubmittedBy tells the query-builder to eager-load the nodes that are connected to
+// the "submitted_by" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SpiritScoreQuery) WithSubmittedBy(opts ...func(*UserQuery)) *SpiritScoreQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSubmittedBy = query
+	return _q
+}
+
+// WithMvpNominations tells the query-builder to eager-load the nodes that are connected to
+// the "mvp_nominations" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SpiritScoreQuery) WithMvpNominations(opts ...func(*MVPNominationQuery)) *SpiritScoreQuery {
+	query := (&MVPNominationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withMvpNominations = query
+	return _q
+}
+
+// WithSpiritNominations tells the query-builder to eager-load the nodes that are connected to
+// the "spirit_nominations" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SpiritScoreQuery) WithSpiritNominations(opts ...func(*SpiritNominationQuery)) *SpiritScoreQuery {
+	query := (&SpiritNominationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSpiritNominations = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.SpiritScore.Query().
+//		GroupBy(spiritscore.FieldCreatedAt).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (_q *SpiritScoreQuery) GroupBy(field string, fields ...string) *SpiritScoreGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &SpiritScoreGroupBy{build: _q}
@@ -269,6 +499,16 @@ func (_q *SpiritScoreQuery) GroupBy(field string, fields ...string) *SpiritScore
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//	}
+//
+//	client.SpiritScore.Query().
+//		Select(spiritscore.FieldCreatedAt).
+//		Scan(ctx, &v)
 func (_q *SpiritScoreQuery) Select(fields ...string) *SpiritScoreSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
 	sbuild := &SpiritScoreSelect{SpiritScoreQuery: _q}
@@ -310,15 +550,31 @@ func (_q *SpiritScoreQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *SpiritScoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*SpiritScore, error) {
 	var (
-		nodes = []*SpiritScore{}
-		_spec = _q.querySpec()
+		nodes       = []*SpiritScore{}
+		withFKs     = _q.withFKs
+		_spec       = _q.querySpec()
+		loadedTypes = [6]bool{
+			_q.withGame != nil,
+			_q.withScoredByTeam != nil,
+			_q.withTeam != nil,
+			_q.withSubmittedBy != nil,
+			_q.withMvpNominations != nil,
+			_q.withSpiritNominations != nil,
+		}
 	)
+	if _q.withGame != nil || _q.withScoredByTeam != nil || _q.withTeam != nil || _q.withSubmittedBy != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, spiritscore.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*SpiritScore).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &SpiritScore{config: _q.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -330,7 +586,238 @@ func (_q *SpiritScoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withGame; query != nil {
+		if err := _q.loadGame(ctx, query, nodes, nil,
+			func(n *SpiritScore, e *Game) { n.Edges.Game = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withScoredByTeam; query != nil {
+		if err := _q.loadScoredByTeam(ctx, query, nodes, nil,
+			func(n *SpiritScore, e *Team) { n.Edges.ScoredByTeam = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withTeam; query != nil {
+		if err := _q.loadTeam(ctx, query, nodes, nil,
+			func(n *SpiritScore, e *Team) { n.Edges.Team = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSubmittedBy; query != nil {
+		if err := _q.loadSubmittedBy(ctx, query, nodes, nil,
+			func(n *SpiritScore, e *User) { n.Edges.SubmittedBy = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withMvpNominations; query != nil {
+		if err := _q.loadMvpNominations(ctx, query, nodes,
+			func(n *SpiritScore) { n.Edges.MvpNominations = []*MVP_Nomination{} },
+			func(n *SpiritScore, e *MVP_Nomination) { n.Edges.MvpNominations = append(n.Edges.MvpNominations, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSpiritNominations; query != nil {
+		if err := _q.loadSpiritNominations(ctx, query, nodes,
+			func(n *SpiritScore) { n.Edges.SpiritNominations = []*SpiritNomination{} },
+			func(n *SpiritScore, e *SpiritNomination) {
+				n.Edges.SpiritNominations = append(n.Edges.SpiritNominations, e)
+			}); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (_q *SpiritScoreQuery) loadGame(ctx context.Context, query *GameQuery, nodes []*SpiritScore, init func(*SpiritScore), assign func(*SpiritScore, *Game)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*SpiritScore)
+	for i := range nodes {
+		if nodes[i].game_spirit_scores == nil {
+			continue
+		}
+		fk := *nodes[i].game_spirit_scores
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(game.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "game_spirit_scores" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *SpiritScoreQuery) loadScoredByTeam(ctx context.Context, query *TeamQuery, nodes []*SpiritScore, init func(*SpiritScore), assign func(*SpiritScore, *Team)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*SpiritScore)
+	for i := range nodes {
+		if nodes[i].team_spirit_scores_given == nil {
+			continue
+		}
+		fk := *nodes[i].team_spirit_scores_given
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(team.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "team_spirit_scores_given" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *SpiritScoreQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*SpiritScore, init func(*SpiritScore), assign func(*SpiritScore, *Team)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*SpiritScore)
+	for i := range nodes {
+		if nodes[i].team_spirit_scores_received == nil {
+			continue
+		}
+		fk := *nodes[i].team_spirit_scores_received
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(team.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "team_spirit_scores_received" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *SpiritScoreQuery) loadSubmittedBy(ctx context.Context, query *UserQuery, nodes []*SpiritScore, init func(*SpiritScore), assign func(*SpiritScore, *User)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*SpiritScore)
+	for i := range nodes {
+		if nodes[i].user_submitted_spirit_scores == nil {
+			continue
+		}
+		fk := *nodes[i].user_submitted_spirit_scores
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(user.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "user_submitted_spirit_scores" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *SpiritScoreQuery) loadMvpNominations(ctx context.Context, query *MVPNominationQuery, nodes []*SpiritScore, init func(*SpiritScore), assign func(*SpiritScore, *MVP_Nomination)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*SpiritScore)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.MVP_Nomination(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(spiritscore.MvpNominationsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.spirit_score_mvp_nominations
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "spirit_score_mvp_nominations" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "spirit_score_mvp_nominations" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *SpiritScoreQuery) loadSpiritNominations(ctx context.Context, query *SpiritNominationQuery, nodes []*SpiritScore, init func(*SpiritScore), assign func(*SpiritScore, *SpiritNomination)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*SpiritScore)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.SpiritNomination(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(spiritscore.SpiritNominationsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.spirit_score_spirit_nominations
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "spirit_score_spirit_nominations" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "spirit_score_spirit_nominations" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (_q *SpiritScoreQuery) sqlCount(ctx context.Context) (int, error) {
@@ -343,7 +830,7 @@ func (_q *SpiritScoreQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *SpiritScoreQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(spiritscore.Table, spiritscore.Columns, sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(spiritscore.Table, spiritscore.Columns, sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

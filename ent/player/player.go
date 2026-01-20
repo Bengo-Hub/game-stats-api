@@ -3,7 +3,11 @@
 package player
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -11,13 +15,94 @@ const (
 	Label = "player"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
+	// FieldGender holds the string denoting the gender field in the database.
+	FieldGender = "gender"
+	// FieldDateOfBirth holds the string denoting the date_of_birth field in the database.
+	FieldDateOfBirth = "date_of_birth"
+	// FieldJerseyNumber holds the string denoting the jersey_number field in the database.
+	FieldJerseyNumber = "jersey_number"
+	// FieldProfileImageURL holds the string denoting the profile_image_url field in the database.
+	FieldProfileImageURL = "profile_image_url"
+	// FieldMetadata holds the string denoting the metadata field in the database.
+	FieldMetadata = "metadata"
+	// EdgeTeam holds the string denoting the team edge name in mutations.
+	EdgeTeam = "team"
+	// EdgeScores holds the string denoting the scores edge name in mutations.
+	EdgeScores = "scores"
+	// EdgeGameEvents holds the string denoting the game_events edge name in mutations.
+	EdgeGameEvents = "game_events"
+	// EdgeMvpNominations holds the string denoting the mvp_nominations edge name in mutations.
+	EdgeMvpNominations = "mvp_nominations"
+	// EdgeSpiritNominations holds the string denoting the spirit_nominations edge name in mutations.
+	EdgeSpiritNominations = "spirit_nominations"
 	// Table holds the table name of the player in the database.
 	Table = "players"
+	// TeamTable is the table that holds the team relation/edge.
+	TeamTable = "players"
+	// TeamInverseTable is the table name for the Team entity.
+	// It exists in this package in order to avoid circular dependency with the "team" package.
+	TeamInverseTable = "teams"
+	// TeamColumn is the table column denoting the team relation/edge.
+	TeamColumn = "team_players"
+	// ScoresTable is the table that holds the scores relation/edge.
+	ScoresTable = "scorings"
+	// ScoresInverseTable is the table name for the Scoring entity.
+	// It exists in this package in order to avoid circular dependency with the "scoring" package.
+	ScoresInverseTable = "scorings"
+	// ScoresColumn is the table column denoting the scores relation/edge.
+	ScoresColumn = "player_scores"
+	// GameEventsTable is the table that holds the game_events relation/edge.
+	GameEventsTable = "game_events"
+	// GameEventsInverseTable is the table name for the GameEvent entity.
+	// It exists in this package in order to avoid circular dependency with the "gameevent" package.
+	GameEventsInverseTable = "game_events"
+	// GameEventsColumn is the table column denoting the game_events relation/edge.
+	GameEventsColumn = "player_game_events"
+	// MvpNominationsTable is the table that holds the mvp_nominations relation/edge.
+	MvpNominationsTable = "mvp_nominations"
+	// MvpNominationsInverseTable is the table name for the MVP_Nomination entity.
+	// It exists in this package in order to avoid circular dependency with the "mvp_nomination" package.
+	MvpNominationsInverseTable = "mvp_nominations"
+	// MvpNominationsColumn is the table column denoting the mvp_nominations relation/edge.
+	MvpNominationsColumn = "player_mvp_nominations"
+	// SpiritNominationsTable is the table that holds the spirit_nominations relation/edge.
+	SpiritNominationsTable = "spirit_nominations"
+	// SpiritNominationsInverseTable is the table name for the SpiritNomination entity.
+	// It exists in this package in order to avoid circular dependency with the "spiritnomination" package.
+	SpiritNominationsInverseTable = "spirit_nominations"
+	// SpiritNominationsColumn is the table column denoting the spirit_nominations relation/edge.
+	SpiritNominationsColumn = "player_spirit_nominations"
 )
 
 // Columns holds all SQL columns for player fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
+	FieldName,
+	FieldEmail,
+	FieldGender,
+	FieldDateOfBirth,
+	FieldJerseyNumber,
+	FieldProfileImageURL,
+	FieldMetadata,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "players"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"team_players",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -27,8 +112,32 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
+			return true
+		}
+	}
 	return false
 }
+
+var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
+	// NameValidator is a validator for the "name" field. It is called by the builders before save.
+	NameValidator func(string) error
+	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	EmailValidator func(string) error
+	// GenderValidator is a validator for the "gender" field. It is called by the builders before save.
+	GenderValidator func(string) error
+	// JerseyNumberValidator is a validator for the "jersey_number" field. It is called by the builders before save.
+	JerseyNumberValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
+)
 
 // OrderOption defines the ordering options for the Player queries.
 type OrderOption func(*sql.Selector)
@@ -36,4 +145,147 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByEmail orders the results by the email field.
+func ByEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByGender orders the results by the gender field.
+func ByGender(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGender, opts...).ToFunc()
+}
+
+// ByDateOfBirth orders the results by the date_of_birth field.
+func ByDateOfBirth(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateOfBirth, opts...).ToFunc()
+}
+
+// ByJerseyNumber orders the results by the jersey_number field.
+func ByJerseyNumber(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldJerseyNumber, opts...).ToFunc()
+}
+
+// ByProfileImageURL orders the results by the profile_image_url field.
+func ByProfileImageURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProfileImageURL, opts...).ToFunc()
+}
+
+// ByTeamField orders the results by team field.
+func ByTeamField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTeamStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByScoresCount orders the results by scores count.
+func ByScoresCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newScoresStep(), opts...)
+	}
+}
+
+// ByScores orders the results by scores terms.
+func ByScores(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newScoresStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByGameEventsCount orders the results by game_events count.
+func ByGameEventsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newGameEventsStep(), opts...)
+	}
+}
+
+// ByGameEvents orders the results by game_events terms.
+func ByGameEvents(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGameEventsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByMvpNominationsCount orders the results by mvp_nominations count.
+func ByMvpNominationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newMvpNominationsStep(), opts...)
+	}
+}
+
+// ByMvpNominations orders the results by mvp_nominations terms.
+func ByMvpNominations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMvpNominationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// BySpiritNominationsCount orders the results by spirit_nominations count.
+func BySpiritNominationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSpiritNominationsStep(), opts...)
+	}
+}
+
+// BySpiritNominations orders the results by spirit_nominations terms.
+func BySpiritNominations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSpiritNominationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newTeamStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TeamInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, TeamTable, TeamColumn),
+	)
+}
+func newScoresStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ScoresInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ScoresTable, ScoresColumn),
+	)
+}
+func newGameEventsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GameEventsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, GameEventsTable, GameEventsColumn),
+	)
+}
+func newMvpNominationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MvpNominationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, MvpNominationsTable, MvpNominationsColumn),
+	)
+}
+func newSpiritNominationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SpiritNominationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SpiritNominationsTable, SpiritNominationsColumn),
+	)
 }

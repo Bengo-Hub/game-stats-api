@@ -40,7 +40,7 @@ func (_d *SpiritScoreDelete) ExecX(ctx context.Context) int {
 }
 
 func (_d *SpiritScoreDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(spiritscore.Table, sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(spiritscore.Table, sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID))
 	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

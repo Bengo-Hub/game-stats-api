@@ -40,7 +40,7 @@ func (_d *GameRoundDelete) ExecX(ctx context.Context) int {
 }
 
 func (_d *GameRoundDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(gameround.Table, sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(gameround.Table, sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID))
 	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

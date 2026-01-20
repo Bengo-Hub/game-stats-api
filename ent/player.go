@@ -3,20 +3,112 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/game-stats-api/ent/player"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/google/uuid"
 )
 
 // Player is the model entity for the Player schema.
 type Player struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
+	// Email holds the value of the "email" field.
+	Email string `json:"email,omitempty"`
+	// Gender holds the value of the "gender" field.
+	Gender string `json:"gender,omitempty"`
+	// DateOfBirth holds the value of the "date_of_birth" field.
+	DateOfBirth time.Time `json:"date_of_birth,omitempty"`
+	// JerseyNumber holds the value of the "jersey_number" field.
+	JerseyNumber string `json:"jersey_number,omitempty"`
+	// ProfileImageURL holds the value of the "profile_image_url" field.
+	ProfileImageURL string `json:"profile_image_url,omitempty"`
+	// Metadata holds the value of the "metadata" field.
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the PlayerQuery when eager-loading is set.
+	Edges        PlayerEdges `json:"edges"`
+	team_players *uuid.UUID
 	selectValues sql.SelectValues
+}
+
+// PlayerEdges holds the relations/edges for other nodes in the graph.
+type PlayerEdges struct {
+	// Team holds the value of the team edge.
+	Team *Team `json:"team,omitempty"`
+	// Scores holds the value of the scores edge.
+	Scores []*Scoring `json:"scores,omitempty"`
+	// GameEvents holds the value of the game_events edge.
+	GameEvents []*GameEvent `json:"game_events,omitempty"`
+	// MvpNominations holds the value of the mvp_nominations edge.
+	MvpNominations []*MVP_Nomination `json:"mvp_nominations,omitempty"`
+	// SpiritNominations holds the value of the spirit_nominations edge.
+	SpiritNominations []*SpiritNomination `json:"spirit_nominations,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [5]bool
+}
+
+// TeamOrErr returns the Team value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e PlayerEdges) TeamOrErr() (*Team, error) {
+	if e.Team != nil {
+		return e.Team, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: team.Label}
+	}
+	return nil, &NotLoadedError{edge: "team"}
+}
+
+// ScoresOrErr returns the Scores value or an error if the edge
+// was not loaded in eager-loading.
+func (e PlayerEdges) ScoresOrErr() ([]*Scoring, error) {
+	if e.loadedTypes[1] {
+		return e.Scores, nil
+	}
+	return nil, &NotLoadedError{edge: "scores"}
+}
+
+// GameEventsOrErr returns the GameEvents value or an error if the edge
+// was not loaded in eager-loading.
+func (e PlayerEdges) GameEventsOrErr() ([]*GameEvent, error) {
+	if e.loadedTypes[2] {
+		return e.GameEvents, nil
+	}
+	return nil, &NotLoadedError{edge: "game_events"}
+}
+
+// MvpNominationsOrErr returns the MvpNominations value or an error if the edge
+// was not loaded in eager-loading.
+func (e PlayerEdges) MvpNominationsOrErr() ([]*MVP_Nomination, error) {
+	if e.loadedTypes[3] {
+		return e.MvpNominations, nil
+	}
+	return nil, &NotLoadedError{edge: "mvp_nominations"}
+}
+
+// SpiritNominationsOrErr returns the SpiritNominations value or an error if the edge
+// was not loaded in eager-loading.
+func (e PlayerEdges) SpiritNominationsOrErr() ([]*SpiritNomination, error) {
+	if e.loadedTypes[4] {
+		return e.SpiritNominations, nil
+	}
+	return nil, &NotLoadedError{edge: "spirit_nominations"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -24,8 +116,16 @@ func (*Player) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case player.FieldMetadata:
+			values[i] = new([]byte)
+		case player.FieldName, player.FieldEmail, player.FieldGender, player.FieldJerseyNumber, player.FieldProfileImageURL:
+			values[i] = new(sql.NullString)
+		case player.FieldCreatedAt, player.FieldUpdatedAt, player.FieldDeletedAt, player.FieldDateOfBirth:
+			values[i] = new(sql.NullTime)
 		case player.FieldID:
-			values[i] = new(sql.NullInt64)
+			values[i] = new(uuid.UUID)
+		case player.ForeignKeys[0]: // team_players
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -42,11 +142,81 @@ func (_m *Player) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case player.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
+		case player.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case player.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case player.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
+		case player.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				_m.Name = value.String
+			}
+		case player.FieldEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field email", values[i])
+			} else if value.Valid {
+				_m.Email = value.String
+			}
+		case player.FieldGender:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field gender", values[i])
+			} else if value.Valid {
+				_m.Gender = value.String
+			}
+		case player.FieldDateOfBirth:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field date_of_birth", values[i])
+			} else if value.Valid {
+				_m.DateOfBirth = value.Time
+			}
+		case player.FieldJerseyNumber:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field jersey_number", values[i])
+			} else if value.Valid {
+				_m.JerseyNumber = value.String
+			}
+		case player.FieldProfileImageURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field profile_image_url", values[i])
+			} else if value.Valid {
+				_m.ProfileImageURL = value.String
+			}
+		case player.FieldMetadata:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field metadata", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
+			}
+		case player.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field team_players", values[i])
+			} else if value.Valid {
+				_m.team_players = new(uuid.UUID)
+				*_m.team_players = *value.S.(*uuid.UUID)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -58,6 +228,31 @@ func (_m *Player) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Player) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryTeam queries the "team" edge of the Player entity.
+func (_m *Player) QueryTeam() *TeamQuery {
+	return NewPlayerClient(_m.config).QueryTeam(_m)
+}
+
+// QueryScores queries the "scores" edge of the Player entity.
+func (_m *Player) QueryScores() *ScoringQuery {
+	return NewPlayerClient(_m.config).QueryScores(_m)
+}
+
+// QueryGameEvents queries the "game_events" edge of the Player entity.
+func (_m *Player) QueryGameEvents() *GameEventQuery {
+	return NewPlayerClient(_m.config).QueryGameEvents(_m)
+}
+
+// QueryMvpNominations queries the "mvp_nominations" edge of the Player entity.
+func (_m *Player) QueryMvpNominations() *MVPNominationQuery {
+	return NewPlayerClient(_m.config).QueryMvpNominations(_m)
+}
+
+// QuerySpiritNominations queries the "spirit_nominations" edge of the Player entity.
+func (_m *Player) QuerySpiritNominations() *SpiritNominationQuery {
+	return NewPlayerClient(_m.config).QuerySpiritNominations(_m)
 }
 
 // Update returns a builder for updating this Player.
@@ -82,7 +277,38 @@ func (_m *Player) Unwrap() *Player {
 func (_m *Player) String() string {
 	var builder strings.Builder
 	builder.WriteString("Player(")
-	builder.WriteString(fmt.Sprintf("id=%v", _m.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("name=")
+	builder.WriteString(_m.Name)
+	builder.WriteString(", ")
+	builder.WriteString("email=")
+	builder.WriteString(_m.Email)
+	builder.WriteString(", ")
+	builder.WriteString("gender=")
+	builder.WriteString(_m.Gender)
+	builder.WriteString(", ")
+	builder.WriteString("date_of_birth=")
+	builder.WriteString(_m.DateOfBirth.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("jersey_number=")
+	builder.WriteString(_m.JerseyNumber)
+	builder.WriteString(", ")
+	builder.WriteString("profile_image_url=")
+	builder.WriteString(_m.ProfileImageURL)
+	builder.WriteString(", ")
+	builder.WriteString("metadata=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteByte(')')
 	return builder.String()
 }

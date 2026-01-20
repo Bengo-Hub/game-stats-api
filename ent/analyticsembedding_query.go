@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/game-stats-api/ent/analyticsembedding"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // AnalyticsEmbeddingQuery is the builder for querying AnalyticsEmbedding entities.
@@ -82,8 +83,8 @@ func (_q *AnalyticsEmbeddingQuery) FirstX(ctx context.Context) *AnalyticsEmbeddi
 
 // FirstID returns the first AnalyticsEmbedding ID from the query.
 // Returns a *NotFoundError when no AnalyticsEmbedding ID was found.
-func (_q *AnalyticsEmbeddingQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *AnalyticsEmbeddingQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -95,7 +96,7 @@ func (_q *AnalyticsEmbeddingQuery) FirstID(ctx context.Context) (id int, err err
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *AnalyticsEmbeddingQuery) FirstIDX(ctx context.Context) int {
+func (_q *AnalyticsEmbeddingQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -133,8 +134,8 @@ func (_q *AnalyticsEmbeddingQuery) OnlyX(ctx context.Context) *AnalyticsEmbeddin
 // OnlyID is like Only, but returns the only AnalyticsEmbedding ID in the query.
 // Returns a *NotSingularError when more than one AnalyticsEmbedding ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *AnalyticsEmbeddingQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *AnalyticsEmbeddingQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -150,7 +151,7 @@ func (_q *AnalyticsEmbeddingQuery) OnlyID(ctx context.Context) (id int, err erro
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *AnalyticsEmbeddingQuery) OnlyIDX(ctx context.Context) int {
+func (_q *AnalyticsEmbeddingQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -178,7 +179,7 @@ func (_q *AnalyticsEmbeddingQuery) AllX(ctx context.Context) []*AnalyticsEmbeddi
 }
 
 // IDs executes the query and returns a list of AnalyticsEmbedding IDs.
-func (_q *AnalyticsEmbeddingQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *AnalyticsEmbeddingQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -190,7 +191,7 @@ func (_q *AnalyticsEmbeddingQuery) IDs(ctx context.Context) (ids []int, err erro
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *AnalyticsEmbeddingQuery) IDsX(ctx context.Context) []int {
+func (_q *AnalyticsEmbeddingQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -258,6 +259,18 @@ func (_q *AnalyticsEmbeddingQuery) Clone() *AnalyticsEmbeddingQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.AnalyticsEmbedding.Query().
+//		GroupBy(analyticsembedding.FieldCreatedAt).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (_q *AnalyticsEmbeddingQuery) GroupBy(field string, fields ...string) *AnalyticsEmbeddingGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &AnalyticsEmbeddingGroupBy{build: _q}
@@ -269,6 +282,16 @@ func (_q *AnalyticsEmbeddingQuery) GroupBy(field string, fields ...string) *Anal
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//	}
+//
+//	client.AnalyticsEmbedding.Query().
+//		Select(analyticsembedding.FieldCreatedAt).
+//		Scan(ctx, &v)
 func (_q *AnalyticsEmbeddingQuery) Select(fields ...string) *AnalyticsEmbeddingSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
 	sbuild := &AnalyticsEmbeddingSelect{AnalyticsEmbeddingQuery: _q}
@@ -343,7 +366,7 @@ func (_q *AnalyticsEmbeddingQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *AnalyticsEmbeddingQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(analyticsembedding.Table, analyticsembedding.Columns, sqlgraph.NewFieldSpec(analyticsembedding.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(analyticsembedding.Table, analyticsembedding.Columns, sqlgraph.NewFieldSpec(analyticsembedding.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

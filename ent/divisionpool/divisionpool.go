@@ -3,7 +3,11 @@
 package divisionpool
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -11,13 +15,70 @@ const (
 	Label = "division_pool"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
+	// FieldDivisionType holds the string denoting the division_type field in the database.
+	FieldDivisionType = "division_type"
+	// FieldMaxTeams holds the string denoting the max_teams field in the database.
+	FieldMaxTeams = "max_teams"
+	// FieldRankingCriteria holds the string denoting the ranking_criteria field in the database.
+	FieldRankingCriteria = "ranking_criteria"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
+	// EdgeEvent holds the string denoting the event edge name in mutations.
+	EdgeEvent = "event"
+	// EdgeTeams holds the string denoting the teams edge name in mutations.
+	EdgeTeams = "teams"
+	// EdgeGames holds the string denoting the games edge name in mutations.
+	EdgeGames = "games"
 	// Table holds the table name of the divisionpool in the database.
 	Table = "division_pools"
+	// EventTable is the table that holds the event relation/edge.
+	EventTable = "division_pools"
+	// EventInverseTable is the table name for the Event entity.
+	// It exists in this package in order to avoid circular dependency with the "event" package.
+	EventInverseTable = "events"
+	// EventColumn is the table column denoting the event relation/edge.
+	EventColumn = "event_division_pools"
+	// TeamsTable is the table that holds the teams relation/edge.
+	TeamsTable = "teams"
+	// TeamsInverseTable is the table name for the Team entity.
+	// It exists in this package in order to avoid circular dependency with the "team" package.
+	TeamsInverseTable = "teams"
+	// TeamsColumn is the table column denoting the teams relation/edge.
+	TeamsColumn = "division_pool_teams"
+	// GamesTable is the table that holds the games relation/edge.
+	GamesTable = "games"
+	// GamesInverseTable is the table name for the Game entity.
+	// It exists in this package in order to avoid circular dependency with the "game" package.
+	GamesInverseTable = "games"
+	// GamesColumn is the table column denoting the games relation/edge.
+	GamesColumn = "division_pool_games"
 )
 
 // Columns holds all SQL columns for divisionpool fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
+	FieldName,
+	FieldDivisionType,
+	FieldMaxTeams,
+	FieldRankingCriteria,
+	FieldDescription,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "division_pools"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"event_division_pools",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -27,8 +88,28 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
+			return true
+		}
+	}
 	return false
 }
+
+var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
+	// NameValidator is a validator for the "name" field. It is called by the builders before save.
+	NameValidator func(string) error
+	// DivisionTypeValidator is a validator for the "division_type" field. It is called by the builders before save.
+	DivisionTypeValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
+)
 
 // OrderOption defines the ordering options for the DivisionPool queries.
 type OrderOption func(*sql.Selector)
@@ -36,4 +117,95 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByDivisionType orders the results by the division_type field.
+func ByDivisionType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDivisionType, opts...).ToFunc()
+}
+
+// ByMaxTeams orders the results by the max_teams field.
+func ByMaxTeams(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMaxTeams, opts...).ToFunc()
+}
+
+// ByDescription orders the results by the description field.
+func ByDescription(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByEventField orders the results by event field.
+func ByEventField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newEventStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByTeamsCount orders the results by teams count.
+func ByTeamsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTeamsStep(), opts...)
+	}
+}
+
+// ByTeams orders the results by teams terms.
+func ByTeams(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTeamsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByGamesCount orders the results by games count.
+func ByGamesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newGamesStep(), opts...)
+	}
+}
+
+// ByGames orders the results by games terms.
+func ByGames(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGamesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newEventStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(EventInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, EventTable, EventColumn),
+	)
+}
+func newTeamsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TeamsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TeamsTable, TeamsColumn),
+	)
+}
+func newGamesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GamesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, GamesTable, GamesColumn),
+	)
 }

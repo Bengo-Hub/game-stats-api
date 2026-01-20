@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -27,6 +28,98 @@ func (_u *AnalyticSearchUpdate) Where(ps ...predicate.AnalyticSearch) *AnalyticS
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *AnalyticSearchUpdate) SetUpdatedAt(v time.Time) *AnalyticSearchUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *AnalyticSearchUpdate) SetDeletedAt(v time.Time) *AnalyticSearchUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *AnalyticSearchUpdate) SetNillableDeletedAt(v *time.Time) *AnalyticSearchUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *AnalyticSearchUpdate) ClearDeletedAt() *AnalyticSearchUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetQuery sets the "query" field.
+func (_u *AnalyticSearchUpdate) SetQuery(v string) *AnalyticSearchUpdate {
+	_u.mutation.SetQuery(v)
+	return _u
+}
+
+// SetNillableQuery sets the "query" field if the given value is not nil.
+func (_u *AnalyticSearchUpdate) SetNillableQuery(v *string) *AnalyticSearchUpdate {
+	if v != nil {
+		_u.SetQuery(*v)
+	}
+	return _u
+}
+
+// SetExplanation sets the "explanation" field.
+func (_u *AnalyticSearchUpdate) SetExplanation(v string) *AnalyticSearchUpdate {
+	_u.mutation.SetExplanation(v)
+	return _u
+}
+
+// SetNillableExplanation sets the "explanation" field if the given value is not nil.
+func (_u *AnalyticSearchUpdate) SetNillableExplanation(v *string) *AnalyticSearchUpdate {
+	if v != nil {
+		_u.SetExplanation(*v)
+	}
+	return _u
+}
+
+// ClearExplanation clears the value of the "explanation" field.
+func (_u *AnalyticSearchUpdate) ClearExplanation() *AnalyticSearchUpdate {
+	_u.mutation.ClearExplanation()
+	return _u
+}
+
+// SetGeneratedSQL sets the "generated_sql" field.
+func (_u *AnalyticSearchUpdate) SetGeneratedSQL(v string) *AnalyticSearchUpdate {
+	_u.mutation.SetGeneratedSQL(v)
+	return _u
+}
+
+// SetNillableGeneratedSQL sets the "generated_sql" field if the given value is not nil.
+func (_u *AnalyticSearchUpdate) SetNillableGeneratedSQL(v *string) *AnalyticSearchUpdate {
+	if v != nil {
+		_u.SetGeneratedSQL(*v)
+	}
+	return _u
+}
+
+// ClearGeneratedSQL clears the value of the "generated_sql" field.
+func (_u *AnalyticSearchUpdate) ClearGeneratedSQL() *AnalyticSearchUpdate {
+	_u.mutation.ClearGeneratedSQL()
+	return _u
+}
+
+// SetMetadata sets the "metadata" field.
+func (_u *AnalyticSearchUpdate) SetMetadata(v map[string]interface{}) *AnalyticSearchUpdate {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *AnalyticSearchUpdate) ClearMetadata() *AnalyticSearchUpdate {
+	_u.mutation.ClearMetadata()
+	return _u
+}
+
 // Mutation returns the AnalyticSearchMutation object of the builder.
 func (_u *AnalyticSearchUpdate) Mutation() *AnalyticSearchMutation {
 	return _u.mutation
@@ -34,6 +127,7 @@ func (_u *AnalyticSearchUpdate) Mutation() *AnalyticSearchMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *AnalyticSearchUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -59,14 +153,65 @@ func (_u *AnalyticSearchUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *AnalyticSearchUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := analyticsearch.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *AnalyticSearchUpdate) check() error {
+	if v, ok := _u.mutation.Query(); ok {
+		if err := analyticsearch.QueryValidator(v); err != nil {
+			return &ValidationError{Name: "query", err: fmt.Errorf(`ent: validator failed for field "AnalyticSearch.query": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *AnalyticSearchUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(analyticsearch.Table, analyticsearch.Columns, sqlgraph.NewFieldSpec(analyticsearch.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(analyticsearch.Table, analyticsearch.Columns, sqlgraph.NewFieldSpec(analyticsearch.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(analyticsearch.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(analyticsearch.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(analyticsearch.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Query(); ok {
+		_spec.SetField(analyticsearch.FieldQuery, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Explanation(); ok {
+		_spec.SetField(analyticsearch.FieldExplanation, field.TypeString, value)
+	}
+	if _u.mutation.ExplanationCleared() {
+		_spec.ClearField(analyticsearch.FieldExplanation, field.TypeString)
+	}
+	if value, ok := _u.mutation.GeneratedSQL(); ok {
+		_spec.SetField(analyticsearch.FieldGeneratedSQL, field.TypeString, value)
+	}
+	if _u.mutation.GeneratedSQLCleared() {
+		_spec.ClearField(analyticsearch.FieldGeneratedSQL, field.TypeString)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(analyticsearch.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(analyticsearch.FieldMetadata, field.TypeJSON)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -86,6 +231,98 @@ type AnalyticSearchUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *AnalyticSearchMutation
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *AnalyticSearchUpdateOne) SetUpdatedAt(v time.Time) *AnalyticSearchUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *AnalyticSearchUpdateOne) SetDeletedAt(v time.Time) *AnalyticSearchUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *AnalyticSearchUpdateOne) SetNillableDeletedAt(v *time.Time) *AnalyticSearchUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *AnalyticSearchUpdateOne) ClearDeletedAt() *AnalyticSearchUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetQuery sets the "query" field.
+func (_u *AnalyticSearchUpdateOne) SetQuery(v string) *AnalyticSearchUpdateOne {
+	_u.mutation.SetQuery(v)
+	return _u
+}
+
+// SetNillableQuery sets the "query" field if the given value is not nil.
+func (_u *AnalyticSearchUpdateOne) SetNillableQuery(v *string) *AnalyticSearchUpdateOne {
+	if v != nil {
+		_u.SetQuery(*v)
+	}
+	return _u
+}
+
+// SetExplanation sets the "explanation" field.
+func (_u *AnalyticSearchUpdateOne) SetExplanation(v string) *AnalyticSearchUpdateOne {
+	_u.mutation.SetExplanation(v)
+	return _u
+}
+
+// SetNillableExplanation sets the "explanation" field if the given value is not nil.
+func (_u *AnalyticSearchUpdateOne) SetNillableExplanation(v *string) *AnalyticSearchUpdateOne {
+	if v != nil {
+		_u.SetExplanation(*v)
+	}
+	return _u
+}
+
+// ClearExplanation clears the value of the "explanation" field.
+func (_u *AnalyticSearchUpdateOne) ClearExplanation() *AnalyticSearchUpdateOne {
+	_u.mutation.ClearExplanation()
+	return _u
+}
+
+// SetGeneratedSQL sets the "generated_sql" field.
+func (_u *AnalyticSearchUpdateOne) SetGeneratedSQL(v string) *AnalyticSearchUpdateOne {
+	_u.mutation.SetGeneratedSQL(v)
+	return _u
+}
+
+// SetNillableGeneratedSQL sets the "generated_sql" field if the given value is not nil.
+func (_u *AnalyticSearchUpdateOne) SetNillableGeneratedSQL(v *string) *AnalyticSearchUpdateOne {
+	if v != nil {
+		_u.SetGeneratedSQL(*v)
+	}
+	return _u
+}
+
+// ClearGeneratedSQL clears the value of the "generated_sql" field.
+func (_u *AnalyticSearchUpdateOne) ClearGeneratedSQL() *AnalyticSearchUpdateOne {
+	_u.mutation.ClearGeneratedSQL()
+	return _u
+}
+
+// SetMetadata sets the "metadata" field.
+func (_u *AnalyticSearchUpdateOne) SetMetadata(v map[string]interface{}) *AnalyticSearchUpdateOne {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *AnalyticSearchUpdateOne) ClearMetadata() *AnalyticSearchUpdateOne {
+	_u.mutation.ClearMetadata()
+	return _u
 }
 
 // Mutation returns the AnalyticSearchMutation object of the builder.
@@ -108,6 +345,7 @@ func (_u *AnalyticSearchUpdateOne) Select(field string, fields ...string) *Analy
 
 // Save executes the query and returns the updated AnalyticSearch entity.
 func (_u *AnalyticSearchUpdateOne) Save(ctx context.Context) (*AnalyticSearch, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -133,8 +371,29 @@ func (_u *AnalyticSearchUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *AnalyticSearchUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := analyticsearch.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *AnalyticSearchUpdateOne) check() error {
+	if v, ok := _u.mutation.Query(); ok {
+		if err := analyticsearch.QueryValidator(v); err != nil {
+			return &ValidationError{Name: "query", err: fmt.Errorf(`ent: validator failed for field "AnalyticSearch.query": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *AnalyticSearchUpdateOne) sqlSave(ctx context.Context) (_node *AnalyticSearch, err error) {
-	_spec := sqlgraph.NewUpdateSpec(analyticsearch.Table, analyticsearch.Columns, sqlgraph.NewFieldSpec(analyticsearch.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(analyticsearch.Table, analyticsearch.Columns, sqlgraph.NewFieldSpec(analyticsearch.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "AnalyticSearch.id" for update`)}
@@ -158,6 +417,36 @@ func (_u *AnalyticSearchUpdateOne) sqlSave(ctx context.Context) (_node *Analytic
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(analyticsearch.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(analyticsearch.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(analyticsearch.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Query(); ok {
+		_spec.SetField(analyticsearch.FieldQuery, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Explanation(); ok {
+		_spec.SetField(analyticsearch.FieldExplanation, field.TypeString, value)
+	}
+	if _u.mutation.ExplanationCleared() {
+		_spec.ClearField(analyticsearch.FieldExplanation, field.TypeString)
+	}
+	if value, ok := _u.mutation.GeneratedSQL(); ok {
+		_spec.SetField(analyticsearch.FieldGeneratedSQL, field.TypeString, value)
+	}
+	if _u.mutation.GeneratedSQLCleared() {
+		_spec.ClearField(analyticsearch.FieldGeneratedSQL, field.TypeString)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(analyticsearch.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(analyticsearch.FieldMetadata, field.TypeJSON)
 	}
 	_node = &AnalyticSearch{config: _u.config}
 	_spec.Assign = _node.assignValues

@@ -6,12 +6,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/ent/spiritnomination"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/bengobox/game-stats-api/ent/user"
+	"github.com/google/uuid"
 )
 
 // SpiritScoreUpdate is the builder for updating SpiritScore entities.
@@ -27,13 +34,305 @@ func (_u *SpiritScoreUpdate) Where(ps ...predicate.SpiritScore) *SpiritScoreUpda
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *SpiritScoreUpdate) SetUpdatedAt(v time.Time) *SpiritScoreUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *SpiritScoreUpdate) SetDeletedAt(v time.Time) *SpiritScoreUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *SpiritScoreUpdate) SetNillableDeletedAt(v *time.Time) *SpiritScoreUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *SpiritScoreUpdate) ClearDeletedAt() *SpiritScoreUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetRulesKnowledge sets the "rules_knowledge" field.
+func (_u *SpiritScoreUpdate) SetRulesKnowledge(v int) *SpiritScoreUpdate {
+	_u.mutation.ResetRulesKnowledge()
+	_u.mutation.SetRulesKnowledge(v)
+	return _u
+}
+
+// SetNillableRulesKnowledge sets the "rules_knowledge" field if the given value is not nil.
+func (_u *SpiritScoreUpdate) SetNillableRulesKnowledge(v *int) *SpiritScoreUpdate {
+	if v != nil {
+		_u.SetRulesKnowledge(*v)
+	}
+	return _u
+}
+
+// AddRulesKnowledge adds value to the "rules_knowledge" field.
+func (_u *SpiritScoreUpdate) AddRulesKnowledge(v int) *SpiritScoreUpdate {
+	_u.mutation.AddRulesKnowledge(v)
+	return _u
+}
+
+// SetFoulsBodyContact sets the "fouls_body_contact" field.
+func (_u *SpiritScoreUpdate) SetFoulsBodyContact(v int) *SpiritScoreUpdate {
+	_u.mutation.ResetFoulsBodyContact()
+	_u.mutation.SetFoulsBodyContact(v)
+	return _u
+}
+
+// SetNillableFoulsBodyContact sets the "fouls_body_contact" field if the given value is not nil.
+func (_u *SpiritScoreUpdate) SetNillableFoulsBodyContact(v *int) *SpiritScoreUpdate {
+	if v != nil {
+		_u.SetFoulsBodyContact(*v)
+	}
+	return _u
+}
+
+// AddFoulsBodyContact adds value to the "fouls_body_contact" field.
+func (_u *SpiritScoreUpdate) AddFoulsBodyContact(v int) *SpiritScoreUpdate {
+	_u.mutation.AddFoulsBodyContact(v)
+	return _u
+}
+
+// SetFairMindedness sets the "fair_mindedness" field.
+func (_u *SpiritScoreUpdate) SetFairMindedness(v int) *SpiritScoreUpdate {
+	_u.mutation.ResetFairMindedness()
+	_u.mutation.SetFairMindedness(v)
+	return _u
+}
+
+// SetNillableFairMindedness sets the "fair_mindedness" field if the given value is not nil.
+func (_u *SpiritScoreUpdate) SetNillableFairMindedness(v *int) *SpiritScoreUpdate {
+	if v != nil {
+		_u.SetFairMindedness(*v)
+	}
+	return _u
+}
+
+// AddFairMindedness adds value to the "fair_mindedness" field.
+func (_u *SpiritScoreUpdate) AddFairMindedness(v int) *SpiritScoreUpdate {
+	_u.mutation.AddFairMindedness(v)
+	return _u
+}
+
+// SetAttitude sets the "attitude" field.
+func (_u *SpiritScoreUpdate) SetAttitude(v int) *SpiritScoreUpdate {
+	_u.mutation.ResetAttitude()
+	_u.mutation.SetAttitude(v)
+	return _u
+}
+
+// SetNillableAttitude sets the "attitude" field if the given value is not nil.
+func (_u *SpiritScoreUpdate) SetNillableAttitude(v *int) *SpiritScoreUpdate {
+	if v != nil {
+		_u.SetAttitude(*v)
+	}
+	return _u
+}
+
+// AddAttitude adds value to the "attitude" field.
+func (_u *SpiritScoreUpdate) AddAttitude(v int) *SpiritScoreUpdate {
+	_u.mutation.AddAttitude(v)
+	return _u
+}
+
+// SetCommunication sets the "communication" field.
+func (_u *SpiritScoreUpdate) SetCommunication(v int) *SpiritScoreUpdate {
+	_u.mutation.ResetCommunication()
+	_u.mutation.SetCommunication(v)
+	return _u
+}
+
+// SetNillableCommunication sets the "communication" field if the given value is not nil.
+func (_u *SpiritScoreUpdate) SetNillableCommunication(v *int) *SpiritScoreUpdate {
+	if v != nil {
+		_u.SetCommunication(*v)
+	}
+	return _u
+}
+
+// AddCommunication adds value to the "communication" field.
+func (_u *SpiritScoreUpdate) AddCommunication(v int) *SpiritScoreUpdate {
+	_u.mutation.AddCommunication(v)
+	return _u
+}
+
+// SetComments sets the "comments" field.
+func (_u *SpiritScoreUpdate) SetComments(v string) *SpiritScoreUpdate {
+	_u.mutation.SetComments(v)
+	return _u
+}
+
+// SetNillableComments sets the "comments" field if the given value is not nil.
+func (_u *SpiritScoreUpdate) SetNillableComments(v *string) *SpiritScoreUpdate {
+	if v != nil {
+		_u.SetComments(*v)
+	}
+	return _u
+}
+
+// ClearComments clears the value of the "comments" field.
+func (_u *SpiritScoreUpdate) ClearComments() *SpiritScoreUpdate {
+	_u.mutation.ClearComments()
+	return _u
+}
+
+// SetGameID sets the "game" edge to the Game entity by ID.
+func (_u *SpiritScoreUpdate) SetGameID(id uuid.UUID) *SpiritScoreUpdate {
+	_u.mutation.SetGameID(id)
+	return _u
+}
+
+// SetGame sets the "game" edge to the Game entity.
+func (_u *SpiritScoreUpdate) SetGame(v *Game) *SpiritScoreUpdate {
+	return _u.SetGameID(v.ID)
+}
+
+// SetScoredByTeamID sets the "scored_by_team" edge to the Team entity by ID.
+func (_u *SpiritScoreUpdate) SetScoredByTeamID(id uuid.UUID) *SpiritScoreUpdate {
+	_u.mutation.SetScoredByTeamID(id)
+	return _u
+}
+
+// SetScoredByTeam sets the "scored_by_team" edge to the Team entity.
+func (_u *SpiritScoreUpdate) SetScoredByTeam(v *Team) *SpiritScoreUpdate {
+	return _u.SetScoredByTeamID(v.ID)
+}
+
+// SetTeamID sets the "team" edge to the Team entity by ID.
+func (_u *SpiritScoreUpdate) SetTeamID(id uuid.UUID) *SpiritScoreUpdate {
+	_u.mutation.SetTeamID(id)
+	return _u
+}
+
+// SetTeam sets the "team" edge to the Team entity.
+func (_u *SpiritScoreUpdate) SetTeam(v *Team) *SpiritScoreUpdate {
+	return _u.SetTeamID(v.ID)
+}
+
+// SetSubmittedByID sets the "submitted_by" edge to the User entity by ID.
+func (_u *SpiritScoreUpdate) SetSubmittedByID(id uuid.UUID) *SpiritScoreUpdate {
+	_u.mutation.SetSubmittedByID(id)
+	return _u
+}
+
+// SetSubmittedBy sets the "submitted_by" edge to the User entity.
+func (_u *SpiritScoreUpdate) SetSubmittedBy(v *User) *SpiritScoreUpdate {
+	return _u.SetSubmittedByID(v.ID)
+}
+
+// AddMvpNominationIDs adds the "mvp_nominations" edge to the MVP_Nomination entity by IDs.
+func (_u *SpiritScoreUpdate) AddMvpNominationIDs(ids ...uuid.UUID) *SpiritScoreUpdate {
+	_u.mutation.AddMvpNominationIDs(ids...)
+	return _u
+}
+
+// AddMvpNominations adds the "mvp_nominations" edges to the MVP_Nomination entity.
+func (_u *SpiritScoreUpdate) AddMvpNominations(v ...*MVP_Nomination) *SpiritScoreUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddMvpNominationIDs(ids...)
+}
+
+// AddSpiritNominationIDs adds the "spirit_nominations" edge to the SpiritNomination entity by IDs.
+func (_u *SpiritScoreUpdate) AddSpiritNominationIDs(ids ...uuid.UUID) *SpiritScoreUpdate {
+	_u.mutation.AddSpiritNominationIDs(ids...)
+	return _u
+}
+
+// AddSpiritNominations adds the "spirit_nominations" edges to the SpiritNomination entity.
+func (_u *SpiritScoreUpdate) AddSpiritNominations(v ...*SpiritNomination) *SpiritScoreUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpiritNominationIDs(ids...)
+}
+
 // Mutation returns the SpiritScoreMutation object of the builder.
 func (_u *SpiritScoreUpdate) Mutation() *SpiritScoreMutation {
 	return _u.mutation
 }
 
+// ClearGame clears the "game" edge to the Game entity.
+func (_u *SpiritScoreUpdate) ClearGame() *SpiritScoreUpdate {
+	_u.mutation.ClearGame()
+	return _u
+}
+
+// ClearScoredByTeam clears the "scored_by_team" edge to the Team entity.
+func (_u *SpiritScoreUpdate) ClearScoredByTeam() *SpiritScoreUpdate {
+	_u.mutation.ClearScoredByTeam()
+	return _u
+}
+
+// ClearTeam clears the "team" edge to the Team entity.
+func (_u *SpiritScoreUpdate) ClearTeam() *SpiritScoreUpdate {
+	_u.mutation.ClearTeam()
+	return _u
+}
+
+// ClearSubmittedBy clears the "submitted_by" edge to the User entity.
+func (_u *SpiritScoreUpdate) ClearSubmittedBy() *SpiritScoreUpdate {
+	_u.mutation.ClearSubmittedBy()
+	return _u
+}
+
+// ClearMvpNominations clears all "mvp_nominations" edges to the MVP_Nomination entity.
+func (_u *SpiritScoreUpdate) ClearMvpNominations() *SpiritScoreUpdate {
+	_u.mutation.ClearMvpNominations()
+	return _u
+}
+
+// RemoveMvpNominationIDs removes the "mvp_nominations" edge to MVP_Nomination entities by IDs.
+func (_u *SpiritScoreUpdate) RemoveMvpNominationIDs(ids ...uuid.UUID) *SpiritScoreUpdate {
+	_u.mutation.RemoveMvpNominationIDs(ids...)
+	return _u
+}
+
+// RemoveMvpNominations removes "mvp_nominations" edges to MVP_Nomination entities.
+func (_u *SpiritScoreUpdate) RemoveMvpNominations(v ...*MVP_Nomination) *SpiritScoreUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveMvpNominationIDs(ids...)
+}
+
+// ClearSpiritNominations clears all "spirit_nominations" edges to the SpiritNomination entity.
+func (_u *SpiritScoreUpdate) ClearSpiritNominations() *SpiritScoreUpdate {
+	_u.mutation.ClearSpiritNominations()
+	return _u
+}
+
+// RemoveSpiritNominationIDs removes the "spirit_nominations" edge to SpiritNomination entities by IDs.
+func (_u *SpiritScoreUpdate) RemoveSpiritNominationIDs(ids ...uuid.UUID) *SpiritScoreUpdate {
+	_u.mutation.RemoveSpiritNominationIDs(ids...)
+	return _u
+}
+
+// RemoveSpiritNominations removes "spirit_nominations" edges to SpiritNomination entities.
+func (_u *SpiritScoreUpdate) RemoveSpiritNominations(v ...*SpiritNomination) *SpiritScoreUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpiritNominationIDs(ids...)
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *SpiritScoreUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -59,14 +358,293 @@ func (_u *SpiritScoreUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *SpiritScoreUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := spiritscore.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *SpiritScoreUpdate) check() error {
+	if _u.mutation.GameCleared() && len(_u.mutation.GameIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "SpiritScore.game"`)
+	}
+	if _u.mutation.ScoredByTeamCleared() && len(_u.mutation.ScoredByTeamIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "SpiritScore.scored_by_team"`)
+	}
+	if _u.mutation.TeamCleared() && len(_u.mutation.TeamIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "SpiritScore.team"`)
+	}
+	if _u.mutation.SubmittedByCleared() && len(_u.mutation.SubmittedByIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "SpiritScore.submitted_by"`)
+	}
+	return nil
+}
+
 func (_u *SpiritScoreUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(spiritscore.Table, spiritscore.Columns, sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(spiritscore.Table, spiritscore.Columns, sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(spiritscore.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(spiritscore.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(spiritscore.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.RulesKnowledge(); ok {
+		_spec.SetField(spiritscore.FieldRulesKnowledge, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedRulesKnowledge(); ok {
+		_spec.AddField(spiritscore.FieldRulesKnowledge, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.FoulsBodyContact(); ok {
+		_spec.SetField(spiritscore.FieldFoulsBodyContact, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedFoulsBodyContact(); ok {
+		_spec.AddField(spiritscore.FieldFoulsBodyContact, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.FairMindedness(); ok {
+		_spec.SetField(spiritscore.FieldFairMindedness, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedFairMindedness(); ok {
+		_spec.AddField(spiritscore.FieldFairMindedness, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Attitude(); ok {
+		_spec.SetField(spiritscore.FieldAttitude, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAttitude(); ok {
+		_spec.AddField(spiritscore.FieldAttitude, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Communication(); ok {
+		_spec.SetField(spiritscore.FieldCommunication, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedCommunication(); ok {
+		_spec.AddField(spiritscore.FieldCommunication, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Comments(); ok {
+		_spec.SetField(spiritscore.FieldComments, field.TypeString, value)
+	}
+	if _u.mutation.CommentsCleared() {
+		_spec.ClearField(spiritscore.FieldComments, field.TypeString)
+	}
+	if _u.mutation.GameCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.GameTable,
+			Columns: []string{spiritscore.GameColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GameIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.GameTable,
+			Columns: []string{spiritscore.GameColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ScoredByTeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.ScoredByTeamTable,
+			Columns: []string{spiritscore.ScoredByTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ScoredByTeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.ScoredByTeamTable,
+			Columns: []string{spiritscore.ScoredByTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.TeamTable,
+			Columns: []string{spiritscore.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.TeamTable,
+			Columns: []string{spiritscore.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SubmittedByCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.SubmittedByTable,
+			Columns: []string{spiritscore.SubmittedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SubmittedByIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.SubmittedByTable,
+			Columns: []string{spiritscore.SubmittedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.MvpNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   spiritscore.MvpNominationsTable,
+			Columns: []string{spiritscore.MvpNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mvp_nomination.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedMvpNominationsIDs(); len(nodes) > 0 && !_u.mutation.MvpNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   spiritscore.MvpNominationsTable,
+			Columns: []string{spiritscore.MvpNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mvp_nomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.MvpNominationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   spiritscore.MvpNominationsTable,
+			Columns: []string{spiritscore.MvpNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mvp_nomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpiritNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   spiritscore.SpiritNominationsTable,
+			Columns: []string{spiritscore.SpiritNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpiritNominationsIDs(); len(nodes) > 0 && !_u.mutation.SpiritNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   spiritscore.SpiritNominationsTable,
+			Columns: []string{spiritscore.SpiritNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpiritNominationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   spiritscore.SpiritNominationsTable,
+			Columns: []string{spiritscore.SpiritNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -88,9 +666,300 @@ type SpiritScoreUpdateOne struct {
 	mutation *SpiritScoreMutation
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *SpiritScoreUpdateOne) SetUpdatedAt(v time.Time) *SpiritScoreUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *SpiritScoreUpdateOne) SetDeletedAt(v time.Time) *SpiritScoreUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *SpiritScoreUpdateOne) SetNillableDeletedAt(v *time.Time) *SpiritScoreUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *SpiritScoreUpdateOne) ClearDeletedAt() *SpiritScoreUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetRulesKnowledge sets the "rules_knowledge" field.
+func (_u *SpiritScoreUpdateOne) SetRulesKnowledge(v int) *SpiritScoreUpdateOne {
+	_u.mutation.ResetRulesKnowledge()
+	_u.mutation.SetRulesKnowledge(v)
+	return _u
+}
+
+// SetNillableRulesKnowledge sets the "rules_knowledge" field if the given value is not nil.
+func (_u *SpiritScoreUpdateOne) SetNillableRulesKnowledge(v *int) *SpiritScoreUpdateOne {
+	if v != nil {
+		_u.SetRulesKnowledge(*v)
+	}
+	return _u
+}
+
+// AddRulesKnowledge adds value to the "rules_knowledge" field.
+func (_u *SpiritScoreUpdateOne) AddRulesKnowledge(v int) *SpiritScoreUpdateOne {
+	_u.mutation.AddRulesKnowledge(v)
+	return _u
+}
+
+// SetFoulsBodyContact sets the "fouls_body_contact" field.
+func (_u *SpiritScoreUpdateOne) SetFoulsBodyContact(v int) *SpiritScoreUpdateOne {
+	_u.mutation.ResetFoulsBodyContact()
+	_u.mutation.SetFoulsBodyContact(v)
+	return _u
+}
+
+// SetNillableFoulsBodyContact sets the "fouls_body_contact" field if the given value is not nil.
+func (_u *SpiritScoreUpdateOne) SetNillableFoulsBodyContact(v *int) *SpiritScoreUpdateOne {
+	if v != nil {
+		_u.SetFoulsBodyContact(*v)
+	}
+	return _u
+}
+
+// AddFoulsBodyContact adds value to the "fouls_body_contact" field.
+func (_u *SpiritScoreUpdateOne) AddFoulsBodyContact(v int) *SpiritScoreUpdateOne {
+	_u.mutation.AddFoulsBodyContact(v)
+	return _u
+}
+
+// SetFairMindedness sets the "fair_mindedness" field.
+func (_u *SpiritScoreUpdateOne) SetFairMindedness(v int) *SpiritScoreUpdateOne {
+	_u.mutation.ResetFairMindedness()
+	_u.mutation.SetFairMindedness(v)
+	return _u
+}
+
+// SetNillableFairMindedness sets the "fair_mindedness" field if the given value is not nil.
+func (_u *SpiritScoreUpdateOne) SetNillableFairMindedness(v *int) *SpiritScoreUpdateOne {
+	if v != nil {
+		_u.SetFairMindedness(*v)
+	}
+	return _u
+}
+
+// AddFairMindedness adds value to the "fair_mindedness" field.
+func (_u *SpiritScoreUpdateOne) AddFairMindedness(v int) *SpiritScoreUpdateOne {
+	_u.mutation.AddFairMindedness(v)
+	return _u
+}
+
+// SetAttitude sets the "attitude" field.
+func (_u *SpiritScoreUpdateOne) SetAttitude(v int) *SpiritScoreUpdateOne {
+	_u.mutation.ResetAttitude()
+	_u.mutation.SetAttitude(v)
+	return _u
+}
+
+// SetNillableAttitude sets the "attitude" field if the given value is not nil.
+func (_u *SpiritScoreUpdateOne) SetNillableAttitude(v *int) *SpiritScoreUpdateOne {
+	if v != nil {
+		_u.SetAttitude(*v)
+	}
+	return _u
+}
+
+// AddAttitude adds value to the "attitude" field.
+func (_u *SpiritScoreUpdateOne) AddAttitude(v int) *SpiritScoreUpdateOne {
+	_u.mutation.AddAttitude(v)
+	return _u
+}
+
+// SetCommunication sets the "communication" field.
+func (_u *SpiritScoreUpdateOne) SetCommunication(v int) *SpiritScoreUpdateOne {
+	_u.mutation.ResetCommunication()
+	_u.mutation.SetCommunication(v)
+	return _u
+}
+
+// SetNillableCommunication sets the "communication" field if the given value is not nil.
+func (_u *SpiritScoreUpdateOne) SetNillableCommunication(v *int) *SpiritScoreUpdateOne {
+	if v != nil {
+		_u.SetCommunication(*v)
+	}
+	return _u
+}
+
+// AddCommunication adds value to the "communication" field.
+func (_u *SpiritScoreUpdateOne) AddCommunication(v int) *SpiritScoreUpdateOne {
+	_u.mutation.AddCommunication(v)
+	return _u
+}
+
+// SetComments sets the "comments" field.
+func (_u *SpiritScoreUpdateOne) SetComments(v string) *SpiritScoreUpdateOne {
+	_u.mutation.SetComments(v)
+	return _u
+}
+
+// SetNillableComments sets the "comments" field if the given value is not nil.
+func (_u *SpiritScoreUpdateOne) SetNillableComments(v *string) *SpiritScoreUpdateOne {
+	if v != nil {
+		_u.SetComments(*v)
+	}
+	return _u
+}
+
+// ClearComments clears the value of the "comments" field.
+func (_u *SpiritScoreUpdateOne) ClearComments() *SpiritScoreUpdateOne {
+	_u.mutation.ClearComments()
+	return _u
+}
+
+// SetGameID sets the "game" edge to the Game entity by ID.
+func (_u *SpiritScoreUpdateOne) SetGameID(id uuid.UUID) *SpiritScoreUpdateOne {
+	_u.mutation.SetGameID(id)
+	return _u
+}
+
+// SetGame sets the "game" edge to the Game entity.
+func (_u *SpiritScoreUpdateOne) SetGame(v *Game) *SpiritScoreUpdateOne {
+	return _u.SetGameID(v.ID)
+}
+
+// SetScoredByTeamID sets the "scored_by_team" edge to the Team entity by ID.
+func (_u *SpiritScoreUpdateOne) SetScoredByTeamID(id uuid.UUID) *SpiritScoreUpdateOne {
+	_u.mutation.SetScoredByTeamID(id)
+	return _u
+}
+
+// SetScoredByTeam sets the "scored_by_team" edge to the Team entity.
+func (_u *SpiritScoreUpdateOne) SetScoredByTeam(v *Team) *SpiritScoreUpdateOne {
+	return _u.SetScoredByTeamID(v.ID)
+}
+
+// SetTeamID sets the "team" edge to the Team entity by ID.
+func (_u *SpiritScoreUpdateOne) SetTeamID(id uuid.UUID) *SpiritScoreUpdateOne {
+	_u.mutation.SetTeamID(id)
+	return _u
+}
+
+// SetTeam sets the "team" edge to the Team entity.
+func (_u *SpiritScoreUpdateOne) SetTeam(v *Team) *SpiritScoreUpdateOne {
+	return _u.SetTeamID(v.ID)
+}
+
+// SetSubmittedByID sets the "submitted_by" edge to the User entity by ID.
+func (_u *SpiritScoreUpdateOne) SetSubmittedByID(id uuid.UUID) *SpiritScoreUpdateOne {
+	_u.mutation.SetSubmittedByID(id)
+	return _u
+}
+
+// SetSubmittedBy sets the "submitted_by" edge to the User entity.
+func (_u *SpiritScoreUpdateOne) SetSubmittedBy(v *User) *SpiritScoreUpdateOne {
+	return _u.SetSubmittedByID(v.ID)
+}
+
+// AddMvpNominationIDs adds the "mvp_nominations" edge to the MVP_Nomination entity by IDs.
+func (_u *SpiritScoreUpdateOne) AddMvpNominationIDs(ids ...uuid.UUID) *SpiritScoreUpdateOne {
+	_u.mutation.AddMvpNominationIDs(ids...)
+	return _u
+}
+
+// AddMvpNominations adds the "mvp_nominations" edges to the MVP_Nomination entity.
+func (_u *SpiritScoreUpdateOne) AddMvpNominations(v ...*MVP_Nomination) *SpiritScoreUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddMvpNominationIDs(ids...)
+}
+
+// AddSpiritNominationIDs adds the "spirit_nominations" edge to the SpiritNomination entity by IDs.
+func (_u *SpiritScoreUpdateOne) AddSpiritNominationIDs(ids ...uuid.UUID) *SpiritScoreUpdateOne {
+	_u.mutation.AddSpiritNominationIDs(ids...)
+	return _u
+}
+
+// AddSpiritNominations adds the "spirit_nominations" edges to the SpiritNomination entity.
+func (_u *SpiritScoreUpdateOne) AddSpiritNominations(v ...*SpiritNomination) *SpiritScoreUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpiritNominationIDs(ids...)
+}
+
 // Mutation returns the SpiritScoreMutation object of the builder.
 func (_u *SpiritScoreUpdateOne) Mutation() *SpiritScoreMutation {
 	return _u.mutation
+}
+
+// ClearGame clears the "game" edge to the Game entity.
+func (_u *SpiritScoreUpdateOne) ClearGame() *SpiritScoreUpdateOne {
+	_u.mutation.ClearGame()
+	return _u
+}
+
+// ClearScoredByTeam clears the "scored_by_team" edge to the Team entity.
+func (_u *SpiritScoreUpdateOne) ClearScoredByTeam() *SpiritScoreUpdateOne {
+	_u.mutation.ClearScoredByTeam()
+	return _u
+}
+
+// ClearTeam clears the "team" edge to the Team entity.
+func (_u *SpiritScoreUpdateOne) ClearTeam() *SpiritScoreUpdateOne {
+	_u.mutation.ClearTeam()
+	return _u
+}
+
+// ClearSubmittedBy clears the "submitted_by" edge to the User entity.
+func (_u *SpiritScoreUpdateOne) ClearSubmittedBy() *SpiritScoreUpdateOne {
+	_u.mutation.ClearSubmittedBy()
+	return _u
+}
+
+// ClearMvpNominations clears all "mvp_nominations" edges to the MVP_Nomination entity.
+func (_u *SpiritScoreUpdateOne) ClearMvpNominations() *SpiritScoreUpdateOne {
+	_u.mutation.ClearMvpNominations()
+	return _u
+}
+
+// RemoveMvpNominationIDs removes the "mvp_nominations" edge to MVP_Nomination entities by IDs.
+func (_u *SpiritScoreUpdateOne) RemoveMvpNominationIDs(ids ...uuid.UUID) *SpiritScoreUpdateOne {
+	_u.mutation.RemoveMvpNominationIDs(ids...)
+	return _u
+}
+
+// RemoveMvpNominations removes "mvp_nominations" edges to MVP_Nomination entities.
+func (_u *SpiritScoreUpdateOne) RemoveMvpNominations(v ...*MVP_Nomination) *SpiritScoreUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveMvpNominationIDs(ids...)
+}
+
+// ClearSpiritNominations clears all "spirit_nominations" edges to the SpiritNomination entity.
+func (_u *SpiritScoreUpdateOne) ClearSpiritNominations() *SpiritScoreUpdateOne {
+	_u.mutation.ClearSpiritNominations()
+	return _u
+}
+
+// RemoveSpiritNominationIDs removes the "spirit_nominations" edge to SpiritNomination entities by IDs.
+func (_u *SpiritScoreUpdateOne) RemoveSpiritNominationIDs(ids ...uuid.UUID) *SpiritScoreUpdateOne {
+	_u.mutation.RemoveSpiritNominationIDs(ids...)
+	return _u
+}
+
+// RemoveSpiritNominations removes "spirit_nominations" edges to SpiritNomination entities.
+func (_u *SpiritScoreUpdateOne) RemoveSpiritNominations(v ...*SpiritNomination) *SpiritScoreUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpiritNominationIDs(ids...)
 }
 
 // Where appends a list predicates to the SpiritScoreUpdate builder.
@@ -108,6 +977,7 @@ func (_u *SpiritScoreUpdateOne) Select(field string, fields ...string) *SpiritSc
 
 // Save executes the query and returns the updated SpiritScore entity.
 func (_u *SpiritScoreUpdateOne) Save(ctx context.Context) (*SpiritScore, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -133,8 +1003,36 @@ func (_u *SpiritScoreUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *SpiritScoreUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := spiritscore.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *SpiritScoreUpdateOne) check() error {
+	if _u.mutation.GameCleared() && len(_u.mutation.GameIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "SpiritScore.game"`)
+	}
+	if _u.mutation.ScoredByTeamCleared() && len(_u.mutation.ScoredByTeamIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "SpiritScore.scored_by_team"`)
+	}
+	if _u.mutation.TeamCleared() && len(_u.mutation.TeamIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "SpiritScore.team"`)
+	}
+	if _u.mutation.SubmittedByCleared() && len(_u.mutation.SubmittedByIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "SpiritScore.submitted_by"`)
+	}
+	return nil
+}
+
 func (_u *SpiritScoreUpdateOne) sqlSave(ctx context.Context) (_node *SpiritScore, err error) {
-	_spec := sqlgraph.NewUpdateSpec(spiritscore.Table, spiritscore.Columns, sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(spiritscore.Table, spiritscore.Columns, sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "SpiritScore.id" for update`)}
@@ -158,6 +1056,257 @@ func (_u *SpiritScoreUpdateOne) sqlSave(ctx context.Context) (_node *SpiritScore
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(spiritscore.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(spiritscore.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(spiritscore.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.RulesKnowledge(); ok {
+		_spec.SetField(spiritscore.FieldRulesKnowledge, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedRulesKnowledge(); ok {
+		_spec.AddField(spiritscore.FieldRulesKnowledge, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.FoulsBodyContact(); ok {
+		_spec.SetField(spiritscore.FieldFoulsBodyContact, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedFoulsBodyContact(); ok {
+		_spec.AddField(spiritscore.FieldFoulsBodyContact, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.FairMindedness(); ok {
+		_spec.SetField(spiritscore.FieldFairMindedness, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedFairMindedness(); ok {
+		_spec.AddField(spiritscore.FieldFairMindedness, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Attitude(); ok {
+		_spec.SetField(spiritscore.FieldAttitude, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAttitude(); ok {
+		_spec.AddField(spiritscore.FieldAttitude, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Communication(); ok {
+		_spec.SetField(spiritscore.FieldCommunication, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedCommunication(); ok {
+		_spec.AddField(spiritscore.FieldCommunication, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Comments(); ok {
+		_spec.SetField(spiritscore.FieldComments, field.TypeString, value)
+	}
+	if _u.mutation.CommentsCleared() {
+		_spec.ClearField(spiritscore.FieldComments, field.TypeString)
+	}
+	if _u.mutation.GameCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.GameTable,
+			Columns: []string{spiritscore.GameColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GameIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.GameTable,
+			Columns: []string{spiritscore.GameColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ScoredByTeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.ScoredByTeamTable,
+			Columns: []string{spiritscore.ScoredByTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ScoredByTeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.ScoredByTeamTable,
+			Columns: []string{spiritscore.ScoredByTeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.TeamTable,
+			Columns: []string{spiritscore.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.TeamTable,
+			Columns: []string{spiritscore.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SubmittedByCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.SubmittedByTable,
+			Columns: []string{spiritscore.SubmittedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SubmittedByIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   spiritscore.SubmittedByTable,
+			Columns: []string{spiritscore.SubmittedByColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.MvpNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   spiritscore.MvpNominationsTable,
+			Columns: []string{spiritscore.MvpNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mvp_nomination.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedMvpNominationsIDs(); len(nodes) > 0 && !_u.mutation.MvpNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   spiritscore.MvpNominationsTable,
+			Columns: []string{spiritscore.MvpNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mvp_nomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.MvpNominationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   spiritscore.MvpNominationsTable,
+			Columns: []string{spiritscore.MvpNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mvp_nomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpiritNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   spiritscore.SpiritNominationsTable,
+			Columns: []string{spiritscore.SpiritNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpiritNominationsIDs(); len(nodes) > 0 && !_u.mutation.SpiritNominationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   spiritscore.SpiritNominationsTable,
+			Columns: []string{spiritscore.SpiritNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpiritNominationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   spiritscore.SpiritNominationsTable,
+			Columns: []string{spiritscore.SpiritNominationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &SpiritScore{config: _u.config}
 	_spec.Assign = _node.assignValues
