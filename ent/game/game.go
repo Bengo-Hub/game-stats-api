@@ -53,8 +53,8 @@ const (
 	EdgeAwayTeam = "away_team"
 	// EdgeDivisionPool holds the string denoting the division_pool edge name in mutations.
 	EdgeDivisionPool = "division_pool"
-	// EdgeField holds the string denoting the field edge name in mutations.
-	EdgeField = "field"
+	// EdgeFieldLocation holds the string denoting the field_location edge name in mutations.
+	EdgeFieldLocation = "field_location"
 	// EdgeScorekeeper holds the string denoting the scorekeeper edge name in mutations.
 	EdgeScorekeeper = "scorekeeper"
 	// EdgeScores holds the string denoting the scores edge name in mutations.
@@ -93,13 +93,13 @@ const (
 	DivisionPoolInverseTable = "division_pools"
 	// DivisionPoolColumn is the table column denoting the division_pool relation/edge.
 	DivisionPoolColumn = "division_pool_games"
-	// FieldTable is the table that holds the field relation/edge.
-	FieldTable = "games"
-	// FieldInverseTable is the table name for the Field entity.
+	// FieldLocationTable is the table that holds the field_location relation/edge.
+	FieldLocationTable = "games"
+	// FieldLocationInverseTable is the table name for the Field entity.
 	// It exists in this package in order to avoid circular dependency with the "entfield" package.
-	FieldInverseTable = "fields"
-	// FieldColumn is the table column denoting the field relation/edge.
-	FieldColumn = "field_games"
+	FieldLocationInverseTable = "fields"
+	// FieldLocationColumn is the table column denoting the field_location relation/edge.
+	FieldLocationColumn = "field_games"
 	// ScorekeeperTable is the table that holds the scorekeeper relation/edge.
 	ScorekeeperTable = "games"
 	// ScorekeeperInverseTable is the table name for the User entity.
@@ -307,10 +307,10 @@ func ByDivisionPoolField(field string, opts ...sql.OrderTermOption) OrderOption 
 	}
 }
 
-// ByFieldField orders the results by field field.
-func ByFieldField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByFieldLocationField orders the results by field_location field.
+func ByFieldLocationField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newFieldStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newFieldLocationStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -390,11 +390,11 @@ func newDivisionPoolStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, DivisionPoolTable, DivisionPoolColumn),
 	)
 }
-func newFieldStep() *sqlgraph.Step {
+func newFieldLocationStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(FieldInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, FieldTable, FieldColumn),
+		sqlgraph.To(FieldLocationInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, FieldLocationTable, FieldLocationColumn),
 	)
 }
 func newScorekeeperStep() *sqlgraph.Step {

@@ -28,10 +28,12 @@ func (Field) Fields() []ent.Field {
 			MaxLen(100).
 			NotEmpty(),
 		field.Int("capacity").
-			Optional(),
+			Optional().
+			Nillable(),
 		field.String("surface_type").
 			MaxLen(50).
-			Optional(),
+			Optional().
+			Nillable(),
 		field.JSON("metadata", map[string]interface{}{}).
 			Optional(),
 	}
@@ -47,5 +49,3 @@ func (Field) Edges() []ent.Edge {
 		edge.To("games", Game.Type),
 	}
 }
-
-

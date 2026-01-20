@@ -30,15 +30,15 @@ type Location struct {
 	// Slug holds the value of the "slug" field.
 	Slug string `json:"slug,omitempty"`
 	// Address holds the value of the "address" field.
-	Address string `json:"address,omitempty"`
+	Address *string `json:"address,omitempty"`
 	// City holds the value of the "city" field.
-	City string `json:"city,omitempty"`
+	City *string `json:"city,omitempty"`
 	// Latitude holds the value of the "latitude" field.
-	Latitude float64 `json:"latitude,omitempty"`
+	Latitude *float64 `json:"latitude,omitempty"`
 	// Longitude holds the value of the "longitude" field.
-	Longitude float64 `json:"longitude,omitempty"`
+	Longitude *float64 `json:"longitude,omitempty"`
 	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the LocationQuery when eager-loading is set.
 	Edges             LocationEdges `json:"edges"`
@@ -170,31 +170,36 @@ func (_m *Location) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field address", values[i])
 			} else if value.Valid {
-				_m.Address = value.String
+				_m.Address = new(string)
+				*_m.Address = value.String
 			}
 		case location.FieldCity:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field city", values[i])
 			} else if value.Valid {
-				_m.City = value.String
+				_m.City = new(string)
+				*_m.City = value.String
 			}
 		case location.FieldLatitude:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field latitude", values[i])
 			} else if value.Valid {
-				_m.Latitude = value.Float64
+				_m.Latitude = new(float64)
+				*_m.Latitude = value.Float64
 			}
 		case location.FieldLongitude:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field longitude", values[i])
 			} else if value.Valid {
-				_m.Longitude = value.Float64
+				_m.Longitude = new(float64)
+				*_m.Longitude = value.Float64
 			}
 		case location.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				_m.Description = value.String
+				_m.Description = new(string)
+				*_m.Description = value.String
 			}
 		case location.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -276,20 +281,30 @@ func (_m *Location) String() string {
 	builder.WriteString("slug=")
 	builder.WriteString(_m.Slug)
 	builder.WriteString(", ")
-	builder.WriteString("address=")
-	builder.WriteString(_m.Address)
+	if v := _m.Address; v != nil {
+		builder.WriteString("address=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
-	builder.WriteString("city=")
-	builder.WriteString(_m.City)
+	if v := _m.City; v != nil {
+		builder.WriteString("city=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
-	builder.WriteString("latitude=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Latitude))
+	if v := _m.Latitude; v != nil {
+		builder.WriteString("latitude=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
-	builder.WriteString("longitude=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Longitude))
+	if v := _m.Longitude; v != nil {
+		builder.WriteString("longitude=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
-	builder.WriteString("description=")
-	builder.WriteString(_m.Description)
+	if v := _m.Description; v != nil {
+		builder.WriteString("description=")
+		builder.WriteString(*v)
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

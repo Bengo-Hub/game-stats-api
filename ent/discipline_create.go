@@ -294,11 +294,11 @@ func (_c *DisciplineCreate) createSpec() (*Discipline, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(discipline.FieldDescription, field.TypeString, value)
-		_node.Description = value
+		_node.Description = &value
 	}
 	if value, ok := _c.mutation.RulesPdfURL(); ok {
 		_spec.SetField(discipline.FieldRulesPdfURL, field.TypeString, value)
-		_node.RulesPdfURL = value
+		_node.RulesPdfURL = &value
 	}
 	if nodes := _c.mutation.CountryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

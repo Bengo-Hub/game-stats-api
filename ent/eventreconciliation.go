@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
 	"github.com/google/uuid"
 )
@@ -24,13 +25,39 @@ type EventReconciliation struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
-	// Name holds the value of the "name" field.
-	Name string `json:"name,omitempty"`
-	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty"`
-	// IsActive holds the value of the "is_active" field.
-	IsActive     bool `json:"is_active,omitempty"`
-	selectValues sql.SelectValues
+	// ReconciledAt holds the value of the "reconciled_at" field.
+	ReconciledAt time.Time `json:"reconciled_at,omitempty"`
+	// ReconciledBy holds the value of the "reconciled_by" field.
+	ReconciledBy string `json:"reconciled_by,omitempty"`
+	// Status holds the value of the "status" field.
+	Status string `json:"status,omitempty"`
+	// Comments holds the value of the "comments" field.
+	Comments *string `json:"comments,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the EventReconciliationQuery when eager-loading is set.
+	Edges                 EventReconciliationEdges `json:"edges"`
+	event_reconciliations *uuid.UUID
+	selectValues          sql.SelectValues
+}
+
+// EventReconciliationEdges holds the relations/edges for other nodes in the graph.
+type EventReconciliationEdges struct {
+	// Event holds the value of the event edge.
+	Event *Event `json:"event,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// EventOrErr returns the Event value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e EventReconciliationEdges) EventOrErr() (*Event, error) {
+	if e.Event != nil {
+		return e.Event, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: event.Label}
+	}
+	return nil, &NotLoadedError{edge: "event"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -38,14 +65,14 @@ func (*EventReconciliation) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case eventreconciliation.FieldIsActive:
-			values[i] = new(sql.NullBool)
-		case eventreconciliation.FieldName, eventreconciliation.FieldDescription:
+		case eventreconciliation.FieldReconciledBy, eventreconciliation.FieldStatus, eventreconciliation.FieldComments:
 			values[i] = new(sql.NullString)
-		case eventreconciliation.FieldCreatedAt, eventreconciliation.FieldUpdatedAt, eventreconciliation.FieldDeletedAt:
+		case eventreconciliation.FieldCreatedAt, eventreconciliation.FieldUpdatedAt, eventreconciliation.FieldDeletedAt, eventreconciliation.FieldReconciledAt:
 			values[i] = new(sql.NullTime)
 		case eventreconciliation.FieldID:
 			values[i] = new(uuid.UUID)
+		case eventreconciliation.ForeignKeys[0]: // event_reconciliations
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -86,23 +113,37 @@ func (_m *EventReconciliation) assignValues(columns []string, values []any) erro
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
 			}
-		case eventreconciliation.FieldName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field name", values[i])
+		case eventreconciliation.FieldReconciledAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field reconciled_at", values[i])
 			} else if value.Valid {
-				_m.Name = value.String
+				_m.ReconciledAt = value.Time
 			}
-		case eventreconciliation.FieldDescription:
+		case eventreconciliation.FieldReconciledBy:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field description", values[i])
+				return fmt.Errorf("unexpected type %T for field reconciled_by", values[i])
 			} else if value.Valid {
-				_m.Description = value.String
+				_m.ReconciledBy = value.String
 			}
-		case eventreconciliation.FieldIsActive:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field is_active", values[i])
+		case eventreconciliation.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				_m.IsActive = value.Bool
+				_m.Status = value.String
+			}
+		case eventreconciliation.FieldComments:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field comments", values[i])
+			} else if value.Valid {
+				_m.Comments = new(string)
+				*_m.Comments = value.String
+			}
+		case eventreconciliation.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field event_reconciliations", values[i])
+			} else if value.Valid {
+				_m.event_reconciliations = new(uuid.UUID)
+				*_m.event_reconciliations = *value.S.(*uuid.UUID)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -115,6 +156,11 @@ func (_m *EventReconciliation) assignValues(columns []string, values []any) erro
 // This includes values selected through modifiers, order, etc.
 func (_m *EventReconciliation) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryEvent queries the "event" edge of the EventReconciliation entity.
+func (_m *EventReconciliation) QueryEvent() *EventQuery {
+	return NewEventReconciliationClient(_m.config).QueryEvent(_m)
 }
 
 // Update returns a builder for updating this EventReconciliation.
@@ -151,14 +197,19 @@ func (_m *EventReconciliation) String() string {
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	builder.WriteString("name=")
-	builder.WriteString(_m.Name)
+	builder.WriteString("reconciled_at=")
+	builder.WriteString(_m.ReconciledAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("description=")
-	builder.WriteString(_m.Description)
+	builder.WriteString("reconciled_by=")
+	builder.WriteString(_m.ReconciledBy)
 	builder.WriteString(", ")
-	builder.WriteString("is_active=")
-	builder.WriteString(fmt.Sprintf("%v", _m.IsActive))
+	builder.WriteString("status=")
+	builder.WriteString(_m.Status)
+	builder.WriteString(", ")
+	if v := _m.Comments; v != nil {
+		builder.WriteString("comments=")
+		builder.WriteString(*v)
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

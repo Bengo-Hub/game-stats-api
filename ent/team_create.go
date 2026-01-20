@@ -378,15 +378,15 @@ func (_c *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.InitialSeed(); ok {
 		_spec.SetField(team.FieldInitialSeed, field.TypeInt, value)
-		_node.InitialSeed = value
+		_node.InitialSeed = &value
 	}
 	if value, ok := _c.mutation.FinalPlacement(); ok {
 		_spec.SetField(team.FieldFinalPlacement, field.TypeInt, value)
-		_node.FinalPlacement = value
+		_node.FinalPlacement = &value
 	}
 	if value, ok := _c.mutation.LogoURL(); ok {
 		_spec.SetField(team.FieldLogoURL, field.TypeString, value)
-		_node.LogoURL = value
+		_node.LogoURL = &value
 	}
 	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(team.FieldMetadata, field.TypeJSON, value)

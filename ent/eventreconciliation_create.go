@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
 	"github.com/google/uuid"
 )
@@ -63,36 +64,50 @@ func (_c *EventReconciliationCreate) SetNillableDeletedAt(v *time.Time) *EventRe
 	return _c
 }
 
-// SetName sets the "name" field.
-func (_c *EventReconciliationCreate) SetName(v string) *EventReconciliationCreate {
-	_c.mutation.SetName(v)
+// SetReconciledAt sets the "reconciled_at" field.
+func (_c *EventReconciliationCreate) SetReconciledAt(v time.Time) *EventReconciliationCreate {
+	_c.mutation.SetReconciledAt(v)
 	return _c
 }
 
-// SetDescription sets the "description" field.
-func (_c *EventReconciliationCreate) SetDescription(v string) *EventReconciliationCreate {
-	_c.mutation.SetDescription(v)
-	return _c
-}
-
-// SetNillableDescription sets the "description" field if the given value is not nil.
-func (_c *EventReconciliationCreate) SetNillableDescription(v *string) *EventReconciliationCreate {
+// SetNillableReconciledAt sets the "reconciled_at" field if the given value is not nil.
+func (_c *EventReconciliationCreate) SetNillableReconciledAt(v *time.Time) *EventReconciliationCreate {
 	if v != nil {
-		_c.SetDescription(*v)
+		_c.SetReconciledAt(*v)
 	}
 	return _c
 }
 
-// SetIsActive sets the "is_active" field.
-func (_c *EventReconciliationCreate) SetIsActive(v bool) *EventReconciliationCreate {
-	_c.mutation.SetIsActive(v)
+// SetReconciledBy sets the "reconciled_by" field.
+func (_c *EventReconciliationCreate) SetReconciledBy(v string) *EventReconciliationCreate {
+	_c.mutation.SetReconciledBy(v)
 	return _c
 }
 
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (_c *EventReconciliationCreate) SetNillableIsActive(v *bool) *EventReconciliationCreate {
+// SetStatus sets the "status" field.
+func (_c *EventReconciliationCreate) SetStatus(v string) *EventReconciliationCreate {
+	_c.mutation.SetStatus(v)
+	return _c
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_c *EventReconciliationCreate) SetNillableStatus(v *string) *EventReconciliationCreate {
 	if v != nil {
-		_c.SetIsActive(*v)
+		_c.SetStatus(*v)
+	}
+	return _c
+}
+
+// SetComments sets the "comments" field.
+func (_c *EventReconciliationCreate) SetComments(v string) *EventReconciliationCreate {
+	_c.mutation.SetComments(v)
+	return _c
+}
+
+// SetNillableComments sets the "comments" field if the given value is not nil.
+func (_c *EventReconciliationCreate) SetNillableComments(v *string) *EventReconciliationCreate {
+	if v != nil {
+		_c.SetComments(*v)
 	}
 	return _c
 }
@@ -109,6 +124,17 @@ func (_c *EventReconciliationCreate) SetNillableID(v *uuid.UUID) *EventReconcili
 		_c.SetID(*v)
 	}
 	return _c
+}
+
+// SetEventID sets the "event" edge to the Event entity by ID.
+func (_c *EventReconciliationCreate) SetEventID(id uuid.UUID) *EventReconciliationCreate {
+	_c.mutation.SetEventID(id)
+	return _c
+}
+
+// SetEvent sets the "event" edge to the Event entity.
+func (_c *EventReconciliationCreate) SetEvent(v *Event) *EventReconciliationCreate {
+	return _c.SetEventID(v.ID)
 }
 
 // Mutation returns the EventReconciliationMutation object of the builder.
@@ -154,9 +180,13 @@ func (_c *EventReconciliationCreate) defaults() {
 		v := eventreconciliation.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := _c.mutation.IsActive(); !ok {
-		v := eventreconciliation.DefaultIsActive
-		_c.mutation.SetIsActive(v)
+	if _, ok := _c.mutation.ReconciledAt(); !ok {
+		v := eventreconciliation.DefaultReconciledAt()
+		_c.mutation.SetReconciledAt(v)
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		v := eventreconciliation.DefaultStatus
+		_c.mutation.SetStatus(v)
 	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := eventreconciliation.DefaultID()
@@ -172,16 +202,27 @@ func (_c *EventReconciliationCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "EventReconciliation.updated_at"`)}
 	}
-	if _, ok := _c.mutation.Name(); !ok {
-		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "EventReconciliation.name"`)}
+	if _, ok := _c.mutation.ReconciledAt(); !ok {
+		return &ValidationError{Name: "reconciled_at", err: errors.New(`ent: missing required field "EventReconciliation.reconciled_at"`)}
 	}
-	if v, ok := _c.mutation.Name(); ok {
-		if err := eventreconciliation.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "EventReconciliation.name": %w`, err)}
+	if _, ok := _c.mutation.ReconciledBy(); !ok {
+		return &ValidationError{Name: "reconciled_by", err: errors.New(`ent: missing required field "EventReconciliation.reconciled_by"`)}
+	}
+	if v, ok := _c.mutation.ReconciledBy(); ok {
+		if err := eventreconciliation.ReconciledByValidator(v); err != nil {
+			return &ValidationError{Name: "reconciled_by", err: fmt.Errorf(`ent: validator failed for field "EventReconciliation.reconciled_by": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.IsActive(); !ok {
-		return &ValidationError{Name: "is_active", err: errors.New(`ent: missing required field "EventReconciliation.is_active"`)}
+	if _, ok := _c.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "EventReconciliation.status"`)}
+	}
+	if v, ok := _c.mutation.Status(); ok {
+		if err := eventreconciliation.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "EventReconciliation.status": %w`, err)}
+		}
+	}
+	if len(_c.mutation.EventIDs()) == 0 {
+		return &ValidationError{Name: "event", err: errors.New(`ent: missing required edge "EventReconciliation.event"`)}
 	}
 	return nil
 }
@@ -230,17 +271,38 @@ func (_c *EventReconciliationCreate) createSpec() (*EventReconciliation, *sqlgra
 		_spec.SetField(eventreconciliation.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
-	if value, ok := _c.mutation.Name(); ok {
-		_spec.SetField(eventreconciliation.FieldName, field.TypeString, value)
-		_node.Name = value
+	if value, ok := _c.mutation.ReconciledAt(); ok {
+		_spec.SetField(eventreconciliation.FieldReconciledAt, field.TypeTime, value)
+		_node.ReconciledAt = value
 	}
-	if value, ok := _c.mutation.Description(); ok {
-		_spec.SetField(eventreconciliation.FieldDescription, field.TypeString, value)
-		_node.Description = value
+	if value, ok := _c.mutation.ReconciledBy(); ok {
+		_spec.SetField(eventreconciliation.FieldReconciledBy, field.TypeString, value)
+		_node.ReconciledBy = value
 	}
-	if value, ok := _c.mutation.IsActive(); ok {
-		_spec.SetField(eventreconciliation.FieldIsActive, field.TypeBool, value)
-		_node.IsActive = value
+	if value, ok := _c.mutation.Status(); ok {
+		_spec.SetField(eventreconciliation.FieldStatus, field.TypeString, value)
+		_node.Status = value
+	}
+	if value, ok := _c.mutation.Comments(); ok {
+		_spec.SetField(eventreconciliation.FieldComments, field.TypeString, value)
+		_node.Comments = &value
+	}
+	if nodes := _c.mutation.EventIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   eventreconciliation.EventTable,
+			Columns: []string{eventreconciliation.EventColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.event_reconciliations = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

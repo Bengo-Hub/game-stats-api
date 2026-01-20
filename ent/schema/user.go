@@ -30,9 +30,12 @@ func (User) Fields() []ent.Field {
 		field.String("password_hash").
 			Sensitive().
 			NotEmpty(),
-		field.String("full_name").
+		field.String("name").
 			MaxLen(200).
 			NotEmpty(),
+		field.String("avatar_url").
+			Optional().
+			Nillable(),
 		field.String("role").
 			NotEmpty(),
 		field.Bool("is_active").
@@ -65,5 +68,3 @@ func (User) Edges() []ent.Edge {
 		edge.To("submitted_spirit_scores", SpiritScore.Type),
 	}
 }
-
-

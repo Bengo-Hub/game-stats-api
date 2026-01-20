@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/bengobox/game-stats-api/ent/predicate"
 	"github.com/google/uuid"
 )
@@ -70,19 +71,24 @@ func DeletedAt(v time.Time) predicate.EventReconciliation {
 	return predicate.EventReconciliation(sql.FieldEQ(FieldDeletedAt, v))
 }
 
-// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
-func Name(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldEQ(FieldName, v))
+// ReconciledAt applies equality check predicate on the "reconciled_at" field. It's identical to ReconciledAtEQ.
+func ReconciledAt(v time.Time) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldEQ(FieldReconciledAt, v))
 }
 
-// Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
-func Description(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldEQ(FieldDescription, v))
+// ReconciledBy applies equality check predicate on the "reconciled_by" field. It's identical to ReconciledByEQ.
+func ReconciledBy(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldEQ(FieldReconciledBy, v))
 }
 
-// IsActive applies equality check predicate on the "is_active" field. It's identical to IsActiveEQ.
-func IsActive(v bool) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldEQ(FieldIsActive, v))
+// Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
+func Status(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldEQ(FieldStatus, v))
+}
+
+// Comments applies equality check predicate on the "comments" field. It's identical to CommentsEQ.
+func Comments(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldEQ(FieldComments, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -215,154 +221,272 @@ func DeletedAtNotNil() predicate.EventReconciliation {
 	return predicate.EventReconciliation(sql.FieldNotNull(FieldDeletedAt))
 }
 
-// NameEQ applies the EQ predicate on the "name" field.
-func NameEQ(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldEQ(FieldName, v))
+// ReconciledAtEQ applies the EQ predicate on the "reconciled_at" field.
+func ReconciledAtEQ(v time.Time) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldEQ(FieldReconciledAt, v))
 }
 
-// NameNEQ applies the NEQ predicate on the "name" field.
-func NameNEQ(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldNEQ(FieldName, v))
+// ReconciledAtNEQ applies the NEQ predicate on the "reconciled_at" field.
+func ReconciledAtNEQ(v time.Time) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldNEQ(FieldReconciledAt, v))
 }
 
-// NameIn applies the In predicate on the "name" field.
-func NameIn(vs ...string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldIn(FieldName, vs...))
+// ReconciledAtIn applies the In predicate on the "reconciled_at" field.
+func ReconciledAtIn(vs ...time.Time) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldIn(FieldReconciledAt, vs...))
 }
 
-// NameNotIn applies the NotIn predicate on the "name" field.
-func NameNotIn(vs ...string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldNotIn(FieldName, vs...))
+// ReconciledAtNotIn applies the NotIn predicate on the "reconciled_at" field.
+func ReconciledAtNotIn(vs ...time.Time) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldNotIn(FieldReconciledAt, vs...))
 }
 
-// NameGT applies the GT predicate on the "name" field.
-func NameGT(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldGT(FieldName, v))
+// ReconciledAtGT applies the GT predicate on the "reconciled_at" field.
+func ReconciledAtGT(v time.Time) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldGT(FieldReconciledAt, v))
 }
 
-// NameGTE applies the GTE predicate on the "name" field.
-func NameGTE(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldGTE(FieldName, v))
+// ReconciledAtGTE applies the GTE predicate on the "reconciled_at" field.
+func ReconciledAtGTE(v time.Time) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldGTE(FieldReconciledAt, v))
 }
 
-// NameLT applies the LT predicate on the "name" field.
-func NameLT(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldLT(FieldName, v))
+// ReconciledAtLT applies the LT predicate on the "reconciled_at" field.
+func ReconciledAtLT(v time.Time) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldLT(FieldReconciledAt, v))
 }
 
-// NameLTE applies the LTE predicate on the "name" field.
-func NameLTE(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldLTE(FieldName, v))
+// ReconciledAtLTE applies the LTE predicate on the "reconciled_at" field.
+func ReconciledAtLTE(v time.Time) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldLTE(FieldReconciledAt, v))
 }
 
-// NameContains applies the Contains predicate on the "name" field.
-func NameContains(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldContains(FieldName, v))
+// ReconciledByEQ applies the EQ predicate on the "reconciled_by" field.
+func ReconciledByEQ(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldEQ(FieldReconciledBy, v))
 }
 
-// NameHasPrefix applies the HasPrefix predicate on the "name" field.
-func NameHasPrefix(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldHasPrefix(FieldName, v))
+// ReconciledByNEQ applies the NEQ predicate on the "reconciled_by" field.
+func ReconciledByNEQ(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldNEQ(FieldReconciledBy, v))
 }
 
-// NameHasSuffix applies the HasSuffix predicate on the "name" field.
-func NameHasSuffix(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldHasSuffix(FieldName, v))
+// ReconciledByIn applies the In predicate on the "reconciled_by" field.
+func ReconciledByIn(vs ...string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldIn(FieldReconciledBy, vs...))
 }
 
-// NameEqualFold applies the EqualFold predicate on the "name" field.
-func NameEqualFold(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldEqualFold(FieldName, v))
+// ReconciledByNotIn applies the NotIn predicate on the "reconciled_by" field.
+func ReconciledByNotIn(vs ...string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldNotIn(FieldReconciledBy, vs...))
 }
 
-// NameContainsFold applies the ContainsFold predicate on the "name" field.
-func NameContainsFold(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldContainsFold(FieldName, v))
+// ReconciledByGT applies the GT predicate on the "reconciled_by" field.
+func ReconciledByGT(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldGT(FieldReconciledBy, v))
 }
 
-// DescriptionEQ applies the EQ predicate on the "description" field.
-func DescriptionEQ(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldEQ(FieldDescription, v))
+// ReconciledByGTE applies the GTE predicate on the "reconciled_by" field.
+func ReconciledByGTE(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldGTE(FieldReconciledBy, v))
 }
 
-// DescriptionNEQ applies the NEQ predicate on the "description" field.
-func DescriptionNEQ(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldNEQ(FieldDescription, v))
+// ReconciledByLT applies the LT predicate on the "reconciled_by" field.
+func ReconciledByLT(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldLT(FieldReconciledBy, v))
 }
 
-// DescriptionIn applies the In predicate on the "description" field.
-func DescriptionIn(vs ...string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldIn(FieldDescription, vs...))
+// ReconciledByLTE applies the LTE predicate on the "reconciled_by" field.
+func ReconciledByLTE(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldLTE(FieldReconciledBy, v))
 }
 
-// DescriptionNotIn applies the NotIn predicate on the "description" field.
-func DescriptionNotIn(vs ...string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldNotIn(FieldDescription, vs...))
+// ReconciledByContains applies the Contains predicate on the "reconciled_by" field.
+func ReconciledByContains(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldContains(FieldReconciledBy, v))
 }
 
-// DescriptionGT applies the GT predicate on the "description" field.
-func DescriptionGT(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldGT(FieldDescription, v))
+// ReconciledByHasPrefix applies the HasPrefix predicate on the "reconciled_by" field.
+func ReconciledByHasPrefix(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldHasPrefix(FieldReconciledBy, v))
 }
 
-// DescriptionGTE applies the GTE predicate on the "description" field.
-func DescriptionGTE(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldGTE(FieldDescription, v))
+// ReconciledByHasSuffix applies the HasSuffix predicate on the "reconciled_by" field.
+func ReconciledByHasSuffix(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldHasSuffix(FieldReconciledBy, v))
 }
 
-// DescriptionLT applies the LT predicate on the "description" field.
-func DescriptionLT(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldLT(FieldDescription, v))
+// ReconciledByEqualFold applies the EqualFold predicate on the "reconciled_by" field.
+func ReconciledByEqualFold(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldEqualFold(FieldReconciledBy, v))
 }
 
-// DescriptionLTE applies the LTE predicate on the "description" field.
-func DescriptionLTE(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldLTE(FieldDescription, v))
+// ReconciledByContainsFold applies the ContainsFold predicate on the "reconciled_by" field.
+func ReconciledByContainsFold(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldContainsFold(FieldReconciledBy, v))
 }
 
-// DescriptionContains applies the Contains predicate on the "description" field.
-func DescriptionContains(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldContains(FieldDescription, v))
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldEQ(FieldStatus, v))
 }
 
-// DescriptionHasPrefix applies the HasPrefix predicate on the "description" field.
-func DescriptionHasPrefix(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldHasPrefix(FieldDescription, v))
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldNEQ(FieldStatus, v))
 }
 
-// DescriptionHasSuffix applies the HasSuffix predicate on the "description" field.
-func DescriptionHasSuffix(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldHasSuffix(FieldDescription, v))
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldIn(FieldStatus, vs...))
 }
 
-// DescriptionIsNil applies the IsNil predicate on the "description" field.
-func DescriptionIsNil() predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldIsNull(FieldDescription))
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldNotIn(FieldStatus, vs...))
 }
 
-// DescriptionNotNil applies the NotNil predicate on the "description" field.
-func DescriptionNotNil() predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldNotNull(FieldDescription))
+// StatusGT applies the GT predicate on the "status" field.
+func StatusGT(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldGT(FieldStatus, v))
 }
 
-// DescriptionEqualFold applies the EqualFold predicate on the "description" field.
-func DescriptionEqualFold(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldEqualFold(FieldDescription, v))
+// StatusGTE applies the GTE predicate on the "status" field.
+func StatusGTE(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldGTE(FieldStatus, v))
 }
 
-// DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
-func DescriptionContainsFold(v string) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldContainsFold(FieldDescription, v))
+// StatusLT applies the LT predicate on the "status" field.
+func StatusLT(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldLT(FieldStatus, v))
 }
 
-// IsActiveEQ applies the EQ predicate on the "is_active" field.
-func IsActiveEQ(v bool) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldEQ(FieldIsActive, v))
+// StatusLTE applies the LTE predicate on the "status" field.
+func StatusLTE(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldLTE(FieldStatus, v))
 }
 
-// IsActiveNEQ applies the NEQ predicate on the "is_active" field.
-func IsActiveNEQ(v bool) predicate.EventReconciliation {
-	return predicate.EventReconciliation(sql.FieldNEQ(FieldIsActive, v))
+// StatusContains applies the Contains predicate on the "status" field.
+func StatusContains(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldContains(FieldStatus, v))
+}
+
+// StatusHasPrefix applies the HasPrefix predicate on the "status" field.
+func StatusHasPrefix(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldHasPrefix(FieldStatus, v))
+}
+
+// StatusHasSuffix applies the HasSuffix predicate on the "status" field.
+func StatusHasSuffix(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldHasSuffix(FieldStatus, v))
+}
+
+// StatusEqualFold applies the EqualFold predicate on the "status" field.
+func StatusEqualFold(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldEqualFold(FieldStatus, v))
+}
+
+// StatusContainsFold applies the ContainsFold predicate on the "status" field.
+func StatusContainsFold(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldContainsFold(FieldStatus, v))
+}
+
+// CommentsEQ applies the EQ predicate on the "comments" field.
+func CommentsEQ(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldEQ(FieldComments, v))
+}
+
+// CommentsNEQ applies the NEQ predicate on the "comments" field.
+func CommentsNEQ(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldNEQ(FieldComments, v))
+}
+
+// CommentsIn applies the In predicate on the "comments" field.
+func CommentsIn(vs ...string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldIn(FieldComments, vs...))
+}
+
+// CommentsNotIn applies the NotIn predicate on the "comments" field.
+func CommentsNotIn(vs ...string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldNotIn(FieldComments, vs...))
+}
+
+// CommentsGT applies the GT predicate on the "comments" field.
+func CommentsGT(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldGT(FieldComments, v))
+}
+
+// CommentsGTE applies the GTE predicate on the "comments" field.
+func CommentsGTE(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldGTE(FieldComments, v))
+}
+
+// CommentsLT applies the LT predicate on the "comments" field.
+func CommentsLT(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldLT(FieldComments, v))
+}
+
+// CommentsLTE applies the LTE predicate on the "comments" field.
+func CommentsLTE(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldLTE(FieldComments, v))
+}
+
+// CommentsContains applies the Contains predicate on the "comments" field.
+func CommentsContains(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldContains(FieldComments, v))
+}
+
+// CommentsHasPrefix applies the HasPrefix predicate on the "comments" field.
+func CommentsHasPrefix(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldHasPrefix(FieldComments, v))
+}
+
+// CommentsHasSuffix applies the HasSuffix predicate on the "comments" field.
+func CommentsHasSuffix(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldHasSuffix(FieldComments, v))
+}
+
+// CommentsIsNil applies the IsNil predicate on the "comments" field.
+func CommentsIsNil() predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldIsNull(FieldComments))
+}
+
+// CommentsNotNil applies the NotNil predicate on the "comments" field.
+func CommentsNotNil() predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldNotNull(FieldComments))
+}
+
+// CommentsEqualFold applies the EqualFold predicate on the "comments" field.
+func CommentsEqualFold(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldEqualFold(FieldComments, v))
+}
+
+// CommentsContainsFold applies the ContainsFold predicate on the "comments" field.
+func CommentsContainsFold(v string) predicate.EventReconciliation {
+	return predicate.EventReconciliation(sql.FieldContainsFold(FieldComments, v))
+}
+
+// HasEvent applies the HasEdge predicate on the "event" edge.
+func HasEvent() predicate.EventReconciliation {
+	return predicate.EventReconciliation(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, EventTable, EventColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasEventWith applies the HasEdge predicate on the "event" edge with a given conditions (other predicates).
+func HasEventWith(preds ...predicate.Event) predicate.EventReconciliation {
+	return predicate.EventReconciliation(func(s *sql.Selector) {
+		step := newEventStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

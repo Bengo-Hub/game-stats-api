@@ -92,7 +92,7 @@ func DateOfBirth(v time.Time) predicate.Player {
 }
 
 // JerseyNumber applies equality check predicate on the "jersey_number" field. It's identical to JerseyNumberEQ.
-func JerseyNumber(v string) predicate.Player {
+func JerseyNumber(v int) predicate.Player {
 	return predicate.Player(sql.FieldEQ(FieldJerseyNumber, v))
 }
 
@@ -487,58 +487,43 @@ func DateOfBirthNotNil() predicate.Player {
 }
 
 // JerseyNumberEQ applies the EQ predicate on the "jersey_number" field.
-func JerseyNumberEQ(v string) predicate.Player {
+func JerseyNumberEQ(v int) predicate.Player {
 	return predicate.Player(sql.FieldEQ(FieldJerseyNumber, v))
 }
 
 // JerseyNumberNEQ applies the NEQ predicate on the "jersey_number" field.
-func JerseyNumberNEQ(v string) predicate.Player {
+func JerseyNumberNEQ(v int) predicate.Player {
 	return predicate.Player(sql.FieldNEQ(FieldJerseyNumber, v))
 }
 
 // JerseyNumberIn applies the In predicate on the "jersey_number" field.
-func JerseyNumberIn(vs ...string) predicate.Player {
+func JerseyNumberIn(vs ...int) predicate.Player {
 	return predicate.Player(sql.FieldIn(FieldJerseyNumber, vs...))
 }
 
 // JerseyNumberNotIn applies the NotIn predicate on the "jersey_number" field.
-func JerseyNumberNotIn(vs ...string) predicate.Player {
+func JerseyNumberNotIn(vs ...int) predicate.Player {
 	return predicate.Player(sql.FieldNotIn(FieldJerseyNumber, vs...))
 }
 
 // JerseyNumberGT applies the GT predicate on the "jersey_number" field.
-func JerseyNumberGT(v string) predicate.Player {
+func JerseyNumberGT(v int) predicate.Player {
 	return predicate.Player(sql.FieldGT(FieldJerseyNumber, v))
 }
 
 // JerseyNumberGTE applies the GTE predicate on the "jersey_number" field.
-func JerseyNumberGTE(v string) predicate.Player {
+func JerseyNumberGTE(v int) predicate.Player {
 	return predicate.Player(sql.FieldGTE(FieldJerseyNumber, v))
 }
 
 // JerseyNumberLT applies the LT predicate on the "jersey_number" field.
-func JerseyNumberLT(v string) predicate.Player {
+func JerseyNumberLT(v int) predicate.Player {
 	return predicate.Player(sql.FieldLT(FieldJerseyNumber, v))
 }
 
 // JerseyNumberLTE applies the LTE predicate on the "jersey_number" field.
-func JerseyNumberLTE(v string) predicate.Player {
+func JerseyNumberLTE(v int) predicate.Player {
 	return predicate.Player(sql.FieldLTE(FieldJerseyNumber, v))
-}
-
-// JerseyNumberContains applies the Contains predicate on the "jersey_number" field.
-func JerseyNumberContains(v string) predicate.Player {
-	return predicate.Player(sql.FieldContains(FieldJerseyNumber, v))
-}
-
-// JerseyNumberHasPrefix applies the HasPrefix predicate on the "jersey_number" field.
-func JerseyNumberHasPrefix(v string) predicate.Player {
-	return predicate.Player(sql.FieldHasPrefix(FieldJerseyNumber, v))
-}
-
-// JerseyNumberHasSuffix applies the HasSuffix predicate on the "jersey_number" field.
-func JerseyNumberHasSuffix(v string) predicate.Player {
-	return predicate.Player(sql.FieldHasSuffix(FieldJerseyNumber, v))
 }
 
 // JerseyNumberIsNil applies the IsNil predicate on the "jersey_number" field.
@@ -549,16 +534,6 @@ func JerseyNumberIsNil() predicate.Player {
 // JerseyNumberNotNil applies the NotNil predicate on the "jersey_number" field.
 func JerseyNumberNotNil() predicate.Player {
 	return predicate.Player(sql.FieldNotNull(FieldJerseyNumber))
-}
-
-// JerseyNumberEqualFold applies the EqualFold predicate on the "jersey_number" field.
-func JerseyNumberEqualFold(v string) predicate.Player {
-	return predicate.Player(sql.FieldEqualFold(FieldJerseyNumber, v))
-}
-
-// JerseyNumberContainsFold applies the ContainsFold predicate on the "jersey_number" field.
-func JerseyNumberContainsFold(v string) predicate.Player {
-	return predicate.Player(sql.FieldContainsFold(FieldJerseyNumber, v))
 }
 
 // ProfileImageURLEQ applies the EQ predicate on the "profile_image_url" field.

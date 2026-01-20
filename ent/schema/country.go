@@ -36,7 +36,8 @@ func (Country) Fields() []ent.Field {
 			Unique().
 			NotEmpty(),
 		field.Text("description").
-			Optional(),
+			Optional().
+			Nillable(),
 	}
 }
 
@@ -52,5 +53,3 @@ func (Country) Edges() []ent.Edge {
 		edge.To("managed_by", User.Type),
 	}
 }
-
-

@@ -33,8 +33,10 @@ type User struct {
 	Email string `json:"email,omitempty"`
 	// PasswordHash holds the value of the "password_hash" field.
 	PasswordHash string `json:"-"`
-	// FullName holds the value of the "full_name" field.
-	FullName string `json:"full_name,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
+	// AvatarURL holds the value of the "avatar_url" field.
+	AvatarURL *string `json:"avatar_url,omitempty"`
 	// Role holds the value of the "role" field.
 	Role string `json:"role,omitempty"`
 	// IsActive holds the value of the "is_active" field.
@@ -153,7 +155,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldIsActive:
 			values[i] = new(sql.NullBool)
-		case user.FieldEmail, user.FieldPasswordHash, user.FieldFullName, user.FieldRole:
+		case user.FieldEmail, user.FieldPasswordHash, user.FieldName, user.FieldAvatarURL, user.FieldRole:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt, user.FieldLastLoginAt:
 			values[i] = new(sql.NullTime)
@@ -221,11 +223,18 @@ func (_m *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.PasswordHash = value.String
 			}
-		case user.FieldFullName:
+		case user.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field full_name", values[i])
+				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				_m.FullName = value.String
+				_m.Name = value.String
+			}
+		case user.FieldAvatarURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field avatar_url", values[i])
+			} else if value.Valid {
+				_m.AvatarURL = new(string)
+				*_m.AvatarURL = value.String
 			}
 		case user.FieldRole:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -368,8 +377,13 @@ func (_m *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("password_hash=<sensitive>")
 	builder.WriteString(", ")
-	builder.WriteString("full_name=")
-	builder.WriteString(_m.FullName)
+	builder.WriteString("name=")
+	builder.WriteString(_m.Name)
+	builder.WriteString(", ")
+	if v := _m.AvatarURL; v != nil {
+		builder.WriteString("avatar_url=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("role=")
 	builder.WriteString(_m.Role)

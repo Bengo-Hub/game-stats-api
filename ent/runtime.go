@@ -394,14 +394,20 @@ func init() {
 	eventreconciliation.DefaultUpdatedAt = eventreconciliationDescUpdatedAt.Default.(func() time.Time)
 	// eventreconciliation.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	eventreconciliation.UpdateDefaultUpdatedAt = eventreconciliationDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// eventreconciliationDescName is the schema descriptor for name field.
-	eventreconciliationDescName := eventreconciliationFields[1].Descriptor()
-	// eventreconciliation.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	eventreconciliation.NameValidator = eventreconciliationDescName.Validators[0].(func(string) error)
-	// eventreconciliationDescIsActive is the schema descriptor for is_active field.
-	eventreconciliationDescIsActive := eventreconciliationFields[3].Descriptor()
-	// eventreconciliation.DefaultIsActive holds the default value on creation for the is_active field.
-	eventreconciliation.DefaultIsActive = eventreconciliationDescIsActive.Default.(bool)
+	// eventreconciliationDescReconciledAt is the schema descriptor for reconciled_at field.
+	eventreconciliationDescReconciledAt := eventreconciliationFields[1].Descriptor()
+	// eventreconciliation.DefaultReconciledAt holds the default value on creation for the reconciled_at field.
+	eventreconciliation.DefaultReconciledAt = eventreconciliationDescReconciledAt.Default.(func() time.Time)
+	// eventreconciliationDescReconciledBy is the schema descriptor for reconciled_by field.
+	eventreconciliationDescReconciledBy := eventreconciliationFields[2].Descriptor()
+	// eventreconciliation.ReconciledByValidator is a validator for the "reconciled_by" field. It is called by the builders before save.
+	eventreconciliation.ReconciledByValidator = eventreconciliationDescReconciledBy.Validators[0].(func(string) error)
+	// eventreconciliationDescStatus is the schema descriptor for status field.
+	eventreconciliationDescStatus := eventreconciliationFields[3].Descriptor()
+	// eventreconciliation.DefaultStatus holds the default value on creation for the status field.
+	eventreconciliation.DefaultStatus = eventreconciliationDescStatus.Default.(string)
+	// eventreconciliation.StatusValidator is a validator for the "status" field. It is called by the builders before save.
+	eventreconciliation.StatusValidator = eventreconciliationDescStatus.Validators[0].(func(string) error)
 	// eventreconciliationDescID is the schema descriptor for id field.
 	eventreconciliationDescID := eventreconciliationFields[0].Descriptor()
 	// eventreconciliation.DefaultID holds the default value on creation for the id field.
@@ -713,10 +719,6 @@ func init() {
 			return nil
 		}
 	}()
-	// playerDescEmail is the schema descriptor for email field.
-	playerDescEmail := playerFields[2].Descriptor()
-	// player.EmailValidator is a validator for the "email" field. It is called by the builders before save.
-	player.EmailValidator = playerDescEmail.Validators[0].(func(string) error)
 	// playerDescGender is the schema descriptor for gender field.
 	playerDescGender := playerFields[3].Descriptor()
 	// player.GenderValidator is a validator for the "gender" field. It is called by the builders before save.
@@ -735,10 +737,6 @@ func init() {
 			return nil
 		}
 	}()
-	// playerDescJerseyNumber is the schema descriptor for jersey_number field.
-	playerDescJerseyNumber := playerFields[5].Descriptor()
-	// player.JerseyNumberValidator is a validator for the "jersey_number" field. It is called by the builders before save.
-	player.JerseyNumberValidator = playerDescJerseyNumber.Validators[0].(func(string) error)
 	// playerDescID is the schema descriptor for id field.
 	playerDescID := playerFields[0].Descriptor()
 	// player.DefaultID holds the default value on creation for the id field.
@@ -889,18 +887,18 @@ func init() {
 	userDescPasswordHash := userFields[2].Descriptor()
 	// user.PasswordHashValidator is a validator for the "password_hash" field. It is called by the builders before save.
 	user.PasswordHashValidator = userDescPasswordHash.Validators[0].(func(string) error)
-	// userDescFullName is the schema descriptor for full_name field.
-	userDescFullName := userFields[3].Descriptor()
-	// user.FullNameValidator is a validator for the "full_name" field. It is called by the builders before save.
-	user.FullNameValidator = func() func(string) error {
-		validators := userDescFullName.Validators
+	// userDescName is the schema descriptor for name field.
+	userDescName := userFields[3].Descriptor()
+	// user.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	user.NameValidator = func() func(string) error {
+		validators := userDescName.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),
 		}
-		return func(full_name string) error {
+		return func(name string) error {
 			for _, fn := range fns {
-				if err := fn(full_name); err != nil {
+				if err := fn(name); err != nil {
 					return err
 				}
 			}
@@ -908,11 +906,11 @@ func init() {
 		}
 	}()
 	// userDescRole is the schema descriptor for role field.
-	userDescRole := userFields[4].Descriptor()
+	userDescRole := userFields[5].Descriptor()
 	// user.RoleValidator is a validator for the "role" field. It is called by the builders before save.
 	user.RoleValidator = userDescRole.Validators[0].(func(string) error)
 	// userDescIsActive is the schema descriptor for is_active field.
-	userDescIsActive := userFields[5].Descriptor()
+	userDescIsActive := userFields[6].Descriptor()
 	// user.DefaultIsActive holds the default value on creation for the is_active field.
 	user.DefaultIsActive = userDescIsActive.Default.(bool)
 	// userDescID is the schema descriptor for id field.

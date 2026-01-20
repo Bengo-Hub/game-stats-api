@@ -314,7 +314,7 @@ func (_c *CountryCreate) createSpec() (*Country, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(country.FieldDescription, field.TypeString, value)
-		_node.Description = value
+		_node.Description = &value
 	}
 	if nodes := _c.mutation.ContinentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

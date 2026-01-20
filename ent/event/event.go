@@ -43,6 +43,8 @@ const (
 	EdgeLocation = "location"
 	// EdgeDivisionPools holds the string denoting the division_pools edge name in mutations.
 	EdgeDivisionPools = "division_pools"
+	// EdgeReconciliations holds the string denoting the reconciliations edge name in mutations.
+	EdgeReconciliations = "reconciliations"
 	// EdgeGameRounds holds the string denoting the game_rounds edge name in mutations.
 	EdgeGameRounds = "game_rounds"
 	// EdgeManagedBy holds the string denoting the managed_by edge name in mutations.
@@ -70,6 +72,13 @@ const (
 	DivisionPoolsInverseTable = "division_pools"
 	// DivisionPoolsColumn is the table column denoting the division_pools relation/edge.
 	DivisionPoolsColumn = "event_division_pools"
+	// ReconciliationsTable is the table that holds the reconciliations relation/edge.
+	ReconciliationsTable = "event_reconciliations"
+	// ReconciliationsInverseTable is the table name for the EventReconciliation entity.
+	// It exists in this package in order to avoid circular dependency with the "eventreconciliation" package.
+	ReconciliationsInverseTable = "event_reconciliations"
+	// ReconciliationsColumn is the table column denoting the reconciliations relation/edge.
+	ReconciliationsColumn = "event_reconciliations"
 	// GameRoundsTable is the table that holds the game_rounds relation/edge.
 	GameRoundsTable = "game_rounds"
 	// GameRoundsInverseTable is the table name for the GameRound entity.
@@ -229,6 +238,20 @@ func ByDivisionPools(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByReconciliationsCount orders the results by reconciliations count.
+func ByReconciliationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newReconciliationsStep(), opts...)
+	}
+}
+
+// ByReconciliations orders the results by reconciliations terms.
+func ByReconciliations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newReconciliationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByGameRoundsCount orders the results by game_rounds count.
 func ByGameRoundsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -275,6 +298,13 @@ func newDivisionPoolsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DivisionPoolsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, DivisionPoolsTable, DivisionPoolsColumn),
+	)
+}
+func newReconciliationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ReconciliationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ReconciliationsTable, ReconciliationsColumn),
 	)
 }
 func newGameRoundsStep() *sqlgraph.Step {

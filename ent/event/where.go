@@ -705,6 +705,29 @@ func HasDivisionPoolsWith(preds ...predicate.DivisionPool) predicate.Event {
 	})
 }
 
+// HasReconciliations applies the HasEdge predicate on the "reconciliations" edge.
+func HasReconciliations() predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ReconciliationsTable, ReconciliationsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasReconciliationsWith applies the HasEdge predicate on the "reconciliations" edge with a given conditions (other predicates).
+func HasReconciliationsWith(preds ...predicate.EventReconciliation) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		step := newReconciliationsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasGameRounds applies the HasEdge predicate on the "game_rounds" edge.
 func HasGameRounds() predicate.Event {
 	return predicate.Event(func(s *sql.Selector) {

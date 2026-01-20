@@ -30,7 +30,8 @@ func (SpiritScore) Fields() []ent.Field {
 		field.Int("attitude"),
 		field.Int("communication"),
 		field.Text("comments").
-			Optional(),
+			Optional().
+			Nillable(),
 	}
 }
 

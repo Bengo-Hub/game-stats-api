@@ -103,7 +103,7 @@ var (
 		{Name: "name", Type: field.TypeString, Size: 100},
 		{Name: "slug", Type: field.TypeString, Unique: true, Size: 100},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "rules_pdf_url", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "rules_pdf_url", Type: field.TypeString, Nullable: true},
 		{Name: "country_disciplines", Type: field.TypeUUID},
 	}
 	// DisciplinesTable holds the schema information for the "disciplines" table.
@@ -143,7 +143,7 @@ var (
 				Symbol:     "division_pools_events_division_pools",
 				Columns:    []*schema.Column{DivisionPoolsColumns[9]},
 				RefColumns: []*schema.Column{EventsColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}
@@ -190,15 +190,25 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "name", Type: field.TypeString},
-		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "reconciled_at", Type: field.TypeTime},
+		{Name: "reconciled_by", Type: field.TypeString},
+		{Name: "status", Type: field.TypeString, Default: "pending"},
+		{Name: "comments", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "event_reconciliations", Type: field.TypeUUID},
 	}
 	// EventReconciliationsTable holds the schema information for the "event_reconciliations" table.
 	EventReconciliationsTable = &schema.Table{
 		Name:       "event_reconciliations",
 		Columns:    EventReconciliationsColumns,
 		PrimaryKey: []*schema.Column{EventReconciliationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "event_reconciliations_events_reconciliations",
+				Columns:    []*schema.Column{EventReconciliationsColumns[8]},
+				RefColumns: []*schema.Column{EventsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
 	}
 	// FieldsColumns holds the columns for the "fields" table.
 	FieldsColumns = []*schema.Column{
@@ -418,11 +428,11 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "name", Type: field.TypeString, Size: 200},
-		{Name: "email", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "email", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "gender", Type: field.TypeString, Size: 10},
 		{Name: "date_of_birth", Type: field.TypeTime, Nullable: true},
-		{Name: "jersey_number", Type: field.TypeString, Nullable: true, Size: 10},
-		{Name: "profile_image_url", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "jersey_number", Type: field.TypeInt, Nullable: true},
+		{Name: "profile_image_url", Type: field.TypeString, Nullable: true},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 		{Name: "team_players", Type: field.TypeUUID},
 	}
@@ -560,7 +570,7 @@ var (
 		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
 		{Name: "initial_seed", Type: field.TypeInt, Nullable: true},
 		{Name: "final_placement", Type: field.TypeInt, Nullable: true},
-		{Name: "logo_url", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "logo_url", Type: field.TypeString, Nullable: true},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 		{Name: "division_pool_teams", Type: field.TypeUUID},
 		{Name: "location_teams", Type: field.TypeUUID, Nullable: true},
@@ -593,7 +603,8 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "password_hash", Type: field.TypeString},
-		{Name: "full_name", Type: field.TypeString, Size: 200},
+		{Name: "name", Type: field.TypeString, Size: 200},
+		{Name: "avatar_url", Type: field.TypeString, Nullable: true},
 		{Name: "role", Type: field.TypeString},
 		{Name: "is_active", Type: field.TypeBool, Default: true},
 		{Name: "last_login_at", Type: field.TypeTime, Nullable: true},
@@ -611,31 +622,31 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_continents_managed_by",
-				Columns:    []*schema.Column{UsersColumns[10]},
+				Columns:    []*schema.Column{UsersColumns[11]},
 				RefColumns: []*schema.Column{ContinentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "users_countries_managed_by",
-				Columns:    []*schema.Column{UsersColumns[11]},
+				Columns:    []*schema.Column{UsersColumns[12]},
 				RefColumns: []*schema.Column{CountriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "users_disciplines_managed_by",
-				Columns:    []*schema.Column{UsersColumns[12]},
+				Columns:    []*schema.Column{UsersColumns[13]},
 				RefColumns: []*schema.Column{DisciplinesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "users_events_managed_by",
-				Columns:    []*schema.Column{UsersColumns[13]},
+				Columns:    []*schema.Column{UsersColumns[14]},
 				RefColumns: []*schema.Column{EventsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "users_teams_managed_by",
-				Columns:    []*schema.Column{UsersColumns[14]},
+				Columns:    []*schema.Column{UsersColumns[15]},
 				RefColumns: []*schema.Column{TeamsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -690,6 +701,7 @@ func init() {
 	DivisionPoolsTable.ForeignKeys[0].RefTable = EventsTable
 	EventsTable.ForeignKeys[0].RefTable = DisciplinesTable
 	EventsTable.ForeignKeys[1].RefTable = LocationsTable
+	EventReconciliationsTable.ForeignKeys[0].RefTable = EventsTable
 	FieldsTable.ForeignKeys[0].RefTable = LocationsTable
 	GamesTable.ForeignKeys[0].RefTable = DivisionPoolsTable
 	GamesTable.ForeignKeys[1].RefTable = FieldsTable

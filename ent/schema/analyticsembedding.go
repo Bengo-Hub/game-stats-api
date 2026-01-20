@@ -29,7 +29,8 @@ func (AnalyticsEmbedding) Fields() []ent.Field {
 		field.JSON("embedding", []float32{}).
 			Optional(),
 		field.Text("content").
-			Optional(),
+			Optional().
+			Nillable(),
 		field.JSON("metadata", map[string]interface{}{}).
 			Optional(),
 	}

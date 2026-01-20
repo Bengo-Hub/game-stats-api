@@ -31,11 +31,11 @@ type DivisionPool struct {
 	// DivisionType holds the value of the "division_type" field.
 	DivisionType string `json:"division_type,omitempty"`
 	// MaxTeams holds the value of the "max_teams" field.
-	MaxTeams int `json:"max_teams,omitempty"`
+	MaxTeams *int `json:"max_teams,omitempty"`
 	// RankingCriteria holds the value of the "ranking_criteria" field.
 	RankingCriteria map[string]interface{} `json:"ranking_criteria,omitempty"`
 	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DivisionPoolQuery when eager-loading is set.
 	Edges                DivisionPoolEdges `json:"edges"`
@@ -158,7 +158,8 @@ func (_m *DivisionPool) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field max_teams", values[i])
 			} else if value.Valid {
-				_m.MaxTeams = int(value.Int64)
+				_m.MaxTeams = new(int)
+				*_m.MaxTeams = int(value.Int64)
 			}
 		case divisionpool.FieldRankingCriteria:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -172,7 +173,8 @@ func (_m *DivisionPool) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				_m.Description = value.String
+				_m.Description = new(string)
+				*_m.Description = value.String
 			}
 		case divisionpool.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -249,14 +251,18 @@ func (_m *DivisionPool) String() string {
 	builder.WriteString("division_type=")
 	builder.WriteString(_m.DivisionType)
 	builder.WriteString(", ")
-	builder.WriteString("max_teams=")
-	builder.WriteString(fmt.Sprintf("%v", _m.MaxTeams))
+	if v := _m.MaxTeams; v != nil {
+		builder.WriteString("max_teams=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("ranking_criteria=")
 	builder.WriteString(fmt.Sprintf("%v", _m.RankingCriteria))
 	builder.WriteString(", ")
-	builder.WriteString("description=")
-	builder.WriteString(_m.Description)
+	if v := _m.Description; v != nil {
+		builder.WriteString("description=")
+		builder.WriteString(*v)
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

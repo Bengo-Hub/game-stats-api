@@ -129,12 +129,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
-	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
-	EmailValidator func(string) error
 	// GenderValidator is a validator for the "gender" field. It is called by the builders before save.
 	GenderValidator func(string) error
-	// JerseyNumberValidator is a validator for the "jersey_number" field. It is called by the builders before save.
-	JerseyNumberValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )

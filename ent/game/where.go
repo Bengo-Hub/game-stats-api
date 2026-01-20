@@ -903,21 +903,21 @@ func HasDivisionPoolWith(preds ...predicate.DivisionPool) predicate.Game {
 	})
 }
 
-// HasField applies the HasEdge predicate on the "field" edge.
-func HasField() predicate.Game {
+// HasFieldLocation applies the HasEdge predicate on the "field_location" edge.
+func HasFieldLocation() predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, FieldTable, FieldColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, FieldLocationTable, FieldLocationColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasFieldWith applies the HasEdge predicate on the "field" edge with a given conditions (other predicates).
-func HasFieldWith(preds ...predicate.Field) predicate.Game {
+// HasFieldLocationWith applies the HasEdge predicate on the "field_location" edge with a given conditions (other predicates).
+func HasFieldLocationWith(preds ...predicate.Field) predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
-		step := newFieldStep()
+		step := newFieldLocationStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

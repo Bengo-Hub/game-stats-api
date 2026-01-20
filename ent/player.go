@@ -29,15 +29,15 @@ type Player struct {
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Email holds the value of the "email" field.
-	Email string `json:"email,omitempty"`
+	Email *string `json:"email,omitempty"`
 	// Gender holds the value of the "gender" field.
 	Gender string `json:"gender,omitempty"`
 	// DateOfBirth holds the value of the "date_of_birth" field.
-	DateOfBirth time.Time `json:"date_of_birth,omitempty"`
+	DateOfBirth *time.Time `json:"date_of_birth,omitempty"`
 	// JerseyNumber holds the value of the "jersey_number" field.
-	JerseyNumber string `json:"jersey_number,omitempty"`
+	JerseyNumber *int `json:"jersey_number,omitempty"`
 	// ProfileImageURL holds the value of the "profile_image_url" field.
-	ProfileImageURL string `json:"profile_image_url,omitempty"`
+	ProfileImageURL *string `json:"profile_image_url,omitempty"`
 	// Metadata holds the value of the "metadata" field.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -118,7 +118,9 @@ func (*Player) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case player.FieldMetadata:
 			values[i] = new([]byte)
-		case player.FieldName, player.FieldEmail, player.FieldGender, player.FieldJerseyNumber, player.FieldProfileImageURL:
+		case player.FieldJerseyNumber:
+			values[i] = new(sql.NullInt64)
+		case player.FieldName, player.FieldEmail, player.FieldGender, player.FieldProfileImageURL:
 			values[i] = new(sql.NullString)
 		case player.FieldCreatedAt, player.FieldUpdatedAt, player.FieldDeletedAt, player.FieldDateOfBirth:
 			values[i] = new(sql.NullTime)
@@ -176,7 +178,8 @@ func (_m *Player) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
-				_m.Email = value.String
+				_m.Email = new(string)
+				*_m.Email = value.String
 			}
 		case player.FieldGender:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -188,19 +191,22 @@ func (_m *Player) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field date_of_birth", values[i])
 			} else if value.Valid {
-				_m.DateOfBirth = value.Time
+				_m.DateOfBirth = new(time.Time)
+				*_m.DateOfBirth = value.Time
 			}
 		case player.FieldJerseyNumber:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field jersey_number", values[i])
 			} else if value.Valid {
-				_m.JerseyNumber = value.String
+				_m.JerseyNumber = new(int)
+				*_m.JerseyNumber = int(value.Int64)
 			}
 		case player.FieldProfileImageURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field profile_image_url", values[i])
 			} else if value.Valid {
-				_m.ProfileImageURL = value.String
+				_m.ProfileImageURL = new(string)
+				*_m.ProfileImageURL = value.String
 			}
 		case player.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -292,20 +298,28 @@ func (_m *Player) String() string {
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
-	builder.WriteString("email=")
-	builder.WriteString(_m.Email)
+	if v := _m.Email; v != nil {
+		builder.WriteString("email=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("gender=")
 	builder.WriteString(_m.Gender)
 	builder.WriteString(", ")
-	builder.WriteString("date_of_birth=")
-	builder.WriteString(_m.DateOfBirth.Format(time.ANSIC))
+	if v := _m.DateOfBirth; v != nil {
+		builder.WriteString("date_of_birth=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
-	builder.WriteString("jersey_number=")
-	builder.WriteString(_m.JerseyNumber)
+	if v := _m.JerseyNumber; v != nil {
+		builder.WriteString("jersey_number=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
-	builder.WriteString("profile_image_url=")
-	builder.WriteString(_m.ProfileImageURL)
+	if v := _m.ProfileImageURL; v != nil {
+		builder.WriteString("profile_image_url=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))

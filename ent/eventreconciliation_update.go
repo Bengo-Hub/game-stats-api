@@ -11,8 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // EventReconciliationUpdate is the builder for updating EventReconciliation entities.
@@ -54,57 +56,88 @@ func (_u *EventReconciliationUpdate) ClearDeletedAt() *EventReconciliationUpdate
 	return _u
 }
 
-// SetName sets the "name" field.
-func (_u *EventReconciliationUpdate) SetName(v string) *EventReconciliationUpdate {
-	_u.mutation.SetName(v)
+// SetReconciledAt sets the "reconciled_at" field.
+func (_u *EventReconciliationUpdate) SetReconciledAt(v time.Time) *EventReconciliationUpdate {
+	_u.mutation.SetReconciledAt(v)
 	return _u
 }
 
-// SetNillableName sets the "name" field if the given value is not nil.
-func (_u *EventReconciliationUpdate) SetNillableName(v *string) *EventReconciliationUpdate {
+// SetNillableReconciledAt sets the "reconciled_at" field if the given value is not nil.
+func (_u *EventReconciliationUpdate) SetNillableReconciledAt(v *time.Time) *EventReconciliationUpdate {
 	if v != nil {
-		_u.SetName(*v)
+		_u.SetReconciledAt(*v)
 	}
 	return _u
 }
 
-// SetDescription sets the "description" field.
-func (_u *EventReconciliationUpdate) SetDescription(v string) *EventReconciliationUpdate {
-	_u.mutation.SetDescription(v)
+// SetReconciledBy sets the "reconciled_by" field.
+func (_u *EventReconciliationUpdate) SetReconciledBy(v string) *EventReconciliationUpdate {
+	_u.mutation.SetReconciledBy(v)
 	return _u
 }
 
-// SetNillableDescription sets the "description" field if the given value is not nil.
-func (_u *EventReconciliationUpdate) SetNillableDescription(v *string) *EventReconciliationUpdate {
+// SetNillableReconciledBy sets the "reconciled_by" field if the given value is not nil.
+func (_u *EventReconciliationUpdate) SetNillableReconciledBy(v *string) *EventReconciliationUpdate {
 	if v != nil {
-		_u.SetDescription(*v)
+		_u.SetReconciledBy(*v)
 	}
 	return _u
 }
 
-// ClearDescription clears the value of the "description" field.
-func (_u *EventReconciliationUpdate) ClearDescription() *EventReconciliationUpdate {
-	_u.mutation.ClearDescription()
+// SetStatus sets the "status" field.
+func (_u *EventReconciliationUpdate) SetStatus(v string) *EventReconciliationUpdate {
+	_u.mutation.SetStatus(v)
 	return _u
 }
 
-// SetIsActive sets the "is_active" field.
-func (_u *EventReconciliationUpdate) SetIsActive(v bool) *EventReconciliationUpdate {
-	_u.mutation.SetIsActive(v)
-	return _u
-}
-
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (_u *EventReconciliationUpdate) SetNillableIsActive(v *bool) *EventReconciliationUpdate {
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *EventReconciliationUpdate) SetNillableStatus(v *string) *EventReconciliationUpdate {
 	if v != nil {
-		_u.SetIsActive(*v)
+		_u.SetStatus(*v)
 	}
 	return _u
+}
+
+// SetComments sets the "comments" field.
+func (_u *EventReconciliationUpdate) SetComments(v string) *EventReconciliationUpdate {
+	_u.mutation.SetComments(v)
+	return _u
+}
+
+// SetNillableComments sets the "comments" field if the given value is not nil.
+func (_u *EventReconciliationUpdate) SetNillableComments(v *string) *EventReconciliationUpdate {
+	if v != nil {
+		_u.SetComments(*v)
+	}
+	return _u
+}
+
+// ClearComments clears the value of the "comments" field.
+func (_u *EventReconciliationUpdate) ClearComments() *EventReconciliationUpdate {
+	_u.mutation.ClearComments()
+	return _u
+}
+
+// SetEventID sets the "event" edge to the Event entity by ID.
+func (_u *EventReconciliationUpdate) SetEventID(id uuid.UUID) *EventReconciliationUpdate {
+	_u.mutation.SetEventID(id)
+	return _u
+}
+
+// SetEvent sets the "event" edge to the Event entity.
+func (_u *EventReconciliationUpdate) SetEvent(v *Event) *EventReconciliationUpdate {
+	return _u.SetEventID(v.ID)
 }
 
 // Mutation returns the EventReconciliationMutation object of the builder.
 func (_u *EventReconciliationUpdate) Mutation() *EventReconciliationMutation {
 	return _u.mutation
+}
+
+// ClearEvent clears the "event" edge to the Event entity.
+func (_u *EventReconciliationUpdate) ClearEvent() *EventReconciliationUpdate {
+	_u.mutation.ClearEvent()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -145,10 +178,18 @@ func (_u *EventReconciliationUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *EventReconciliationUpdate) check() error {
-	if v, ok := _u.mutation.Name(); ok {
-		if err := eventreconciliation.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "EventReconciliation.name": %w`, err)}
+	if v, ok := _u.mutation.ReconciledBy(); ok {
+		if err := eventreconciliation.ReconciledByValidator(v); err != nil {
+			return &ValidationError{Name: "reconciled_by", err: fmt.Errorf(`ent: validator failed for field "EventReconciliation.reconciled_by": %w`, err)}
 		}
+	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := eventreconciliation.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "EventReconciliation.status": %w`, err)}
+		}
+	}
+	if _u.mutation.EventCleared() && len(_u.mutation.EventIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "EventReconciliation.event"`)
 	}
 	return nil
 }
@@ -174,17 +215,49 @@ func (_u *EventReconciliationUpdate) sqlSave(ctx context.Context) (_node int, er
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(eventreconciliation.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := _u.mutation.Name(); ok {
-		_spec.SetField(eventreconciliation.FieldName, field.TypeString, value)
+	if value, ok := _u.mutation.ReconciledAt(); ok {
+		_spec.SetField(eventreconciliation.FieldReconciledAt, field.TypeTime, value)
 	}
-	if value, ok := _u.mutation.Description(); ok {
-		_spec.SetField(eventreconciliation.FieldDescription, field.TypeString, value)
+	if value, ok := _u.mutation.ReconciledBy(); ok {
+		_spec.SetField(eventreconciliation.FieldReconciledBy, field.TypeString, value)
 	}
-	if _u.mutation.DescriptionCleared() {
-		_spec.ClearField(eventreconciliation.FieldDescription, field.TypeString)
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(eventreconciliation.FieldStatus, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.IsActive(); ok {
-		_spec.SetField(eventreconciliation.FieldIsActive, field.TypeBool, value)
+	if value, ok := _u.mutation.Comments(); ok {
+		_spec.SetField(eventreconciliation.FieldComments, field.TypeString, value)
+	}
+	if _u.mutation.CommentsCleared() {
+		_spec.ClearField(eventreconciliation.FieldComments, field.TypeString)
+	}
+	if _u.mutation.EventCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   eventreconciliation.EventTable,
+			Columns: []string{eventreconciliation.EventColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.EventIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   eventreconciliation.EventTable,
+			Columns: []string{eventreconciliation.EventColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -232,57 +305,88 @@ func (_u *EventReconciliationUpdateOne) ClearDeletedAt() *EventReconciliationUpd
 	return _u
 }
 
-// SetName sets the "name" field.
-func (_u *EventReconciliationUpdateOne) SetName(v string) *EventReconciliationUpdateOne {
-	_u.mutation.SetName(v)
+// SetReconciledAt sets the "reconciled_at" field.
+func (_u *EventReconciliationUpdateOne) SetReconciledAt(v time.Time) *EventReconciliationUpdateOne {
+	_u.mutation.SetReconciledAt(v)
 	return _u
 }
 
-// SetNillableName sets the "name" field if the given value is not nil.
-func (_u *EventReconciliationUpdateOne) SetNillableName(v *string) *EventReconciliationUpdateOne {
+// SetNillableReconciledAt sets the "reconciled_at" field if the given value is not nil.
+func (_u *EventReconciliationUpdateOne) SetNillableReconciledAt(v *time.Time) *EventReconciliationUpdateOne {
 	if v != nil {
-		_u.SetName(*v)
+		_u.SetReconciledAt(*v)
 	}
 	return _u
 }
 
-// SetDescription sets the "description" field.
-func (_u *EventReconciliationUpdateOne) SetDescription(v string) *EventReconciliationUpdateOne {
-	_u.mutation.SetDescription(v)
+// SetReconciledBy sets the "reconciled_by" field.
+func (_u *EventReconciliationUpdateOne) SetReconciledBy(v string) *EventReconciliationUpdateOne {
+	_u.mutation.SetReconciledBy(v)
 	return _u
 }
 
-// SetNillableDescription sets the "description" field if the given value is not nil.
-func (_u *EventReconciliationUpdateOne) SetNillableDescription(v *string) *EventReconciliationUpdateOne {
+// SetNillableReconciledBy sets the "reconciled_by" field if the given value is not nil.
+func (_u *EventReconciliationUpdateOne) SetNillableReconciledBy(v *string) *EventReconciliationUpdateOne {
 	if v != nil {
-		_u.SetDescription(*v)
+		_u.SetReconciledBy(*v)
 	}
 	return _u
 }
 
-// ClearDescription clears the value of the "description" field.
-func (_u *EventReconciliationUpdateOne) ClearDescription() *EventReconciliationUpdateOne {
-	_u.mutation.ClearDescription()
+// SetStatus sets the "status" field.
+func (_u *EventReconciliationUpdateOne) SetStatus(v string) *EventReconciliationUpdateOne {
+	_u.mutation.SetStatus(v)
 	return _u
 }
 
-// SetIsActive sets the "is_active" field.
-func (_u *EventReconciliationUpdateOne) SetIsActive(v bool) *EventReconciliationUpdateOne {
-	_u.mutation.SetIsActive(v)
-	return _u
-}
-
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (_u *EventReconciliationUpdateOne) SetNillableIsActive(v *bool) *EventReconciliationUpdateOne {
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *EventReconciliationUpdateOne) SetNillableStatus(v *string) *EventReconciliationUpdateOne {
 	if v != nil {
-		_u.SetIsActive(*v)
+		_u.SetStatus(*v)
 	}
 	return _u
+}
+
+// SetComments sets the "comments" field.
+func (_u *EventReconciliationUpdateOne) SetComments(v string) *EventReconciliationUpdateOne {
+	_u.mutation.SetComments(v)
+	return _u
+}
+
+// SetNillableComments sets the "comments" field if the given value is not nil.
+func (_u *EventReconciliationUpdateOne) SetNillableComments(v *string) *EventReconciliationUpdateOne {
+	if v != nil {
+		_u.SetComments(*v)
+	}
+	return _u
+}
+
+// ClearComments clears the value of the "comments" field.
+func (_u *EventReconciliationUpdateOne) ClearComments() *EventReconciliationUpdateOne {
+	_u.mutation.ClearComments()
+	return _u
+}
+
+// SetEventID sets the "event" edge to the Event entity by ID.
+func (_u *EventReconciliationUpdateOne) SetEventID(id uuid.UUID) *EventReconciliationUpdateOne {
+	_u.mutation.SetEventID(id)
+	return _u
+}
+
+// SetEvent sets the "event" edge to the Event entity.
+func (_u *EventReconciliationUpdateOne) SetEvent(v *Event) *EventReconciliationUpdateOne {
+	return _u.SetEventID(v.ID)
 }
 
 // Mutation returns the EventReconciliationMutation object of the builder.
 func (_u *EventReconciliationUpdateOne) Mutation() *EventReconciliationMutation {
 	return _u.mutation
+}
+
+// ClearEvent clears the "event" edge to the Event entity.
+func (_u *EventReconciliationUpdateOne) ClearEvent() *EventReconciliationUpdateOne {
+	_u.mutation.ClearEvent()
+	return _u
 }
 
 // Where appends a list predicates to the EventReconciliationUpdate builder.
@@ -336,10 +440,18 @@ func (_u *EventReconciliationUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *EventReconciliationUpdateOne) check() error {
-	if v, ok := _u.mutation.Name(); ok {
-		if err := eventreconciliation.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "EventReconciliation.name": %w`, err)}
+	if v, ok := _u.mutation.ReconciledBy(); ok {
+		if err := eventreconciliation.ReconciledByValidator(v); err != nil {
+			return &ValidationError{Name: "reconciled_by", err: fmt.Errorf(`ent: validator failed for field "EventReconciliation.reconciled_by": %w`, err)}
 		}
+	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := eventreconciliation.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "EventReconciliation.status": %w`, err)}
+		}
+	}
+	if _u.mutation.EventCleared() && len(_u.mutation.EventIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "EventReconciliation.event"`)
 	}
 	return nil
 }
@@ -382,17 +494,49 @@ func (_u *EventReconciliationUpdateOne) sqlSave(ctx context.Context) (_node *Eve
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(eventreconciliation.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := _u.mutation.Name(); ok {
-		_spec.SetField(eventreconciliation.FieldName, field.TypeString, value)
+	if value, ok := _u.mutation.ReconciledAt(); ok {
+		_spec.SetField(eventreconciliation.FieldReconciledAt, field.TypeTime, value)
 	}
-	if value, ok := _u.mutation.Description(); ok {
-		_spec.SetField(eventreconciliation.FieldDescription, field.TypeString, value)
+	if value, ok := _u.mutation.ReconciledBy(); ok {
+		_spec.SetField(eventreconciliation.FieldReconciledBy, field.TypeString, value)
 	}
-	if _u.mutation.DescriptionCleared() {
-		_spec.ClearField(eventreconciliation.FieldDescription, field.TypeString)
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(eventreconciliation.FieldStatus, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.IsActive(); ok {
-		_spec.SetField(eventreconciliation.FieldIsActive, field.TypeBool, value)
+	if value, ok := _u.mutation.Comments(); ok {
+		_spec.SetField(eventreconciliation.FieldComments, field.TypeString, value)
+	}
+	if _u.mutation.CommentsCleared() {
+		_spec.ClearField(eventreconciliation.FieldComments, field.TypeString)
+	}
+	if _u.mutation.EventCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   eventreconciliation.EventTable,
+			Columns: []string{eventreconciliation.EventColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.EventIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   eventreconciliation.EventTable,
+			Columns: []string{eventreconciliation.EventColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &EventReconciliation{config: _u.config}
 	_spec.Assign = _node.assignValues

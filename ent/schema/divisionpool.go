@@ -31,11 +31,13 @@ func (DivisionPool) Fields() []ent.Field {
 			MaxLen(50).
 			NotEmpty(),
 		field.Int("max_teams").
-			Optional(),
+			Optional().
+			Nillable(),
 		field.JSON("ranking_criteria", map[string]interface{}{}).
 			Optional(),
 		field.Text("description").
-			Optional(),
+			Optional().
+			Nillable(),
 	}
 }
 

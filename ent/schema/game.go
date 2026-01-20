@@ -72,7 +72,7 @@ func (Game) Edges() []ent.Edge {
 			Ref("games").
 			Unique().
 			Required(),
-		edge.From("field", Field.Type).
+		edge.From("field_location", Field.Type).
 			Ref("games").
 			Unique().
 			Required(),

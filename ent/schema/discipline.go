@@ -32,9 +32,11 @@ func (Discipline) Fields() []ent.Field {
 			Unique().
 			NotEmpty(),
 		field.Text("description").
-			Optional(),
-		field.Text("rules_pdf_url").
-			Optional(),
+			Optional().
+			Nillable(),
+		field.String("rules_pdf_url").
+			Optional().
+			Nillable(),
 	}
 }
 
@@ -49,5 +51,3 @@ func (Discipline) Edges() []ent.Edge {
 		edge.To("managed_by", User.Type),
 	}
 }
-
-

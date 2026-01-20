@@ -29,9 +29,9 @@ type Field struct {
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Capacity holds the value of the "capacity" field.
-	Capacity int `json:"capacity,omitempty"`
+	Capacity *int `json:"capacity,omitempty"`
 	// SurfaceType holds the value of the "surface_type" field.
-	SurfaceType string `json:"surface_type,omitempty"`
+	SurfaceType *string `json:"surface_type,omitempty"`
 	// Metadata holds the value of the "metadata" field.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -139,13 +139,15 @@ func (_m *Field) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field capacity", values[i])
 			} else if value.Valid {
-				_m.Capacity = int(value.Int64)
+				_m.Capacity = new(int)
+				*_m.Capacity = int(value.Int64)
 			}
 		case entfield.FieldSurfaceType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field surface_type", values[i])
 			} else if value.Valid {
-				_m.SurfaceType = value.String
+				_m.SurfaceType = new(string)
+				*_m.SurfaceType = value.String
 			}
 		case entfield.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -222,11 +224,15 @@ func (_m *Field) String() string {
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
-	builder.WriteString("capacity=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Capacity))
+	if v := _m.Capacity; v != nil {
+		builder.WriteString("capacity=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
-	builder.WriteString("surface_type=")
-	builder.WriteString(_m.SurfaceType)
+	if v := _m.SurfaceType; v != nil {
+		builder.WriteString("surface_type=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))

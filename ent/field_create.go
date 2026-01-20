@@ -271,11 +271,11 @@ func (_c *FieldCreate) createSpec() (*Field, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.Capacity(); ok {
 		_spec.SetField(entfield.FieldCapacity, field.TypeInt, value)
-		_node.Capacity = value
+		_node.Capacity = &value
 	}
 	if value, ok := _c.mutation.SurfaceType(); ok {
 		_spec.SetField(entfield.FieldSurfaceType, field.TypeString, value)
-		_node.SurfaceType = value
+		_node.SurfaceType = &value
 	}
 	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(entfield.FieldMetadata, field.TypeJSON, value)

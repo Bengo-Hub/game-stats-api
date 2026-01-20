@@ -353,7 +353,7 @@ func (_c *SpiritScoreCreate) createSpec() (*SpiritScore, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.Comments(); ok {
 		_spec.SetField(spiritscore.FieldComments, field.TypeString, value)
-		_node.Comments = value
+		_node.Comments = &value
 	}
 	if nodes := _c.mutation.GameIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

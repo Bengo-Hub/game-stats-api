@@ -82,9 +82,23 @@ func (_c *UserCreate) SetPasswordHash(v string) *UserCreate {
 	return _c
 }
 
-// SetFullName sets the "full_name" field.
-func (_c *UserCreate) SetFullName(v string) *UserCreate {
-	_c.mutation.SetFullName(v)
+// SetName sets the "name" field.
+func (_c *UserCreate) SetName(v string) *UserCreate {
+	_c.mutation.SetName(v)
+	return _c
+}
+
+// SetAvatarURL sets the "avatar_url" field.
+func (_c *UserCreate) SetAvatarURL(v string) *UserCreate {
+	_c.mutation.SetAvatarURL(v)
+	return _c
+}
+
+// SetNillableAvatarURL sets the "avatar_url" field if the given value is not nil.
+func (_c *UserCreate) SetNillableAvatarURL(v *string) *UserCreate {
+	if v != nil {
+		_c.SetAvatarURL(*v)
+	}
 	return _c
 }
 
@@ -338,12 +352,12 @@ func (_c *UserCreate) check() error {
 			return &ValidationError{Name: "password_hash", err: fmt.Errorf(`ent: validator failed for field "User.password_hash": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.FullName(); !ok {
-		return &ValidationError{Name: "full_name", err: errors.New(`ent: missing required field "User.full_name"`)}
+	if _, ok := _c.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "User.name"`)}
 	}
-	if v, ok := _c.mutation.FullName(); ok {
-		if err := user.FullNameValidator(v); err != nil {
-			return &ValidationError{Name: "full_name", err: fmt.Errorf(`ent: validator failed for field "User.full_name": %w`, err)}
+	if v, ok := _c.mutation.Name(); ok {
+		if err := user.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "User.name": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.Role(); !ok {
@@ -412,9 +426,13 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldPasswordHash, field.TypeString, value)
 		_node.PasswordHash = value
 	}
-	if value, ok := _c.mutation.FullName(); ok {
-		_spec.SetField(user.FieldFullName, field.TypeString, value)
-		_node.FullName = value
+	if value, ok := _c.mutation.Name(); ok {
+		_spec.SetField(user.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
+	if value, ok := _c.mutation.AvatarURL(); ok {
+		_spec.SetField(user.FieldAvatarURL, field.TypeString, value)
+		_node.AvatarURL = &value
 	}
 	if value, ok := _c.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeString, value)

@@ -2,6 +2,7 @@
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -38,7 +39,8 @@ func (Event) Fields() []ent.Field {
 			Default("draft").
 			NotEmpty(),
 		field.Text("description").
-			Optional(),
+			Optional().
+			Nillable(),
 		field.JSON("settings", map[string]interface{}{}).
 			Optional(),
 	}
@@ -55,7 +57,14 @@ func (Event) Edges() []ent.Edge {
 			Ref("events").
 			Unique().
 			Required(),
-		edge.To("division_pools", DivisionPool.Type),
+		edge.To("division_pools", DivisionPool.Type).
+			Annotations(entsql.Annotation{
+				OnDelete: entsql.Cascade,
+			}),
+		edge.To("reconciliations", EventReconciliation.Type).
+			Annotations(entsql.Annotation{
+				OnDelete: entsql.Cascade,
+			}),
 		edge.To("game_rounds", GameRound.Type),
 		edge.To("managed_by", User.Type),
 	}

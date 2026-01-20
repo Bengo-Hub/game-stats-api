@@ -28,18 +28,21 @@ func (Player) Fields() []ent.Field {
 			MaxLen(200).
 			NotEmpty(),
 		field.String("email").
-			MaxLen(255).
-			Optional(),
+			Unique().
+			Optional().
+			Nillable(),
 		field.String("gender").
 			MaxLen(10).
 			NotEmpty(),
 		field.Time("date_of_birth").
-			Optional(),
-		field.String("jersey_number").
-			MaxLen(10).
-			Optional(),
-		field.Text("profile_image_url").
-			Optional(),
+			Optional().
+			Nillable(),
+		field.Int("jersey_number").
+			Optional().
+			Nillable(),
+		field.String("profile_image_url").
+			Optional().
+			Nillable(),
 		field.JSON("metadata", map[string]interface{}{}).
 			Optional(),
 	}

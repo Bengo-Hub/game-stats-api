@@ -273,15 +273,15 @@ func (_c *GameCreate) SetDivisionPool(v *DivisionPool) *GameCreate {
 	return _c.SetDivisionPoolID(v.ID)
 }
 
-// SetFieldID sets the "field" edge to the Field entity by ID.
-func (_c *GameCreate) SetFieldID(id uuid.UUID) *GameCreate {
-	_c.mutation.SetFieldID(id)
+// SetFieldLocationID sets the "field_location" edge to the Field entity by ID.
+func (_c *GameCreate) SetFieldLocationID(id uuid.UUID) *GameCreate {
+	_c.mutation.SetFieldLocationID(id)
 	return _c
 }
 
-// SetField sets the "field" edge to the Field entity.
-func (_c *GameCreate) SetField(v *Field) *GameCreate {
-	return _c.SetFieldID(v.ID)
+// SetFieldLocation sets the "field_location" edge to the Field entity.
+func (_c *GameCreate) SetFieldLocation(v *Field) *GameCreate {
+	return _c.SetFieldLocationID(v.ID)
 }
 
 // SetScorekeeperID sets the "scorekeeper" edge to the User entity by ID.
@@ -468,8 +468,8 @@ func (_c *GameCreate) check() error {
 	if len(_c.mutation.DivisionPoolIDs()) == 0 {
 		return &ValidationError{Name: "division_pool", err: errors.New(`ent: missing required edge "Game.division_pool"`)}
 	}
-	if len(_c.mutation.FieldIDs()) == 0 {
-		return &ValidationError{Name: "field", err: errors.New(`ent: missing required edge "Game.field"`)}
+	if len(_c.mutation.FieldLocationIDs()) == 0 {
+		return &ValidationError{Name: "field_location", err: errors.New(`ent: missing required edge "Game.field_location"`)}
 	}
 	return nil
 }
@@ -634,12 +634,12 @@ func (_c *GameCreate) createSpec() (*Game, *sqlgraph.CreateSpec) {
 		_node.division_pool_games = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := _c.mutation.FieldIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.FieldLocationIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   game.FieldTable,
-			Columns: []string{game.FieldColumn},
+			Table:   game.FieldLocationTable,
+			Columns: []string{game.FieldLocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(entfield.FieldID, field.TypeUUID),

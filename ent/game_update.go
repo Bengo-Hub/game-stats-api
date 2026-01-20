@@ -334,15 +334,15 @@ func (_u *GameUpdate) SetDivisionPool(v *DivisionPool) *GameUpdate {
 	return _u.SetDivisionPoolID(v.ID)
 }
 
-// SetFieldID sets the "field" edge to the Field entity by ID.
-func (_u *GameUpdate) SetFieldID(id uuid.UUID) *GameUpdate {
-	_u.mutation.SetFieldID(id)
+// SetFieldLocationID sets the "field_location" edge to the Field entity by ID.
+func (_u *GameUpdate) SetFieldLocationID(id uuid.UUID) *GameUpdate {
+	_u.mutation.SetFieldLocationID(id)
 	return _u
 }
 
-// SetField sets the "field" edge to the Field entity.
-func (_u *GameUpdate) SetField(v *Field) *GameUpdate {
-	return _u.SetFieldID(v.ID)
+// SetFieldLocation sets the "field_location" edge to the Field entity.
+func (_u *GameUpdate) SetFieldLocation(v *Field) *GameUpdate {
+	return _u.SetFieldLocationID(v.ID)
 }
 
 // SetScorekeeperID sets the "scorekeeper" edge to the User entity by ID.
@@ -438,9 +438,9 @@ func (_u *GameUpdate) ClearDivisionPool() *GameUpdate {
 	return _u
 }
 
-// ClearFieldEdge clears the "field" edge to the Field entity.
-func (_u *GameUpdate) ClearFieldEdge() *GameUpdate {
-	_u.mutation.ClearFieldEdge()
+// ClearFieldLocation clears the "field_location" edge to the Field entity.
+func (_u *GameUpdate) ClearFieldLocation() *GameUpdate {
+	_u.mutation.ClearFieldLocation()
 	return _u
 }
 
@@ -570,8 +570,8 @@ func (_u *GameUpdate) check() error {
 	if _u.mutation.DivisionPoolCleared() && len(_u.mutation.DivisionPoolIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Game.division_pool"`)
 	}
-	if _u.mutation.FieldCleared() && len(_u.mutation.FieldIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Game.field"`)
+	if _u.mutation.FieldLocationCleared() && len(_u.mutation.FieldLocationIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Game.field_location"`)
 	}
 	return nil
 }
@@ -776,12 +776,12 @@ func (_u *GameUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if _u.mutation.FieldEdgeCleared() {
+	if _u.mutation.FieldLocationCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   game.FieldTable,
-			Columns: []string{game.FieldColumn},
+			Table:   game.FieldLocationTable,
+			Columns: []string{game.FieldLocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(entfield.FieldID, field.TypeUUID),
@@ -789,12 +789,12 @@ func (_u *GameUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.FieldIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.FieldLocationIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   game.FieldTable,
-			Columns: []string{game.FieldColumn},
+			Table:   game.FieldLocationTable,
+			Columns: []string{game.FieldLocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(entfield.FieldID, field.TypeUUID),
@@ -1286,15 +1286,15 @@ func (_u *GameUpdateOne) SetDivisionPool(v *DivisionPool) *GameUpdateOne {
 	return _u.SetDivisionPoolID(v.ID)
 }
 
-// SetFieldID sets the "field" edge to the Field entity by ID.
-func (_u *GameUpdateOne) SetFieldID(id uuid.UUID) *GameUpdateOne {
-	_u.mutation.SetFieldID(id)
+// SetFieldLocationID sets the "field_location" edge to the Field entity by ID.
+func (_u *GameUpdateOne) SetFieldLocationID(id uuid.UUID) *GameUpdateOne {
+	_u.mutation.SetFieldLocationID(id)
 	return _u
 }
 
-// SetField sets the "field" edge to the Field entity.
-func (_u *GameUpdateOne) SetField(v *Field) *GameUpdateOne {
-	return _u.SetFieldID(v.ID)
+// SetFieldLocation sets the "field_location" edge to the Field entity.
+func (_u *GameUpdateOne) SetFieldLocation(v *Field) *GameUpdateOne {
+	return _u.SetFieldLocationID(v.ID)
 }
 
 // SetScorekeeperID sets the "scorekeeper" edge to the User entity by ID.
@@ -1390,9 +1390,9 @@ func (_u *GameUpdateOne) ClearDivisionPool() *GameUpdateOne {
 	return _u
 }
 
-// ClearFieldEdge clears the "field" edge to the Field entity.
-func (_u *GameUpdateOne) ClearFieldEdge() *GameUpdateOne {
-	_u.mutation.ClearFieldEdge()
+// ClearFieldLocation clears the "field_location" edge to the Field entity.
+func (_u *GameUpdateOne) ClearFieldLocation() *GameUpdateOne {
+	_u.mutation.ClearFieldLocation()
 	return _u
 }
 
@@ -1535,8 +1535,8 @@ func (_u *GameUpdateOne) check() error {
 	if _u.mutation.DivisionPoolCleared() && len(_u.mutation.DivisionPoolIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Game.division_pool"`)
 	}
-	if _u.mutation.FieldCleared() && len(_u.mutation.FieldIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Game.field"`)
+	if _u.mutation.FieldLocationCleared() && len(_u.mutation.FieldLocationIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Game.field_location"`)
 	}
 	return nil
 }
@@ -1758,12 +1758,12 @@ func (_u *GameUpdateOne) sqlSave(ctx context.Context) (_node *Game, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if _u.mutation.FieldEdgeCleared() {
+	if _u.mutation.FieldLocationCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   game.FieldTable,
-			Columns: []string{game.FieldColumn},
+			Table:   game.FieldLocationTable,
+			Columns: []string{game.FieldLocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(entfield.FieldID, field.TypeUUID),
@@ -1771,12 +1771,12 @@ func (_u *GameUpdateOne) sqlSave(ctx context.Context) (_node *Game, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.FieldIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.FieldLocationIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   game.FieldTable,
-			Columns: []string{game.FieldColumn},
+			Table:   game.FieldLocationTable,
+			Columns: []string{game.FieldLocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(entfield.FieldID, field.TypeUUID),

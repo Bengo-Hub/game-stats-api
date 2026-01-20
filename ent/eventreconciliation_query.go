@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
 	"github.com/bengobox/game-stats-api/ent/predicate"
 	"github.com/google/uuid"
@@ -23,6 +24,8 @@ type EventReconciliationQuery struct {
 	order      []eventreconciliation.OrderOption
 	inters     []Interceptor
 	predicates []predicate.EventReconciliation
+	withEvent  *EventQuery
+	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -57,6 +60,28 @@ func (_q *EventReconciliationQuery) Unique(unique bool) *EventReconciliationQuer
 func (_q *EventReconciliationQuery) Order(o ...eventreconciliation.OrderOption) *EventReconciliationQuery {
 	_q.order = append(_q.order, o...)
 	return _q
+}
+
+// QueryEvent chains the current query on the "event" edge.
+func (_q *EventReconciliationQuery) QueryEvent() *EventQuery {
+	query := (&EventClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(eventreconciliation.Table, eventreconciliation.FieldID, selector),
+			sqlgraph.To(event.Table, event.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, eventreconciliation.EventTable, eventreconciliation.EventColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first EventReconciliation entity from the query.
@@ -251,10 +276,22 @@ func (_q *EventReconciliationQuery) Clone() *EventReconciliationQuery {
 		order:      append([]eventreconciliation.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
 		predicates: append([]predicate.EventReconciliation{}, _q.predicates...),
+		withEvent:  _q.withEvent.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
+}
+
+// WithEvent tells the query-builder to eager-load the nodes that are connected to
+// the "event" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *EventReconciliationQuery) WithEvent(opts ...func(*EventQuery)) *EventReconciliationQuery {
+	query := (&EventClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withEvent = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -333,15 +370,26 @@ func (_q *EventReconciliationQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *EventReconciliationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*EventReconciliation, error) {
 	var (
-		nodes = []*EventReconciliation{}
-		_spec = _q.querySpec()
+		nodes       = []*EventReconciliation{}
+		withFKs     = _q.withFKs
+		_spec       = _q.querySpec()
+		loadedTypes = [1]bool{
+			_q.withEvent != nil,
+		}
 	)
+	if _q.withEvent != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, eventreconciliation.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*EventReconciliation).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &EventReconciliation{config: _q.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -353,7 +401,46 @@ func (_q *EventReconciliationQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withEvent; query != nil {
+		if err := _q.loadEvent(ctx, query, nodes, nil,
+			func(n *EventReconciliation, e *Event) { n.Edges.Event = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (_q *EventReconciliationQuery) loadEvent(ctx context.Context, query *EventQuery, nodes []*EventReconciliation, init func(*EventReconciliation), assign func(*EventReconciliation, *Event)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*EventReconciliation)
+	for i := range nodes {
+		if nodes[i].event_reconciliations == nil {
+			continue
+		}
+		fk := *nodes[i].event_reconciliations
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(event.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "event_reconciliations" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (_q *EventReconciliationQuery) sqlCount(ctx context.Context) (int, error) {

@@ -33,7 +33,8 @@ func (World) Fields() []ent.Field {
 			Unique().
 			NotEmpty(),
 		field.Text("description").
-			Optional(),
+			Optional().
+			Nillable(),
 	}
 }
 
@@ -43,5 +44,3 @@ func (World) Edges() []ent.Edge {
 		edge.To("continents", Continent.Type),
 	}
 }
-
-

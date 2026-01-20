@@ -30,11 +30,11 @@ type Team struct {
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// InitialSeed holds the value of the "initial_seed" field.
-	InitialSeed int `json:"initial_seed,omitempty"`
+	InitialSeed *int `json:"initial_seed,omitempty"`
 	// FinalPlacement holds the value of the "final_placement" field.
-	FinalPlacement int `json:"final_placement,omitempty"`
+	FinalPlacement *int `json:"final_placement,omitempty"`
 	// LogoURL holds the value of the "logo_url" field.
-	LogoURL string `json:"logo_url,omitempty"`
+	LogoURL *string `json:"logo_url,omitempty"`
 	// Metadata holds the value of the "metadata" field.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -213,19 +213,22 @@ func (_m *Team) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field initial_seed", values[i])
 			} else if value.Valid {
-				_m.InitialSeed = int(value.Int64)
+				_m.InitialSeed = new(int)
+				*_m.InitialSeed = int(value.Int64)
 			}
 		case team.FieldFinalPlacement:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field final_placement", values[i])
 			} else if value.Valid {
-				_m.FinalPlacement = int(value.Int64)
+				_m.FinalPlacement = new(int)
+				*_m.FinalPlacement = int(value.Int64)
 			}
 		case team.FieldLogoURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field logo_url", values[i])
 			} else if value.Valid {
-				_m.LogoURL = value.String
+				_m.LogoURL = new(string)
+				*_m.LogoURL = value.String
 			}
 		case team.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -339,14 +342,20 @@ func (_m *Team) String() string {
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
-	builder.WriteString("initial_seed=")
-	builder.WriteString(fmt.Sprintf("%v", _m.InitialSeed))
+	if v := _m.InitialSeed; v != nil {
+		builder.WriteString("initial_seed=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
-	builder.WriteString("final_placement=")
-	builder.WriteString(fmt.Sprintf("%v", _m.FinalPlacement))
+	if v := _m.FinalPlacement; v != nil {
+		builder.WriteString("final_placement=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
-	builder.WriteString("logo_url=")
-	builder.WriteString(_m.LogoURL)
+	if v := _m.LogoURL; v != nil {
+		builder.WriteString("logo_url=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))

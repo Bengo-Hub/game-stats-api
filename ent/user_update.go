@@ -90,17 +90,37 @@ func (_u *UserUpdate) SetNillablePasswordHash(v *string) *UserUpdate {
 	return _u
 }
 
-// SetFullName sets the "full_name" field.
-func (_u *UserUpdate) SetFullName(v string) *UserUpdate {
-	_u.mutation.SetFullName(v)
+// SetName sets the "name" field.
+func (_u *UserUpdate) SetName(v string) *UserUpdate {
+	_u.mutation.SetName(v)
 	return _u
 }
 
-// SetNillableFullName sets the "full_name" field if the given value is not nil.
-func (_u *UserUpdate) SetNillableFullName(v *string) *UserUpdate {
+// SetNillableName sets the "name" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableName(v *string) *UserUpdate {
 	if v != nil {
-		_u.SetFullName(*v)
+		_u.SetName(*v)
 	}
+	return _u
+}
+
+// SetAvatarURL sets the "avatar_url" field.
+func (_u *UserUpdate) SetAvatarURL(v string) *UserUpdate {
+	_u.mutation.SetAvatarURL(v)
+	return _u
+}
+
+// SetNillableAvatarURL sets the "avatar_url" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableAvatarURL(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetAvatarURL(*v)
+	}
+	return _u
+}
+
+// ClearAvatarURL clears the value of the "avatar_url" field.
+func (_u *UserUpdate) ClearAvatarURL() *UserUpdate {
+	_u.mutation.ClearAvatarURL()
 	return _u
 }
 
@@ -402,9 +422,9 @@ func (_u *UserUpdate) check() error {
 			return &ValidationError{Name: "password_hash", err: fmt.Errorf(`ent: validator failed for field "User.password_hash": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.FullName(); ok {
-		if err := user.FullNameValidator(v); err != nil {
-			return &ValidationError{Name: "full_name", err: fmt.Errorf(`ent: validator failed for field "User.full_name": %w`, err)}
+	if v, ok := _u.mutation.Name(); ok {
+		if err := user.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "User.name": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Role(); ok {
@@ -442,8 +462,14 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.PasswordHash(); ok {
 		_spec.SetField(user.FieldPasswordHash, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.FullName(); ok {
-		_spec.SetField(user.FieldFullName, field.TypeString, value)
+	if value, ok := _u.mutation.Name(); ok {
+		_spec.SetField(user.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.AvatarURL(); ok {
+		_spec.SetField(user.FieldAvatarURL, field.TypeString, value)
+	}
+	if _u.mutation.AvatarURLCleared() {
+		_spec.ClearField(user.FieldAvatarURL, field.TypeString)
 	}
 	if value, ok := _u.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeString, value)
@@ -766,17 +792,37 @@ func (_u *UserUpdateOne) SetNillablePasswordHash(v *string) *UserUpdateOne {
 	return _u
 }
 
-// SetFullName sets the "full_name" field.
-func (_u *UserUpdateOne) SetFullName(v string) *UserUpdateOne {
-	_u.mutation.SetFullName(v)
+// SetName sets the "name" field.
+func (_u *UserUpdateOne) SetName(v string) *UserUpdateOne {
+	_u.mutation.SetName(v)
 	return _u
 }
 
-// SetNillableFullName sets the "full_name" field if the given value is not nil.
-func (_u *UserUpdateOne) SetNillableFullName(v *string) *UserUpdateOne {
+// SetNillableName sets the "name" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableName(v *string) *UserUpdateOne {
 	if v != nil {
-		_u.SetFullName(*v)
+		_u.SetName(*v)
 	}
+	return _u
+}
+
+// SetAvatarURL sets the "avatar_url" field.
+func (_u *UserUpdateOne) SetAvatarURL(v string) *UserUpdateOne {
+	_u.mutation.SetAvatarURL(v)
+	return _u
+}
+
+// SetNillableAvatarURL sets the "avatar_url" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableAvatarURL(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetAvatarURL(*v)
+	}
+	return _u
+}
+
+// ClearAvatarURL clears the value of the "avatar_url" field.
+func (_u *UserUpdateOne) ClearAvatarURL() *UserUpdateOne {
+	_u.mutation.ClearAvatarURL()
 	return _u
 }
 
@@ -1091,9 +1137,9 @@ func (_u *UserUpdateOne) check() error {
 			return &ValidationError{Name: "password_hash", err: fmt.Errorf(`ent: validator failed for field "User.password_hash": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.FullName(); ok {
-		if err := user.FullNameValidator(v); err != nil {
-			return &ValidationError{Name: "full_name", err: fmt.Errorf(`ent: validator failed for field "User.full_name": %w`, err)}
+	if v, ok := _u.mutation.Name(); ok {
+		if err := user.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "User.name": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Role(); ok {
@@ -1148,8 +1194,14 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	if value, ok := _u.mutation.PasswordHash(); ok {
 		_spec.SetField(user.FieldPasswordHash, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.FullName(); ok {
-		_spec.SetField(user.FieldFullName, field.TypeString, value)
+	if value, ok := _u.mutation.Name(); ok {
+		_spec.SetField(user.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.AvatarURL(); ok {
+		_spec.SetField(user.FieldAvatarURL, field.TypeString, value)
+	}
+	if _u.mutation.AvatarURLCleared() {
+		_spec.ClearField(user.FieldAvatarURL, field.TypeString)
 	}
 	if value, ok := _u.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeString, value)

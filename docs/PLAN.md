@@ -7,6 +7,8 @@ This document outlines the comprehensive backend architecture for the Game Stats
 **Key Features**:
 - [x] Project Initialization & Bootstrap
 - [x] Core Database Schema (Ent)
+- [x] Authentication & Authorization layer
+- [x] Shared Infrastructure (pgvector/Redis)
 - [ ] Real-time score updates via Server-Sent Events (SSE)
 - [ ] Game timeline with stoppage tracking
 - [ ] Automatic ranking and round progression

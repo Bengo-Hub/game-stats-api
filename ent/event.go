@@ -40,7 +40,7 @@ type Event struct {
 	// Status holds the value of the "status" field.
 	Status string `json:"status,omitempty"`
 	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Settings holds the value of the "settings" field.
 	Settings map[string]interface{} `json:"settings,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -59,13 +59,15 @@ type EventEdges struct {
 	Location *Location `json:"location,omitempty"`
 	// DivisionPools holds the value of the division_pools edge.
 	DivisionPools []*DivisionPool `json:"division_pools,omitempty"`
+	// Reconciliations holds the value of the reconciliations edge.
+	Reconciliations []*EventReconciliation `json:"reconciliations,omitempty"`
 	// GameRounds holds the value of the game_rounds edge.
 	GameRounds []*GameRound `json:"game_rounds,omitempty"`
 	// ManagedBy holds the value of the managed_by edge.
 	ManagedBy []*User `json:"managed_by,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [6]bool
 }
 
 // DisciplineOrErr returns the Discipline value or an error if the edge
@@ -99,10 +101,19 @@ func (e EventEdges) DivisionPoolsOrErr() ([]*DivisionPool, error) {
 	return nil, &NotLoadedError{edge: "division_pools"}
 }
 
+// ReconciliationsOrErr returns the Reconciliations value or an error if the edge
+// was not loaded in eager-loading.
+func (e EventEdges) ReconciliationsOrErr() ([]*EventReconciliation, error) {
+	if e.loadedTypes[3] {
+		return e.Reconciliations, nil
+	}
+	return nil, &NotLoadedError{edge: "reconciliations"}
+}
+
 // GameRoundsOrErr returns the GameRounds value or an error if the edge
 // was not loaded in eager-loading.
 func (e EventEdges) GameRoundsOrErr() ([]*GameRound, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[4] {
 		return e.GameRounds, nil
 	}
 	return nil, &NotLoadedError{edge: "game_rounds"}
@@ -111,7 +122,7 @@ func (e EventEdges) GameRoundsOrErr() ([]*GameRound, error) {
 // ManagedByOrErr returns the ManagedBy value or an error if the edge
 // was not loaded in eager-loading.
 func (e EventEdges) ManagedByOrErr() ([]*User, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[5] {
 		return e.ManagedBy, nil
 	}
 	return nil, &NotLoadedError{edge: "managed_by"}
@@ -216,7 +227,8 @@ func (_m *Event) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				_m.Description = value.String
+				_m.Description = new(string)
+				*_m.Description = value.String
 			}
 		case event.FieldSettings:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -266,6 +278,11 @@ func (_m *Event) QueryLocation() *LocationQuery {
 // QueryDivisionPools queries the "division_pools" edge of the Event entity.
 func (_m *Event) QueryDivisionPools() *DivisionPoolQuery {
 	return NewEventClient(_m.config).QueryDivisionPools(_m)
+}
+
+// QueryReconciliations queries the "reconciliations" edge of the Event entity.
+func (_m *Event) QueryReconciliations() *EventReconciliationQuery {
+	return NewEventClient(_m.config).QueryReconciliations(_m)
 }
 
 // QueryGameRounds queries the "game_rounds" edge of the Event entity.
@@ -330,8 +347,10 @@ func (_m *Event) String() string {
 	builder.WriteString("status=")
 	builder.WriteString(_m.Status)
 	builder.WriteString(", ")
-	builder.WriteString("description=")
-	builder.WriteString(_m.Description)
+	if v := _m.Description; v != nil {
+		builder.WriteString("description=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("settings=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Settings))

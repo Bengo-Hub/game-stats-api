@@ -25,8 +25,10 @@ const (
 	FieldEmail = "email"
 	// FieldPasswordHash holds the string denoting the password_hash field in the database.
 	FieldPasswordHash = "password_hash"
-	// FieldFullName holds the string denoting the full_name field in the database.
-	FieldFullName = "full_name"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
+	// FieldAvatarURL holds the string denoting the avatar_url field in the database.
+	FieldAvatarURL = "avatar_url"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
 	// FieldIsActive holds the string denoting the is_active field in the database.
@@ -108,7 +110,8 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldEmail,
 	FieldPasswordHash,
-	FieldFullName,
+	FieldName,
+	FieldAvatarURL,
 	FieldRole,
 	FieldIsActive,
 	FieldLastLoginAt,
@@ -150,8 +153,8 @@ var (
 	EmailValidator func(string) error
 	// PasswordHashValidator is a validator for the "password_hash" field. It is called by the builders before save.
 	PasswordHashValidator func(string) error
-	// FullNameValidator is a validator for the "full_name" field. It is called by the builders before save.
-	FullNameValidator func(string) error
+	// NameValidator is a validator for the "name" field. It is called by the builders before save.
+	NameValidator func(string) error
 	// RoleValidator is a validator for the "role" field. It is called by the builders before save.
 	RoleValidator func(string) error
 	// DefaultIsActive holds the default value on creation for the "is_active" field.
@@ -193,9 +196,14 @@ func ByPasswordHash(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPasswordHash, opts...).ToFunc()
 }
 
-// ByFullName orders the results by the full_name field.
-func ByFullName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldFullName, opts...).ToFunc()
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByAvatarURL orders the results by the avatar_url field.
+func ByAvatarURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAvatarURL, opts...).ToFunc()
 }
 
 // ByRole orders the results by the role field.

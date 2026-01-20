@@ -32,7 +32,7 @@ type Country struct {
 	// Code holds the value of the "code" field.
 	Code string `json:"code,omitempty"`
 	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CountryQuery when eager-loading is set.
 	Edges               CountryEdges `json:"edges"`
@@ -168,7 +168,8 @@ func (_m *Country) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				_m.Description = value.String
+				_m.Description = new(string)
+				*_m.Description = value.String
 			}
 		case country.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -253,8 +254,10 @@ func (_m *Country) String() string {
 	builder.WriteString("code=")
 	builder.WriteString(_m.Code)
 	builder.WriteString(", ")
-	builder.WriteString("description=")
-	builder.WriteString(_m.Description)
+	if v := _m.Description; v != nil {
+		builder.WriteString("description=")
+		builder.WriteString(*v)
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

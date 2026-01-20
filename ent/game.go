@@ -76,8 +76,8 @@ type GameEdges struct {
 	AwayTeam *Team `json:"away_team,omitempty"`
 	// DivisionPool holds the value of the division_pool edge.
 	DivisionPool *DivisionPool `json:"division_pool,omitempty"`
-	// Field holds the value of the field edge.
-	Field *Field `json:"field,omitempty"`
+	// FieldLocation holds the value of the field_location edge.
+	FieldLocation *Field `json:"field_location,omitempty"`
 	// Scorekeeper holds the value of the scorekeeper edge.
 	Scorekeeper *User `json:"scorekeeper,omitempty"`
 	// Scores holds the value of the scores edge.
@@ -135,15 +135,15 @@ func (e GameEdges) DivisionPoolOrErr() (*DivisionPool, error) {
 	return nil, &NotLoadedError{edge: "division_pool"}
 }
 
-// FieldOrErr returns the Field value or an error if the edge
+// FieldLocationOrErr returns the FieldLocation value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e GameEdges) FieldOrErr() (*Field, error) {
-	if e.Field != nil {
-		return e.Field, nil
+func (e GameEdges) FieldLocationOrErr() (*Field, error) {
+	if e.FieldLocation != nil {
+		return e.FieldLocation, nil
 	} else if e.loadedTypes[4] {
 		return nil, &NotFoundError{label: entfield.Label}
 	}
-	return nil, &NotLoadedError{edge: "field"}
+	return nil, &NotLoadedError{edge: "field_location"}
 }
 
 // ScorekeeperOrErr returns the Scorekeeper value or an error if the edge
@@ -402,9 +402,9 @@ func (_m *Game) QueryDivisionPool() *DivisionPoolQuery {
 	return NewGameClient(_m.config).QueryDivisionPool(_m)
 }
 
-// QueryField queries the "field" edge of the Game entity.
-func (_m *Game) QueryField() *FieldQuery {
-	return NewGameClient(_m.config).QueryField(_m)
+// QueryFieldLocation queries the "field_location" edge of the Game entity.
+func (_m *Game) QueryFieldLocation() *FieldQuery {
+	return NewGameClient(_m.config).QueryFieldLocation(_m)
 }
 
 // QueryScorekeeper queries the "scorekeeper" edge of the Game entity.

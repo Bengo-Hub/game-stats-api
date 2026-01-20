@@ -1534,6 +1534,22 @@ func (c *EventClient) QueryDivisionPools(_m *Event) *DivisionPoolQuery {
 	return query
 }
 
+// QueryReconciliations queries the reconciliations edge of a Event.
+func (c *EventClient) QueryReconciliations(_m *Event) *EventReconciliationQuery {
+	query := (&EventReconciliationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, id),
+			sqlgraph.To(eventreconciliation.Table, eventreconciliation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, event.ReconciliationsTable, event.ReconciliationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryGameRounds queries the game_rounds edge of a Event.
 func (c *EventClient) QueryGameRounds(_m *Event) *GameRoundQuery {
 	query := (&GameRoundClient{config: c.config}).Query()
@@ -1697,6 +1713,22 @@ func (c *EventReconciliationClient) GetX(ctx context.Context, id uuid.UUID) *Eve
 		panic(err)
 	}
 	return obj
+}
+
+// QueryEvent queries the event edge of a EventReconciliation.
+func (c *EventReconciliationClient) QueryEvent(_m *EventReconciliation) *EventQuery {
+	query := (&EventClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(eventreconciliation.Table, eventreconciliation.FieldID, id),
+			sqlgraph.To(event.Table, event.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, eventreconciliation.EventTable, eventreconciliation.EventColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -2061,15 +2093,15 @@ func (c *GameClient) QueryDivisionPool(_m *Game) *DivisionPoolQuery {
 	return query
 }
 
-// QueryField queries the field edge of a Game.
-func (c *GameClient) QueryField(_m *Game) *FieldQuery {
+// QueryFieldLocation queries the field_location edge of a Game.
+func (c *GameClient) QueryFieldLocation(_m *Game) *FieldQuery {
 	query := (&FieldClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(game.Table, game.FieldID, id),
 			sqlgraph.To(entfield.Table, entfield.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, game.FieldTable, game.FieldColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.FieldLocationTable, game.FieldLocationColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil

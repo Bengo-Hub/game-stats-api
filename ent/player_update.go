@@ -129,16 +129,23 @@ func (_u *PlayerUpdate) ClearDateOfBirth() *PlayerUpdate {
 }
 
 // SetJerseyNumber sets the "jersey_number" field.
-func (_u *PlayerUpdate) SetJerseyNumber(v string) *PlayerUpdate {
+func (_u *PlayerUpdate) SetJerseyNumber(v int) *PlayerUpdate {
+	_u.mutation.ResetJerseyNumber()
 	_u.mutation.SetJerseyNumber(v)
 	return _u
 }
 
 // SetNillableJerseyNumber sets the "jersey_number" field if the given value is not nil.
-func (_u *PlayerUpdate) SetNillableJerseyNumber(v *string) *PlayerUpdate {
+func (_u *PlayerUpdate) SetNillableJerseyNumber(v *int) *PlayerUpdate {
 	if v != nil {
 		_u.SetJerseyNumber(*v)
 	}
+	return _u
+}
+
+// AddJerseyNumber adds value to the "jersey_number" field.
+func (_u *PlayerUpdate) AddJerseyNumber(v int) *PlayerUpdate {
+	_u.mutation.AddJerseyNumber(v)
 	return _u
 }
 
@@ -389,19 +396,9 @@ func (_u *PlayerUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Player.name": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Email(); ok {
-		if err := player.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Player.email": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Gender(); ok {
 		if err := player.GenderValidator(v); err != nil {
 			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Player.gender": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.JerseyNumber(); ok {
-		if err := player.JerseyNumberValidator(v); err != nil {
-			return &ValidationError{Name: "jersey_number", err: fmt.Errorf(`ent: validator failed for field "Player.jersey_number": %w`, err)}
 		}
 	}
 	if _u.mutation.TeamCleared() && len(_u.mutation.TeamIDs()) > 0 {
@@ -450,10 +447,13 @@ func (_u *PlayerUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(player.FieldDateOfBirth, field.TypeTime)
 	}
 	if value, ok := _u.mutation.JerseyNumber(); ok {
-		_spec.SetField(player.FieldJerseyNumber, field.TypeString, value)
+		_spec.SetField(player.FieldJerseyNumber, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedJerseyNumber(); ok {
+		_spec.AddField(player.FieldJerseyNumber, field.TypeInt, value)
 	}
 	if _u.mutation.JerseyNumberCleared() {
-		_spec.ClearField(player.FieldJerseyNumber, field.TypeString)
+		_spec.ClearField(player.FieldJerseyNumber, field.TypeInt)
 	}
 	if value, ok := _u.mutation.ProfileImageURL(); ok {
 		_spec.SetField(player.FieldProfileImageURL, field.TypeString, value)
@@ -791,16 +791,23 @@ func (_u *PlayerUpdateOne) ClearDateOfBirth() *PlayerUpdateOne {
 }
 
 // SetJerseyNumber sets the "jersey_number" field.
-func (_u *PlayerUpdateOne) SetJerseyNumber(v string) *PlayerUpdateOne {
+func (_u *PlayerUpdateOne) SetJerseyNumber(v int) *PlayerUpdateOne {
+	_u.mutation.ResetJerseyNumber()
 	_u.mutation.SetJerseyNumber(v)
 	return _u
 }
 
 // SetNillableJerseyNumber sets the "jersey_number" field if the given value is not nil.
-func (_u *PlayerUpdateOne) SetNillableJerseyNumber(v *string) *PlayerUpdateOne {
+func (_u *PlayerUpdateOne) SetNillableJerseyNumber(v *int) *PlayerUpdateOne {
 	if v != nil {
 		_u.SetJerseyNumber(*v)
 	}
+	return _u
+}
+
+// AddJerseyNumber adds value to the "jersey_number" field.
+func (_u *PlayerUpdateOne) AddJerseyNumber(v int) *PlayerUpdateOne {
+	_u.mutation.AddJerseyNumber(v)
 	return _u
 }
 
@@ -1064,19 +1071,9 @@ func (_u *PlayerUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Player.name": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Email(); ok {
-		if err := player.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Player.email": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Gender(); ok {
 		if err := player.GenderValidator(v); err != nil {
 			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Player.gender": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.JerseyNumber(); ok {
-		if err := player.JerseyNumberValidator(v); err != nil {
-			return &ValidationError{Name: "jersey_number", err: fmt.Errorf(`ent: validator failed for field "Player.jersey_number": %w`, err)}
 		}
 	}
 	if _u.mutation.TeamCleared() && len(_u.mutation.TeamIDs()) > 0 {
@@ -1142,10 +1139,13 @@ func (_u *PlayerUpdateOne) sqlSave(ctx context.Context) (_node *Player, err erro
 		_spec.ClearField(player.FieldDateOfBirth, field.TypeTime)
 	}
 	if value, ok := _u.mutation.JerseyNumber(); ok {
-		_spec.SetField(player.FieldJerseyNumber, field.TypeString, value)
+		_spec.SetField(player.FieldJerseyNumber, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedJerseyNumber(); ok {
+		_spec.AddField(player.FieldJerseyNumber, field.TypeInt, value)
 	}
 	if _u.mutation.JerseyNumberCleared() {
-		_spec.ClearField(player.FieldJerseyNumber, field.TypeString)
+		_spec.ClearField(player.FieldJerseyNumber, field.TypeInt)
 	}
 	if value, ok := _u.mutation.ProfileImageURL(); ok {
 		_spec.SetField(player.FieldProfileImageURL, field.TypeString, value)

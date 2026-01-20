@@ -14,6 +14,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
 	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/predicate"
@@ -220,6 +221,21 @@ func (_u *EventUpdate) AddDivisionPools(v ...*DivisionPool) *EventUpdate {
 	return _u.AddDivisionPoolIDs(ids...)
 }
 
+// AddReconciliationIDs adds the "reconciliations" edge to the EventReconciliation entity by IDs.
+func (_u *EventUpdate) AddReconciliationIDs(ids ...uuid.UUID) *EventUpdate {
+	_u.mutation.AddReconciliationIDs(ids...)
+	return _u
+}
+
+// AddReconciliations adds the "reconciliations" edges to the EventReconciliation entity.
+func (_u *EventUpdate) AddReconciliations(v ...*EventReconciliation) *EventUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddReconciliationIDs(ids...)
+}
+
 // AddGameRoundIDs adds the "game_rounds" edge to the GameRound entity by IDs.
 func (_u *EventUpdate) AddGameRoundIDs(ids ...uuid.UUID) *EventUpdate {
 	_u.mutation.AddGameRoundIDs(ids...)
@@ -286,6 +302,27 @@ func (_u *EventUpdate) RemoveDivisionPools(v ...*DivisionPool) *EventUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveDivisionPoolIDs(ids...)
+}
+
+// ClearReconciliations clears all "reconciliations" edges to the EventReconciliation entity.
+func (_u *EventUpdate) ClearReconciliations() *EventUpdate {
+	_u.mutation.ClearReconciliations()
+	return _u
+}
+
+// RemoveReconciliationIDs removes the "reconciliations" edge to EventReconciliation entities by IDs.
+func (_u *EventUpdate) RemoveReconciliationIDs(ids ...uuid.UUID) *EventUpdate {
+	_u.mutation.RemoveReconciliationIDs(ids...)
+	return _u
+}
+
+// RemoveReconciliations removes "reconciliations" edges to EventReconciliation entities.
+func (_u *EventUpdate) RemoveReconciliations(v ...*EventReconciliation) *EventUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveReconciliationIDs(ids...)
 }
 
 // ClearGameRounds clears all "game_rounds" edges to the GameRound entity.
@@ -542,6 +579,51 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ReconciliationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.ReconciliationsTable,
+			Columns: []string{event.ReconciliationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(eventreconciliation.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedReconciliationsIDs(); len(nodes) > 0 && !_u.mutation.ReconciliationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.ReconciliationsTable,
+			Columns: []string{event.ReconciliationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(eventreconciliation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ReconciliationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.ReconciliationsTable,
+			Columns: []string{event.ReconciliationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(eventreconciliation.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -845,6 +927,21 @@ func (_u *EventUpdateOne) AddDivisionPools(v ...*DivisionPool) *EventUpdateOne {
 	return _u.AddDivisionPoolIDs(ids...)
 }
 
+// AddReconciliationIDs adds the "reconciliations" edge to the EventReconciliation entity by IDs.
+func (_u *EventUpdateOne) AddReconciliationIDs(ids ...uuid.UUID) *EventUpdateOne {
+	_u.mutation.AddReconciliationIDs(ids...)
+	return _u
+}
+
+// AddReconciliations adds the "reconciliations" edges to the EventReconciliation entity.
+func (_u *EventUpdateOne) AddReconciliations(v ...*EventReconciliation) *EventUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddReconciliationIDs(ids...)
+}
+
 // AddGameRoundIDs adds the "game_rounds" edge to the GameRound entity by IDs.
 func (_u *EventUpdateOne) AddGameRoundIDs(ids ...uuid.UUID) *EventUpdateOne {
 	_u.mutation.AddGameRoundIDs(ids...)
@@ -911,6 +1008,27 @@ func (_u *EventUpdateOne) RemoveDivisionPools(v ...*DivisionPool) *EventUpdateOn
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveDivisionPoolIDs(ids...)
+}
+
+// ClearReconciliations clears all "reconciliations" edges to the EventReconciliation entity.
+func (_u *EventUpdateOne) ClearReconciliations() *EventUpdateOne {
+	_u.mutation.ClearReconciliations()
+	return _u
+}
+
+// RemoveReconciliationIDs removes the "reconciliations" edge to EventReconciliation entities by IDs.
+func (_u *EventUpdateOne) RemoveReconciliationIDs(ids ...uuid.UUID) *EventUpdateOne {
+	_u.mutation.RemoveReconciliationIDs(ids...)
+	return _u
+}
+
+// RemoveReconciliations removes "reconciliations" edges to EventReconciliation entities.
+func (_u *EventUpdateOne) RemoveReconciliations(v ...*EventReconciliation) *EventUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveReconciliationIDs(ids...)
 }
 
 // ClearGameRounds clears all "game_rounds" edges to the GameRound entity.
@@ -1197,6 +1315,51 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ReconciliationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.ReconciliationsTable,
+			Columns: []string{event.ReconciliationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(eventreconciliation.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedReconciliationsIDs(); len(nodes) > 0 && !_u.mutation.ReconciliationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.ReconciliationsTable,
+			Columns: []string{event.ReconciliationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(eventreconciliation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ReconciliationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.ReconciliationsTable,
+			Columns: []string{event.ReconciliationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(eventreconciliation.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -20,14 +21,25 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
-	// FieldName holds the string denoting the name field in the database.
-	FieldName = "name"
-	// FieldDescription holds the string denoting the description field in the database.
-	FieldDescription = "description"
-	// FieldIsActive holds the string denoting the is_active field in the database.
-	FieldIsActive = "is_active"
+	// FieldReconciledAt holds the string denoting the reconciled_at field in the database.
+	FieldReconciledAt = "reconciled_at"
+	// FieldReconciledBy holds the string denoting the reconciled_by field in the database.
+	FieldReconciledBy = "reconciled_by"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldComments holds the string denoting the comments field in the database.
+	FieldComments = "comments"
+	// EdgeEvent holds the string denoting the event edge name in mutations.
+	EdgeEvent = "event"
 	// Table holds the table name of the eventreconciliation in the database.
 	Table = "event_reconciliations"
+	// EventTable is the table that holds the event relation/edge.
+	EventTable = "event_reconciliations"
+	// EventInverseTable is the table name for the Event entity.
+	// It exists in this package in order to avoid circular dependency with the "event" package.
+	EventInverseTable = "events"
+	// EventColumn is the table column denoting the event relation/edge.
+	EventColumn = "event_reconciliations"
 )
 
 // Columns holds all SQL columns for eventreconciliation fields.
@@ -36,15 +48,27 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
-	FieldName,
-	FieldDescription,
-	FieldIsActive,
+	FieldReconciledAt,
+	FieldReconciledBy,
+	FieldStatus,
+	FieldComments,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "event_reconciliations"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"event_reconciliations",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -58,10 +82,14 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// NameValidator is a validator for the "name" field. It is called by the builders before save.
-	NameValidator func(string) error
-	// DefaultIsActive holds the default value on creation for the "is_active" field.
-	DefaultIsActive bool
+	// DefaultReconciledAt holds the default value on creation for the "reconciled_at" field.
+	DefaultReconciledAt func() time.Time
+	// ReconciledByValidator is a validator for the "reconciled_by" field. It is called by the builders before save.
+	ReconciledByValidator func(string) error
+	// DefaultStatus holds the default value on creation for the "status" field.
+	DefaultStatus string
+	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
+	StatusValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -89,17 +117,36 @@ func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
-// ByName orders the results by the name field.
-func ByName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldName, opts...).ToFunc()
+// ByReconciledAt orders the results by the reconciled_at field.
+func ByReconciledAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldReconciledAt, opts...).ToFunc()
 }
 
-// ByDescription orders the results by the description field.
-func ByDescription(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+// ByReconciledBy orders the results by the reconciled_by field.
+func ByReconciledBy(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldReconciledBy, opts...).ToFunc()
 }
 
-// ByIsActive orders the results by the is_active field.
-func ByIsActive(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldIsActive, opts...).ToFunc()
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByComments orders the results by the comments field.
+func ByComments(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldComments, opts...).ToFunc()
+}
+
+// ByEventField orders the results by event field.
+func ByEventField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newEventStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newEventStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(EventInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, EventTable, EventColumn),
+	)
 }

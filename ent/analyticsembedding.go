@@ -32,7 +32,7 @@ type AnalyticsEmbedding struct {
 	// Embedding holds the value of the "embedding" field.
 	Embedding []float32 `json:"embedding,omitempty"`
 	// Content holds the value of the "content" field.
-	Content string `json:"content,omitempty"`
+	Content *string `json:"content,omitempty"`
 	// Metadata holds the value of the "metadata" field.
 	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 	selectValues sql.SelectValues
@@ -115,7 +115,8 @@ func (_m *AnalyticsEmbedding) assignValues(columns []string, values []any) error
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field content", values[i])
 			} else if value.Valid {
-				_m.Content = value.String
+				_m.Content = new(string)
+				*_m.Content = value.String
 			}
 		case analyticsembedding.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -181,8 +182,10 @@ func (_m *AnalyticsEmbedding) String() string {
 	builder.WriteString("embedding=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Embedding))
 	builder.WriteString(", ")
-	builder.WriteString("content=")
-	builder.WriteString(_m.Content)
+	if v := _m.Content; v != nil {
+		builder.WriteString("content=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))

@@ -244,7 +244,7 @@ func (_c *AnalyticsEmbeddingCreate) createSpec() (*AnalyticsEmbedding, *sqlgraph
 	}
 	if value, ok := _c.mutation.Content(); ok {
 		_spec.SetField(analyticsembedding.FieldContent, field.TypeString, value)
-		_node.Content = value
+		_node.Content = &value
 	}
 	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(analyticsembedding.FieldMetadata, field.TypeJSON, value)

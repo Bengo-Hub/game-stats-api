@@ -1203,7 +1203,7 @@ func (m *AnalyticsEmbeddingMutation) Content() (r string, exists bool) {
 // OldContent returns the old "content" field's value of the AnalyticsEmbedding entity.
 // If the AnalyticsEmbedding object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AnalyticsEmbeddingMutation) OldContent(ctx context.Context) (v string, err error) {
+func (m *AnalyticsEmbeddingMutation) OldContent(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldContent is only allowed on UpdateOne operations")
 	}
@@ -1949,7 +1949,7 @@ func (m *ContinentMutation) Description() (r string, exists bool) {
 // OldDescription returns the old "description" field's value of the Continent entity.
 // If the Continent object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ContinentMutation) OldDescription(ctx context.Context) (v string, err error) {
+func (m *ContinentMutation) OldDescription(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
 	}
@@ -2867,7 +2867,7 @@ func (m *CountryMutation) Description() (r string, exists bool) {
 // OldDescription returns the old "description" field's value of the Country entity.
 // If the Country object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CountryMutation) OldDescription(ctx context.Context) (v string, err error) {
+func (m *CountryMutation) OldDescription(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
 	}
@@ -3843,7 +3843,7 @@ func (m *DisciplineMutation) Description() (r string, exists bool) {
 // OldDescription returns the old "description" field's value of the Discipline entity.
 // If the Discipline object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DisciplineMutation) OldDescription(ctx context.Context) (v string, err error) {
+func (m *DisciplineMutation) OldDescription(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
 	}
@@ -3892,7 +3892,7 @@ func (m *DisciplineMutation) RulesPdfURL() (r string, exists bool) {
 // OldRulesPdfURL returns the old "rules_pdf_url" field's value of the Discipline entity.
 // If the Discipline object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DisciplineMutation) OldRulesPdfURL(ctx context.Context) (v string, err error) {
+func (m *DisciplineMutation) OldRulesPdfURL(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldRulesPdfURL is only allowed on UpdateOne operations")
 	}
@@ -4797,7 +4797,7 @@ func (m *DivisionPoolMutation) MaxTeams() (r int, exists bool) {
 // OldMaxTeams returns the old "max_teams" field's value of the DivisionPool entity.
 // If the DivisionPool object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DivisionPoolMutation) OldMaxTeams(ctx context.Context) (v int, err error) {
+func (m *DivisionPoolMutation) OldMaxTeams(ctx context.Context) (v *int, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMaxTeams is only allowed on UpdateOne operations")
 	}
@@ -4915,7 +4915,7 @@ func (m *DivisionPoolMutation) Description() (r string, exists bool) {
 // OldDescription returns the old "description" field's value of the DivisionPool entity.
 // If the DivisionPool object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DivisionPoolMutation) OldDescription(ctx context.Context) (v string, err error) {
+func (m *DivisionPoolMutation) OldDescription(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
 	}
@@ -5517,38 +5517,41 @@ func (m *DivisionPoolMutation) ResetEdge(name string) error {
 // EventMutation represents an operation that mutates the Event nodes in the graph.
 type EventMutation struct {
 	config
-	op                    Op
-	typ                   string
-	id                    *uuid.UUID
-	created_at            *time.Time
-	updated_at            *time.Time
-	deleted_at            *time.Time
-	name                  *string
-	slug                  *string
-	year                  *int
-	addyear               *int
-	start_date            *time.Time
-	end_date              *time.Time
-	status                *string
-	description           *string
-	settings              *map[string]interface{}
-	clearedFields         map[string]struct{}
-	discipline            *uuid.UUID
-	cleareddiscipline     bool
-	location              *uuid.UUID
-	clearedlocation       bool
-	division_pools        map[uuid.UUID]struct{}
-	removeddivision_pools map[uuid.UUID]struct{}
-	cleareddivision_pools bool
-	game_rounds           map[uuid.UUID]struct{}
-	removedgame_rounds    map[uuid.UUID]struct{}
-	clearedgame_rounds    bool
-	managed_by            map[uuid.UUID]struct{}
-	removedmanaged_by     map[uuid.UUID]struct{}
-	clearedmanaged_by     bool
-	done                  bool
-	oldValue              func(context.Context) (*Event, error)
-	predicates            []predicate.Event
+	op                     Op
+	typ                    string
+	id                     *uuid.UUID
+	created_at             *time.Time
+	updated_at             *time.Time
+	deleted_at             *time.Time
+	name                   *string
+	slug                   *string
+	year                   *int
+	addyear                *int
+	start_date             *time.Time
+	end_date               *time.Time
+	status                 *string
+	description            *string
+	settings               *map[string]interface{}
+	clearedFields          map[string]struct{}
+	discipline             *uuid.UUID
+	cleareddiscipline      bool
+	location               *uuid.UUID
+	clearedlocation        bool
+	division_pools         map[uuid.UUID]struct{}
+	removeddivision_pools  map[uuid.UUID]struct{}
+	cleareddivision_pools  bool
+	reconciliations        map[uuid.UUID]struct{}
+	removedreconciliations map[uuid.UUID]struct{}
+	clearedreconciliations bool
+	game_rounds            map[uuid.UUID]struct{}
+	removedgame_rounds     map[uuid.UUID]struct{}
+	clearedgame_rounds     bool
+	managed_by             map[uuid.UUID]struct{}
+	removedmanaged_by      map[uuid.UUID]struct{}
+	clearedmanaged_by      bool
+	done                   bool
+	oldValue               func(context.Context) (*Event, error)
+	predicates             []predicate.Event
 }
 
 var _ ent.Mutation = (*EventMutation)(nil)
@@ -6029,7 +6032,7 @@ func (m *EventMutation) Description() (r string, exists bool) {
 // OldDescription returns the old "description" field's value of the Event entity.
 // If the Event object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *EventMutation) OldDescription(ctx context.Context) (v string, err error) {
+func (m *EventMutation) OldDescription(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
 	}
@@ -6240,6 +6243,60 @@ func (m *EventMutation) ResetDivisionPools() {
 	m.division_pools = nil
 	m.cleareddivision_pools = false
 	m.removeddivision_pools = nil
+}
+
+// AddReconciliationIDs adds the "reconciliations" edge to the EventReconciliation entity by ids.
+func (m *EventMutation) AddReconciliationIDs(ids ...uuid.UUID) {
+	if m.reconciliations == nil {
+		m.reconciliations = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.reconciliations[ids[i]] = struct{}{}
+	}
+}
+
+// ClearReconciliations clears the "reconciliations" edge to the EventReconciliation entity.
+func (m *EventMutation) ClearReconciliations() {
+	m.clearedreconciliations = true
+}
+
+// ReconciliationsCleared reports if the "reconciliations" edge to the EventReconciliation entity was cleared.
+func (m *EventMutation) ReconciliationsCleared() bool {
+	return m.clearedreconciliations
+}
+
+// RemoveReconciliationIDs removes the "reconciliations" edge to the EventReconciliation entity by IDs.
+func (m *EventMutation) RemoveReconciliationIDs(ids ...uuid.UUID) {
+	if m.removedreconciliations == nil {
+		m.removedreconciliations = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.reconciliations, ids[i])
+		m.removedreconciliations[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedReconciliations returns the removed IDs of the "reconciliations" edge to the EventReconciliation entity.
+func (m *EventMutation) RemovedReconciliationsIDs() (ids []uuid.UUID) {
+	for id := range m.removedreconciliations {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ReconciliationsIDs returns the "reconciliations" edge IDs in the mutation.
+func (m *EventMutation) ReconciliationsIDs() (ids []uuid.UUID) {
+	for id := range m.reconciliations {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetReconciliations resets all changes to the "reconciliations" edge.
+func (m *EventMutation) ResetReconciliations() {
+	m.reconciliations = nil
+	m.clearedreconciliations = false
+	m.removedreconciliations = nil
 }
 
 // AddGameRoundIDs adds the "game_rounds" edge to the GameRound entity by ids.
@@ -6689,7 +6746,7 @@ func (m *EventMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *EventMutation) AddedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.discipline != nil {
 		edges = append(edges, event.EdgeDiscipline)
 	}
@@ -6698,6 +6755,9 @@ func (m *EventMutation) AddedEdges() []string {
 	}
 	if m.division_pools != nil {
 		edges = append(edges, event.EdgeDivisionPools)
+	}
+	if m.reconciliations != nil {
+		edges = append(edges, event.EdgeReconciliations)
 	}
 	if m.game_rounds != nil {
 		edges = append(edges, event.EdgeGameRounds)
@@ -6726,6 +6786,12 @@ func (m *EventMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case event.EdgeReconciliations:
+		ids := make([]ent.Value, 0, len(m.reconciliations))
+		for id := range m.reconciliations {
+			ids = append(ids, id)
+		}
+		return ids
 	case event.EdgeGameRounds:
 		ids := make([]ent.Value, 0, len(m.game_rounds))
 		for id := range m.game_rounds {
@@ -6744,9 +6810,12 @@ func (m *EventMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *EventMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.removeddivision_pools != nil {
 		edges = append(edges, event.EdgeDivisionPools)
+	}
+	if m.removedreconciliations != nil {
+		edges = append(edges, event.EdgeReconciliations)
 	}
 	if m.removedgame_rounds != nil {
 		edges = append(edges, event.EdgeGameRounds)
@@ -6764,6 +6833,12 @@ func (m *EventMutation) RemovedIDs(name string) []ent.Value {
 	case event.EdgeDivisionPools:
 		ids := make([]ent.Value, 0, len(m.removeddivision_pools))
 		for id := range m.removeddivision_pools {
+			ids = append(ids, id)
+		}
+		return ids
+	case event.EdgeReconciliations:
+		ids := make([]ent.Value, 0, len(m.removedreconciliations))
+		for id := range m.removedreconciliations {
 			ids = append(ids, id)
 		}
 		return ids
@@ -6785,7 +6860,7 @@ func (m *EventMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *EventMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.cleareddiscipline {
 		edges = append(edges, event.EdgeDiscipline)
 	}
@@ -6794,6 +6869,9 @@ func (m *EventMutation) ClearedEdges() []string {
 	}
 	if m.cleareddivision_pools {
 		edges = append(edges, event.EdgeDivisionPools)
+	}
+	if m.clearedreconciliations {
+		edges = append(edges, event.EdgeReconciliations)
 	}
 	if m.clearedgame_rounds {
 		edges = append(edges, event.EdgeGameRounds)
@@ -6814,6 +6892,8 @@ func (m *EventMutation) EdgeCleared(name string) bool {
 		return m.clearedlocation
 	case event.EdgeDivisionPools:
 		return m.cleareddivision_pools
+	case event.EdgeReconciliations:
+		return m.clearedreconciliations
 	case event.EdgeGameRounds:
 		return m.clearedgame_rounds
 	case event.EdgeManagedBy:
@@ -6849,6 +6929,9 @@ func (m *EventMutation) ResetEdge(name string) error {
 	case event.EdgeDivisionPools:
 		m.ResetDivisionPools()
 		return nil
+	case event.EdgeReconciliations:
+		m.ResetReconciliations()
+		return nil
 	case event.EdgeGameRounds:
 		m.ResetGameRounds()
 		return nil
@@ -6868,10 +6951,13 @@ type EventReconciliationMutation struct {
 	created_at    *time.Time
 	updated_at    *time.Time
 	deleted_at    *time.Time
-	name          *string
-	description   *string
-	is_active     *bool
+	reconciled_at *time.Time
+	reconciled_by *string
+	status        *string
+	comments      *string
 	clearedFields map[string]struct{}
+	event         *uuid.UUID
+	clearedevent  bool
 	done          bool
 	oldValue      func(context.Context) (*EventReconciliation, error)
 	predicates    []predicate.EventReconciliation
@@ -7102,125 +7188,200 @@ func (m *EventReconciliationMutation) ResetDeletedAt() {
 	delete(m.clearedFields, eventreconciliation.FieldDeletedAt)
 }
 
-// SetName sets the "name" field.
-func (m *EventReconciliationMutation) SetName(s string) {
-	m.name = &s
+// SetReconciledAt sets the "reconciled_at" field.
+func (m *EventReconciliationMutation) SetReconciledAt(t time.Time) {
+	m.reconciled_at = &t
 }
 
-// Name returns the value of the "name" field in the mutation.
-func (m *EventReconciliationMutation) Name() (r string, exists bool) {
-	v := m.name
+// ReconciledAt returns the value of the "reconciled_at" field in the mutation.
+func (m *EventReconciliationMutation) ReconciledAt() (r time.Time, exists bool) {
+	v := m.reconciled_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldName returns the old "name" field's value of the EventReconciliation entity.
+// OldReconciledAt returns the old "reconciled_at" field's value of the EventReconciliation entity.
 // If the EventReconciliation object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *EventReconciliationMutation) OldName(ctx context.Context) (v string, err error) {
+func (m *EventReconciliationMutation) OldReconciledAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldName is only allowed on UpdateOne operations")
+		return v, errors.New("OldReconciledAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldName requires an ID field in the mutation")
+		return v, errors.New("OldReconciledAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldName: %w", err)
+		return v, fmt.Errorf("querying old value for OldReconciledAt: %w", err)
 	}
-	return oldValue.Name, nil
+	return oldValue.ReconciledAt, nil
 }
 
-// ResetName resets all changes to the "name" field.
-func (m *EventReconciliationMutation) ResetName() {
-	m.name = nil
+// ResetReconciledAt resets all changes to the "reconciled_at" field.
+func (m *EventReconciliationMutation) ResetReconciledAt() {
+	m.reconciled_at = nil
 }
 
-// SetDescription sets the "description" field.
-func (m *EventReconciliationMutation) SetDescription(s string) {
-	m.description = &s
+// SetReconciledBy sets the "reconciled_by" field.
+func (m *EventReconciliationMutation) SetReconciledBy(s string) {
+	m.reconciled_by = &s
 }
 
-// Description returns the value of the "description" field in the mutation.
-func (m *EventReconciliationMutation) Description() (r string, exists bool) {
-	v := m.description
+// ReconciledBy returns the value of the "reconciled_by" field in the mutation.
+func (m *EventReconciliationMutation) ReconciledBy() (r string, exists bool) {
+	v := m.reconciled_by
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldDescription returns the old "description" field's value of the EventReconciliation entity.
+// OldReconciledBy returns the old "reconciled_by" field's value of the EventReconciliation entity.
 // If the EventReconciliation object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *EventReconciliationMutation) OldDescription(ctx context.Context) (v string, err error) {
+func (m *EventReconciliationMutation) OldReconciledBy(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+		return v, errors.New("OldReconciledBy is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDescription requires an ID field in the mutation")
+		return v, errors.New("OldReconciledBy requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+		return v, fmt.Errorf("querying old value for OldReconciledBy: %w", err)
 	}
-	return oldValue.Description, nil
+	return oldValue.ReconciledBy, nil
 }
 
-// ClearDescription clears the value of the "description" field.
-func (m *EventReconciliationMutation) ClearDescription() {
-	m.description = nil
-	m.clearedFields[eventreconciliation.FieldDescription] = struct{}{}
+// ResetReconciledBy resets all changes to the "reconciled_by" field.
+func (m *EventReconciliationMutation) ResetReconciledBy() {
+	m.reconciled_by = nil
 }
 
-// DescriptionCleared returns if the "description" field was cleared in this mutation.
-func (m *EventReconciliationMutation) DescriptionCleared() bool {
-	_, ok := m.clearedFields[eventreconciliation.FieldDescription]
+// SetStatus sets the "status" field.
+func (m *EventReconciliationMutation) SetStatus(s string) {
+	m.status = &s
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *EventReconciliationMutation) Status() (r string, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the EventReconciliation entity.
+// If the EventReconciliation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EventReconciliationMutation) OldStatus(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *EventReconciliationMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetComments sets the "comments" field.
+func (m *EventReconciliationMutation) SetComments(s string) {
+	m.comments = &s
+}
+
+// Comments returns the value of the "comments" field in the mutation.
+func (m *EventReconciliationMutation) Comments() (r string, exists bool) {
+	v := m.comments
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldComments returns the old "comments" field's value of the EventReconciliation entity.
+// If the EventReconciliation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EventReconciliationMutation) OldComments(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldComments is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldComments requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldComments: %w", err)
+	}
+	return oldValue.Comments, nil
+}
+
+// ClearComments clears the value of the "comments" field.
+func (m *EventReconciliationMutation) ClearComments() {
+	m.comments = nil
+	m.clearedFields[eventreconciliation.FieldComments] = struct{}{}
+}
+
+// CommentsCleared returns if the "comments" field was cleared in this mutation.
+func (m *EventReconciliationMutation) CommentsCleared() bool {
+	_, ok := m.clearedFields[eventreconciliation.FieldComments]
 	return ok
 }
 
-// ResetDescription resets all changes to the "description" field.
-func (m *EventReconciliationMutation) ResetDescription() {
-	m.description = nil
-	delete(m.clearedFields, eventreconciliation.FieldDescription)
+// ResetComments resets all changes to the "comments" field.
+func (m *EventReconciliationMutation) ResetComments() {
+	m.comments = nil
+	delete(m.clearedFields, eventreconciliation.FieldComments)
 }
 
-// SetIsActive sets the "is_active" field.
-func (m *EventReconciliationMutation) SetIsActive(b bool) {
-	m.is_active = &b
+// SetEventID sets the "event" edge to the Event entity by id.
+func (m *EventReconciliationMutation) SetEventID(id uuid.UUID) {
+	m.event = &id
 }
 
-// IsActive returns the value of the "is_active" field in the mutation.
-func (m *EventReconciliationMutation) IsActive() (r bool, exists bool) {
-	v := m.is_active
-	if v == nil {
-		return
-	}
-	return *v, true
+// ClearEvent clears the "event" edge to the Event entity.
+func (m *EventReconciliationMutation) ClearEvent() {
+	m.clearedevent = true
 }
 
-// OldIsActive returns the old "is_active" field's value of the EventReconciliation entity.
-// If the EventReconciliation object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *EventReconciliationMutation) OldIsActive(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIsActive is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIsActive requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIsActive: %w", err)
-	}
-	return oldValue.IsActive, nil
+// EventCleared reports if the "event" edge to the Event entity was cleared.
+func (m *EventReconciliationMutation) EventCleared() bool {
+	return m.clearedevent
 }
 
-// ResetIsActive resets all changes to the "is_active" field.
-func (m *EventReconciliationMutation) ResetIsActive() {
-	m.is_active = nil
+// EventID returns the "event" edge ID in the mutation.
+func (m *EventReconciliationMutation) EventID() (id uuid.UUID, exists bool) {
+	if m.event != nil {
+		return *m.event, true
+	}
+	return
+}
+
+// EventIDs returns the "event" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// EventID instead. It exists only for internal usage by the builders.
+func (m *EventReconciliationMutation) EventIDs() (ids []uuid.UUID) {
+	if id := m.event; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetEvent resets all changes to the "event" edge.
+func (m *EventReconciliationMutation) ResetEvent() {
+	m.event = nil
+	m.clearedevent = false
 }
 
 // Where appends a list predicates to the EventReconciliationMutation builder.
@@ -7257,7 +7418,7 @@ func (m *EventReconciliationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *EventReconciliationMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, eventreconciliation.FieldCreatedAt)
 	}
@@ -7267,14 +7428,17 @@ func (m *EventReconciliationMutation) Fields() []string {
 	if m.deleted_at != nil {
 		fields = append(fields, eventreconciliation.FieldDeletedAt)
 	}
-	if m.name != nil {
-		fields = append(fields, eventreconciliation.FieldName)
+	if m.reconciled_at != nil {
+		fields = append(fields, eventreconciliation.FieldReconciledAt)
 	}
-	if m.description != nil {
-		fields = append(fields, eventreconciliation.FieldDescription)
+	if m.reconciled_by != nil {
+		fields = append(fields, eventreconciliation.FieldReconciledBy)
 	}
-	if m.is_active != nil {
-		fields = append(fields, eventreconciliation.FieldIsActive)
+	if m.status != nil {
+		fields = append(fields, eventreconciliation.FieldStatus)
+	}
+	if m.comments != nil {
+		fields = append(fields, eventreconciliation.FieldComments)
 	}
 	return fields
 }
@@ -7290,12 +7454,14 @@ func (m *EventReconciliationMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case eventreconciliation.FieldDeletedAt:
 		return m.DeletedAt()
-	case eventreconciliation.FieldName:
-		return m.Name()
-	case eventreconciliation.FieldDescription:
-		return m.Description()
-	case eventreconciliation.FieldIsActive:
-		return m.IsActive()
+	case eventreconciliation.FieldReconciledAt:
+		return m.ReconciledAt()
+	case eventreconciliation.FieldReconciledBy:
+		return m.ReconciledBy()
+	case eventreconciliation.FieldStatus:
+		return m.Status()
+	case eventreconciliation.FieldComments:
+		return m.Comments()
 	}
 	return nil, false
 }
@@ -7311,12 +7477,14 @@ func (m *EventReconciliationMutation) OldField(ctx context.Context, name string)
 		return m.OldUpdatedAt(ctx)
 	case eventreconciliation.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
-	case eventreconciliation.FieldName:
-		return m.OldName(ctx)
-	case eventreconciliation.FieldDescription:
-		return m.OldDescription(ctx)
-	case eventreconciliation.FieldIsActive:
-		return m.OldIsActive(ctx)
+	case eventreconciliation.FieldReconciledAt:
+		return m.OldReconciledAt(ctx)
+	case eventreconciliation.FieldReconciledBy:
+		return m.OldReconciledBy(ctx)
+	case eventreconciliation.FieldStatus:
+		return m.OldStatus(ctx)
+	case eventreconciliation.FieldComments:
+		return m.OldComments(ctx)
 	}
 	return nil, fmt.Errorf("unknown EventReconciliation field %s", name)
 }
@@ -7347,26 +7515,33 @@ func (m *EventReconciliationMutation) SetField(name string, value ent.Value) err
 		}
 		m.SetDeletedAt(v)
 		return nil
-	case eventreconciliation.FieldName:
+	case eventreconciliation.FieldReconciledAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReconciledAt(v)
+		return nil
+	case eventreconciliation.FieldReconciledBy:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetName(v)
+		m.SetReconciledBy(v)
 		return nil
-	case eventreconciliation.FieldDescription:
+	case eventreconciliation.FieldStatus:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDescription(v)
+		m.SetStatus(v)
 		return nil
-	case eventreconciliation.FieldIsActive:
-		v, ok := value.(bool)
+	case eventreconciliation.FieldComments:
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetIsActive(v)
+		m.SetComments(v)
 		return nil
 	}
 	return fmt.Errorf("unknown EventReconciliation field %s", name)
@@ -7401,8 +7576,8 @@ func (m *EventReconciliationMutation) ClearedFields() []string {
 	if m.FieldCleared(eventreconciliation.FieldDeletedAt) {
 		fields = append(fields, eventreconciliation.FieldDeletedAt)
 	}
-	if m.FieldCleared(eventreconciliation.FieldDescription) {
-		fields = append(fields, eventreconciliation.FieldDescription)
+	if m.FieldCleared(eventreconciliation.FieldComments) {
+		fields = append(fields, eventreconciliation.FieldComments)
 	}
 	return fields
 }
@@ -7421,8 +7596,8 @@ func (m *EventReconciliationMutation) ClearField(name string) error {
 	case eventreconciliation.FieldDeletedAt:
 		m.ClearDeletedAt()
 		return nil
-	case eventreconciliation.FieldDescription:
-		m.ClearDescription()
+	case eventreconciliation.FieldComments:
+		m.ClearComments()
 		return nil
 	}
 	return fmt.Errorf("unknown EventReconciliation nullable field %s", name)
@@ -7441,14 +7616,17 @@ func (m *EventReconciliationMutation) ResetField(name string) error {
 	case eventreconciliation.FieldDeletedAt:
 		m.ResetDeletedAt()
 		return nil
-	case eventreconciliation.FieldName:
-		m.ResetName()
+	case eventreconciliation.FieldReconciledAt:
+		m.ResetReconciledAt()
 		return nil
-	case eventreconciliation.FieldDescription:
-		m.ResetDescription()
+	case eventreconciliation.FieldReconciledBy:
+		m.ResetReconciledBy()
 		return nil
-	case eventreconciliation.FieldIsActive:
-		m.ResetIsActive()
+	case eventreconciliation.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case eventreconciliation.FieldComments:
+		m.ResetComments()
 		return nil
 	}
 	return fmt.Errorf("unknown EventReconciliation field %s", name)
@@ -7456,19 +7634,28 @@ func (m *EventReconciliationMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *EventReconciliationMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.event != nil {
+		edges = append(edges, eventreconciliation.EdgeEvent)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *EventReconciliationMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case eventreconciliation.EdgeEvent:
+		if id := m.event; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *EventReconciliationMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
@@ -7480,25 +7667,42 @@ func (m *EventReconciliationMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *EventReconciliationMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedevent {
+		edges = append(edges, eventreconciliation.EdgeEvent)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *EventReconciliationMutation) EdgeCleared(name string) bool {
+	switch name {
+	case eventreconciliation.EdgeEvent:
+		return m.clearedevent
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *EventReconciliationMutation) ClearEdge(name string) error {
+	switch name {
+	case eventreconciliation.EdgeEvent:
+		m.ClearEvent()
+		return nil
+	}
 	return fmt.Errorf("unknown EventReconciliation unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *EventReconciliationMutation) ResetEdge(name string) error {
+	switch name {
+	case eventreconciliation.EdgeEvent:
+		m.ResetEvent()
+		return nil
+	}
 	return fmt.Errorf("unknown EventReconciliation edge %s", name)
 }
 
@@ -7806,7 +8010,7 @@ func (m *FieldMutation) Capacity() (r int, exists bool) {
 // OldCapacity returns the old "capacity" field's value of the Field entity.
 // If the Field object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FieldMutation) OldCapacity(ctx context.Context) (v int, err error) {
+func (m *FieldMutation) OldCapacity(ctx context.Context) (v *int, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCapacity is only allowed on UpdateOne operations")
 	}
@@ -7875,7 +8079,7 @@ func (m *FieldMutation) SurfaceType() (r string, exists bool) {
 // OldSurfaceType returns the old "surface_type" field's value of the Field entity.
 // If the Field object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FieldMutation) OldSurfaceType(ctx context.Context) (v string, err error) {
+func (m *FieldMutation) OldSurfaceType(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSurfaceType is only allowed on UpdateOne operations")
 	}
@@ -8461,8 +8665,8 @@ type GameMutation struct {
 	clearedaway_team          bool
 	division_pool             *uuid.UUID
 	cleareddivision_pool      bool
-	field                     *uuid.UUID
-	clearedfield              bool
+	field_location            *uuid.UUID
+	clearedfield_location     bool
 	scorekeeper               *uuid.UUID
 	clearedscorekeeper        bool
 	scores                    map[uuid.UUID]struct{}
@@ -9444,43 +9648,43 @@ func (m *GameMutation) ResetDivisionPool() {
 	m.cleareddivision_pool = false
 }
 
-// SetFieldID sets the "field" edge to the Field entity by id.
-func (m *GameMutation) SetFieldID(id uuid.UUID) {
-	m.field = &id
+// SetFieldLocationID sets the "field_location" edge to the Field entity by id.
+func (m *GameMutation) SetFieldLocationID(id uuid.UUID) {
+	m.field_location = &id
 }
 
-// ClearFieldEdge clears the "field" edge to the Field entity.
-func (m *GameMutation) ClearFieldEdge() {
-	m.clearedfield = true
+// ClearFieldLocation clears the "field_location" edge to the Field entity.
+func (m *GameMutation) ClearFieldLocation() {
+	m.clearedfield_location = true
 }
 
-// FieldEdgeCleared reports if the "field" edge to the Field entity was cleared.
-func (m *GameMutation) FieldEdgeCleared() bool {
-	return m.clearedfield
+// FieldLocationCleared reports if the "field_location" edge to the Field entity was cleared.
+func (m *GameMutation) FieldLocationCleared() bool {
+	return m.clearedfield_location
 }
 
-// FieldID returns the "field" edge ID in the mutation.
-func (m *GameMutation) FieldID() (id uuid.UUID, exists bool) {
-	if m.field != nil {
-		return *m.field, true
+// FieldLocationID returns the "field_location" edge ID in the mutation.
+func (m *GameMutation) FieldLocationID() (id uuid.UUID, exists bool) {
+	if m.field_location != nil {
+		return *m.field_location, true
 	}
 	return
 }
 
-// FieldIDs returns the "field" edge IDs in the mutation.
+// FieldLocationIDs returns the "field_location" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// FieldID instead. It exists only for internal usage by the builders.
-func (m *GameMutation) FieldIDs() (ids []uuid.UUID) {
-	if id := m.field; id != nil {
+// FieldLocationID instead. It exists only for internal usage by the builders.
+func (m *GameMutation) FieldLocationIDs() (ids []uuid.UUID) {
+	if id := m.field_location; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetFieldEdge resets all changes to the "field" edge.
-func (m *GameMutation) ResetFieldEdge() {
-	m.field = nil
-	m.clearedfield = false
+// ResetFieldLocation resets all changes to the "field_location" edge.
+func (m *GameMutation) ResetFieldLocation() {
+	m.field_location = nil
+	m.clearedfield_location = false
 }
 
 // SetScorekeeperID sets the "scorekeeper" edge to the User entity by id.
@@ -10164,8 +10368,8 @@ func (m *GameMutation) AddedEdges() []string {
 	if m.division_pool != nil {
 		edges = append(edges, game.EdgeDivisionPool)
 	}
-	if m.field != nil {
-		edges = append(edges, game.EdgeField)
+	if m.field_location != nil {
+		edges = append(edges, game.EdgeFieldLocation)
 	}
 	if m.scorekeeper != nil {
 		edges = append(edges, game.EdgeScorekeeper)
@@ -10202,8 +10406,8 @@ func (m *GameMutation) AddedIDs(name string) []ent.Value {
 		if id := m.division_pool; id != nil {
 			return []ent.Value{*id}
 		}
-	case game.EdgeField:
-		if id := m.field; id != nil {
+	case game.EdgeFieldLocation:
+		if id := m.field_location; id != nil {
 			return []ent.Value{*id}
 		}
 	case game.EdgeScorekeeper:
@@ -10288,8 +10492,8 @@ func (m *GameMutation) ClearedEdges() []string {
 	if m.cleareddivision_pool {
 		edges = append(edges, game.EdgeDivisionPool)
 	}
-	if m.clearedfield {
-		edges = append(edges, game.EdgeField)
+	if m.clearedfield_location {
+		edges = append(edges, game.EdgeFieldLocation)
 	}
 	if m.clearedscorekeeper {
 		edges = append(edges, game.EdgeScorekeeper)
@@ -10318,8 +10522,8 @@ func (m *GameMutation) EdgeCleared(name string) bool {
 		return m.clearedaway_team
 	case game.EdgeDivisionPool:
 		return m.cleareddivision_pool
-	case game.EdgeField:
-		return m.clearedfield
+	case game.EdgeFieldLocation:
+		return m.clearedfield_location
 	case game.EdgeScorekeeper:
 		return m.clearedscorekeeper
 	case game.EdgeScores:
@@ -10348,8 +10552,8 @@ func (m *GameMutation) ClearEdge(name string) error {
 	case game.EdgeDivisionPool:
 		m.ClearDivisionPool()
 		return nil
-	case game.EdgeField:
-		m.ClearFieldEdge()
+	case game.EdgeFieldLocation:
+		m.ClearFieldLocation()
 		return nil
 	case game.EdgeScorekeeper:
 		m.ClearScorekeeper()
@@ -10374,8 +10578,8 @@ func (m *GameMutation) ResetEdge(name string) error {
 	case game.EdgeDivisionPool:
 		m.ResetDivisionPool()
 		return nil
-	case game.EdgeField:
-		m.ResetFieldEdge()
+	case game.EdgeFieldLocation:
+		m.ResetFieldLocation()
 		return nil
 	case game.EdgeScorekeeper:
 		m.ResetScorekeeper()
@@ -12558,7 +12762,7 @@ func (m *LocationMutation) Address() (r string, exists bool) {
 // OldAddress returns the old "address" field's value of the Location entity.
 // If the Location object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LocationMutation) OldAddress(ctx context.Context) (v string, err error) {
+func (m *LocationMutation) OldAddress(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldAddress is only allowed on UpdateOne operations")
 	}
@@ -12607,7 +12811,7 @@ func (m *LocationMutation) City() (r string, exists bool) {
 // OldCity returns the old "city" field's value of the Location entity.
 // If the Location object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LocationMutation) OldCity(ctx context.Context) (v string, err error) {
+func (m *LocationMutation) OldCity(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCity is only allowed on UpdateOne operations")
 	}
@@ -12657,7 +12861,7 @@ func (m *LocationMutation) Latitude() (r float64, exists bool) {
 // OldLatitude returns the old "latitude" field's value of the Location entity.
 // If the Location object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LocationMutation) OldLatitude(ctx context.Context) (v float64, err error) {
+func (m *LocationMutation) OldLatitude(ctx context.Context) (v *float64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldLatitude is only allowed on UpdateOne operations")
 	}
@@ -12727,7 +12931,7 @@ func (m *LocationMutation) Longitude() (r float64, exists bool) {
 // OldLongitude returns the old "longitude" field's value of the Location entity.
 // If the Location object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LocationMutation) OldLongitude(ctx context.Context) (v float64, err error) {
+func (m *LocationMutation) OldLongitude(ctx context.Context) (v *float64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldLongitude is only allowed on UpdateOne operations")
 	}
@@ -12796,7 +13000,7 @@ func (m *LocationMutation) Description() (r string, exists bool) {
 // OldDescription returns the old "description" field's value of the Location entity.
 // If the Location object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LocationMutation) OldDescription(ctx context.Context) (v string, err error) {
+func (m *LocationMutation) OldDescription(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
 	}
@@ -14058,7 +14262,8 @@ type PlayerMutation struct {
 	email                     *string
 	gender                    *string
 	date_of_birth             *time.Time
-	jersey_number             *string
+	jersey_number             *int
+	addjersey_number          *int
 	profile_image_url         *string
 	metadata                  *map[string]interface{}
 	clearedFields             map[string]struct{}
@@ -14359,7 +14564,7 @@ func (m *PlayerMutation) Email() (r string, exists bool) {
 // OldEmail returns the old "email" field's value of the Player entity.
 // If the Player object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlayerMutation) OldEmail(ctx context.Context) (v string, err error) {
+func (m *PlayerMutation) OldEmail(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldEmail is only allowed on UpdateOne operations")
 	}
@@ -14444,7 +14649,7 @@ func (m *PlayerMutation) DateOfBirth() (r time.Time, exists bool) {
 // OldDateOfBirth returns the old "date_of_birth" field's value of the Player entity.
 // If the Player object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlayerMutation) OldDateOfBirth(ctx context.Context) (v time.Time, err error) {
+func (m *PlayerMutation) OldDateOfBirth(ctx context.Context) (v *time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDateOfBirth is only allowed on UpdateOne operations")
 	}
@@ -14477,12 +14682,13 @@ func (m *PlayerMutation) ResetDateOfBirth() {
 }
 
 // SetJerseyNumber sets the "jersey_number" field.
-func (m *PlayerMutation) SetJerseyNumber(s string) {
-	m.jersey_number = &s
+func (m *PlayerMutation) SetJerseyNumber(i int) {
+	m.jersey_number = &i
+	m.addjersey_number = nil
 }
 
 // JerseyNumber returns the value of the "jersey_number" field in the mutation.
-func (m *PlayerMutation) JerseyNumber() (r string, exists bool) {
+func (m *PlayerMutation) JerseyNumber() (r int, exists bool) {
 	v := m.jersey_number
 	if v == nil {
 		return
@@ -14493,7 +14699,7 @@ func (m *PlayerMutation) JerseyNumber() (r string, exists bool) {
 // OldJerseyNumber returns the old "jersey_number" field's value of the Player entity.
 // If the Player object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlayerMutation) OldJerseyNumber(ctx context.Context) (v string, err error) {
+func (m *PlayerMutation) OldJerseyNumber(ctx context.Context) (v *int, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldJerseyNumber is only allowed on UpdateOne operations")
 	}
@@ -14507,9 +14713,28 @@ func (m *PlayerMutation) OldJerseyNumber(ctx context.Context) (v string, err err
 	return oldValue.JerseyNumber, nil
 }
 
+// AddJerseyNumber adds i to the "jersey_number" field.
+func (m *PlayerMutation) AddJerseyNumber(i int) {
+	if m.addjersey_number != nil {
+		*m.addjersey_number += i
+	} else {
+		m.addjersey_number = &i
+	}
+}
+
+// AddedJerseyNumber returns the value that was added to the "jersey_number" field in this mutation.
+func (m *PlayerMutation) AddedJerseyNumber() (r int, exists bool) {
+	v := m.addjersey_number
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
 // ClearJerseyNumber clears the value of the "jersey_number" field.
 func (m *PlayerMutation) ClearJerseyNumber() {
 	m.jersey_number = nil
+	m.addjersey_number = nil
 	m.clearedFields[player.FieldJerseyNumber] = struct{}{}
 }
 
@@ -14522,6 +14747,7 @@ func (m *PlayerMutation) JerseyNumberCleared() bool {
 // ResetJerseyNumber resets all changes to the "jersey_number" field.
 func (m *PlayerMutation) ResetJerseyNumber() {
 	m.jersey_number = nil
+	m.addjersey_number = nil
 	delete(m.clearedFields, player.FieldJerseyNumber)
 }
 
@@ -14542,7 +14768,7 @@ func (m *PlayerMutation) ProfileImageURL() (r string, exists bool) {
 // OldProfileImageURL returns the old "profile_image_url" field's value of the Player entity.
 // If the Player object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlayerMutation) OldProfileImageURL(ctx context.Context) (v string, err error) {
+func (m *PlayerMutation) OldProfileImageURL(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldProfileImageURL is only allowed on UpdateOne operations")
 	}
@@ -15059,7 +15285,7 @@ func (m *PlayerMutation) SetField(name string, value ent.Value) error {
 		m.SetDateOfBirth(v)
 		return nil
 	case player.FieldJerseyNumber:
-		v, ok := value.(string)
+		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -15086,13 +15312,21 @@ func (m *PlayerMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *PlayerMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addjersey_number != nil {
+		fields = append(fields, player.FieldJerseyNumber)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *PlayerMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case player.FieldJerseyNumber:
+		return m.AddedJerseyNumber()
+	}
 	return nil, false
 }
 
@@ -15101,6 +15335,13 @@ func (m *PlayerMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *PlayerMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case player.FieldJerseyNumber:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddJerseyNumber(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Player numeric field %s", name)
 }
@@ -17481,7 +17722,7 @@ func (m *SpiritScoreMutation) Comments() (r string, exists bool) {
 // OldComments returns the old "comments" field's value of the SpiritScore entity.
 // If the SpiritScore object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SpiritScoreMutation) OldComments(ctx context.Context) (v string, err error) {
+func (m *SpiritScoreMutation) OldComments(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldComments is only allowed on UpdateOne operations")
 	}
@@ -18627,7 +18868,7 @@ func (m *TeamMutation) InitialSeed() (r int, exists bool) {
 // OldInitialSeed returns the old "initial_seed" field's value of the Team entity.
 // If the Team object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeamMutation) OldInitialSeed(ctx context.Context) (v int, err error) {
+func (m *TeamMutation) OldInitialSeed(ctx context.Context) (v *int, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldInitialSeed is only allowed on UpdateOne operations")
 	}
@@ -18697,7 +18938,7 @@ func (m *TeamMutation) FinalPlacement() (r int, exists bool) {
 // OldFinalPlacement returns the old "final_placement" field's value of the Team entity.
 // If the Team object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeamMutation) OldFinalPlacement(ctx context.Context) (v int, err error) {
+func (m *TeamMutation) OldFinalPlacement(ctx context.Context) (v *int, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldFinalPlacement is only allowed on UpdateOne operations")
 	}
@@ -18766,7 +19007,7 @@ func (m *TeamMutation) LogoURL() (r string, exists bool) {
 // OldLogoURL returns the old "logo_url" field's value of the Team entity.
 // If the Team object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeamMutation) OldLogoURL(ctx context.Context) (v string, err error) {
+func (m *TeamMutation) OldLogoURL(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldLogoURL is only allowed on UpdateOne operations")
 	}
@@ -19820,7 +20061,8 @@ type UserMutation struct {
 	deleted_at                     *time.Time
 	email                          *string
 	password_hash                  *string
-	full_name                      *string
+	name                           *string
+	avatar_url                     *string
 	role                           *string
 	is_active                      *bool
 	last_login_at                  *time.Time
@@ -20143,40 +20385,89 @@ func (m *UserMutation) ResetPasswordHash() {
 	m.password_hash = nil
 }
 
-// SetFullName sets the "full_name" field.
-func (m *UserMutation) SetFullName(s string) {
-	m.full_name = &s
+// SetName sets the "name" field.
+func (m *UserMutation) SetName(s string) {
+	m.name = &s
 }
 
-// FullName returns the value of the "full_name" field in the mutation.
-func (m *UserMutation) FullName() (r string, exists bool) {
-	v := m.full_name
+// Name returns the value of the "name" field in the mutation.
+func (m *UserMutation) Name() (r string, exists bool) {
+	v := m.name
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldFullName returns the old "full_name" field's value of the User entity.
+// OldName returns the old "name" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldFullName(ctx context.Context) (v string, err error) {
+func (m *UserMutation) OldName(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldFullName is only allowed on UpdateOne operations")
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldFullName requires an ID field in the mutation")
+		return v, errors.New("OldName requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldFullName: %w", err)
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
 	}
-	return oldValue.FullName, nil
+	return oldValue.Name, nil
 }
 
-// ResetFullName resets all changes to the "full_name" field.
-func (m *UserMutation) ResetFullName() {
-	m.full_name = nil
+// ResetName resets all changes to the "name" field.
+func (m *UserMutation) ResetName() {
+	m.name = nil
+}
+
+// SetAvatarURL sets the "avatar_url" field.
+func (m *UserMutation) SetAvatarURL(s string) {
+	m.avatar_url = &s
+}
+
+// AvatarURL returns the value of the "avatar_url" field in the mutation.
+func (m *UserMutation) AvatarURL() (r string, exists bool) {
+	v := m.avatar_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAvatarURL returns the old "avatar_url" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldAvatarURL(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAvatarURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAvatarURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAvatarURL: %w", err)
+	}
+	return oldValue.AvatarURL, nil
+}
+
+// ClearAvatarURL clears the value of the "avatar_url" field.
+func (m *UserMutation) ClearAvatarURL() {
+	m.avatar_url = nil
+	m.clearedFields[user.FieldAvatarURL] = struct{}{}
+}
+
+// AvatarURLCleared returns if the "avatar_url" field was cleared in this mutation.
+func (m *UserMutation) AvatarURLCleared() bool {
+	_, ok := m.clearedFields[user.FieldAvatarURL]
+	return ok
+}
+
+// ResetAvatarURL resets all changes to the "avatar_url" field.
+func (m *UserMutation) ResetAvatarURL() {
+	m.avatar_url = nil
+	delete(m.clearedFields, user.FieldAvatarURL)
 }
 
 // SetRole sets the "role" field.
@@ -20637,7 +20928,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
@@ -20653,8 +20944,11 @@ func (m *UserMutation) Fields() []string {
 	if m.password_hash != nil {
 		fields = append(fields, user.FieldPasswordHash)
 	}
-	if m.full_name != nil {
-		fields = append(fields, user.FieldFullName)
+	if m.name != nil {
+		fields = append(fields, user.FieldName)
+	}
+	if m.avatar_url != nil {
+		fields = append(fields, user.FieldAvatarURL)
 	}
 	if m.role != nil {
 		fields = append(fields, user.FieldRole)
@@ -20683,8 +20977,10 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Email()
 	case user.FieldPasswordHash:
 		return m.PasswordHash()
-	case user.FieldFullName:
-		return m.FullName()
+	case user.FieldName:
+		return m.Name()
+	case user.FieldAvatarURL:
+		return m.AvatarURL()
 	case user.FieldRole:
 		return m.Role()
 	case user.FieldIsActive:
@@ -20710,8 +21006,10 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldEmail(ctx)
 	case user.FieldPasswordHash:
 		return m.OldPasswordHash(ctx)
-	case user.FieldFullName:
-		return m.OldFullName(ctx)
+	case user.FieldName:
+		return m.OldName(ctx)
+	case user.FieldAvatarURL:
+		return m.OldAvatarURL(ctx)
 	case user.FieldRole:
 		return m.OldRole(ctx)
 	case user.FieldIsActive:
@@ -20762,12 +21060,19 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPasswordHash(v)
 		return nil
-	case user.FieldFullName:
+	case user.FieldName:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetFullName(v)
+		m.SetName(v)
+		return nil
+	case user.FieldAvatarURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAvatarURL(v)
 		return nil
 	case user.FieldRole:
 		v, ok := value.(string)
@@ -20823,6 +21128,9 @@ func (m *UserMutation) ClearedFields() []string {
 	if m.FieldCleared(user.FieldDeletedAt) {
 		fields = append(fields, user.FieldDeletedAt)
 	}
+	if m.FieldCleared(user.FieldAvatarURL) {
+		fields = append(fields, user.FieldAvatarURL)
+	}
 	if m.FieldCleared(user.FieldLastLoginAt) {
 		fields = append(fields, user.FieldLastLoginAt)
 	}
@@ -20842,6 +21150,9 @@ func (m *UserMutation) ClearField(name string) error {
 	switch name {
 	case user.FieldDeletedAt:
 		m.ClearDeletedAt()
+		return nil
+	case user.FieldAvatarURL:
+		m.ClearAvatarURL()
 		return nil
 	case user.FieldLastLoginAt:
 		m.ClearLastLoginAt()
@@ -20869,8 +21180,11 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldPasswordHash:
 		m.ResetPasswordHash()
 		return nil
-	case user.FieldFullName:
-		m.ResetFullName()
+	case user.FieldName:
+		m.ResetName()
+		return nil
+	case user.FieldAvatarURL:
+		m.ResetAvatarURL()
 		return nil
 	case user.FieldRole:
 		m.ResetRole()
@@ -21420,7 +21734,7 @@ func (m *WorldMutation) Description() (r string, exists bool) {
 // OldDescription returns the old "description" field's value of the World entity.
 // If the World object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *WorldMutation) OldDescription(ctx context.Context) (v string, err error) {
+func (m *WorldMutation) OldDescription(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
 	}

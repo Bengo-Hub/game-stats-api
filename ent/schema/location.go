@@ -33,16 +33,21 @@ func (Location) Fields() []ent.Field {
 			NotEmpty(),
 		field.String("address").
 			MaxLen(500).
-			Optional(),
+			Optional().
+			Nillable(),
 		field.String("city").
 			MaxLen(100).
-			Optional(),
+			Optional().
+			Nillable(),
 		field.Float("latitude").
-			Optional(),
+			Optional().
+			Nillable(),
 		field.Float("longitude").
-			Optional(),
+			Optional().
+			Nillable(),
 		field.Text("description").
-			Optional(),
+			Optional().
+			Nillable(),
 	}
 }
 
@@ -58,5 +63,3 @@ func (Location) Edges() []ent.Edge {
 		edge.To("teams", Team.Type),
 	}
 }
-
-

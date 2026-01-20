@@ -109,13 +109,13 @@ func (_c *PlayerCreate) SetNillableDateOfBirth(v *time.Time) *PlayerCreate {
 }
 
 // SetJerseyNumber sets the "jersey_number" field.
-func (_c *PlayerCreate) SetJerseyNumber(v string) *PlayerCreate {
+func (_c *PlayerCreate) SetJerseyNumber(v int) *PlayerCreate {
 	_c.mutation.SetJerseyNumber(v)
 	return _c
 }
 
 // SetNillableJerseyNumber sets the "jersey_number" field if the given value is not nil.
-func (_c *PlayerCreate) SetNillableJerseyNumber(v *string) *PlayerCreate {
+func (_c *PlayerCreate) SetNillableJerseyNumber(v *int) *PlayerCreate {
 	if v != nil {
 		_c.SetJerseyNumber(*v)
 	}
@@ -292,22 +292,12 @@ func (_c *PlayerCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Player.name": %w`, err)}
 		}
 	}
-	if v, ok := _c.mutation.Email(); ok {
-		if err := player.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Player.email": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.Gender(); !ok {
 		return &ValidationError{Name: "gender", err: errors.New(`ent: missing required field "Player.gender"`)}
 	}
 	if v, ok := _c.mutation.Gender(); ok {
 		if err := player.GenderValidator(v); err != nil {
 			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Player.gender": %w`, err)}
-		}
-	}
-	if v, ok := _c.mutation.JerseyNumber(); ok {
-		if err := player.JerseyNumberValidator(v); err != nil {
-			return &ValidationError{Name: "jersey_number", err: fmt.Errorf(`ent: validator failed for field "Player.jersey_number": %w`, err)}
 		}
 	}
 	if len(_c.mutation.TeamIDs()) == 0 {
@@ -366,7 +356,7 @@ func (_c *PlayerCreate) createSpec() (*Player, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.Email(); ok {
 		_spec.SetField(player.FieldEmail, field.TypeString, value)
-		_node.Email = value
+		_node.Email = &value
 	}
 	if value, ok := _c.mutation.Gender(); ok {
 		_spec.SetField(player.FieldGender, field.TypeString, value)
@@ -374,15 +364,15 @@ func (_c *PlayerCreate) createSpec() (*Player, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.DateOfBirth(); ok {
 		_spec.SetField(player.FieldDateOfBirth, field.TypeTime, value)
-		_node.DateOfBirth = value
+		_node.DateOfBirth = &value
 	}
 	if value, ok := _c.mutation.JerseyNumber(); ok {
-		_spec.SetField(player.FieldJerseyNumber, field.TypeString, value)
-		_node.JerseyNumber = value
+		_spec.SetField(player.FieldJerseyNumber, field.TypeInt, value)
+		_node.JerseyNumber = &value
 	}
 	if value, ok := _c.mutation.ProfileImageURL(); ok {
 		_spec.SetField(player.FieldProfileImageURL, field.TypeString, value)
-		_node.ProfileImageURL = value
+		_node.ProfileImageURL = &value
 	}
 	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(player.FieldMetadata, field.TypeJSON, value)

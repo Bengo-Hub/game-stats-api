@@ -300,7 +300,7 @@ func (_c *DivisionPoolCreate) createSpec() (*DivisionPool, *sqlgraph.CreateSpec)
 	}
 	if value, ok := _c.mutation.MaxTeams(); ok {
 		_spec.SetField(divisionpool.FieldMaxTeams, field.TypeInt, value)
-		_node.MaxTeams = value
+		_node.MaxTeams = &value
 	}
 	if value, ok := _c.mutation.RankingCriteria(); ok {
 		_spec.SetField(divisionpool.FieldRankingCriteria, field.TypeJSON, value)
@@ -308,7 +308,7 @@ func (_c *DivisionPoolCreate) createSpec() (*DivisionPool, *sqlgraph.CreateSpec)
 	}
 	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(divisionpool.FieldDescription, field.TypeString, value)
-		_node.Description = value
+		_node.Description = &value
 	}
 	if nodes := _c.mutation.EventIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -30,9 +30,9 @@ type Discipline struct {
 	// Slug holds the value of the "slug" field.
 	Slug string `json:"slug,omitempty"`
 	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// RulesPdfURL holds the value of the "rules_pdf_url" field.
-	RulesPdfURL string `json:"rules_pdf_url,omitempty"`
+	RulesPdfURL *string `json:"rules_pdf_url,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DisciplineQuery when eager-loading is set.
 	Edges               DisciplineEdges `json:"edges"`
@@ -151,13 +151,15 @@ func (_m *Discipline) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				_m.Description = value.String
+				_m.Description = new(string)
+				*_m.Description = value.String
 			}
 		case discipline.FieldRulesPdfURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field rules_pdf_url", values[i])
 			} else if value.Valid {
-				_m.RulesPdfURL = value.String
+				_m.RulesPdfURL = new(string)
+				*_m.RulesPdfURL = value.String
 			}
 		case discipline.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -234,11 +236,15 @@ func (_m *Discipline) String() string {
 	builder.WriteString("slug=")
 	builder.WriteString(_m.Slug)
 	builder.WriteString(", ")
-	builder.WriteString("description=")
-	builder.WriteString(_m.Description)
+	if v := _m.Description; v != nil {
+		builder.WriteString("description=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
-	builder.WriteString("rules_pdf_url=")
-	builder.WriteString(_m.RulesPdfURL)
+	if v := _m.RulesPdfURL; v != nil {
+		builder.WriteString("rules_pdf_url=")
+		builder.WriteString(*v)
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

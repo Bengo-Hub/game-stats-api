@@ -29,11 +29,14 @@ func (Team) Fields() []ent.Field {
 			Unique().
 			NotEmpty(),
 		field.Int("initial_seed").
-			Optional(),
+			Optional().
+			Nillable(),
 		field.Int("final_placement").
-			Optional(),
-		field.Text("logo_url").
-			Optional(),
+			Optional().
+			Nillable(),
+		field.String("logo_url").
+			Optional().
+			Nillable(),
 		field.JSON("metadata", map[string]interface{}{}).
 			Optional(),
 	}

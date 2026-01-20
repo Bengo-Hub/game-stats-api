@@ -362,23 +362,23 @@ func (_c *LocationCreate) createSpec() (*Location, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.Address(); ok {
 		_spec.SetField(location.FieldAddress, field.TypeString, value)
-		_node.Address = value
+		_node.Address = &value
 	}
 	if value, ok := _c.mutation.City(); ok {
 		_spec.SetField(location.FieldCity, field.TypeString, value)
-		_node.City = value
+		_node.City = &value
 	}
 	if value, ok := _c.mutation.Latitude(); ok {
 		_spec.SetField(location.FieldLatitude, field.TypeFloat64, value)
-		_node.Latitude = value
+		_node.Latitude = &value
 	}
 	if value, ok := _c.mutation.Longitude(); ok {
 		_spec.SetField(location.FieldLongitude, field.TypeFloat64, value)
-		_node.Longitude = value
+		_node.Longitude = &value
 	}
 	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(location.FieldDescription, field.TypeString, value)
-		_node.Description = value
+		_node.Description = &value
 	}
 	if nodes := _c.mutation.CountryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

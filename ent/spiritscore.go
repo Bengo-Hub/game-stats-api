@@ -38,7 +38,7 @@ type SpiritScore struct {
 	// Communication holds the value of the "communication" field.
 	Communication int `json:"communication,omitempty"`
 	// Comments holds the value of the "comments" field.
-	Comments string `json:"comments,omitempty"`
+	Comments *string `json:"comments,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SpiritScoreQuery when eager-loading is set.
 	Edges                        SpiritScoreEdges `json:"edges"`
@@ -225,7 +225,8 @@ func (_m *SpiritScore) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field comments", values[i])
 			} else if value.Valid {
-				_m.Comments = value.String
+				_m.Comments = new(string)
+				*_m.Comments = value.String
 			}
 		case spiritscore.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -347,8 +348,10 @@ func (_m *SpiritScore) String() string {
 	builder.WriteString("communication=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Communication))
 	builder.WriteString(", ")
-	builder.WriteString("comments=")
-	builder.WriteString(_m.Comments)
+	if v := _m.Comments; v != nil {
+		builder.WriteString("comments=")
+		builder.WriteString(*v)
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }
