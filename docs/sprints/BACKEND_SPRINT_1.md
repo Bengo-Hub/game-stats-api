@@ -22,14 +22,14 @@
 ### Week 1: Project Initialization
 
 #### Day 1-2: Project Setup
-- [ ] Initialize Go module (`go mod init`)
-- [ ] Create project directory structure
+- [x] Initialize Go module (`go mod init`)
+- [x] Create project directory structure
   - cmd/api
   - internal/{domain,application,infrastructure,presentation}
   - ent/schema
   - tests/{unit,integration}
-- [ ] Set up `.gitignore`, `.env.example`
-- [ ] Install core dependencies
+- [x] Set up `.gitignore`, `.env.example`
+- [x] Install core dependencies
   ```bash
   go get entgo.io/ent/cmd/ent@latest
   go get github.com/go-chi/chi/v5
@@ -37,15 +37,13 @@
   go get github.com/spf13/viper
   go get go.uber.org/zap
   ```
-- [ ] Configure Viper for environment management
+- [x] Configure Viper for environment management
 - [ ] Set up structured logging with Zap
 
-**Deliverable**: Working Go project skeleton
-
----
+**Deliverable**: Working Go project skeleton (Initialized)
 
 #### Day 3-5: Database Setup
-- [ ] Create Docker Compose for PostgreSQL 17 + Redis
+- [ ] Create Docker Compose for PostgreSQL 17 + Redis - check the existing shared/infrastructure/pgvector/docker-compose.yml and existing redis container in docker, either uppgrade to the required versions or use existing
   ```yaml
   services:
     postgres:

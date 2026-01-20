@@ -5,13 +5,15 @@
 This document outlines the comprehensive backend architecture for the Game Stats application, a production-ready tournament management system built with **Go 1.24+**, **Ent ORM v0.11**, and **PostgreSQL 17** with pgvector extension. The system addresses all gaps from the legacy Django implementation while incorporating modern best practices and UltiScore-inspired features.
 
 **Key Features**:
-- Real-time score updates via Server-Sent Events (SSE)
-- Game timeline with stoppage tracking
-- Automatic ranking and round progression
-- Tournament brackets visualization
-- Spirit of the Game tracking
-- AI-powered analytics with natural language queries
-- PWA support with offline capabilities
+- [x] Project Initialization & Bootstrap
+- [x] Core Database Schema (Ent)
+- [ ] Real-time score updates via Server-Sent Events (SSE)
+- [ ] Game timeline with stoppage tracking
+- [ ] Automatic ranking and round progression
+- [ ] Tournament brackets visualization
+- [ ] Spirit of the Game tracking
+- [ ] AI-powered analytics with natural language queries
+- [ ] PWA support with offline capabilities
 
 ---
 
