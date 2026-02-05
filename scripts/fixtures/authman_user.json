@@ -1,0 +1,172 @@
+[
+  {
+    "model": "authman.user",
+    "pk": 0,
+    "fields": {
+      "password": "",
+      "is_superuser": true,
+      "username": "sysadmin",
+      "first_name": "System",
+      "last_name": "Administrator",
+      "email": "admin@codevertexitsolutions.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2024-01-01T00:00:00Z",
+      "role": "admin",
+      "groups": [1]
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$yMAdANUXU8x77qEgoI7otG$6JlUkf/PCloWvyhpDleqUAXogf/uSJnR60ZiljJ28E4=",
+      "last_login": "2025-03-01T10:44:47Z",
+      "is_superuser": true,
+      "username": "titus",
+      "email": "titusowuor30@gmail.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2025-03-01T03:40:35Z",
+      "role": "admin",
+      "groups": [
+        1
+      ]
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$68QWsanacz8guanAwNK4n7$n79rPz6g8oqYxLjKnE67rQZ5VoZUj6vJyt6BUr6uNaE=",
+      "last_login": "2025-03-27T10:14:52Z",
+      "is_superuser": true,
+      "username": "admin",
+      "email": "admin@admin.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2025-02-25T15:19:11Z",
+      "role": "admin",
+      "groups": [
+        1
+      ]
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 4,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$MIv2742Tp8s8Yd5BwfLe7R$0gXgBy4IkNlqG+dyfOC4njHf7iLMJdHZoGzCAtAeKhg=",
+      "is_superuser": false,
+      "username": "Zedrick",
+      "first_name": "Zedrick",
+      "last_name": "Wawire",
+      "email": "zedrickwawire33@gmail.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2025-03-01T04:27:45Z",
+      "role": "team_manager",
+      "groups": [
+        2
+      ]
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 5,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$IRk408mRYLyd72WKOxzqvZ$D8z2q7AiedBedJEfX4XiaK2BqFTNVL/y2hHgGKQvzj4=",
+      "is_superuser": false,
+      "username": "Munira",
+      "first_name": "Munira",
+      "last_name": "Ramadhan",
+      "email": "nasichemunira@gmail.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2025-03-01T04:31:06Z",
+      "role": "team_manager",
+      "groups": [
+        2
+      ]
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 6,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$NwdBMug2JZIsWI40KOrMc7$1ccJ3PJp1C3z/k2rRtUnUBP/acIH+BcOY1zQ4xyRTyI=",
+      "last_login": "2025-03-01T05:45:12Z",
+      "is_superuser": false,
+      "username": "Serah",
+      "first_name": "Serah",
+      "last_name": "Gitau",
+      "email": "serahgitau316@gmail.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2025-03-01T04:31:49Z",
+      "role": "team_manager",
+      "groups": [
+        2
+      ]
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 7,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$JtLX9VVMPg28z5wehtMMIV$OgtFP0R+qKObcmLyFKlwSdjDeUlzkaOrgZF7MhL19OU=",
+      "last_login": "2025-03-01T17:37:38Z",
+      "is_superuser": false,
+      "username": "Eddah",
+      "first_name": "Eddah",
+      "last_name": "Jeptoo",
+      "email": "eddahmathews@gmail.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2025-03-01T04:33:35Z",
+      "role": "team_manager",
+      "groups": [
+        2
+      ]
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 8,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$nf3aSei6GFqKwZHjDZU5Ak$zAS/vw/snl0KKCg4ewEnraz9t1kwcZ8XsWmpzfmCAN8=",
+      "is_superuser": false,
+      "username": "Melody",
+      "first_name": "Melody",
+      "last_name": "Muniafu",
+      "email": "melodymuniafu262@gmail.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2025-03-01T04:36:05Z",
+      "role": "team_manager",
+      "groups": [
+        2
+      ]
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 9,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$UIhUURVykbPiyqSxVINv9k$KLOw5FjFlwJCEU9xIqAhMh+raI8r6gkQ2E6ia2LJCAM=",
+      "last_login": "2025-03-01T10:14:39Z",
+      "is_superuser": false,
+      "username": "Risper",
+      "first_name": "Risper",
+      "last_name": "Sungu",
+      "email": "rispersungu00@gmail.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2025-03-01T04:36:08Z",
+      "role": "team_manager",
+      "groups": [
+        2
+      ]
+    }
+  }
+]

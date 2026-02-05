@@ -1,0 +1,37 @@
+[
+  {
+    "model": "games.gameround",
+    "pk": 1,
+    "fields": {
+      "name": "Round Robin"
+    }
+  },
+  {
+    "model": "games.gameround",
+    "pk": 2,
+    "fields": {
+      "name": "Play-Offs"
+    }
+  },
+  {
+    "model": "games.gameround",
+    "pk": 3,
+    "fields": {
+      "name": "Quater Finals"
+    }
+  },
+  {
+    "model": "games.gameround",
+    "pk": 4,
+    "fields": {
+      "name": "Semi-Finals"
+    }
+  },
+  {
+    "model": "games.gameround",
+    "pk": 5,
+    "fields": {
+      "name": "Finals"
+    }
+  }
+]

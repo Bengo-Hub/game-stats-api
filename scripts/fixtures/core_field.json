@@ -1,0 +1,52 @@
+[
+  {
+    "model": "core.field",
+    "pk": 1,
+    "fields": {
+      "name": "Approved School-Field 2",
+      "capacity": 1000,
+      "surface_type": "Grass",
+      "location": 1
+    }
+  },
+  {
+    "model": "core.field",
+    "pk": 2,
+    "fields": {
+      "name": "MMUST 1",
+      "capacity": 1000,
+      "surface_type": "Grass",
+      "location": 1
+    }
+  },
+  {
+    "model": "core.field",
+    "pk": 3,
+    "fields": {
+      "name": "MMUST 2",
+      "capacity": 1000,
+      "surface_type": "Grass",
+      "location": 1
+    }
+  },
+  {
+    "model": "core.field",
+    "pk": 4,
+    "fields": {
+      "name": "MMUST 3",
+      "capacity": 1000,
+      "surface_type": "Grass",
+      "location": 1
+    }
+  },
+  {
+    "model": "core.field",
+    "pk": 5,
+    "fields": {
+      "name": "Approved School-Field 1",
+      "capacity": 1000,
+      "surface_type": "Grass",
+      "location": 1
+    }
+  }
+]

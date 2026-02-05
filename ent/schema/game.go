@@ -46,7 +46,8 @@ func (Game) Fields() []ent.Field {
 		field.Int("away_team_score").
 			Default(0),
 		field.String("first_pull_by").
-			Optional(),
+			Optional().
+			Nillable(),
 		field.Int("version").
 			Default(1),
 		field.JSON("metadata", map[string]interface{}{}).

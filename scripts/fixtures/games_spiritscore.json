@@ -1,0 +1,1244 @@
+[
+  {
+    "model": "games.spiritscore",
+    "pk": 1,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 1,
+      "scored_by": 1,
+      "team": 7,
+      "mvp_female_nomination": 71,
+      "mvp_male_nomination": 56,
+      "spirit_female_nomination": 69,
+      "spirit_male_nomination": 60
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 2,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 1,
+      "scored_by": 7,
+      "team": 1,
+      "mvp_female_nomination": 6,
+      "mvp_male_nomination": 21,
+      "spirit_female_nomination": 7,
+      "spirit_male_nomination": 16
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 3,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 4,
+      "scored_by": 7,
+      "team": 9,
+      "mvp_female_nomination": 116,
+      "mvp_male_nomination": 118,
+      "spirit_female_nomination": 113,
+      "spirit_male_nomination": 120
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 4,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 11,
+      "scored_by": 3,
+      "team": 10,
+      "mvp_female_nomination": 78,
+      "mvp_male_nomination": 86,
+      "spirit_female_nomination": 79,
+      "spirit_male_nomination": 92
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 5,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "3",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 13,
+      "scored_by": 3,
+      "team": 6,
+      "mvp_female_nomination": 177,
+      "mvp_male_nomination": 174,
+      "spirit_female_nomination": 178,
+      "spirit_male_nomination": 173
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 6,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 16,
+      "scored_by": 3,
+      "team": 4,
+      "mvp_female_nomination": 182,
+      "mvp_male_nomination": 30,
+      "spirit_female_nomination": 23,
+      "spirit_male_nomination": 27
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 7,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 2,
+      "scored_by": 2,
+      "team": 5,
+      "mvp_female_nomination": 142,
+      "mvp_male_nomination": 135,
+      "spirit_female_nomination": 140,
+      "spirit_male_nomination": 130
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 8,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 6,
+      "scored_by": 2,
+      "team": 1,
+      "mvp_female_nomination": 6,
+      "mvp_male_nomination": 17,
+      "spirit_female_nomination": 6,
+      "spirit_male_nomination": 20
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 9,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 2,
+      "scored_by": 5,
+      "team": 2,
+      "mvp_female_nomination": 149,
+      "mvp_male_nomination": 165,
+      "spirit_female_nomination": 152,
+      "spirit_male_nomination": 158
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 10,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "3",
+      "attitude": "2",
+      "communication": "2",
+      "game": 3,
+      "scored_by": 5,
+      "team": 1,
+      "mvp_female_nomination": 12,
+      "mvp_male_nomination": 17,
+      "spirit_female_nomination": 6,
+      "spirit_male_nomination": 16
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 11,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "3",
+      "game": 5,
+      "scored_by": 5,
+      "team": 9,
+      "mvp_female_nomination": 115,
+      "mvp_male_nomination": 118,
+      "spirit_female_nomination": 113,
+      "spirit_male_nomination": 120
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 12,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "3",
+      "communication": "2",
+      "game": 4,
+      "scored_by": 9,
+      "team": 7,
+      "mvp_female_nomination": 73,
+      "mvp_male_nomination": 56,
+      "spirit_female_nomination": 68,
+      "spirit_male_nomination": 64
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 13,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "3",
+      "attitude": "2",
+      "communication": "2",
+      "game": 5,
+      "scored_by": 9,
+      "team": 5,
+      "mvp_female_nomination": 141,
+      "mvp_male_nomination": 132,
+      "spirit_female_nomination": 140,
+      "spirit_male_nomination": 138
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 14,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 3,
+      "scored_by": 1,
+      "team": 5,
+      "mvp_female_nomination": 142,
+      "mvp_male_nomination": 134,
+      "spirit_female_nomination": 139,
+      "spirit_male_nomination": 133
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 15,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 6,
+      "scored_by": 1,
+      "team": 2,
+      "mvp_female_nomination": 153,
+      "mvp_male_nomination": 165,
+      "spirit_female_nomination": 149,
+      "spirit_male_nomination": 158
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 16,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "1",
+      "attitude": "1",
+      "communication": "2",
+      "game": 9,
+      "scored_by": 1,
+      "team": 9,
+      "mvp_female_nomination": 115,
+      "mvp_male_nomination": 121,
+      "spirit_female_nomination": 113,
+      "spirit_male_nomination": 118
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 17,
+    "fields": {
+      "rules_knowledge": "1",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 21,
+      "scored_by": 1,
+      "team": 3,
+      "mvp_female_nomination": 51,
+      "mvp_male_nomination": 45,
+      "spirit_female_nomination": 48,
+      "spirit_male_nomination": 37
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 18,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 20,
+      "scored_by": 3,
+      "team": 8,
+      "mvp_female_nomination": 106,
+      "mvp_male_nomination": 98,
+      "spirit_female_nomination": 105,
+      "spirit_male_nomination": 96
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 19,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "3",
+      "attitude": "2",
+      "communication": "2",
+      "game": 21,
+      "scored_by": 3,
+      "team": 1,
+      "mvp_female_nomination": 6,
+      "mvp_male_nomination": 14,
+      "spirit_female_nomination": 11,
+      "spirit_male_nomination": 20
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 20,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 7,
+      "scored_by": 9,
+      "team": 2,
+      "mvp_female_nomination": 153,
+      "mvp_male_nomination": 158,
+      "spirit_female_nomination": 152,
+      "spirit_male_nomination": 159
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 21,
+    "fields": {
+      "rules_knowledge": "1",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "1",
+      "attitude": "1",
+      "communication": "1",
+      "game": 9,
+      "scored_by": 9,
+      "team": 1,
+      "mvp_female_nomination": 12,
+      "mvp_male_nomination": 17,
+      "spirit_female_nomination": 6,
+      "spirit_male_nomination": 17
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 22,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "3",
+      "communication": "2",
+      "game": 25,
+      "scored_by": 9,
+      "team": 8,
+      "mvp_female_nomination": 105,
+      "mvp_male_nomination": 98,
+      "spirit_female_nomination": 102,
+      "spirit_male_nomination": 97
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 23,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 8,
+      "scored_by": 5,
+      "team": 7,
+      "mvp_female_nomination": 73,
+      "mvp_male_nomination": 56,
+      "spirit_female_nomination": 75,
+      "spirit_male_nomination": 60
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 24,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 23,
+      "scored_by": 5,
+      "team": 10,
+      "mvp_female_nomination": 84,
+      "mvp_male_nomination": 86,
+      "spirit_female_nomination": 78,
+      "spirit_male_nomination": 85
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 25,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 7,
+      "scored_by": 2,
+      "team": 9,
+      "mvp_female_nomination": 116,
+      "mvp_male_nomination": 118,
+      "spirit_female_nomination": 113,
+      "spirit_male_nomination": 120
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 26,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "1",
+      "communication": "2",
+      "game": 10,
+      "scored_by": 2,
+      "team": 7,
+      "mvp_female_nomination": 73,
+      "mvp_male_nomination": 55,
+      "spirit_female_nomination": 68,
+      "spirit_male_nomination": 63
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 27,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 22,
+      "scored_by": 2,
+      "team": 6,
+      "mvp_female_nomination": 178,
+      "mvp_male_nomination": 169,
+      "spirit_female_nomination": 177,
+      "spirit_male_nomination": 168
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 28,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 8,
+      "scored_by": 7,
+      "team": 5,
+      "mvp_female_nomination": 140,
+      "mvp_male_nomination": 130,
+      "spirit_female_nomination": 141,
+      "spirit_male_nomination": 133
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 29,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 10,
+      "scored_by": 7,
+      "team": 2,
+      "mvp_female_nomination": 149,
+      "mvp_male_nomination": 165,
+      "spirit_female_nomination": 152,
+      "spirit_male_nomination": 158
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 30,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 12,
+      "scored_by": 6,
+      "team": 4,
+      "mvp_female_nomination": 182,
+      "mvp_male_nomination": 30,
+      "spirit_female_nomination": 32,
+      "spirit_male_nomination": 28
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 31,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "3",
+      "attitude": "2",
+      "communication": "2",
+      "game": 24,
+      "scored_by": 7,
+      "team": 4,
+      "mvp_female_nomination": 182,
+      "mvp_male_nomination": 30,
+      "spirit_female_nomination": 32,
+      "spirit_male_nomination": 28
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 32,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 13,
+      "scored_by": 6,
+      "team": 3,
+      "mvp_female_nomination": 46,
+      "mvp_male_nomination": 45,
+      "spirit_female_nomination": 48,
+      "spirit_male_nomination": 42
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 33,
+    "fields": {
+      "rules_knowledge": "1",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 11,
+      "scored_by": 10,
+      "team": 3,
+      "mvp_female_nomination": 48,
+      "mvp_male_nomination": 34,
+      "spirit_female_nomination": 46,
+      "spirit_male_nomination": 42
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 34,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "1",
+      "fair_mindedness": "1",
+      "attitude": "0",
+      "communication": "2",
+      "game": 14,
+      "scored_by": 8,
+      "team": 10,
+      "mvp_female_nomination": 80,
+      "mvp_male_nomination": 85,
+      "spirit_female_nomination": 83,
+      "spirit_male_nomination": 86
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 35,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "0",
+      "fair_mindedness": "0",
+      "attitude": "2",
+      "communication": "2",
+      "game": 14,
+      "scored_by": 10,
+      "team": 8,
+      "mvp_female_nomination": 105,
+      "mvp_male_nomination": 99,
+      "spirit_female_nomination": 102,
+      "spirit_male_nomination": 98
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 36,
+    "fields": {
+      "rules_knowledge": "3",
+      "fouls_body_contact": "3",
+      "fair_mindedness": "3",
+      "attitude": "3",
+      "communication": "3",
+      "game": 15,
+      "scored_by": 8,
+      "team": 6,
+      "mvp_female_nomination": 177,
+      "mvp_male_nomination": 172,
+      "spirit_female_nomination": 181,
+      "spirit_male_nomination": 169
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 37,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "3",
+      "game": 15,
+      "scored_by": 6,
+      "team": 8,
+      "mvp_female_nomination": 105,
+      "mvp_male_nomination": 96,
+      "spirit_female_nomination": 106,
+      "spirit_male_nomination": 97
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 38,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 18,
+      "scored_by": 10,
+      "team": 6,
+      "mvp_female_nomination": 177,
+      "mvp_male_nomination": 169,
+      "spirit_female_nomination": 178,
+      "spirit_male_nomination": 168
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 39,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "3",
+      "fair_mindedness": "3",
+      "attitude": "2",
+      "communication": "2",
+      "game": 17,
+      "scored_by": 8,
+      "team": 4,
+      "mvp_female_nomination": 182,
+      "mvp_male_nomination": 27,
+      "spirit_female_nomination": 24,
+      "spirit_male_nomination": 30
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 40,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "3",
+      "attitude": "2",
+      "communication": "2",
+      "game": 19,
+      "scored_by": 10,
+      "team": 4,
+      "mvp_female_nomination": 182,
+      "mvp_male_nomination": 31,
+      "spirit_female_nomination": 24,
+      "spirit_male_nomination": 30
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 41,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "1",
+      "game": 18,
+      "scored_by": 6,
+      "team": 10,
+      "mvp_female_nomination": 78,
+      "mvp_male_nomination": 87,
+      "spirit_female_nomination": 79,
+      "spirit_male_nomination": 86
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 42,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 20,
+      "scored_by": 8,
+      "team": 3,
+      "mvp_female_nomination": 46,
+      "mvp_male_nomination": 45,
+      "spirit_female_nomination": 48,
+      "spirit_male_nomination": 42
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 43,
+    "fields": {
+      "rules_knowledge": "3",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "3",
+      "attitude": "2",
+      "communication": "2",
+      "game": 23,
+      "scored_by": 10,
+      "team": 5,
+      "mvp_female_nomination": 140,
+      "mvp_male_nomination": 134,
+      "spirit_female_nomination": 142,
+      "spirit_male_nomination": 138
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 44,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 25,
+      "scored_by": 8,
+      "team": 9,
+      "mvp_female_nomination": 113,
+      "mvp_male_nomination": 118,
+      "spirit_female_nomination": 115,
+      "spirit_male_nomination": 121
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 45,
+    "fields": {
+      "rules_knowledge": "3",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "3",
+      "game": 22,
+      "scored_by": 6,
+      "team": 2,
+      "mvp_female_nomination": 150,
+      "mvp_male_nomination": 160,
+      "spirit_female_nomination": 153,
+      "spirit_male_nomination": 161
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 46,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 12,
+      "scored_by": 4,
+      "team": 6,
+      "mvp_female_nomination": 178,
+      "mvp_male_nomination": 169,
+      "spirit_female_nomination": 181,
+      "spirit_male_nomination": 173
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 47,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 16,
+      "scored_by": 4,
+      "team": 3,
+      "mvp_female_nomination": 46,
+      "mvp_male_nomination": 42,
+      "spirit_female_nomination": 48,
+      "spirit_male_nomination": 45
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 48,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 17,
+      "scored_by": 4,
+      "team": 8,
+      "mvp_female_nomination": 105,
+      "mvp_male_nomination": 96,
+      "spirit_female_nomination": 102,
+      "spirit_male_nomination": 98
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 49,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 19,
+      "scored_by": 4,
+      "team": 10,
+      "mvp_female_nomination": 84,
+      "mvp_male_nomination": 87,
+      "spirit_female_nomination": 78,
+      "spirit_male_nomination": 86
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 50,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "3",
+      "communication": "2",
+      "game": 24,
+      "scored_by": 4,
+      "team": 7,
+      "mvp_female_nomination": 71,
+      "mvp_male_nomination": 56,
+      "spirit_female_nomination": 74,
+      "spirit_male_nomination": 63
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 51,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "3",
+      "fair_mindedness": "3",
+      "attitude": "2",
+      "communication": "3",
+      "game": 32,
+      "scored_by": 8,
+      "team": 1,
+      "mvp_female_nomination": 9,
+      "mvp_male_nomination": 17,
+      "spirit_female_nomination": 7,
+      "spirit_male_nomination": 19
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 52,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 27,
+      "scored_by": 10,
+      "team": 2,
+      "mvp_female_nomination": 153,
+      "mvp_male_nomination": 158,
+      "spirit_female_nomination": 152,
+      "spirit_male_nomination": 161
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 53,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 28,
+      "scored_by": 4,
+      "team": 5,
+      "mvp_female_nomination": 140,
+      "mvp_male_nomination": 138,
+      "spirit_female_nomination": 141,
+      "spirit_male_nomination": 130
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 54,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "3",
+      "attitude": "3",
+      "communication": "2",
+      "game": 33,
+      "scored_by": 7,
+      "team": 9,
+      "mvp_female_nomination": 116,
+      "mvp_male_nomination": 120,
+      "spirit_female_nomination": 127,
+      "spirit_male_nomination": 121
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 55,
+    "fields": {
+      "rules_knowledge": "3",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "3",
+      "game": 34,
+      "scored_by": 6,
+      "team": 2,
+      "mvp_female_nomination": 155,
+      "mvp_male_nomination": 165,
+      "spirit_female_nomination": 153,
+      "spirit_male_nomination": 159
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 56,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 33,
+      "scored_by": 9,
+      "team": 7,
+      "mvp_female_nomination": 69,
+      "mvp_male_nomination": 56,
+      "spirit_female_nomination": 68,
+      "spirit_male_nomination": 57
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 57,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 30,
+      "scored_by": 3,
+      "team": 9,
+      "mvp_female_nomination": 113,
+      "mvp_male_nomination": 125,
+      "spirit_female_nomination": 115,
+      "spirit_male_nomination": 120
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 58,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 31,
+      "scored_by": 3,
+      "team": 5,
+      "mvp_female_nomination": 140,
+      "mvp_male_nomination": 130,
+      "spirit_female_nomination": 141,
+      "spirit_male_nomination": 135
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 59,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "3",
+      "communication": "2",
+      "game": 34,
+      "scored_by": 2,
+      "team": 6,
+      "mvp_female_nomination": 178,
+      "mvp_male_nomination": 174,
+      "spirit_female_nomination": 177,
+      "spirit_male_nomination": 173
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 60,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 35,
+      "scored_by": 2,
+      "team": 5,
+      "mvp_female_nomination": 140,
+      "mvp_male_nomination": 135,
+      "spirit_female_nomination": 140,
+      "spirit_male_nomination": 135
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 61,
+    "fields": {
+      "rules_knowledge": "1",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 27,
+      "scored_by": 2,
+      "team": 10,
+      "mvp_female_nomination": 83,
+      "mvp_male_nomination": 94,
+      "spirit_female_nomination": 80,
+      "spirit_male_nomination": 92
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 62,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 28,
+      "scored_by": 5,
+      "team": 4,
+      "mvp_female_nomination": 23,
+      "mvp_male_nomination": 30,
+      "spirit_female_nomination": 26,
+      "spirit_male_nomination": 29
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 63,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 35,
+      "scored_by": 5,
+      "team": 2,
+      "mvp_female_nomination": 149,
+      "mvp_male_nomination": 158,
+      "spirit_female_nomination": 155,
+      "spirit_male_nomination": 165
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 64,
+    "fields": {
+      "rules_knowledge": "1",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "1",
+      "attitude": "2",
+      "communication": "2",
+      "game": 36,
+      "scored_by": 7,
+      "team": 1,
+      "mvp_female_nomination": 8,
+      "mvp_male_nomination": 17,
+      "spirit_female_nomination": 9,
+      "spirit_male_nomination": 19
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 65,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "1",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "1",
+      "game": 36,
+      "scored_by": 1,
+      "team": 7,
+      "mvp_female_nomination": 69,
+      "mvp_male_nomination": 56,
+      "spirit_female_nomination": 73,
+      "spirit_male_nomination": 55
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 66,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "3",
+      "attitude": "2",
+      "communication": "2",
+      "game": 26,
+      "scored_by": 1,
+      "team": 8,
+      "mvp_female_nomination": 105,
+      "mvp_male_nomination": 98,
+      "spirit_female_nomination": 102,
+      "spirit_male_nomination": 99
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 67,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "3",
+      "communication": "2",
+      "game": 32,
+      "scored_by": 1,
+      "team": 8,
+      "mvp_female_nomination": 105,
+      "mvp_male_nomination": 98,
+      "spirit_female_nomination": 106,
+      "spirit_male_nomination": 96
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 68,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "3",
+      "communication": "2",
+      "game": 37,
+      "scored_by": 1,
+      "team": 5,
+      "mvp_female_nomination": 137,
+      "mvp_male_nomination": 135,
+      "spirit_female_nomination": 141,
+      "spirit_male_nomination": 138
+    }
+  },
+  {
+    "model": "games.spiritscore",
+    "pk": 69,
+    "fields": {
+      "rules_knowledge": "2",
+      "fouls_body_contact": "2",
+      "fair_mindedness": "2",
+      "attitude": "2",
+      "communication": "2",
+      "game": 37,
+      "scored_by": 5,
+      "team": 1,
+      "mvp_female_nomination": 8,
+      "mvp_male_nomination": 17,
+      "spirit_female_nomination": 12,
+      "spirit_male_nomination": 21
+    }
+  }
+]

@@ -101,6 +101,16 @@ func ProfileImageURL(v string) predicate.Player {
 	return predicate.Player(sql.FieldEQ(FieldProfileImageURL, v))
 }
 
+// IsCaptain applies equality check predicate on the "is_captain" field. It's identical to IsCaptainEQ.
+func IsCaptain(v bool) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldIsCaptain, v))
+}
+
+// IsSpiritCaptain applies equality check predicate on the "is_spirit_captain" field. It's identical to IsSpiritCaptainEQ.
+func IsSpiritCaptain(v bool) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldIsSpiritCaptain, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Player {
 	return predicate.Player(sql.FieldEQ(FieldCreatedAt, v))
@@ -609,6 +619,26 @@ func ProfileImageURLEqualFold(v string) predicate.Player {
 // ProfileImageURLContainsFold applies the ContainsFold predicate on the "profile_image_url" field.
 func ProfileImageURLContainsFold(v string) predicate.Player {
 	return predicate.Player(sql.FieldContainsFold(FieldProfileImageURL, v))
+}
+
+// IsCaptainEQ applies the EQ predicate on the "is_captain" field.
+func IsCaptainEQ(v bool) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldIsCaptain, v))
+}
+
+// IsCaptainNEQ applies the NEQ predicate on the "is_captain" field.
+func IsCaptainNEQ(v bool) predicate.Player {
+	return predicate.Player(sql.FieldNEQ(FieldIsCaptain, v))
+}
+
+// IsSpiritCaptainEQ applies the EQ predicate on the "is_spirit_captain" field.
+func IsSpiritCaptainEQ(v bool) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldIsSpiritCaptain, v))
+}
+
+// IsSpiritCaptainNEQ applies the NEQ predicate on the "is_spirit_captain" field.
+func IsSpiritCaptainNEQ(v bool) predicate.Player {
+	return predicate.Player(sql.FieldNEQ(FieldIsSpiritCaptain, v))
 }
 
 // MetadataIsNil applies the IsNil predicate on the "metadata" field.

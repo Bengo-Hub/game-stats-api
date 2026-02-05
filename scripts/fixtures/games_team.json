@@ -1,0 +1,92 @@
+[
+  {
+    "model": "games.team",
+    "pk": 1,
+    "fields": {
+      "name": "KEMRI Sharks",
+      "initial_seed": 0,
+      "origin": 2
+    }
+  },
+  {
+    "model": "games.team",
+    "pk": 2,
+    "fields": {
+      "name": "Tropical Rangers",
+      "initial_seed": 0,
+      "origin": 1
+    }
+  },
+  {
+    "model": "games.team",
+    "pk": 3,
+    "fields": {
+      "name": "Wolves Grey",
+      "initial_seed": 0,
+      "origin": 1
+    }
+  },
+  {
+    "model": "games.team",
+    "pk": 4,
+    "fields": {
+      "name": "KEMRI Eagles",
+      "initial_seed": 0,
+      "origin": 2
+    }
+  },
+  {
+    "model": "games.team",
+    "pk": 5,
+    "fields": {
+      "name": "BFU",
+      "initial_seed": 0,
+      "origin": 1
+    }
+  },
+  {
+    "model": "games.team",
+    "pk": 6,
+    "fields": {
+      "name": "First Touch",
+      "initial_seed": 0,
+      "origin": 2
+    }
+  },
+  {
+    "model": "games.team",
+    "pk": 7,
+    "fields": {
+      "name": "Wolves Blue",
+      "initial_seed": 0,
+      "origin": 1
+    }
+  },
+  {
+    "model": "games.team",
+    "pk": 8,
+    "fields": {
+      "name": "GRT",
+      "initial_seed": 0,
+      "origin": 1
+    }
+  },
+  {
+    "model": "games.team",
+    "pk": 9,
+    "fields": {
+      "name": "Cool Waters",
+      "initial_seed": 0,
+      "origin": 2
+    }
+  },
+  {
+    "model": "games.team",
+    "pk": 10,
+    "fields": {
+      "name": "Maseno",
+      "initial_seed": 0,
+      "origin": 1
+    }
+  }
+]

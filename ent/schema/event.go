@@ -43,6 +43,26 @@ func (Event) Fields() []ent.Field {
 			Nillable(),
 		field.JSON("settings", map[string]interface{}{}).
 			Optional(),
+		// New fields for enhanced events
+		field.Strings("categories").
+			Optional().
+			Comment("Event categories: outdoor, hat, beach, indoor, league"),
+		field.String("logo_url").
+			MaxLen(500).
+			Optional().
+			Nillable().
+			Comment("URL to event logo image"),
+		field.String("banner_url").
+			MaxLen(500).
+			Optional().
+			Nillable().
+			Comment("URL to event banner image"),
+		field.Int("teams_count").
+			Default(0).
+			Comment("Denormalized count of teams for efficient queries"),
+		field.Int("games_count").
+			Default(0).
+			Comment("Denormalized count of games for efficient queries"),
 	}
 }
 

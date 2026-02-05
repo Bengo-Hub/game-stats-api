@@ -31,11 +31,14 @@ func (GameRound) Fields() []ent.Field {
 			MaxLen(50).
 			NotEmpty(),
 		field.Int("round_number").
-			Optional(),
+			Optional().
+			Nillable(),
 		field.Time("start_date").
-			Optional(),
+			Optional().
+			Nillable(),
 		field.Time("end_date").
-			Optional(),
+			Optional().
+			Nillable(),
 	}
 }
 

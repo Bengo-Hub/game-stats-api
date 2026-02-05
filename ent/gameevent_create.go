@@ -23,6 +23,48 @@ type GameEventCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *GameEventCreate) SetCreatedAt(v time.Time) *GameEventCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *GameEventCreate) SetNillableCreatedAt(v *time.Time) *GameEventCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *GameEventCreate) SetUpdatedAt(v time.Time) *GameEventCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *GameEventCreate) SetNillableUpdatedAt(v *time.Time) *GameEventCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *GameEventCreate) SetDeletedAt(v time.Time) *GameEventCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *GameEventCreate) SetNillableDeletedAt(v *time.Time) *GameEventCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
 // SetEventType sets the "event_type" field.
 func (_c *GameEventCreate) SetEventType(v string) *GameEventCreate {
 	_c.mutation.SetEventType(v)
@@ -58,20 +100,6 @@ func (_c *GameEventCreate) SetNillableDescription(v *string) *GameEventCreate {
 // SetMetadata sets the "metadata" field.
 func (_c *GameEventCreate) SetMetadata(v map[string]interface{}) *GameEventCreate {
 	_c.mutation.SetMetadata(v)
-	return _c
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (_c *GameEventCreate) SetCreatedAt(v time.Time) *GameEventCreate {
-	_c.mutation.SetCreatedAt(v)
-	return _c
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (_c *GameEventCreate) SetNillableCreatedAt(v *time.Time) *GameEventCreate {
-	if v != nil {
-		_c.SetCreatedAt(*v)
-	}
 	return _c
 }
 
@@ -158,6 +186,10 @@ func (_c *GameEventCreate) defaults() {
 		v := gameevent.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
 	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := gameevent.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := gameevent.DefaultID()
 		_c.mutation.SetID(v)
@@ -166,6 +198,12 @@ func (_c *GameEventCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *GameEventCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "GameEvent.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "GameEvent.updated_at"`)}
+	}
 	if _, ok := _c.mutation.EventType(); !ok {
 		return &ValidationError{Name: "event_type", err: errors.New(`ent: missing required field "GameEvent.event_type"`)}
 	}
@@ -179,9 +217,6 @@ func (_c *GameEventCreate) check() error {
 	}
 	if _, ok := _c.mutation.Second(); !ok {
 		return &ValidationError{Name: "second", err: errors.New(`ent: missing required field "GameEvent.second"`)}
-	}
-	if _, ok := _c.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "GameEvent.created_at"`)}
 	}
 	if len(_c.mutation.GameIDs()) == 0 {
 		return &ValidationError{Name: "game", err: errors.New(`ent: missing required edge "GameEvent.game"`)}
@@ -221,6 +256,18 @@ func (_c *GameEventCreate) createSpec() (*GameEvent, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(gameevent.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(gameevent.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(gameevent.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
 	if value, ok := _c.mutation.EventType(); ok {
 		_spec.SetField(gameevent.FieldEventType, field.TypeString, value)
 		_node.EventType = value
@@ -240,10 +287,6 @@ func (_c *GameEventCreate) createSpec() (*GameEvent, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(gameevent.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
-	}
-	if value, ok := _c.mutation.CreatedAt(); ok {
-		_spec.SetField(gameevent.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = value
 	}
 	if nodes := _c.mutation.GameIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

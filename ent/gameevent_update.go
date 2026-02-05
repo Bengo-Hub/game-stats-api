@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -27,6 +28,32 @@ type GameEventUpdate struct {
 // Where appends a list predicates to the GameEventUpdate builder.
 func (_u *GameEventUpdate) Where(ps ...predicate.GameEvent) *GameEventUpdate {
 	_u.mutation.Where(ps...)
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *GameEventUpdate) SetUpdatedAt(v time.Time) *GameEventUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *GameEventUpdate) SetDeletedAt(v time.Time) *GameEventUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *GameEventUpdate) SetNillableDeletedAt(v *time.Time) *GameEventUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *GameEventUpdate) ClearDeletedAt() *GameEventUpdate {
+	_u.mutation.ClearDeletedAt()
 	return _u
 }
 
@@ -167,6 +194,7 @@ func (_u *GameEventUpdate) ClearPlayer() *GameEventUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *GameEventUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -189,6 +217,14 @@ func (_u *GameEventUpdate) Exec(ctx context.Context) error {
 func (_u *GameEventUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *GameEventUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := gameevent.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -216,6 +252,15 @@ func (_u *GameEventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(gameevent.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(gameevent.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(gameevent.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.EventType(); ok {
 		_spec.SetField(gameevent.FieldEventType, field.TypeString, value)
@@ -320,6 +365,32 @@ type GameEventUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *GameEventMutation
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *GameEventUpdateOne) SetUpdatedAt(v time.Time) *GameEventUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *GameEventUpdateOne) SetDeletedAt(v time.Time) *GameEventUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *GameEventUpdateOne) SetNillableDeletedAt(v *time.Time) *GameEventUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *GameEventUpdateOne) ClearDeletedAt() *GameEventUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetEventType sets the "event_type" field.
@@ -472,6 +543,7 @@ func (_u *GameEventUpdateOne) Select(field string, fields ...string) *GameEventU
 
 // Save executes the query and returns the updated GameEvent entity.
 func (_u *GameEventUpdateOne) Save(ctx context.Context) (*GameEvent, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -494,6 +566,14 @@ func (_u *GameEventUpdateOne) Exec(ctx context.Context) error {
 func (_u *GameEventUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *GameEventUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := gameevent.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -538,6 +618,15 @@ func (_u *GameEventUpdateOne) sqlSave(ctx context.Context) (_node *GameEvent, er
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(gameevent.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(gameevent.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(gameevent.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.EventType(); ok {
 		_spec.SetField(gameevent.FieldEventType, field.TypeString, value)

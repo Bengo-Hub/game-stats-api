@@ -1,8 +1,6 @@
 ﻿package schema
 
 import (
-	"time"
-
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
@@ -12,6 +10,12 @@ import (
 // GameEvent holds the schema definition for the GameEvent entity.
 type GameEvent struct {
 	ent.Schema
+}
+
+func (GameEvent) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		TimeMixin{},
+	}
 }
 
 // Fields of the GameEvent.
@@ -29,9 +33,6 @@ func (GameEvent) Fields() []ent.Field {
 			Optional(),
 		field.JSON("metadata", map[string]interface{}{}).
 			Optional(),
-		field.Time("created_at").
-			Default(time.Now).
-			Immutable(),
 	}
 }
 

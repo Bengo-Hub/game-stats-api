@@ -37,6 +37,16 @@ const (
 	FieldDescription = "description"
 	// FieldSettings holds the string denoting the settings field in the database.
 	FieldSettings = "settings"
+	// FieldCategories holds the string denoting the categories field in the database.
+	FieldCategories = "categories"
+	// FieldLogoURL holds the string denoting the logo_url field in the database.
+	FieldLogoURL = "logo_url"
+	// FieldBannerURL holds the string denoting the banner_url field in the database.
+	FieldBannerURL = "banner_url"
+	// FieldTeamsCount holds the string denoting the teams_count field in the database.
+	FieldTeamsCount = "teams_count"
+	// FieldGamesCount holds the string denoting the games_count field in the database.
+	FieldGamesCount = "games_count"
 	// EdgeDiscipline holds the string denoting the discipline edge name in mutations.
 	EdgeDiscipline = "discipline"
 	// EdgeLocation holds the string denoting the location edge name in mutations.
@@ -109,6 +119,11 @@ var Columns = []string{
 	FieldStatus,
 	FieldDescription,
 	FieldSettings,
+	FieldCategories,
+	FieldLogoURL,
+	FieldBannerURL,
+	FieldTeamsCount,
+	FieldGamesCount,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "events"
@@ -148,6 +163,14 @@ var (
 	DefaultStatus string
 	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
 	StatusValidator func(string) error
+	// LogoURLValidator is a validator for the "logo_url" field. It is called by the builders before save.
+	LogoURLValidator func(string) error
+	// BannerURLValidator is a validator for the "banner_url" field. It is called by the builders before save.
+	BannerURLValidator func(string) error
+	// DefaultTeamsCount holds the default value on creation for the "teams_count" field.
+	DefaultTeamsCount int
+	// DefaultGamesCount holds the default value on creation for the "games_count" field.
+	DefaultGamesCount int
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -208,6 +231,26 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByLogoURL orders the results by the logo_url field.
+func ByLogoURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLogoURL, opts...).ToFunc()
+}
+
+// ByBannerURL orders the results by the banner_url field.
+func ByBannerURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBannerURL, opts...).ToFunc()
+}
+
+// ByTeamsCount orders the results by the teams_count field.
+func ByTeamsCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTeamsCount, opts...).ToFunc()
+}
+
+// ByGamesCount orders the results by the games_count field.
+func ByGamesCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGamesCount, opts...).ToFunc()
 }
 
 // ByDisciplineField orders the results by discipline field.

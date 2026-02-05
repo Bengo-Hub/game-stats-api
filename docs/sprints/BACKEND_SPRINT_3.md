@@ -21,60 +21,63 @@
 ### Week 1: Auto-Ranking & Round Progression
 
 #### Day 1-3: Ranking System
-- [ ] Extend DivisionPool model with ranking_criteria JSONB
-- [ ] Implement ranking calculation service:
+- [x] Extend DivisionPool model with ranking_criteria JSONB
+- [x] Implement ranking calculation service:
   ```go
-  func (s *DivisionService) CalculateStandings(ctx context.Context, divisionID uuid.UUID) ([]TeamStanding, error)
+  func (s *Service) CalculateStandings(ctx context.Context, divisionID uuid.UUID) (*DivisionStandingsResponse, error)
   ```
   - Parse ranking criteria (points, goal_diff, head_to_head)
   - Calculate team statistics
   - Apply sorting rules
-  - Cache results in Redis
-- [ ] Build auto-advancement logic:
+  - Cache results in Redis (pending)
+- [x] Build auto-advancement logic:
   ```go
-  func (s *DivisionService) AdvanceTeams(ctx context.Context, divisionID uuid.UUID, topN int) error
+  func (s *Service) AdvanceTeams(ctx context.Context, req AdvanceTeamsRequest) (*AdvanceTeamsResponse, error)
   ```
   - Check pool phase completion
   - Advance top N teams
-  - Create bracket round games
-  - Send notifications
-- [ ] Create ranking API:
+  - Create bracket round games (pending bracket generation)
+  - Send notifications (pending)
+- [x] Create ranking API:
   - `GET /api/v1/divisions/{id}/standings` - Current standings
-  - `POST /api/v1/divisions/{id}/advance` - Trigger advancement
+  - `POST /api/v1/divisions/advance` - Trigger advancement
   - `PUT /api/v1/divisions/{id}/criteria` - Update ranking rules
 - [ ] Add materialized view for team stats
 
-**Deliverable**: Auto-ranking system
+**Deliverable**: Auto-ranking system ✅
 
 ---
 
 #### Day 4-5: Brackets Generation
-- [ ] Implement bracket generation algorithm:
+- [x] Implement bracket generation algorithm:
   - Single elimination
   - Double elimination (optional)
   - Seeding based on pool standings
-- [ ] Create BracketNode service for tree structure
-- [ ] Build bracket API:
+- [x] Create BracketNode service for tree structure
+- [x] Build bracket API:
   - `GET /api/v1/events/{id}/bracket` - Get bracket JSON
   - `POST /api/v1/events/{id}/generate-bracket` - Generate from pools
-- [ ] Add bracket visualization data format
+  - `GET /api/v1/rounds/{id}/bracket` - Get bracket for specific round
+- [x] Add bracket visualization data format
+- [x] Integrate bracket generation with AdvanceTeams service
 
-**Deliverable**: Bracket generation
+**Deliverable**: Bracket generation ✅
 
 ---
 
 ### Week 2: Analytics Platform Integration
 
-#### Day 6-8: Metabase Setup
-- [ ] Deploy Metabase via Docker
-- [ ] Configure Metabase connection to PostgreSQL
-- [ ] Create base dashboards:
-  - Event Overview (games, teams, scores)
-  - Player Statistics (top scorers, assists)
-  - Spirit Scores Leaderboard
-  - Team Performance
-- [ ] Enable embedding in Metabase
-- [ ] Implement embed token generation:
+#### Day 6-8: Superset/Metabase Setup
+- [ ] Deploy Superset/Metabase via Docker (infrastructure)
+- [ ] Configure connection to PostgreSQL (infrastructure)
+- [ ] Create base dashboards (infrastructure)
+- [x] Implement embed token generation service:
+  - `analytics.Service.GenerateEmbedToken()` complete
+  - `analytics.Service.ListDashboards()` complete
+  - `analytics.Service.GetDashboard()` complete
+  - `analytics.Service.GetEventStatistics()` complete with real queries
+  - Row-level security (RLS) implementation complete
+- [x] Build dashboard management API:
   ```go
   func (s *AnalyticsService) GenerateEmbedToken(dashboardID int, userID uuid.UUID) (string, error)
   ```
@@ -88,69 +91,54 @@
 ---
 
 #### Day 9-11: Ollama LLM Integration
-- [ ] Deploy Ollama container with duckdb-nsql:7b
-- [ ] Implement Ollama HTTP client
-- [ ] Create text-to-SQL service:
-  ```go
-  type TextToSQLService struct {
-      ollamaClient *OllamaClient
-      vectorStore  *VectorStore
-  }
-  
-  func (s *TextToSQLService) GenerateSQL(ctx context.Context, query string) (*SQLResult, error)
-  ```
-  - Build schema context from pgvector
-  - Call Ollama API with prompt
-  - Parse SQL + chart type response
-  - Validate SQL (prevent injection)
-  - Execute with row limit
-- [ ] Implement schema embeddings:
-  - Pre-compute table/column descriptions
-  - Store in analytics_embeddings table
-  - Update on schema changes
-- [ ] Build natural language query API:
-  - `POST /api/v1/analytics/query` - NL to SQL
-  - `GET /api/v1/analytics/schema` - Get schema docs
+- [ ] Deploy Ollama container with duckdb-nsql:7b (infrastructure)
+- [x] Implement Ollama HTTP client (`ollama_client.go`)
+- [x] Create text-to-SQL service (`text_to_sql_service.go`):
+  - `OllamaClient.GenerateSQL()` - SQL generation via LLM
+  - `OllamaClient.Chat()` - General chat capabilities
+  - `OllamaClient.HealthCheck()` - Service availability check
+  - Build schema context dynamically
+  - Parse SQL + explanation response
+  - SQL injection prevention (validateSQL)
+  - Row limit enforcement (1000 rows max)
+- [x] Build natural language query API:
+  - `POST /api/v1/analytics/query` - NL to SQL with execution
+  - Row-level security filtering applied automatically
 
-**Deliverable**: AI text-to-SQL system
+**Deliverable**: AI text-to-SQL system ✅ (code complete, needs Ollama deployment)
 
 ---
 
 #### Day 12: Analytics Query Execution
-- [ ] Create safe SQL execution service:
-  - Whitelist allowed tables
-  - Block DELETE/UPDATE/DROP
-  - Enforce row limits
-  - Timeout protection
-- [ ] Implement query result caching
-- [ ] Add query history tracking
-- [ ] Build saved query management
+- [x] Create safe SQL execution service:
+  - Block dangerous keywords (DELETE, UPDATE, DROP, INSERT, etc.)
+  - Only SELECT/WITH queries allowed
+  - Row limit enforcement (1000 rows)
+  - Timeout protection via context
+- [x] Execute raw SQL queries against PostgreSQL
+- [ ] Implement query result caching (future enhancement)
+- [ ] Add query history tracking (future enhancement)
 
-**Deliverable**: Safe analytics execution
+**Deliverable**: Safe analytics execution ✅
 
 ---
 
 ### Week 3: Admin Features & Optimization
 
 #### Day 13-14: Admin Score Editing
-- [ ] Create ScoreEdit audit model
-- [ ] Implement edit score service:
-  ```go
-  func (s *AdminService) EditScore(ctx context.Context, req EditScoreRequest) error
-  ```
-  - Verify admin permissions
-  - Create audit record (old value, new value, reason, editor)
-  - Update scoring record
-  - Recalculate game totals
-  - Broadcast SSE update
-  - Send notification to affected teams
-- [ ] Build admin API:
-  - `PUT /api/v1/admin/scores/{id}` - Edit score
-  - `GET /api/v1/admin/audit/scores` - View audit trail
-  - `POST /api/v1/admin/games/{id}/recalculate` - Recalc totals
-- [ ] Add admin dashboard
+- [x] Create ScoreEdit audit model (`ent/schema/audit_log.go`, `internal/domain/audit/audit_log.go`)
+- [x] Implement edit score service (`internal/application/admin/score_admin_service.go`):
+  - Field-level change tracking
+  - Mandatory reason (min 10 chars)
+  - User metadata (ID, username, IP, user agent)
+  - Automatic cache invalidation
+- [x] Build admin API:
+  - `PUT /api/v1/admin/games/{id}/score` - Edit game score
+  - `GET /api/v1/admin/games/{id}/audit` - View audit trail
+  - `PUT /api/v1/admin/spirit-scores/{id}` - Edit spirit score
+- [x] Admin-only middleware (`internal/presentation/http/middleware/admin.go`)
 
-**Deliverable**: Score editing with audit
+**Deliverable**: Score editing with audit ✅
 
 ---
 

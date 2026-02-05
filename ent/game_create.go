@@ -556,7 +556,7 @@ func (_c *GameCreate) createSpec() (*Game, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.FirstPullBy(); ok {
 		_spec.SetField(game.FieldFirstPullBy, field.TypeString, value)
-		_node.FirstPullBy = value
+		_node.FirstPullBy = &value
 	}
 	if value, ok := _c.mutation.Version(); ok {
 		_spec.SetField(game.FieldVersion, field.TypeInt, value)

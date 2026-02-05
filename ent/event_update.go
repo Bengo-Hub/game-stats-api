@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
@@ -181,6 +182,106 @@ func (_u *EventUpdate) SetSettings(v map[string]interface{}) *EventUpdate {
 // ClearSettings clears the value of the "settings" field.
 func (_u *EventUpdate) ClearSettings() *EventUpdate {
 	_u.mutation.ClearSettings()
+	return _u
+}
+
+// SetCategories sets the "categories" field.
+func (_u *EventUpdate) SetCategories(v []string) *EventUpdate {
+	_u.mutation.SetCategories(v)
+	return _u
+}
+
+// AppendCategories appends value to the "categories" field.
+func (_u *EventUpdate) AppendCategories(v []string) *EventUpdate {
+	_u.mutation.AppendCategories(v)
+	return _u
+}
+
+// ClearCategories clears the value of the "categories" field.
+func (_u *EventUpdate) ClearCategories() *EventUpdate {
+	_u.mutation.ClearCategories()
+	return _u
+}
+
+// SetLogoURL sets the "logo_url" field.
+func (_u *EventUpdate) SetLogoURL(v string) *EventUpdate {
+	_u.mutation.SetLogoURL(v)
+	return _u
+}
+
+// SetNillableLogoURL sets the "logo_url" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableLogoURL(v *string) *EventUpdate {
+	if v != nil {
+		_u.SetLogoURL(*v)
+	}
+	return _u
+}
+
+// ClearLogoURL clears the value of the "logo_url" field.
+func (_u *EventUpdate) ClearLogoURL() *EventUpdate {
+	_u.mutation.ClearLogoURL()
+	return _u
+}
+
+// SetBannerURL sets the "banner_url" field.
+func (_u *EventUpdate) SetBannerURL(v string) *EventUpdate {
+	_u.mutation.SetBannerURL(v)
+	return _u
+}
+
+// SetNillableBannerURL sets the "banner_url" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableBannerURL(v *string) *EventUpdate {
+	if v != nil {
+		_u.SetBannerURL(*v)
+	}
+	return _u
+}
+
+// ClearBannerURL clears the value of the "banner_url" field.
+func (_u *EventUpdate) ClearBannerURL() *EventUpdate {
+	_u.mutation.ClearBannerURL()
+	return _u
+}
+
+// SetTeamsCount sets the "teams_count" field.
+func (_u *EventUpdate) SetTeamsCount(v int) *EventUpdate {
+	_u.mutation.ResetTeamsCount()
+	_u.mutation.SetTeamsCount(v)
+	return _u
+}
+
+// SetNillableTeamsCount sets the "teams_count" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableTeamsCount(v *int) *EventUpdate {
+	if v != nil {
+		_u.SetTeamsCount(*v)
+	}
+	return _u
+}
+
+// AddTeamsCount adds value to the "teams_count" field.
+func (_u *EventUpdate) AddTeamsCount(v int) *EventUpdate {
+	_u.mutation.AddTeamsCount(v)
+	return _u
+}
+
+// SetGamesCount sets the "games_count" field.
+func (_u *EventUpdate) SetGamesCount(v int) *EventUpdate {
+	_u.mutation.ResetGamesCount()
+	_u.mutation.SetGamesCount(v)
+	return _u
+}
+
+// SetNillableGamesCount sets the "games_count" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableGamesCount(v *int) *EventUpdate {
+	if v != nil {
+		_u.SetGamesCount(*v)
+	}
+	return _u
+}
+
+// AddGamesCount adds value to the "games_count" field.
+func (_u *EventUpdate) AddGamesCount(v int) *EventUpdate {
+	_u.mutation.AddGamesCount(v)
 	return _u
 }
 
@@ -420,6 +521,16 @@ func (_u *EventUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Event.status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.LogoURL(); ok {
+		if err := event.LogoURLValidator(v); err != nil {
+			return &ValidationError{Name: "logo_url", err: fmt.Errorf(`ent: validator failed for field "Event.logo_url": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.BannerURL(); ok {
+		if err := event.BannerURLValidator(v); err != nil {
+			return &ValidationError{Name: "banner_url", err: fmt.Errorf(`ent: validator failed for field "Event.banner_url": %w`, err)}
+		}
+	}
 	if _u.mutation.DisciplineCleared() && len(_u.mutation.DisciplineIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Event.discipline"`)
 	}
@@ -482,6 +593,41 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.SettingsCleared() {
 		_spec.ClearField(event.FieldSettings, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.Categories(); ok {
+		_spec.SetField(event.FieldCategories, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedCategories(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, event.FieldCategories, value)
+		})
+	}
+	if _u.mutation.CategoriesCleared() {
+		_spec.ClearField(event.FieldCategories, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.LogoURL(); ok {
+		_spec.SetField(event.FieldLogoURL, field.TypeString, value)
+	}
+	if _u.mutation.LogoURLCleared() {
+		_spec.ClearField(event.FieldLogoURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.BannerURL(); ok {
+		_spec.SetField(event.FieldBannerURL, field.TypeString, value)
+	}
+	if _u.mutation.BannerURLCleared() {
+		_spec.ClearField(event.FieldBannerURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.TeamsCount(); ok {
+		_spec.SetField(event.FieldTeamsCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedTeamsCount(); ok {
+		_spec.AddField(event.FieldTeamsCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.GamesCount(); ok {
+		_spec.SetField(event.FieldGamesCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedGamesCount(); ok {
+		_spec.AddField(event.FieldGamesCount, field.TypeInt, value)
 	}
 	if _u.mutation.DisciplineCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -890,6 +1036,106 @@ func (_u *EventUpdateOne) ClearSettings() *EventUpdateOne {
 	return _u
 }
 
+// SetCategories sets the "categories" field.
+func (_u *EventUpdateOne) SetCategories(v []string) *EventUpdateOne {
+	_u.mutation.SetCategories(v)
+	return _u
+}
+
+// AppendCategories appends value to the "categories" field.
+func (_u *EventUpdateOne) AppendCategories(v []string) *EventUpdateOne {
+	_u.mutation.AppendCategories(v)
+	return _u
+}
+
+// ClearCategories clears the value of the "categories" field.
+func (_u *EventUpdateOne) ClearCategories() *EventUpdateOne {
+	_u.mutation.ClearCategories()
+	return _u
+}
+
+// SetLogoURL sets the "logo_url" field.
+func (_u *EventUpdateOne) SetLogoURL(v string) *EventUpdateOne {
+	_u.mutation.SetLogoURL(v)
+	return _u
+}
+
+// SetNillableLogoURL sets the "logo_url" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableLogoURL(v *string) *EventUpdateOne {
+	if v != nil {
+		_u.SetLogoURL(*v)
+	}
+	return _u
+}
+
+// ClearLogoURL clears the value of the "logo_url" field.
+func (_u *EventUpdateOne) ClearLogoURL() *EventUpdateOne {
+	_u.mutation.ClearLogoURL()
+	return _u
+}
+
+// SetBannerURL sets the "banner_url" field.
+func (_u *EventUpdateOne) SetBannerURL(v string) *EventUpdateOne {
+	_u.mutation.SetBannerURL(v)
+	return _u
+}
+
+// SetNillableBannerURL sets the "banner_url" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableBannerURL(v *string) *EventUpdateOne {
+	if v != nil {
+		_u.SetBannerURL(*v)
+	}
+	return _u
+}
+
+// ClearBannerURL clears the value of the "banner_url" field.
+func (_u *EventUpdateOne) ClearBannerURL() *EventUpdateOne {
+	_u.mutation.ClearBannerURL()
+	return _u
+}
+
+// SetTeamsCount sets the "teams_count" field.
+func (_u *EventUpdateOne) SetTeamsCount(v int) *EventUpdateOne {
+	_u.mutation.ResetTeamsCount()
+	_u.mutation.SetTeamsCount(v)
+	return _u
+}
+
+// SetNillableTeamsCount sets the "teams_count" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableTeamsCount(v *int) *EventUpdateOne {
+	if v != nil {
+		_u.SetTeamsCount(*v)
+	}
+	return _u
+}
+
+// AddTeamsCount adds value to the "teams_count" field.
+func (_u *EventUpdateOne) AddTeamsCount(v int) *EventUpdateOne {
+	_u.mutation.AddTeamsCount(v)
+	return _u
+}
+
+// SetGamesCount sets the "games_count" field.
+func (_u *EventUpdateOne) SetGamesCount(v int) *EventUpdateOne {
+	_u.mutation.ResetGamesCount()
+	_u.mutation.SetGamesCount(v)
+	return _u
+}
+
+// SetNillableGamesCount sets the "games_count" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableGamesCount(v *int) *EventUpdateOne {
+	if v != nil {
+		_u.SetGamesCount(*v)
+	}
+	return _u
+}
+
+// AddGamesCount adds value to the "games_count" field.
+func (_u *EventUpdateOne) AddGamesCount(v int) *EventUpdateOne {
+	_u.mutation.AddGamesCount(v)
+	return _u
+}
+
 // SetDisciplineID sets the "discipline" edge to the Discipline entity by ID.
 func (_u *EventUpdateOne) SetDisciplineID(id uuid.UUID) *EventUpdateOne {
 	_u.mutation.SetDisciplineID(id)
@@ -1139,6 +1385,16 @@ func (_u *EventUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Event.status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.LogoURL(); ok {
+		if err := event.LogoURLValidator(v); err != nil {
+			return &ValidationError{Name: "logo_url", err: fmt.Errorf(`ent: validator failed for field "Event.logo_url": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.BannerURL(); ok {
+		if err := event.BannerURLValidator(v); err != nil {
+			return &ValidationError{Name: "banner_url", err: fmt.Errorf(`ent: validator failed for field "Event.banner_url": %w`, err)}
+		}
+	}
 	if _u.mutation.DisciplineCleared() && len(_u.mutation.DisciplineIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Event.discipline"`)
 	}
@@ -1218,6 +1474,41 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if _u.mutation.SettingsCleared() {
 		_spec.ClearField(event.FieldSettings, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.Categories(); ok {
+		_spec.SetField(event.FieldCategories, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedCategories(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, event.FieldCategories, value)
+		})
+	}
+	if _u.mutation.CategoriesCleared() {
+		_spec.ClearField(event.FieldCategories, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.LogoURL(); ok {
+		_spec.SetField(event.FieldLogoURL, field.TypeString, value)
+	}
+	if _u.mutation.LogoURLCleared() {
+		_spec.ClearField(event.FieldLogoURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.BannerURL(); ok {
+		_spec.SetField(event.FieldBannerURL, field.TypeString, value)
+	}
+	if _u.mutation.BannerURLCleared() {
+		_spec.ClearField(event.FieldBannerURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.TeamsCount(); ok {
+		_spec.SetField(event.FieldTeamsCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedTeamsCount(); ok {
+		_spec.AddField(event.FieldTeamsCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.GamesCount(); ok {
+		_spec.SetField(event.FieldGamesCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedGamesCount(); ok {
+		_spec.AddField(event.FieldGamesCount, field.TypeInt, value)
 	}
 	if _u.mutation.DisciplineCleared() {
 		edge := &sqlgraph.EdgeSpec{

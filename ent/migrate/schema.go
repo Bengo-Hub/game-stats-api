@@ -43,6 +43,43 @@ var (
 		Columns:    AnalyticsEmbeddingsColumns,
 		PrimaryKey: []*schema.Column{AnalyticsEmbeddingsColumns[0]},
 	}
+	// AuditLogsColumns holds the columns for the "audit_logs" table.
+	AuditLogsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "entity_type", Type: field.TypeString},
+		{Name: "entity_id", Type: field.TypeUUID},
+		{Name: "action", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "username", Type: field.TypeString},
+		{Name: "changes", Type: field.TypeJSON},
+		{Name: "reason", Type: field.TypeString, Size: 2147483647},
+		{Name: "ip_address", Type: field.TypeString, Nullable: true},
+		{Name: "user_agent", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// AuditLogsTable holds the schema information for the "audit_logs" table.
+	AuditLogsTable = &schema.Table{
+		Name:       "audit_logs",
+		Columns:    AuditLogsColumns,
+		PrimaryKey: []*schema.Column{AuditLogsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "auditlog_entity_type_entity_id",
+				Unique:  false,
+				Columns: []*schema.Column{AuditLogsColumns[1], AuditLogsColumns[2]},
+			},
+			{
+				Name:    "auditlog_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{AuditLogsColumns[4]},
+			},
+			{
+				Name:    "auditlog_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{AuditLogsColumns[10]},
+			},
+		},
+	}
 	// ContinentsColumns holds the columns for the "continents" table.
 	ContinentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -161,6 +198,11 @@ var (
 		{Name: "status", Type: field.TypeString, Default: "draft"},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "settings", Type: field.TypeJSON, Nullable: true},
+		{Name: "categories", Type: field.TypeJSON, Nullable: true},
+		{Name: "logo_url", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "banner_url", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "teams_count", Type: field.TypeInt, Default: 0},
+		{Name: "games_count", Type: field.TypeInt, Default: 0},
 		{Name: "discipline_events", Type: field.TypeUUID},
 		{Name: "location_events", Type: field.TypeUUID},
 	}
@@ -172,13 +214,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "events_disciplines_events",
-				Columns:    []*schema.Column{EventsColumns[12]},
+				Columns:    []*schema.Column{EventsColumns[17]},
 				RefColumns: []*schema.Column{DisciplinesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "events_locations_events",
-				Columns:    []*schema.Column{EventsColumns[13]},
+				Columns:    []*schema.Column{EventsColumns[18]},
 				RefColumns: []*schema.Column{LocationsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -308,12 +350,14 @@ var (
 	// GameEventsColumns holds the columns for the "game_events" table.
 	GameEventsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "event_type", Type: field.TypeString, Size: 50},
 		{Name: "minute", Type: field.TypeInt},
 		{Name: "second", Type: field.TypeInt},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
-		{Name: "created_at", Type: field.TypeTime},
 		{Name: "game_game_events", Type: field.TypeUUID},
 		{Name: "player_game_events", Type: field.TypeUUID, Nullable: true},
 	}
@@ -325,13 +369,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "game_events_games_game_events",
-				Columns:    []*schema.Column{GameEventsColumns[7]},
+				Columns:    []*schema.Column{GameEventsColumns[9]},
 				RefColumns: []*schema.Column{GamesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "game_events_players_game_events",
-				Columns:    []*schema.Column{GameEventsColumns[8]},
+				Columns:    []*schema.Column{GameEventsColumns[10]},
 				RefColumns: []*schema.Column{PlayersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -433,6 +477,8 @@ var (
 		{Name: "date_of_birth", Type: field.TypeTime, Nullable: true},
 		{Name: "jersey_number", Type: field.TypeInt, Nullable: true},
 		{Name: "profile_image_url", Type: field.TypeString, Nullable: true},
+		{Name: "is_captain", Type: field.TypeBool, Default: false},
+		{Name: "is_spirit_captain", Type: field.TypeBool, Default: false},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 		{Name: "team_players", Type: field.TypeUUID},
 	}
@@ -444,7 +490,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "players_teams_players",
-				Columns:    []*schema.Column{PlayersColumns[11]},
+				Columns:    []*schema.Column{PlayersColumns[13]},
 				RefColumns: []*schema.Column{TeamsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -672,6 +718,7 @@ var (
 	Tables = []*schema.Table{
 		AnalyticSearchesTable,
 		AnalyticsEmbeddingsTable,
+		AuditLogsTable,
 		ContinentsTable,
 		CountriesTable,
 		DisciplinesTable,

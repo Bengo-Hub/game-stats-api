@@ -1,0 +1,29 @@
+[
+  {
+    "model": "events.divisionpool",
+    "pk": 1,
+    "fields": {
+      "name": "Mixed",
+      "event": 1,
+      "description": ""
+    }
+  },
+  {
+    "model": "events.divisionpool",
+    "pk": 2,
+    "fields": {
+      "name": "Pool A",
+      "event": 1,
+      "description": ""
+    }
+  },
+  {
+    "model": "events.divisionpool",
+    "pk": 3,
+    "fields": {
+      "name": "Pool B",
+      "event": 1,
+      "description": ""
+    }
+  }
+]

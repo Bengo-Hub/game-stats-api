@@ -136,6 +136,34 @@ func (_c *PlayerCreate) SetNillableProfileImageURL(v *string) *PlayerCreate {
 	return _c
 }
 
+// SetIsCaptain sets the "is_captain" field.
+func (_c *PlayerCreate) SetIsCaptain(v bool) *PlayerCreate {
+	_c.mutation.SetIsCaptain(v)
+	return _c
+}
+
+// SetNillableIsCaptain sets the "is_captain" field if the given value is not nil.
+func (_c *PlayerCreate) SetNillableIsCaptain(v *bool) *PlayerCreate {
+	if v != nil {
+		_c.SetIsCaptain(*v)
+	}
+	return _c
+}
+
+// SetIsSpiritCaptain sets the "is_spirit_captain" field.
+func (_c *PlayerCreate) SetIsSpiritCaptain(v bool) *PlayerCreate {
+	_c.mutation.SetIsSpiritCaptain(v)
+	return _c
+}
+
+// SetNillableIsSpiritCaptain sets the "is_spirit_captain" field if the given value is not nil.
+func (_c *PlayerCreate) SetNillableIsSpiritCaptain(v *bool) *PlayerCreate {
+	if v != nil {
+		_c.SetIsSpiritCaptain(*v)
+	}
+	return _c
+}
+
 // SetMetadata sets the "metadata" field.
 func (_c *PlayerCreate) SetMetadata(v map[string]interface{}) *PlayerCreate {
 	_c.mutation.SetMetadata(v)
@@ -270,6 +298,14 @@ func (_c *PlayerCreate) defaults() {
 		v := player.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.IsCaptain(); !ok {
+		v := player.DefaultIsCaptain
+		_c.mutation.SetIsCaptain(v)
+	}
+	if _, ok := _c.mutation.IsSpiritCaptain(); !ok {
+		v := player.DefaultIsSpiritCaptain
+		_c.mutation.SetIsSpiritCaptain(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := player.DefaultID()
 		_c.mutation.SetID(v)
@@ -299,6 +335,12 @@ func (_c *PlayerCreate) check() error {
 		if err := player.GenderValidator(v); err != nil {
 			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Player.gender": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.IsCaptain(); !ok {
+		return &ValidationError{Name: "is_captain", err: errors.New(`ent: missing required field "Player.is_captain"`)}
+	}
+	if _, ok := _c.mutation.IsSpiritCaptain(); !ok {
+		return &ValidationError{Name: "is_spirit_captain", err: errors.New(`ent: missing required field "Player.is_spirit_captain"`)}
 	}
 	if len(_c.mutation.TeamIDs()) == 0 {
 		return &ValidationError{Name: "team", err: errors.New(`ent: missing required edge "Player.team"`)}
@@ -373,6 +415,14 @@ func (_c *PlayerCreate) createSpec() (*Player, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.ProfileImageURL(); ok {
 		_spec.SetField(player.FieldProfileImageURL, field.TypeString, value)
 		_node.ProfileImageURL = &value
+	}
+	if value, ok := _c.mutation.IsCaptain(); ok {
+		_spec.SetField(player.FieldIsCaptain, field.TypeBool, value)
+		_node.IsCaptain = value
+	}
+	if value, ok := _c.mutation.IsSpiritCaptain(); ok {
+		_spec.SetField(player.FieldIsSpiritCaptain, field.TypeBool, value)
+		_node.IsSpiritCaptain = value
 	}
 	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(player.FieldMetadata, field.TypeJSON, value)

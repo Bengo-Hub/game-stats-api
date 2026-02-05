@@ -49,7 +49,7 @@ type Game struct {
 	// AwayTeamScore holds the value of the "away_team_score" field.
 	AwayTeamScore int `json:"away_team_score,omitempty"`
 	// FirstPullBy holds the value of the "first_pull_by" field.
-	FirstPullBy string `json:"first_pull_by,omitempty"`
+	FirstPullBy *string `json:"first_pull_by,omitempty"`
 	// Version holds the value of the "version" field.
 	Version int `json:"version,omitempty"`
 	// Metadata holds the value of the "metadata" field.
@@ -311,7 +311,8 @@ func (_m *Game) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field first_pull_by", values[i])
 			} else if value.Valid {
-				_m.FirstPullBy = value.String
+				_m.FirstPullBy = new(string)
+				*_m.FirstPullBy = value.String
 			}
 		case game.FieldVersion:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -492,8 +493,10 @@ func (_m *Game) String() string {
 	builder.WriteString("away_team_score=")
 	builder.WriteString(fmt.Sprintf("%v", _m.AwayTeamScore))
 	builder.WriteString(", ")
-	builder.WriteString("first_pull_by=")
-	builder.WriteString(_m.FirstPullBy)
+	if v := _m.FirstPullBy; v != nil {
+		builder.WriteString("first_pull_by=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("version=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Version))

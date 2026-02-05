@@ -38,6 +38,10 @@ type Player struct {
 	JerseyNumber *int `json:"jersey_number,omitempty"`
 	// ProfileImageURL holds the value of the "profile_image_url" field.
 	ProfileImageURL *string `json:"profile_image_url,omitempty"`
+	// Whether this player is the team captain
+	IsCaptain bool `json:"is_captain,omitempty"`
+	// Whether this player is the spirit captain
+	IsSpiritCaptain bool `json:"is_spirit_captain,omitempty"`
 	// Metadata holds the value of the "metadata" field.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -118,6 +122,8 @@ func (*Player) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case player.FieldMetadata:
 			values[i] = new([]byte)
+		case player.FieldIsCaptain, player.FieldIsSpiritCaptain:
+			values[i] = new(sql.NullBool)
 		case player.FieldJerseyNumber:
 			values[i] = new(sql.NullInt64)
 		case player.FieldName, player.FieldEmail, player.FieldGender, player.FieldProfileImageURL:
@@ -207,6 +213,18 @@ func (_m *Player) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ProfileImageURL = new(string)
 				*_m.ProfileImageURL = value.String
+			}
+		case player.FieldIsCaptain:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_captain", values[i])
+			} else if value.Valid {
+				_m.IsCaptain = value.Bool
+			}
+		case player.FieldIsSpiritCaptain:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_spirit_captain", values[i])
+			} else if value.Valid {
+				_m.IsSpiritCaptain = value.Bool
 			}
 		case player.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -320,6 +338,12 @@ func (_m *Player) String() string {
 		builder.WriteString("profile_image_url=")
 		builder.WriteString(*v)
 	}
+	builder.WriteString(", ")
+	builder.WriteString("is_captain=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsCaptain))
+	builder.WriteString(", ")
+	builder.WriteString("is_spirit_captain=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsSpiritCaptain))
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))

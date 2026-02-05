@@ -175,6 +175,34 @@ func (_u *PlayerUpdate) ClearProfileImageURL() *PlayerUpdate {
 	return _u
 }
 
+// SetIsCaptain sets the "is_captain" field.
+func (_u *PlayerUpdate) SetIsCaptain(v bool) *PlayerUpdate {
+	_u.mutation.SetIsCaptain(v)
+	return _u
+}
+
+// SetNillableIsCaptain sets the "is_captain" field if the given value is not nil.
+func (_u *PlayerUpdate) SetNillableIsCaptain(v *bool) *PlayerUpdate {
+	if v != nil {
+		_u.SetIsCaptain(*v)
+	}
+	return _u
+}
+
+// SetIsSpiritCaptain sets the "is_spirit_captain" field.
+func (_u *PlayerUpdate) SetIsSpiritCaptain(v bool) *PlayerUpdate {
+	_u.mutation.SetIsSpiritCaptain(v)
+	return _u
+}
+
+// SetNillableIsSpiritCaptain sets the "is_spirit_captain" field if the given value is not nil.
+func (_u *PlayerUpdate) SetNillableIsSpiritCaptain(v *bool) *PlayerUpdate {
+	if v != nil {
+		_u.SetIsSpiritCaptain(*v)
+	}
+	return _u
+}
+
 // SetMetadata sets the "metadata" field.
 func (_u *PlayerUpdate) SetMetadata(v map[string]interface{}) *PlayerUpdate {
 	_u.mutation.SetMetadata(v)
@@ -460,6 +488,12 @@ func (_u *PlayerUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.ProfileImageURLCleared() {
 		_spec.ClearField(player.FieldProfileImageURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.IsCaptain(); ok {
+		_spec.SetField(player.FieldIsCaptain, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.IsSpiritCaptain(); ok {
+		_spec.SetField(player.FieldIsSpiritCaptain, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(player.FieldMetadata, field.TypeJSON, value)
@@ -837,6 +871,34 @@ func (_u *PlayerUpdateOne) ClearProfileImageURL() *PlayerUpdateOne {
 	return _u
 }
 
+// SetIsCaptain sets the "is_captain" field.
+func (_u *PlayerUpdateOne) SetIsCaptain(v bool) *PlayerUpdateOne {
+	_u.mutation.SetIsCaptain(v)
+	return _u
+}
+
+// SetNillableIsCaptain sets the "is_captain" field if the given value is not nil.
+func (_u *PlayerUpdateOne) SetNillableIsCaptain(v *bool) *PlayerUpdateOne {
+	if v != nil {
+		_u.SetIsCaptain(*v)
+	}
+	return _u
+}
+
+// SetIsSpiritCaptain sets the "is_spirit_captain" field.
+func (_u *PlayerUpdateOne) SetIsSpiritCaptain(v bool) *PlayerUpdateOne {
+	_u.mutation.SetIsSpiritCaptain(v)
+	return _u
+}
+
+// SetNillableIsSpiritCaptain sets the "is_spirit_captain" field if the given value is not nil.
+func (_u *PlayerUpdateOne) SetNillableIsSpiritCaptain(v *bool) *PlayerUpdateOne {
+	if v != nil {
+		_u.SetIsSpiritCaptain(*v)
+	}
+	return _u
+}
+
 // SetMetadata sets the "metadata" field.
 func (_u *PlayerUpdateOne) SetMetadata(v map[string]interface{}) *PlayerUpdateOne {
 	_u.mutation.SetMetadata(v)
@@ -1152,6 +1214,12 @@ func (_u *PlayerUpdateOne) sqlSave(ctx context.Context) (_node *Player, err erro
 	}
 	if _u.mutation.ProfileImageURLCleared() {
 		_spec.ClearField(player.FieldProfileImageURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.IsCaptain(); ok {
+		_spec.SetField(player.FieldIsCaptain, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.IsSpiritCaptain(); ok {
+		_spec.SetField(player.FieldIsSpiritCaptain, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(player.FieldMetadata, field.TypeJSON, value)

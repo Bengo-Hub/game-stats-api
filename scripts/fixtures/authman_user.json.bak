@@ -1,0 +1,148 @@
+[
+  {
+    "model": "authman.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$yMAdANUXU8x77qEgoI7otG$6JlUkf/PCloWvyhpDleqUAXogf/uSJnR60ZiljJ28E4=",
+      "last_login": "2025-03-01 10:44:47",
+      "is_superuser": "1",
+      "username": "titus",
+      "email": "titusowuor30@gmail.com",
+      "is_staff": "1",
+      "is_active": "1",
+      "date_joined": "2025-03-01 03:40:35",
+      "role": "admin"
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$68QWsanacz8guanAwNK4n7$n79rPz6g8oqYxLjKnE67rQZ5VoZUj6vJyt6BUr6uNaE=",
+      "last_login": "2025-03-27 10:14:52",
+      "is_superuser": "1",
+      "username": "admin",
+      "email": "admin@admin.com",
+      "is_staff": "1",
+      "is_active": "1",
+      "date_joined": "2025-02-25 15:19:11",
+      "role": "admin"
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 3,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$b6V3MelFEaL2OF9jZvjQJA$Avuxtui0HYrJAFzkD51ztC5T4nFa89fLI25NI4yQhm4=",
+      "last_login": "2025-02-27 12:20:58",
+      "is_superuser": "0",
+      "username": "manager1",
+      "first_name": "Manager",
+      "last_name": "One",
+      "email": "man@test.com",
+      "is_staff": "1",
+      "is_active": "1",
+      "date_joined": "2025-02-27 10:21:23",
+      "role": "spectator"
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 4,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$MIv2742Tp8s8Yd5BwfLe7R$0gXgBy4IkNlqG+dyfOC4njHf7iLMJdHZoGzCAtAeKhg=",
+      "is_superuser": "0",
+      "username": "Zedrick",
+      "first_name": "Zedrick",
+      "last_name": "Wawire",
+      "email": "zedrickwawire33@gmail.com",
+      "is_staff": "1",
+      "is_active": "1",
+      "date_joined": "2025-03-01 04:27:45",
+      "role": "team_manager"
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 5,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$IRk408mRYLyd72WKOxzqvZ$D8z2q7AiedBedJEfX4XiaK2BqFTNVL/y2hHgGKQvzj4=",
+      "is_superuser": "0",
+      "username": "Munira",
+      "first_name": "Munira",
+      "last_name": "Ramadhan",
+      "email": "nasichemunira@gmail.com",
+      "is_staff": "1",
+      "is_active": "1",
+      "date_joined": "2025-03-01 04:31:06",
+      "role": "team_manager"
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 6,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$NwdBMug2JZIsWI40KOrMc7$1ccJ3PJp1C3z/k2rRtUnUBP/acIH+BcOY1zQ4xyRTyI=",
+      "last_login": "2025-03-01 05:45:12",
+      "is_superuser": "0",
+      "username": "Serah",
+      "first_name": "Serah",
+      "last_name": "Gitau",
+      "email": "serahgitau316@gmail.com",
+      "is_staff": "1",
+      "is_active": "1",
+      "date_joined": "2025-03-01 04:31:49",
+      "role": "team_manager"
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 7,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$JtLX9VVMPg28z5wehtMMIV$OgtFP0R+qKObcmLyFKlwSdjDeUlzkaOrgZF7MhL19OU=",
+      "last_login": "2025-03-01 17:37:38",
+      "is_superuser": "0",
+      "username": "Eddah",
+      "first_name": "Eddah",
+      "last_name": "Jeptoo",
+      "email": "eddahmathews@gmail.com",
+      "is_staff": "1",
+      "is_active": "1",
+      "date_joined": "2025-03-01 04:33:35",
+      "role": "team_manager"
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 8,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$nf3aSei6GFqKwZHjDZU5Ak$zAS/vw/snl0KKCg4ewEnraz9t1kwcZ8XsWmpzfmCAN8=",
+      "is_superuser": "0",
+      "username": "Melody",
+      "first_name": "Melody",
+      "last_name": "Muniafu",
+      "email": "melodymuniafu262@gmail.com",
+      "is_staff": "1",
+      "is_active": "1",
+      "date_joined": "2025-03-01 04:36:05",
+      "role": "team_manager"
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 9,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$UIhUURVykbPiyqSxVINv9k$KLOw5FjFlwJCEU9xIqAhMh+raI8r6gkQ2E6ia2LJCAM=",
+      "last_login": "2025-03-01 10:14:39",
+      "is_superuser": "0",
+      "username": "Risper",
+      "first_name": "Risper",
+      "last_name": "Sungu",
+      "email": "rispersungu00@gmail.com",
+      "is_staff": "1",
+      "is_active": "1",
+      "date_joined": "2025-03-01 04:36:08",
+      "role": "team_manager"
+    }
+  }
+]

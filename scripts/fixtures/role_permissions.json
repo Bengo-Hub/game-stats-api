@@ -1,0 +1,52 @@
+{
+  "admin": [
+    "view_dashboard",
+    "view_events", "add_events", "change_events", "delete_events", "manage_events",
+    "view_games", "add_games", "change_games", "delete_games", "manage_games", "record_scores",
+    "view_teams", "add_teams", "change_teams", "delete_teams", "manage_teams",
+    "view_players", "add_players", "change_players", "delete_players", "manage_players",
+    "view_spirit", "submit_spirit", "change_spirit", "manage_spirit",
+    "view_analytics", "export_analytics",
+    "view_admin", "manage_users", "manage_roles", "manage_settings",
+    "view_settings", "change_settings"
+  ],
+  "event_manager": [
+    "view_dashboard",
+    "view_events", "add_events", "change_events", "manage_events",
+    "view_games", "add_games", "change_games", "manage_games", "record_scores",
+    "view_teams", "add_teams", "change_teams", "manage_teams",
+    "view_players", "add_players", "change_players",
+    "view_spirit", "submit_spirit",
+    "view_analytics", "export_analytics",
+    "view_settings"
+  ],
+  "team_manager": [
+    "view_dashboard",
+    "view_events",
+    "view_games",
+    "view_teams", "change_teams",
+    "view_players", "add_players", "change_players", "delete_players", "manage_players",
+    "view_spirit", "submit_spirit",
+    "view_analytics",
+    "view_settings"
+  ],
+  "scorekeeper": [
+    "view_dashboard",
+    "view_events",
+    "view_games", "record_scores",
+    "view_teams",
+    "view_players",
+    "view_spirit", "submit_spirit",
+    "view_settings"
+  ],
+  "spectator": [
+    "view_dashboard",
+    "view_events",
+    "view_games",
+    "view_teams",
+    "view_players",
+    "view_spirit",
+    "view_analytics",
+    "view_settings"
+  ]
+}

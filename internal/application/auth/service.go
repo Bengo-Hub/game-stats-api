@@ -9,6 +9,7 @@ import (
 	"github.com/bengobox/game-stats-api/internal/config"
 	"github.com/bengobox/game-stats-api/internal/domain/user"
 	"github.com/bengobox/game-stats-api/internal/pkg/auth"
+	"github.com/google/uuid"
 )
 
 var (
@@ -94,5 +95,23 @@ func (s *Service) Refresh(ctx context.Context, req RefreshRequest) (*TokenRespon
 	return &TokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+	}, nil
+}
+
+// GetUserByID retrieves a user by their ID
+func (s *Service) GetUserByID(ctx context.Context, userID uuid.UUID) (*UserDTO, error) {
+	u, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+
+	return &UserDTO{
+		ID:    u.ID,
+		Email: u.Email,
+		Name:  u.Name,
+		Role:  u.Role,
 	}, nil
 }

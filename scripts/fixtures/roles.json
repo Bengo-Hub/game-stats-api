@@ -1,0 +1,32 @@
+[
+  {
+    "id": "admin",
+    "name": "Administrator",
+    "description": "Full system access with all administrative capabilities",
+    "hierarchy": 100
+  },
+  {
+    "id": "event_manager",
+    "name": "Event Manager",
+    "description": "Manages events, tournaments, games, teams, and schedules",
+    "hierarchy": 80
+  },
+  {
+    "id": "team_manager",
+    "name": "Team Manager",
+    "description": "Manages team roster, players, and submits spirit scores",
+    "hierarchy": 60
+  },
+  {
+    "id": "scorekeeper",
+    "name": "Scorekeeper",
+    "description": "Records game scores and submits spirit evaluations",
+    "hierarchy": 40
+  },
+  {
+    "id": "spectator",
+    "name": "Spectator",
+    "description": "View-only access to public and dashboard content",
+    "hierarchy": 20
+  }
+]

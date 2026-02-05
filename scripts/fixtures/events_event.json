@@ -1,0 +1,18 @@
+[
+  {
+    "model": "events.event",
+    "pk": 1,
+    "fields": {
+      "name": "Ultimate Tournament 2025",
+      "slug": "ultimate-tournament-2025",
+      "discipline": 1,
+      "location": 1,
+      "year": 2025,
+      "description": "",
+      "start_date": "2025-03-01",
+      "end_date": "2025-03-02",
+      "created_at": "2025-03-01T00:00:00Z",
+      "updated_at": "2025-03-01T00:00:00Z"
+    }
+  }
+]

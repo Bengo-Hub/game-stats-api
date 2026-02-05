@@ -47,8 +47,7 @@ func (r *playerRepository) ListByTeam(ctx context.Context, teamID uuid.UUID) ([]
 }
 
 func (r *playerRepository) SearchByName(ctx context.Context, name string, limit int) ([]*ent.Player, error) {
-	// Simple ILIKE search for now.
-	// In production with pg_trgm, we could use % similarity or word similarity.
+	// Case-insensitive name search using PostgreSQL ILIKE
 	return r.client.Player.Query().
 		Where(player.NameContainsFold(name)).
 		Where(player.DeletedAtIsNil()).

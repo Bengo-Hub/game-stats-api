@@ -2,16 +2,26 @@
 
 import (
 	"context"
+	"database/sql"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/bengobox/game-stats-api/internal/application/admin"
+	_ "github.com/lib/pq"
+	"github.com/bengobox/game-stats-api/internal/application/analytics"
 	"github.com/bengobox/game-stats-api/internal/application/auth"
+	"github.com/bengobox/game-stats-api/internal/application/bracket"
+	"github.com/bengobox/game-stats-api/internal/application/gamemanagement"
 	"github.com/bengobox/game-stats-api/internal/application/metadata"
+	"github.com/bengobox/game-stats-api/internal/application/ranking"
+	"github.com/bengobox/game-stats-api/internal/application/sse"
 	"github.com/bengobox/game-stats-api/internal/config"
+	"github.com/bengobox/game-stats-api/internal/infrastructure/cache"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/database"
+	"github.com/bengobox/game-stats-api/internal/infrastructure/migration"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/repository"
 	"github.com/bengobox/game-stats-api/internal/pkg/logger"
 	appHttp "github.com/bengobox/game-stats-api/internal/presentation/http"
@@ -56,42 +66,163 @@ func main() {
 	}
 	defer client.Close()
 
+	// 3.0.1. Open raw SQL connection for analytics queries
+	rawDB, err := sql.Open("postgres", cfg.DatabaseURL)
+	if err != nil {
+		logger.Fatal("Failed to open raw database connection", logger.Err(err))
+	}
+	defer rawDB.Close()
+
+	// 3.1. Connect to Redis
+	redisClient, err := cache.NewRedisClient(cfg.RedisURL)
+	if err != nil {
+		logger.Fatal("Failed to connect to Redis", logger.Err(err))
+	}
+	defer redisClient.Close()
+	logger.Info("Connected to Redis", logger.String("url", cfg.RedisURL))
+
+	// 3.2. Run data migration from legacy system (idempotent)
+	if cfg.RunMigration {
+		logger.Info("Running data migration from legacy Django fixtures...")
+		migrator := migration.NewMigrator(client)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+		defer cancel()
+
+		fixturesDir := cfg.FixturesDir
+		if fixturesDir == "" {
+			fixturesDir = "./scripts/fixtures"
+		}
+
+		if err := migrator.RunAll(ctx, fixturesDir); err != nil {
+			logger.Error("Data migration failed (continuing anyway)", logger.Err(err))
+		} else {
+			logger.Info("✓ Data migration completed successfully")
+		}
+	} else {
+		logger.Info("Skipping data migration (RUN_MIGRATION=false)")
+	}
+
 	// 4. Initialize repositories
 	userRepo := repository.NewUserRepository(client)
 	worldRepo := repository.NewWorldRepository(client)
 	continentRepo := repository.NewContinentRepository(client)
 	countryRepo := repository.NewCountryRepository(client)
 
+	// Game management repositories
+	gameRepo := repository.NewGameRepository(client)
+	gameRoundRepo := repository.NewGameRoundRepository(client)
+	gameEventRepo := repository.NewGameEventRepository(client)
+	scoringRepo := repository.NewScoringRepository(client)
+	spiritScoreRepo := repository.NewSpiritScoreRepository(client)
+	mvpNominationRepo := repository.NewMVPNominationRepository(client)
+	spiritNominationRepo := repository.NewSpiritNominationRepository(client)
+	teamRepo := repository.NewTeamRepository(client)
+	playerRepo := repository.NewPlayerRepository(client)
+	fieldRepo := repository.NewFieldRepository(client)
+	divisionRepo := repository.NewDivisionPoolRepository(client)
+
+	// Event repository for bracket generation
+	eventRepo := repository.NewEventRepository(client)
+
 	// Instantiate other repositories to ensure they are valid and compiled
 	_ = repository.NewLocationRepository(client)
-	_ = repository.NewFieldRepository(client)
 	_ = repository.NewDisciplineRepository(client)
-	_ = repository.NewEventRepository(client)
-	_ = repository.NewDivisionPoolRepository(client)
-	_ = repository.NewTeamRepository(client)
-	_ = repository.NewPlayerRepository(client)
 	_ = repository.NewEventReconciliationRepository(client)
-	_ = repository.NewScoringRepository(client)
-	_ = repository.NewSpiritScoreRepository(client)
 	_ = repository.NewAnalyticsEmbeddingRepository(client)
-	_ = repository.NewMVPNominationRepository(client)
-	_ = repository.NewSpiritNominationRepository(client)
 
 	// 5. Initialize application services
 	authService := auth.NewService(userRepo, cfg)
 	metadataService := metadata.NewService(worldRepo, continentRepo, countryRepo)
+	gameManagementService := gamemanagement.NewService(
+		gameRepo,
+		gameRoundRepo,
+		gameEventRepo,
+		scoringRepo,
+		spiritScoreRepo,
+		mvpNominationRepo,
+		spiritNominationRepo,
+		teamRepo,
+		playerRepo,
+		fieldRepo,
+		divisionRepo,
+		userRepo,
+		eventRepo,
+	)
+
+	// Initialize SSE broker for real-time updates
+	sseBroker := sse.NewBroker()
+	defer sseBroker.Shutdown()
+
+	// Initialize ranking service with cache
+	rankingService := ranking.NewService(
+		divisionRepo,
+		gameRepo,
+		teamRepo,
+		gameRoundRepo,
+		redisClient,
+	)
+
+	// Initialize bracket service with cache
+	bracketService := bracket.NewService(
+		gameRepo,
+		gameRoundRepo,
+		teamRepo,
+		eventRepo,
+		redisClient,
+	)
+
+	// Initialize analytics service with Superset client
+	supersetClient := analytics.NewSupersetClient(
+		cfg.SupersetBaseURL,
+		cfg.SupersetUsername,
+		cfg.SupersetPassword,
+	)
+	analyticsService := analytics.NewService(supersetClient, client)
+
+	// Initialize Ollama client and text-to-SQL service
+	ollamaClient := analytics.NewOllamaClient(
+		cfg.OllamaBaseURL,
+		cfg.OllamaModel,
+	)
+	textToSQLService := analytics.NewTextToSQLService(ollamaClient, client, rawDB)
+
+	// Initialize audit repository
+	auditRepo := repository.NewInMemoryAuditRepository()
+
+	// Initialize admin service
+	adminService := admin.NewScoreAdminService(gameRepo, spiritScoreRepo, auditRepo, redisClient)
 
 	// 6. Initialize HTTP handlers
 	authHandler := handlers.NewAuthHandler(authService, cfg.JWTSecret)
 	systemHandler := handlers.NewSystemHandler()
 	geographicHandler := handlers.NewGeographicHandler(metadataService)
+	gameHandler := handlers.NewGameHandler(gameManagementService, sseBroker)
+	gameRoundHandler := handlers.NewGameRoundHandler(gameManagementService)
+	spiritScoreHandler := handlers.NewSpiritScoreHandler(gameManagementService)
+	rankingHandler := handlers.NewRankingHandler(rankingService)
+	bracketHandler := handlers.NewBracketHandler(bracketService)
+	analyticsHandler := handlers.NewAnalyticsHandler(analyticsService, textToSQLService)
+	adminHandler := handlers.NewAdminHandler(adminService)
+	teamHandler := handlers.NewTeamHandler(client)
+	leaderboardHandler := handlers.NewLeaderboardHandler(client)
+	eventHandler := handlers.NewEventHandler(client)
 
 	// 7. Setup router
 	router := appHttp.NewRouter(appHttp.RouterOptions{
-		Config:            cfg,
-		AuthHandler:       authHandler,
-		SystemHandler:     systemHandler,
-		GeographicHandler: geographicHandler,
+		Config:             cfg,
+		AuthHandler:        authHandler,
+		SystemHandler:      systemHandler,
+		GeographicHandler:  geographicHandler,
+		GameHandler:        gameHandler,
+		GameRoundHandler:   gameRoundHandler,
+		SpiritScoreHandler: spiritScoreHandler,
+		RankingHandler:     rankingHandler,
+		BracketHandler:     bracketHandler,
+		AnalyticsHandler:   analyticsHandler,
+		AdminHandler:       adminHandler,
+		TeamHandler:        teamHandler,
+		LeaderboardHandler: leaderboardHandler,
+		EventHandler:       eventHandler,
 	})
 
 	// 8. Start server

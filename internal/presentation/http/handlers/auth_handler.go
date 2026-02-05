@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/bengobox/game-stats-api/internal/application/auth"
+	pkgAuth "github.com/bengobox/game-stats-api/internal/pkg/auth"
+	"github.com/bengobox/game-stats-api/internal/presentation/http/middleware"
 )
 
 type AuthHandler struct {
@@ -81,24 +83,26 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 // @Summary Get Current User
 // @Description Get information about the currently authenticated user.
 // @Tags auth
-// @Accept json
 // @Produce json
 // @Success 200 {object} auth.UserDTO
-// @Failure 401 {string} string "unauthorized"
+// @Failure 401 {object} ErrorResponse
 // @Security BearerAuth
-// @Router /auth/me [get]
+// @Router /me [get]
 func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
-	// In a real app, this would get the user from the context (populated by middleware)
-	// and possibly fetch fresh data from the repo.
-
-	// Assuming middleware puts "user_id" in context
-	userID, ok := r.Context().Value("user_id").(string)
+	// Get claims from JWT (set by auth middleware)
+	claims, ok := r.Context().Value(middleware.UserContextKey).(*pkgAuth.Claims)
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
 
-	// For Sprint 1, we return a simple representation.
+	// Fetch full user info from service
+	user, err := h.service.GetUserByID(r.Context(), claims.UserID)
+	if err != nil {
+		http.Error(w, `{"error":"user not found"}`, http.StatusNotFound)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"id": userID, "status": "authenticated"})
+	json.NewEncoder(w).Encode(user)
 }

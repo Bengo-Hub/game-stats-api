@@ -133,6 +133,68 @@ func (_c *EventCreate) SetSettings(v map[string]interface{}) *EventCreate {
 	return _c
 }
 
+// SetCategories sets the "categories" field.
+func (_c *EventCreate) SetCategories(v []string) *EventCreate {
+	_c.mutation.SetCategories(v)
+	return _c
+}
+
+// SetLogoURL sets the "logo_url" field.
+func (_c *EventCreate) SetLogoURL(v string) *EventCreate {
+	_c.mutation.SetLogoURL(v)
+	return _c
+}
+
+// SetNillableLogoURL sets the "logo_url" field if the given value is not nil.
+func (_c *EventCreate) SetNillableLogoURL(v *string) *EventCreate {
+	if v != nil {
+		_c.SetLogoURL(*v)
+	}
+	return _c
+}
+
+// SetBannerURL sets the "banner_url" field.
+func (_c *EventCreate) SetBannerURL(v string) *EventCreate {
+	_c.mutation.SetBannerURL(v)
+	return _c
+}
+
+// SetNillableBannerURL sets the "banner_url" field if the given value is not nil.
+func (_c *EventCreate) SetNillableBannerURL(v *string) *EventCreate {
+	if v != nil {
+		_c.SetBannerURL(*v)
+	}
+	return _c
+}
+
+// SetTeamsCount sets the "teams_count" field.
+func (_c *EventCreate) SetTeamsCount(v int) *EventCreate {
+	_c.mutation.SetTeamsCount(v)
+	return _c
+}
+
+// SetNillableTeamsCount sets the "teams_count" field if the given value is not nil.
+func (_c *EventCreate) SetNillableTeamsCount(v *int) *EventCreate {
+	if v != nil {
+		_c.SetTeamsCount(*v)
+	}
+	return _c
+}
+
+// SetGamesCount sets the "games_count" field.
+func (_c *EventCreate) SetGamesCount(v int) *EventCreate {
+	_c.mutation.SetGamesCount(v)
+	return _c
+}
+
+// SetNillableGamesCount sets the "games_count" field if the given value is not nil.
+func (_c *EventCreate) SetNillableGamesCount(v *int) *EventCreate {
+	if v != nil {
+		_c.SetGamesCount(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *EventCreate) SetID(v uuid.UUID) *EventCreate {
 	_c.mutation.SetID(v)
@@ -276,6 +338,14 @@ func (_c *EventCreate) defaults() {
 		v := event.DefaultStatus
 		_c.mutation.SetStatus(v)
 	}
+	if _, ok := _c.mutation.TeamsCount(); !ok {
+		v := event.DefaultTeamsCount
+		_c.mutation.SetTeamsCount(v)
+	}
+	if _, ok := _c.mutation.GamesCount(); !ok {
+		v := event.DefaultGamesCount
+		_c.mutation.SetGamesCount(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := event.DefaultID()
 		_c.mutation.SetID(v)
@@ -322,6 +392,22 @@ func (_c *EventCreate) check() error {
 		if err := event.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Event.status": %w`, err)}
 		}
+	}
+	if v, ok := _c.mutation.LogoURL(); ok {
+		if err := event.LogoURLValidator(v); err != nil {
+			return &ValidationError{Name: "logo_url", err: fmt.Errorf(`ent: validator failed for field "Event.logo_url": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.BannerURL(); ok {
+		if err := event.BannerURLValidator(v); err != nil {
+			return &ValidationError{Name: "banner_url", err: fmt.Errorf(`ent: validator failed for field "Event.banner_url": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.TeamsCount(); !ok {
+		return &ValidationError{Name: "teams_count", err: errors.New(`ent: missing required field "Event.teams_count"`)}
+	}
+	if _, ok := _c.mutation.GamesCount(); !ok {
+		return &ValidationError{Name: "games_count", err: errors.New(`ent: missing required field "Event.games_count"`)}
 	}
 	if len(_c.mutation.DisciplineIDs()) == 0 {
 		return &ValidationError{Name: "discipline", err: errors.New(`ent: missing required edge "Event.discipline"`)}
@@ -407,6 +493,26 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Settings(); ok {
 		_spec.SetField(event.FieldSettings, field.TypeJSON, value)
 		_node.Settings = value
+	}
+	if value, ok := _c.mutation.Categories(); ok {
+		_spec.SetField(event.FieldCategories, field.TypeJSON, value)
+		_node.Categories = value
+	}
+	if value, ok := _c.mutation.LogoURL(); ok {
+		_spec.SetField(event.FieldLogoURL, field.TypeString, value)
+		_node.LogoURL = &value
+	}
+	if value, ok := _c.mutation.BannerURL(); ok {
+		_spec.SetField(event.FieldBannerURL, field.TypeString, value)
+		_node.BannerURL = &value
+	}
+	if value, ok := _c.mutation.TeamsCount(); ok {
+		_spec.SetField(event.FieldTeamsCount, field.TypeInt, value)
+		_node.TeamsCount = value
+	}
+	if value, ok := _c.mutation.GamesCount(); ok {
+		_spec.SetField(event.FieldGamesCount, field.TypeInt, value)
+		_node.GamesCount = value
 	}
 	if nodes := _c.mutation.DisciplineIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

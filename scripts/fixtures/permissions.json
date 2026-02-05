@@ -1,0 +1,44 @@
+[
+  {"id": "view_dashboard", "name": "View Dashboard", "module": "dashboard", "action": "view"},
+
+  {"id": "view_events", "name": "View Events", "module": "events", "action": "view"},
+  {"id": "add_events", "name": "Add Events", "module": "events", "action": "add"},
+  {"id": "change_events", "name": "Change Events", "module": "events", "action": "change"},
+  {"id": "delete_events", "name": "Delete Events", "module": "events", "action": "delete"},
+  {"id": "manage_events", "name": "Manage Events", "module": "events", "action": "manage"},
+
+  {"id": "view_games", "name": "View Games", "module": "games", "action": "view"},
+  {"id": "add_games", "name": "Add Games", "module": "games", "action": "add"},
+  {"id": "change_games", "name": "Change Games", "module": "games", "action": "change"},
+  {"id": "delete_games", "name": "Delete Games", "module": "games", "action": "delete"},
+  {"id": "manage_games", "name": "Manage Games", "module": "games", "action": "manage"},
+  {"id": "record_scores", "name": "Record Scores", "module": "games", "action": "record"},
+
+  {"id": "view_teams", "name": "View Teams", "module": "teams", "action": "view"},
+  {"id": "add_teams", "name": "Add Teams", "module": "teams", "action": "add"},
+  {"id": "change_teams", "name": "Change Teams", "module": "teams", "action": "change"},
+  {"id": "delete_teams", "name": "Delete Teams", "module": "teams", "action": "delete"},
+  {"id": "manage_teams", "name": "Manage Teams", "module": "teams", "action": "manage"},
+
+  {"id": "view_players", "name": "View Players", "module": "players", "action": "view"},
+  {"id": "add_players", "name": "Add Players", "module": "players", "action": "add"},
+  {"id": "change_players", "name": "Change Players", "module": "players", "action": "change"},
+  {"id": "delete_players", "name": "Delete Players", "module": "players", "action": "delete"},
+  {"id": "manage_players", "name": "Manage Players", "module": "players", "action": "manage"},
+
+  {"id": "view_spirit", "name": "View Spirit Scores", "module": "spirit", "action": "view"},
+  {"id": "submit_spirit", "name": "Submit Spirit Scores", "module": "spirit", "action": "submit"},
+  {"id": "change_spirit", "name": "Change Spirit Scores", "module": "spirit", "action": "change"},
+  {"id": "manage_spirit", "name": "Manage Spirit Scores", "module": "spirit", "action": "manage"},
+
+  {"id": "view_analytics", "name": "View Analytics", "module": "analytics", "action": "view"},
+  {"id": "export_analytics", "name": "Export Analytics", "module": "analytics", "action": "export"},
+
+  {"id": "view_admin", "name": "View Admin Panel", "module": "admin", "action": "view"},
+  {"id": "manage_users", "name": "Manage Users", "module": "admin", "action": "manage_users"},
+  {"id": "manage_roles", "name": "Manage Roles", "module": "admin", "action": "manage_roles"},
+  {"id": "manage_settings", "name": "Manage Settings", "module": "admin", "action": "manage_settings"},
+
+  {"id": "view_settings", "name": "View Settings", "module": "settings", "action": "view"},
+  {"id": "change_settings", "name": "Change Settings", "module": "settings", "action": "change"}
+]

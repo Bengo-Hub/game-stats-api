@@ -1,6 +1,129 @@
 basePath: /api/v1
 definitions:
-  github_com_bengobox_game-stats-api_internal_application_auth.LoginRequest:
+  admin.UpdateGameScoreResponse:
+    properties:
+      audit_log_id:
+        type: string
+      away_score:
+        type: integer
+      game_id:
+        type: string
+      home_score:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  admin.UpdateSpiritScoreResponse:
+    properties:
+      attitude:
+        type: integer
+      audit_log_id:
+        type: string
+      communication:
+        type: integer
+      fair_mindedness:
+        type: integer
+      fouls:
+        type: integer
+      rules_knowledge:
+        type: integer
+      spirit_score_id:
+        type: string
+      total_score:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  analytics.Dashboard:
+    properties:
+      dashboard_title:
+        type: string
+      dashboard_uuid:
+        type: string
+      id:
+        type: integer
+      published:
+        type: boolean
+      slug:
+        type: string
+      url:
+        type: string
+    type: object
+  analytics.EventStatistics:
+    properties:
+      average_spirit_score:
+        type: number
+      completed_games:
+        type: integer
+      event_id:
+        type: string
+      in_progress_games:
+        type: integer
+      scheduled_games:
+        type: integer
+      top_scorer:
+        $ref: '#/definitions/analytics.PlayerStat'
+      total_games:
+        type: integer
+      total_players:
+        type: integer
+      total_teams:
+        type: integer
+    type: object
+  analytics.GenerateEmbedTokenResponse:
+    properties:
+      dashboard_uuid:
+        type: string
+      expires_at:
+        type: string
+      token:
+        type: string
+    type: object
+  analytics.ListDashboardsResponse:
+    properties:
+      dashboards:
+        items:
+          $ref: '#/definitions/analytics.Dashboard'
+        type: array
+      total:
+        type: integer
+    type: object
+  analytics.NaturalLanguageQueryResponse:
+    properties:
+      confidence:
+        type: number
+      explanation:
+        type: string
+      question:
+        type: string
+      results:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+      sql:
+        type: string
+      warning:
+        type: string
+    type: object
+  analytics.PlayerStat:
+    properties:
+      assists:
+        type: integer
+      games_played:
+        type: integer
+      goals:
+        type: integer
+      player_id:
+        type: string
+      player_name:
+        type: string
+      team_id:
+        type: string
+      team_name:
+        type: string
+    type: object
+  auth.LoginRequest:
     properties:
       email:
         type: string
@@ -10,30 +133,30 @@ definitions:
     - email
     - password
     type: object
-  github_com_bengobox_game-stats-api_internal_application_auth.LoginResponse:
+  auth.LoginResponse:
     properties:
       access_token:
         type: string
       refresh_token:
         type: string
       user:
-        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.UserDTO'
+        $ref: '#/definitions/auth.UserDTO'
     type: object
-  github_com_bengobox_game-stats-api_internal_application_auth.RefreshRequest:
+  auth.RefreshRequest:
     properties:
       refresh_token:
         type: string
     required:
     - refresh_token
     type: object
-  github_com_bengobox_game-stats-api_internal_application_auth.TokenResponse:
+  auth.TokenResponse:
     properties:
       access_token:
         type: string
       refresh_token:
         type: string
     type: object
-  github_com_bengobox_game-stats-api_internal_application_auth.UserDTO:
+  auth.UserDTO:
     properties:
       email:
         type: string
@@ -44,7 +167,848 @@ definitions:
       role:
         type: string
     type: object
-  github_com_bengobox_game-stats-api_internal_application_metadata.ContinentDTO:
+  bracket.BracketNode:
+    properties:
+      game_id:
+        type: string
+      id:
+        type: string
+      left_child:
+        $ref: '#/definitions/bracket.BracketNode'
+      position:
+        type: integer
+      right_child:
+        $ref: '#/definitions/bracket.BracketNode'
+      round:
+        type: integer
+      scheduled_time:
+        type: string
+      status:
+        type: string
+      team1_id:
+        type: string
+      team1_name:
+        type: string
+      team1_score:
+        type: integer
+      team1_seed:
+        type: integer
+      team2_id:
+        type: string
+      team2_name:
+        type: string
+      team2_score:
+        type: integer
+      team2_seed:
+        type: integer
+      winner_id:
+        type: string
+    type: object
+  bracket.BracketType:
+    enum:
+    - single_elimination
+    - double_elimination
+    type: string
+    x-enum-varnames:
+    - BracketTypeSingleElimination
+    - BracketTypeDoubleElimination
+  bracket.GenerateBracketRequest:
+    properties:
+      bracket_type:
+        allOf:
+        - $ref: '#/definitions/bracket.BracketType'
+        enum:
+        - single_elimination
+        - double_elimination
+      event_id:
+        type: string
+      field_id:
+        type: string
+      game_duration:
+        minimum: 30
+        type: integer
+      round_id:
+        type: string
+      start_time:
+        type: string
+      teams:
+        items:
+          $ref: '#/definitions/bracket.TeamSeed'
+        minItems: 2
+        type: array
+    required:
+    - bracket_type
+    - event_id
+    - field_id
+    - game_duration
+    - round_id
+    - start_time
+    - teams
+    type: object
+  bracket.GenerateBracketResponse:
+    properties:
+      bracket_id:
+        type: string
+      bracket_tree:
+        $ref: '#/definitions/bracket.BracketNode'
+      bracket_type:
+        $ref: '#/definitions/bracket.BracketType'
+      created_at:
+        type: string
+      event_id:
+        type: string
+      games_created:
+        items:
+          type: string
+        type: array
+      round_id:
+        type: string
+      total_games:
+        type: integer
+      total_rounds:
+        type: integer
+    type: object
+  bracket.GetBracketResponse:
+    properties:
+      bracket_tree:
+        $ref: '#/definitions/bracket.BracketNode'
+      bracket_type:
+        $ref: '#/definitions/bracket.BracketType'
+      event_id:
+        type: string
+      round_id:
+        type: string
+      total_games:
+        type: integer
+      total_rounds:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  bracket.TeamSeed:
+    properties:
+      seed:
+        minimum: 1
+        type: integer
+      team_id:
+        type: string
+      team_name:
+        type: string
+    required:
+    - seed
+    - team_id
+    - team_name
+    type: object
+  gamemanagement.CreateGameRequest:
+    properties:
+      allocated_time_minutes:
+        minimum: 1
+        type: integer
+      away_team_id:
+        type: string
+      division_pool_id:
+        type: string
+      field_location_id:
+        type: string
+      first_pull_by:
+        type: string
+      game_round_id:
+        type: string
+      home_team_id:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        maxLength: 100
+        type: string
+      scheduled_time:
+        type: string
+      scorekeeper_id:
+        type: string
+    required:
+    - allocated_time_minutes
+    - away_team_id
+    - division_pool_id
+    - field_location_id
+    - home_team_id
+    - name
+    - scheduled_time
+    type: object
+  gamemanagement.CreateGameRoundRequest:
+    properties:
+      end_date:
+        type: string
+      event_id:
+        type: string
+      name:
+        maxLength: 100
+        type: string
+      round_number:
+        type: integer
+      round_type:
+        enum:
+        - pool
+        - bracket
+        - semifinal
+        - final
+        type: string
+      start_date:
+        type: string
+    required:
+    - event_id
+    - name
+    - round_type
+    type: object
+  gamemanagement.FieldSummaryDTO:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  gamemanagement.GameDTO:
+    properties:
+      actual_end_time:
+        type: string
+      actual_start_time:
+        type: string
+      allocated_time_minutes:
+        type: integer
+      away_team:
+        $ref: '#/definitions/gamemanagement.TeamSummaryDTO'
+      away_team_score:
+        type: integer
+      created_at:
+        type: string
+      field_location:
+        $ref: '#/definitions/gamemanagement.FieldSummaryDTO'
+      first_pull_by:
+        type: string
+      game_round:
+        $ref: '#/definitions/gamemanagement.GameRoundSummaryDTO'
+      home_team:
+        $ref: '#/definitions/gamemanagement.TeamSummaryDTO'
+      home_team_score:
+        type: integer
+      id:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        type: string
+      scheduled_time:
+        type: string
+      scorekeeper:
+        $ref: '#/definitions/gamemanagement.UserSummaryDTO'
+      status:
+        type: string
+      stoppage_time_seconds:
+        type: integer
+      updated_at:
+        type: string
+      version:
+        type: integer
+    type: object
+  gamemanagement.GameEventDTO:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      event_type:
+        type: string
+      id:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      minute:
+        type: integer
+      second:
+        type: integer
+    type: object
+  gamemanagement.GameRoundDTO:
+    properties:
+      created_at:
+        type: string
+      end_date:
+        type: string
+      event_id:
+        type: string
+      games_count:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
+      round_number:
+        type: integer
+      round_type:
+        type: string
+      start_date:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  gamemanagement.GameRoundSummaryDTO:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      round_type:
+        type: string
+    type: object
+  gamemanagement.GameTimelineDTO:
+    properties:
+      events:
+        items:
+          $ref: '#/definitions/gamemanagement.GameEventDTO'
+        type: array
+    type: object
+  gamemanagement.RecordScoreRequest:
+    properties:
+      assists:
+        minimum: 0
+        type: integer
+      blocks:
+        minimum: 0
+        type: integer
+      goals:
+        minimum: 0
+        type: integer
+      minute:
+        type: integer
+      player_id:
+        type: string
+      second:
+        type: integer
+      turns:
+        minimum: 0
+        type: integer
+    required:
+    - player_id
+    type: object
+  gamemanagement.RecordStoppageRequest:
+    properties:
+      duration_seconds:
+        minimum: 1
+        type: integer
+      reason:
+        maxLength: 255
+        type: string
+    required:
+    - duration_seconds
+    - reason
+    type: object
+  gamemanagement.ScoringDTO:
+    properties:
+      assists:
+        type: integer
+      blocks:
+        type: integer
+      created_at:
+        type: string
+      goals:
+        type: integer
+      id:
+        type: string
+      player_id:
+        type: string
+      player_name:
+        type: string
+      turns:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  gamemanagement.SpiritScoreDTO:
+    properties:
+      attitude:
+        type: integer
+      comments:
+        type: string
+      communication:
+        type: integer
+      created_at:
+        type: string
+      fair_mindedness:
+        type: integer
+      fouls_body_contact:
+        type: integer
+      game_id:
+        type: string
+      id:
+        type: string
+      rules_knowledge:
+        type: integer
+      scored_by_team:
+        $ref: '#/definitions/gamemanagement.TeamSummaryDTO'
+      submitted_by:
+        $ref: '#/definitions/gamemanagement.UserSummaryDTO'
+      team:
+        $ref: '#/definitions/gamemanagement.TeamSummaryDTO'
+      total_score:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  gamemanagement.StartGameRequest:
+    properties:
+      first_pull_by:
+        type: string
+    type: object
+  gamemanagement.SubmitSpiritScoreRequest:
+    properties:
+      attitude:
+        maximum: 4
+        minimum: 0
+        type: integer
+      comments:
+        type: string
+      communication:
+        maximum: 4
+        minimum: 0
+        type: integer
+      fair_mindedness:
+        maximum: 4
+        minimum: 0
+        type: integer
+      fouls_body_contact:
+        maximum: 4
+        minimum: 0
+        type: integer
+      mvp_nomination:
+        type: string
+      rules_knowledge:
+        maximum: 4
+        minimum: 0
+        type: integer
+      scored_by_team_id:
+        type: string
+      spirit_nomination:
+        type: string
+      team_id:
+        type: string
+    required:
+    - attitude
+    - communication
+    - fair_mindedness
+    - fouls_body_contact
+    - rules_knowledge
+    - scored_by_team_id
+    - team_id
+    type: object
+  gamemanagement.TeamSpiritAverageDTO:
+    properties:
+      attitude:
+        type: number
+      average_total:
+        type: number
+      communication:
+        type: number
+      fair_mindedness:
+        type: number
+      fouls_body_contact:
+        type: number
+      games_played:
+        type: integer
+      rules_knowledge:
+        type: number
+      team_id:
+        type: string
+      team_name:
+        type: string
+    type: object
+  gamemanagement.TeamSummaryDTO:
+    properties:
+      id:
+        type: string
+      logo_url:
+        type: string
+      name:
+        type: string
+    type: object
+  gamemanagement.UpdateGameRequest:
+    properties:
+      allocated_time_minutes:
+        minimum: 1
+        type: integer
+      first_pull_by:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        maxLength: 100
+        type: string
+      scheduled_time:
+        type: string
+      scorekeeper_id:
+        type: string
+    type: object
+  gamemanagement.UpdateGameRoundRequest:
+    properties:
+      end_date:
+        type: string
+      name:
+        maxLength: 100
+        type: string
+      round_number:
+        type: integer
+      round_type:
+        enum:
+        - pool
+        - bracket
+        - semifinal
+        - final
+        type: string
+      start_date:
+        type: string
+    type: object
+  gamemanagement.UserSummaryDTO:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  handlers.AuditLogDTO:
+    properties:
+      action:
+        example: update
+        type: string
+      changes:
+        additionalProperties: true
+        type: object
+      created_at:
+        example: "2026-02-04T12:00:00Z"
+        type: string
+      entity_id:
+        example: 550e8400-e29b-41d4-a716-446655440001
+        type: string
+      entity_type:
+        example: game
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      ip_address:
+        example: 192.168.1.1
+        type: string
+      reason:
+        example: Score correction
+        type: string
+      user_agent:
+        example: Mozilla/5.0
+        type: string
+      user_id:
+        example: 550e8400-e29b-41d4-a716-446655440002
+        type: string
+      username:
+        example: admin@example.com
+        type: string
+    type: object
+  handlers.CountryDTO:
+    properties:
+      code:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  handlers.CrewMemberDTO:
+    properties:
+      avatarUrl:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  handlers.DivisionDTO:
+    properties:
+      divisionType:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      teamsCount:
+        type: integer
+    type: object
+  handlers.ErrorResponse:
+    description: Error response structure
+    properties:
+      error:
+        example: error message
+        type: string
+    type: object
+  handlers.EventCrewResponse:
+    properties:
+      admins:
+        items:
+          $ref: '#/definitions/handlers.CrewMemberDTO'
+        type: array
+      eventId:
+        type: string
+      eventName:
+        type: string
+      scorekeepers:
+        items:
+          $ref: '#/definitions/handlers.CrewMemberDTO'
+        type: array
+    type: object
+  handlers.EventResponse:
+    properties:
+      bannerUrl:
+        type: string
+      categories:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      discipline:
+        $ref: '#/definitions/handlers.RefDTO'
+      divisions:
+        items:
+          $ref: '#/definitions/handlers.DivisionDTO'
+        type: array
+      endDate:
+        type: string
+      gamesCount:
+        type: integer
+      id:
+        type: string
+      location:
+        $ref: '#/definitions/handlers.LocationDTO'
+      logoUrl:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+      startDate:
+        type: string
+      status:
+        type: string
+      teamPreview:
+        items:
+          $ref: '#/definitions/handlers.TeamPreviewDTO'
+        type: array
+      teamsCount:
+        type: integer
+      year:
+        type: integer
+    type: object
+  handlers.GenerateEmbedTokenRequestDTO:
+    properties:
+      event_id:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      team_ids:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: string
+      username:
+        type: string
+    required:
+    - first_name
+    - last_name
+    - user_id
+    - username
+    type: object
+  handlers.LocationDTO:
+    properties:
+      city:
+        type: string
+      country:
+        $ref: '#/definitions/handlers.CountryDTO'
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  handlers.NaturalLanguageQueryRequestDTO:
+    properties:
+      context:
+        type: string
+      event_id:
+        type: string
+      question:
+        type: string
+      user_id:
+        type: string
+    required:
+    - question
+    - user_id
+    type: object
+  handlers.PlayerResponse:
+    properties:
+      gender:
+        type: string
+      id:
+        type: string
+      isCaptain:
+        type: boolean
+      isSpiritCaptain:
+        type: boolean
+      jerseyNumber:
+        type: integer
+      name:
+        type: string
+      profileImageUrl:
+        type: string
+    type: object
+  handlers.PlayerStatResponse:
+    properties:
+      assists:
+        type: integer
+      gamesPlayed:
+        type: integer
+      goals:
+        type: integer
+      playerId:
+        type: string
+      playerName:
+        type: string
+      teamId:
+        type: string
+      teamName:
+        type: string
+    type: object
+  handlers.RefDTO:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  handlers.SpiritBreakdownAverage:
+    properties:
+      attitude:
+        type: number
+      communication:
+        type: number
+      fairMindedness:
+        type: number
+      foulsBodyContact:
+        type: number
+      rulesKnowledge:
+        type: number
+    type: object
+  handlers.SpiritLeaderboardResponse:
+    properties:
+      averageScore:
+        type: number
+      breakdown:
+        $ref: '#/definitions/handlers.SpiritBreakdownAverage'
+      gamesPlayed:
+        type: integer
+      teamId:
+        type: string
+      teamName:
+        type: string
+    type: object
+  handlers.TeamPreviewDTO:
+    properties:
+      id:
+        type: string
+      logoUrl:
+        type: string
+      name:
+        type: string
+    type: object
+  handlers.TeamResponse:
+    properties:
+      captain:
+        $ref: '#/definitions/handlers.PlayerResponse'
+      divisionName:
+        type: string
+      divisionPoolId:
+        type: string
+      finalPlacement:
+        type: integer
+      homeLocationId:
+        type: string
+      id:
+        type: string
+      initialSeed:
+        type: integer
+      locationName:
+        type: string
+      logoUrl:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        type: string
+      players:
+        items:
+          $ref: '#/definitions/handlers.PlayerResponse'
+        type: array
+      playersCount:
+        type: integer
+      spiritCaptain:
+        $ref: '#/definitions/handlers.PlayerResponse'
+    type: object
+  handlers.UpdateGameScoreRequestDTO:
+    properties:
+      away_score:
+        minimum: 0
+        type: integer
+      home_score:
+        minimum: 0
+        type: integer
+      reason:
+        minLength: 10
+        type: string
+    required:
+    - reason
+    type: object
+  handlers.UpdateSpiritScoreRequestDTO:
+    properties:
+      attitude:
+        maximum: 4
+        minimum: 0
+        type: integer
+      communication:
+        maximum: 4
+        minimum: 0
+        type: integer
+      fair_mindedness:
+        maximum: 4
+        minimum: 0
+        type: integer
+      fouls:
+        maximum: 4
+        minimum: 0
+        type: integer
+      reason:
+        minLength: 10
+        type: string
+      rules_knowledge:
+        maximum: 4
+        minimum: 0
+        type: integer
+    required:
+    - reason
+    type: object
+  metadata.ContinentDTO:
     properties:
       id:
         type: string
@@ -55,7 +1019,20 @@ definitions:
       world_id:
         type: string
     type: object
-  github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO:
+  metadata.CountryDTO:
+    properties:
+      code:
+        type: string
+      continent_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
+  metadata.WorldDTO:
     properties:
       id:
         type: string
@@ -63,6 +1040,135 @@ definitions:
         type: string
       slug:
         type: string
+    type: object
+  ranking.AdvanceTeamsRequest:
+    properties:
+      division_id:
+        type: string
+      field_id:
+        type: string
+      game_duration:
+        minimum: 30
+        type: integer
+      generate_bracket:
+        type: boolean
+      notify_teams:
+        type: boolean
+      start_time:
+        type: string
+      target_round_id:
+        type: string
+      top_n:
+        minimum: 1
+        type: integer
+    required:
+    - division_id
+    - target_round_id
+    - top_n
+    type: object
+  ranking.AdvanceTeamsResponse:
+    properties:
+      advanced_teams:
+        items:
+          type: string
+        type: array
+      bracket_id:
+        type: string
+      games_created:
+        type: integer
+      message:
+        type: string
+      target_round_id:
+        type: string
+    type: object
+  ranking.DivisionStandingsResponse:
+    properties:
+      division_id:
+        type: string
+      division_name:
+        type: string
+      last_updated:
+        type: string
+      ranking_criteria:
+        $ref: '#/definitions/ranking.RankingCriteria'
+      standings:
+        items:
+          $ref: '#/definitions/ranking.TeamStanding'
+        type: array
+    type: object
+  ranking.RankingCriteria:
+    properties:
+      points_per_draw:
+        type: integer
+      points_per_loss:
+        type: integer
+      points_per_win:
+        type: integer
+      primary_sort:
+        description: '"points", "win_percentage", "goal_diff"'
+        type: string
+      secondary_sort:
+        description: 'Tiebreakers: ["goal_diff", "head_to_head", "goals_for"]'
+        items:
+          type: string
+        type: array
+    type: object
+  ranking.TeamStanding:
+    properties:
+      draws:
+        type: integer
+      games_played:
+        type: integer
+      goal_difference:
+        type: integer
+      goals_against:
+        type: integer
+      goals_for:
+        type: integer
+      last_updated:
+        type: string
+      losses:
+        type: integer
+      points:
+        type: integer
+      rank:
+        type: integer
+      spirit_average:
+        type: number
+      team_id:
+        type: string
+      team_name:
+        type: string
+      win_percentage:
+        type: number
+      wins:
+        type: integer
+    type: object
+  ranking.UpdateRankingCriteriaRequest:
+    properties:
+      points_per_draw:
+        minimum: 0
+        type: integer
+      points_per_loss:
+        minimum: 0
+        type: integer
+      points_per_win:
+        minimum: 0
+        type: integer
+      primary_sort:
+        enum:
+        - points
+        - win_percentage
+        - goal_diff
+        type: string
+      secondary_sort:
+        items:
+          type: string
+        type: array
+    required:
+    - points_per_draw
+    - points_per_win
+    - primary_sort
     type: object
 host: localhost:4000
 info:
@@ -78,6 +1184,407 @@ info:
   title: DigiGameStats API
   version: "1.0"
 paths:
+  /admin/games/{id}/audit:
+    get:
+      description: Retrieves all administrative changes made to a game
+      parameters:
+      - description: Game ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.AuditLogDTO'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get game audit history (Admin only)
+      tags:
+      - admin
+  /admin/games/{id}/score:
+    put:
+      consumes:
+      - application/json
+      description: Updates a game's score with audit trail
+      parameters:
+      - description: Score update request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateGameScoreRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.UpdateGameScoreResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update game score (Admin only)
+      tags:
+      - admin
+  /admin/spirit-scores/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Updates a spirit score with audit trail
+      parameters:
+      - description: Spirit Score ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Spirit score update request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateSpiritScoreRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.UpdateSpiritScoreResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update spirit score (Admin only)
+      tags:
+      - admin
+  /analytics/dashboards:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all available analytics dashboards
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/analytics.ListDashboardsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List all Superset dashboards
+      tags:
+      - analytics
+  /analytics/dashboards/{dashboard_uuid}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a specific dashboard's metadata
+      parameters:
+      - description: Dashboard UUID
+        format: uuid
+        in: path
+        name: dashboard_uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/analytics.Dashboard'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get dashboard by UUID
+      tags:
+      - analytics
+  /analytics/embed-token/{dashboard_uuid}:
+    post:
+      consumes:
+      - application/json
+      description: Creates a guest token for embedding a Superset dashboard with RLS
+      parameters:
+      - description: Dashboard UUID
+        format: uuid
+        in: path
+        name: dashboard_uuid
+        required: true
+        type: string
+      - description: Embed token parameters
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.GenerateEmbedTokenRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/analytics.GenerateEmbedTokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Generate embed token for dashboard
+      tags:
+      - analytics
+  /analytics/events/{event_id}/statistics:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves comprehensive analytics for an event
+      parameters:
+      - description: Event UUID
+        format: uuid
+        in: path
+        name: event_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/analytics.EventStatistics'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get event statistics
+      tags:
+      - analytics
+  /analytics/health:
+    get:
+      description: Verifies Superset connectivity
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Analytics health check
+      tags:
+      - analytics
+  /analytics/query:
+    post:
+      consumes:
+      - application/json
+      description: Converts natural language to SQL using Ollama LLM and executes
+        the query
+      parameters:
+      - description: Natural language question
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.NaturalLanguageQueryRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/analytics.NaturalLanguageQueryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Process natural language query
+      tags:
+      - analytics
+  /api/v1/events/{id}/bracket:
+    get:
+      description: Get the bracket structure for an event's bracket round
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/bracket.GetBracketResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get event bracket
+      tags:
+      - brackets
+  /api/v1/events/{id}/generate-bracket:
+    post:
+      consumes:
+      - application/json
+      description: Generate a tournament bracket structure with games
+      parameters:
+      - description: Bracket generation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/bracket.GenerateBracketRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/bracket.GenerateBracketResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Generate tournament bracket
+      tags:
+      - brackets
+  /api/v1/rounds/{id}/bracket:
+    get:
+      description: Get the bracket structure for a specific round
+      parameters:
+      - description: Round ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/bracket.GetBracketResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get round bracket
+      tags:
+      - brackets
   /auth/login:
     post:
       consumes:
@@ -89,40 +1596,19 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.LoginRequest'
+          $ref: '#/definitions/auth.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.LoginResponse'
+            $ref: '#/definitions/auth.LoginResponse'
         "401":
           description: unauthorized
           schema:
             type: string
       summary: Login
-      tags:
-      - auth
-  /auth/me:
-    get:
-      consumes:
-      - application/json
-      description: Get information about the currently authenticated user.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.UserDTO'
-        "401":
-          description: unauthorized
-          schema:
-            type: string
-      security:
-      - BearerAuth: []
-      summary: Get Current User
       tags:
       - auth
   /auth/refresh:
@@ -136,14 +1622,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.RefreshRequest'
+          $ref: '#/definitions/auth.RefreshRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.TokenResponse'
+            $ref: '#/definitions/auth.TokenResponse'
         "401":
           description: unauthorized
           schema:
@@ -151,6 +1637,670 @@ paths:
       summary: Refresh Token
       tags:
       - auth
+  /divisions/{id}/criteria:
+    put:
+      consumes:
+      - application/json
+      description: Update the ranking rules for a division
+      parameters:
+      - description: Division ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Ranking criteria
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ranking.UpdateRankingCriteriaRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update division ranking criteria
+      tags:
+      - rankings
+  /divisions/{id}/games:
+    post:
+      consumes:
+      - application/json
+      description: Create a new game schedule
+      parameters:
+      - description: Game Schedule Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/gamemanagement.CreateGameRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/gamemanagement.GameDTO'
+        "400":
+          description: bad request
+          schema:
+            type: string
+        "409":
+          description: field conflict
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Schedule Game
+      tags:
+      - games
+  /divisions/{id}/standings:
+    get:
+      description: Get current team standings for a division with ranking
+      parameters:
+      - description: Division ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ranking.DivisionStandingsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get division standings
+      tags:
+      - rankings
+  /divisions/advance:
+    post:
+      consumes:
+      - application/json
+      description: Advance top N teams from division to bracket round
+      parameters:
+      - description: Advancement request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ranking.AdvanceTeamsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ranking.AdvanceTeamsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Advance teams to next round
+      tags:
+      - rankings
+  /events/{event_id}/rounds:
+    get:
+      description: List all rounds for an event
+      parameters:
+      - description: Event ID
+        in: path
+        name: event_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/gamemanagement.GameRoundDTO'
+            type: array
+        "400":
+          description: bad request
+          schema:
+            type: string
+      summary: List Game Rounds
+      tags:
+      - game-rounds
+    post:
+      consumes:
+      - application/json
+      description: Create a new round for an event (pool, bracket, etc.)
+      parameters:
+      - description: Event ID
+        in: path
+        name: event_id
+        required: true
+        type: string
+      - description: Game Round Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/gamemanagement.CreateGameRoundRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/gamemanagement.GameRoundDTO'
+        "400":
+          description: bad request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create Game Round
+      tags:
+      - game-rounds
+  /games:
+    get:
+      description: List games with optional filters
+      parameters:
+      - description: Division Pool ID
+        in: query
+        name: division_pool_id
+        type: string
+      - description: Game Status
+        in: query
+        name: status
+        type: string
+      - description: Field ID
+        in: query
+        name: field_id
+        type: string
+      - description: Start Date (RFC3339)
+        in: query
+        name: start_date
+        type: string
+      - description: End Date (RFC3339)
+        in: query
+        name: end_date
+        type: string
+      - default: 50
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/gamemanagement.GameDTO'
+            type: array
+        "400":
+          description: bad request
+          schema:
+            type: string
+      summary: List Games
+      tags:
+      - games
+  /games/{id}:
+    delete:
+      description: Cancel a scheduled or in-progress game
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: bad request
+          schema:
+            type: string
+        "404":
+          description: not found
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Cancel Game
+      tags:
+      - games
+    get:
+      description: Get game details by ID
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamemanagement.GameDTO'
+        "404":
+          description: not found
+          schema:
+            type: string
+      summary: Get Game
+      tags:
+      - games
+    put:
+      consumes:
+      - application/json
+      description: Update game details
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/gamemanagement.UpdateGameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamemanagement.GameDTO'
+        "400":
+          description: bad request
+          schema:
+            type: string
+        "404":
+          description: not found
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update Game
+      tags:
+      - games
+  /games/{id}/end:
+    post:
+      description: Finalize game submission by scorekeeper
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamemanagement.GameDTO'
+        "400":
+          description: bad request
+          schema:
+            type: string
+        "401":
+          description: unauthorized
+          schema:
+            type: string
+        "404":
+          description: not found
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: End Game
+      tags:
+      - games
+  /games/{id}/finish:
+    post:
+      description: Mark game timer as finished (scores can still be edited)
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamemanagement.GameDTO'
+        "400":
+          description: bad request
+          schema:
+            type: string
+        "401":
+          description: unauthorized
+          schema:
+            type: string
+        "404":
+          description: not found
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Finish Game
+      tags:
+      - games
+  /games/{id}/scores:
+    get:
+      description: Get all player scores for a game
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/gamemanagement.ScoringDTO'
+            type: array
+        "404":
+          description: not found
+          schema:
+            type: string
+      summary: Get Game Scores
+      tags:
+      - games
+    post:
+      consumes:
+      - application/json
+      description: Record player goals, assists, blocks, etc.
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Score Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/gamemanagement.RecordScoreRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamemanagement.GameDTO'
+        "400":
+          description: bad request
+          schema:
+            type: string
+        "401":
+          description: unauthorized
+          schema:
+            type: string
+        "404":
+          description: not found
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Record Score
+      tags:
+      - games
+  /games/{id}/spirit:
+    get:
+      description: Get all spirit scores submitted for a specific game
+      parameters:
+      - description: Game ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/gamemanagement.SpiritScoreDTO'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get spirit scores for a game
+      tags:
+      - Spirit Scores
+    post:
+      consumes:
+      - application/json
+      description: Submit spirit score for a game by a team captain/manager
+      parameters:
+      - description: Game ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Spirit score submission
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/gamemanagement.SubmitSpiritScoreRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/gamemanagement.SpiritScoreDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Submit spirit score for a game
+      tags:
+      - Spirit Scores
+  /games/{id}/start:
+    post:
+      consumes:
+      - application/json
+      description: Start game timer and set status to in_progress
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Start Game Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/gamemanagement.StartGameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamemanagement.GameDTO'
+        "400":
+          description: bad request
+          schema:
+            type: string
+        "401":
+          description: unauthorized
+          schema:
+            type: string
+        "404":
+          description: not found
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Start Game
+      tags:
+      - games
+  /games/{id}/stoppages:
+    post:
+      consumes:
+      - application/json
+      description: Record game stoppage and extend game time
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Stoppage Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/gamemanagement.RecordStoppageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamemanagement.GameDTO'
+        "400":
+          description: bad request
+          schema:
+            type: string
+        "401":
+          description: unauthorized
+          schema:
+            type: string
+        "404":
+          description: not found
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Record Stoppage
+      tags:
+      - games
+  /games/{id}/stream:
+    get:
+      description: Get real-time game updates via Server-Sent Events
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: event stream
+          schema:
+            type: string
+      summary: Stream Game Updates
+      tags:
+      - games
+  /games/{id}/timeline:
+    get:
+      description: Get complete game event timeline
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamemanagement.GameTimelineDTO'
+        "404":
+          description: not found
+          schema:
+            type: string
+      summary: Get Game Timeline
+      tags:
+      - games
   /geographic/continents:
     get:
       consumes:
@@ -163,9 +2313,31 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.ContinentDTO'
+              $ref: '#/definitions/metadata.ContinentDTO'
             type: array
       summary: List Continents
+      tags:
+      - geographic
+  /geographic/countries:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all countries, optionally filtered by continent.
+      parameters:
+      - description: Filter by continent ID
+        in: query
+        name: continent_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/metadata.CountryDTO'
+            type: array
+      summary: List Countries
       tags:
       - geographic
   /geographic/worlds:
@@ -180,7 +2352,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO'
+              $ref: '#/definitions/metadata.WorldDTO'
             type: array
       summary: List Worlds
       tags:
@@ -198,6 +2370,422 @@ paths:
       summary: Health Check
       tags:
       - system
+  /me:
+    get:
+      description: Get information about the currently authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.UserDTO'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Current User
+      tags:
+      - auth
+  /public/events:
+    get:
+      description: List all events with optional filtering
+      parameters:
+      - description: Filter by status (draft, published, in_progress, completed, canceled)
+        in: query
+        name: status
+        type: string
+      - description: Filter by year
+        in: query
+        name: year
+        type: integer
+      - description: 'Filter by time: past, upcoming, live, all'
+        in: query
+        name: temporal
+        type: string
+      - collectionFormat: csv
+        description: Filter by categories (outdoor, hat, beach, indoor, league)
+        in: query
+        items:
+          type: string
+        name: category
+        type: array
+      - description: Filter by country code (2-letter ISO)
+        in: query
+        name: country
+        type: string
+      - description: Search in name and description
+        in: query
+        name: search
+        type: string
+      - description: Events starting after this date (RFC3339)
+        in: query
+        name: startDateFrom
+        type: string
+      - description: Events starting before this date (RFC3339)
+        in: query
+        name: startDateTo
+        type: string
+      - default: start_date
+        description: 'Sort by field: start_date, name, teams_count'
+        in: query
+        name: sortBy
+        type: string
+      - default: desc
+        description: 'Sort order: asc, desc'
+        in: query
+        name: sortOrder
+        type: string
+      - default: 50
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.EventResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: List events
+      tags:
+      - events
+  /public/events/{id}:
+    get:
+      description: Get an event by ID or slug
+      parameters:
+      - description: Event ID or slug
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.EventResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get an event
+      tags:
+      - events
+  /public/events/{id}/crew:
+    get:
+      description: Get tournament admins and scorekeepers for an event
+      parameters:
+      - description: Event ID or slug
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.EventCrewResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get event crew/staff
+      tags:
+      - events
+  /public/leaderboards/players:
+    get:
+      description: Get top players by goals or assists
+      parameters:
+      - default: goals
+        description: 'Category: goals or assists'
+        in: query
+        name: category
+        type: string
+      - description: Filter by event ID
+        format: uuid
+        in: query
+        name: eventId
+        type: string
+      - description: Filter by division pool ID
+        format: uuid
+        in: query
+        name: divisionPoolId
+        type: string
+      - default: 50
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.PlayerStatResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get player leaderboard
+      tags:
+      - leaderboards
+  /public/leaderboards/spirit:
+    get:
+      description: Get teams ranked by spirit scores
+      parameters:
+      - description: Filter by event ID
+        format: uuid
+        in: query
+        name: eventId
+        type: string
+      - description: Filter by division pool ID
+        format: uuid
+        in: query
+        name: divisionPoolId
+        type: string
+      - default: 50
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.SpiritLeaderboardResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get spirit leaderboard
+      tags:
+      - leaderboards
+  /public/teams:
+    get:
+      description: List all teams with optional filtering
+      parameters:
+      - description: Filter by event ID
+        format: uuid
+        in: query
+        name: eventId
+        type: string
+      - description: Filter by division pool ID
+        format: uuid
+        in: query
+        name: divisionPoolId
+        type: string
+      - description: Search by team name
+        in: query
+        name: search
+        type: string
+      - default: 50
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.TeamResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: List teams
+      tags:
+      - teams
+  /public/teams/{id}:
+    get:
+      description: Get a team by ID
+      parameters:
+      - description: Team ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.TeamResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get a team
+      tags:
+      - teams
+  /rounds/{id}:
+    get:
+      description: Get game round details by ID
+      parameters:
+      - description: Round ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamemanagement.GameRoundDTO'
+        "404":
+          description: not found
+          schema:
+            type: string
+      summary: Get Game Round
+      tags:
+      - game-rounds
+    put:
+      consumes:
+      - application/json
+      description: Update game round details
+      parameters:
+      - description: Round ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/gamemanagement.UpdateGameRoundRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamemanagement.GameRoundDTO'
+        "400":
+          description: bad request
+          schema:
+            type: string
+        "404":
+          description: not found
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update Game Round
+      tags:
+      - game-rounds
+  /teams/{id}/spirit-average:
+    get:
+      description: Get average spirit scores received by a team across all games
+      parameters:
+      - description: Team ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamemanagement.TeamSpiritAverageDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get team spirit average
+      tags:
+      - Spirit Scores
 securityDefinitions:
   BearerAuth:
     in: header

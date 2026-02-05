@@ -1,0 +1,4792 @@
+[
+  {
+    "model": "games.scoring",
+    "pk": 3,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 1,
+      "player": 19
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 4,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 1,
+      "player": 21
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 5,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 1,
+      "player": 11
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 6,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 1,
+      "player": 16
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 7,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 1,
+      "player": 6
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 8,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 1,
+      "player": 17
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 9,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 1,
+      "player": 13
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 10,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 1,
+      "player": 18
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 11,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 1,
+      "player": 57
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 12,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 1,
+      "player": 59
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 13,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 1,
+      "player": 64
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 14,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 1,
+      "player": 73
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 15,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 1,
+      "player": 56
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 16,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 1,
+      "player": 65
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 17,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 1,
+      "player": 63
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 20,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 2,
+      "player": 160
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 21,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 2,
+      "player": 158
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 22,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 2,
+      "player": 159
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 23,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 2,
+      "player": 152
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 24,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 2,
+      "player": 153
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 25,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 2,
+      "player": 149
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 26,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 2,
+      "player": 165
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 27,
+    "fields": {
+      "goals": 3,
+      "assists": 1,
+      "game": 2,
+      "player": 134
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 28,
+    "fields": {
+      "goals": 1,
+      "assists": 5,
+      "game": 2,
+      "player": 130
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 29,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 2,
+      "player": 135
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 30,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 2,
+      "player": 133
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 31,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 3,
+      "player": 133
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 32,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 3,
+      "player": 130
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 33,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 3,
+      "player": 140
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 34,
+    "fields": {
+      "goals": 3,
+      "assists": 0,
+      "game": 3,
+      "player": 137
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 35,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 3,
+      "player": 139
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 36,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 3,
+      "player": 19
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 37,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 3,
+      "player": 21
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 38,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 3,
+      "player": 6
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 39,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 3,
+      "player": 17
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 40,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 3,
+      "player": 15
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 41,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 3,
+      "player": 20
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 42,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 4,
+      "player": 57
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 43,
+    "fields": {
+      "goals": 3,
+      "assists": 0,
+      "game": 4,
+      "player": 59
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 44,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 4,
+      "player": 64
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 45,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 4,
+      "player": 73
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 46,
+    "fields": {
+      "goals": 0,
+      "assists": 3,
+      "game": 4,
+      "player": 56
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 47,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 4,
+      "player": 65
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 48,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 4,
+      "player": 63
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 49,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 4,
+      "player": 75
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 50,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 4,
+      "player": 69
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 51,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 4,
+      "player": 70
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 52,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 4,
+      "player": 68
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 53,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 4,
+      "player": 55
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 54,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 4,
+      "player": 122
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 55,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 4,
+      "player": 127
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 56,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 4,
+      "player": 120
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 57,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 4,
+      "player": 118
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 58,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 5,
+      "player": 122
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 59,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 5,
+      "player": 120
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 60,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 5,
+      "player": 118
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 61,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 5,
+      "player": 119
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 62,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 6,
+      "player": 19
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 63,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 6,
+      "player": 21
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 64,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 6,
+      "player": 6
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 65,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 6,
+      "player": 17
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 66,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 6,
+      "player": 15
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 67,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 6,
+      "player": 20
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 68,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 6,
+      "player": 160
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 69,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 6,
+      "player": 158
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 70,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 6,
+      "player": 165
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 71,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 6,
+      "player": 159
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 72,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 6,
+      "player": 152
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 73,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 6,
+      "player": 166
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 74,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 6,
+      "player": 163
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 75,
+    "fields": {
+      "goals": 0,
+      "assists": 5,
+      "game": 3,
+      "player": 134
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 76,
+    "fields": {
+      "goals": 3,
+      "assists": 1,
+      "game": 5,
+      "player": 134
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 77,
+    "fields": {
+      "goals": 0,
+      "assists": 3,
+      "game": 5,
+      "player": 130
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 78,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 5,
+      "player": 135
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 79,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 5,
+      "player": 137
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 80,
+    "fields": {
+      "goals": 3,
+      "assists": 1,
+      "game": 5,
+      "player": 132
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 81,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 5,
+      "player": 138
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 82,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 5,
+      "player": 143
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 83,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 5,
+      "player": 141
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 84,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 6,
+      "player": 16
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 85,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 6,
+      "player": 13
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 86,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 6,
+      "player": 18
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 87,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 6,
+      "player": 12
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 88,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 6,
+      "player": 8
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 89,
+    "fields": {
+      "goals": 0,
+      "assists": 5,
+      "game": 7,
+      "player": 158
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 90,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 7,
+      "player": 165
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 91,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 7,
+      "player": 159
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 92,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 7,
+      "player": 152
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 93,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 7,
+      "player": 153
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 94,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 7,
+      "player": 163
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 95,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 7,
+      "player": 155
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 96,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 7,
+      "player": 120
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 97,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 7,
+      "player": 121
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 98,
+    "fields": {
+      "goals": 3,
+      "assists": 3,
+      "game": 8,
+      "player": 134
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 99,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 8,
+      "player": 130
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 100,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 8,
+      "player": 135
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 101,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 8,
+      "player": 140
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 102,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 8,
+      "player": 138
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 103,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 8,
+      "player": 141
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 104,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 8,
+      "player": 142
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 105,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 8,
+      "player": 57
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 106,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 8,
+      "player": 56
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 107,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 8,
+      "player": 65
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 108,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 8,
+      "player": 75
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 109,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 8,
+      "player": 69
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 110,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 8,
+      "player": 55
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 111,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 8,
+      "player": 71
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 112,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 9,
+      "player": 120
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 113,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 9,
+      "player": 118
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 114,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 9,
+      "player": 119
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 115,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 9,
+      "player": 121
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 116,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 9,
+      "player": 125
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 117,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 9,
+      "player": 115
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 118,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 9,
+      "player": 19
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 119,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 9,
+      "player": 16
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 120,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 9,
+      "player": 6
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 121,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 9,
+      "player": 17
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 122,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 9,
+      "player": 13
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 123,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 9,
+      "player": 18
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 124,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 9,
+      "player": 15
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 125,
+    "fields": {
+      "goals": 2,
+      "assists": 2,
+      "game": 9,
+      "player": 20
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 126,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 9,
+      "player": 14
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 127,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 9,
+      "player": 7
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 128,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 10,
+      "player": 57
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 129,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 10,
+      "player": 59
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 130,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 10,
+      "player": 73
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 131,
+    "fields": {
+      "goals": 2,
+      "assists": 5,
+      "game": 10,
+      "player": 56
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 132,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 10,
+      "player": 65
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 133,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 10,
+      "player": 68
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 134,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 10,
+      "player": 55
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 135,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 10,
+      "player": 60
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 136,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 10,
+      "player": 160
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 137,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 10,
+      "player": 158
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 138,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 10,
+      "player": 165
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 139,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 10,
+      "player": 150
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 140,
+    "fields": {
+      "goals": 0,
+      "assists": 6,
+      "game": 11,
+      "player": 45
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 141,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 11,
+      "player": 48
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 142,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 11,
+      "player": 37
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 143,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 11,
+      "player": 39
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 144,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 11,
+      "player": 42
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 145,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 11,
+      "player": 38
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 146,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 11,
+      "player": 34
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 147,
+    "fields": {
+      "goals": 0,
+      "assists": 4,
+      "game": 11,
+      "player": 87
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 148,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 11,
+      "player": 78
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 149,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 11,
+      "player": 94
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 150,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 11,
+      "player": 86
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 151,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 11,
+      "player": 92
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 152,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 11,
+      "player": 79
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 153,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 12,
+      "player": 23
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 154,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 12,
+      "player": 30
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 155,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 12,
+      "player": 25
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 156,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 12,
+      "player": 172
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 157,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 12,
+      "player": 169
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 158,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 12,
+      "player": 176
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 159,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 12,
+      "player": 177
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 160,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 12,
+      "player": 173
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 161,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 12,
+      "player": 178
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 162,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 12,
+      "player": 168
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 163,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 12,
+      "player": 174
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 164,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 12,
+      "player": 171
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 165,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 13,
+      "player": 172
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 166,
+    "fields": {
+      "goals": 1,
+      "assists": 4,
+      "game": 13,
+      "player": 169
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 167,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 13,
+      "player": 173
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 168,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 13,
+      "player": 178
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 169,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 13,
+      "player": 168
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 170,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 13,
+      "player": 181
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 171,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 13,
+      "player": 174
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 172,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 13,
+      "player": 171
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 173,
+    "fields": {
+      "goals": 0,
+      "assists": 3,
+      "game": 13,
+      "player": 45
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 174,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 13,
+      "player": 42
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 175,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 13,
+      "player": 38
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 176,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 13,
+      "player": 46
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 177,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 13,
+      "player": 41
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 178,
+    "fields": {
+      "goals": 3,
+      "assists": 0,
+      "game": 13,
+      "player": 34
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 179,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 14,
+      "player": 87
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 180,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 14,
+      "player": 94
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 181,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 14,
+      "player": 88
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 182,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 14,
+      "player": 80
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 183,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 14,
+      "player": 105
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 184,
+    "fields": {
+      "goals": 3,
+      "assists": 1,
+      "game": 14,
+      "player": 99
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 185,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 14,
+      "player": 102
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 186,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 14,
+      "player": 98
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 187,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 14,
+      "player": 97
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 188,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 14,
+      "player": 108
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 189,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 14,
+      "player": 100
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 190,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 14,
+      "player": 96
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 191,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 15,
+      "player": 105
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 192,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 15,
+      "player": 99
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 193,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 15,
+      "player": 98
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 194,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 15,
+      "player": 97
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 195,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 15,
+      "player": 104
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 196,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 15,
+      "player": 100
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 197,
+    "fields": {
+      "goals": 0,
+      "assists": 3,
+      "game": 15,
+      "player": 96
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 198,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 15,
+      "player": 172
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 199,
+    "fields": {
+      "goals": 2,
+      "assists": 5,
+      "game": 15,
+      "player": 169
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 200,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 15,
+      "player": 177
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 201,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 15,
+      "player": 173
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 202,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 15,
+      "player": 168
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 203,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 15,
+      "player": 175
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 204,
+    "fields": {
+      "goals": 1,
+      "assists": 6,
+      "game": 16,
+      "player": 45
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 205,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 16,
+      "player": 48
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 206,
+    "fields": {
+      "goals": 2,
+      "assists": 3,
+      "game": 16,
+      "player": 42
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 207,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 16,
+      "player": 38
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 208,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 16,
+      "player": 34
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 209,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 16,
+      "player": 41
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 210,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 16,
+      "player": 51
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 211,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 16,
+      "player": 30
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 212,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 16,
+      "player": 23
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 213,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 16,
+      "player": 31
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 214,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 16,
+      "player": 27
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 215,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 17,
+      "player": 26
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 216,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 17,
+      "player": 31
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 217,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 17,
+      "player": 29
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 218,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 17,
+      "player": 30
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 219,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 17,
+      "player": 25
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 220,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 17,
+      "player": 27
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 221,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 17,
+      "player": 105
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 222,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 17,
+      "player": 102
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 223,
+    "fields": {
+      "goals": 2,
+      "assists": 2,
+      "game": 17,
+      "player": 98
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 224,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 17,
+      "player": 97
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 225,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 17,
+      "player": 111
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 226,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 17,
+      "player": 107
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 227,
+    "fields": {
+      "goals": 1,
+      "assists": 6,
+      "game": 17,
+      "player": 96
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 228,
+    "fields": {
+      "goals": 1,
+      "assists": 4,
+      "game": 18,
+      "player": 169
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 229,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 18,
+      "player": 177
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 230,
+    "fields": {
+      "goals": 5,
+      "assists": 0,
+      "game": 18,
+      "player": 168
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 231,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 18,
+      "player": 174
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 232,
+    "fields": {
+      "goals": 2,
+      "assists": 3,
+      "game": 18,
+      "player": 87
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 233,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 18,
+      "player": 94
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 234,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 18,
+      "player": 86
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 235,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 18,
+      "player": 80
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 236,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 18,
+      "player": 93
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 237,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 18,
+      "player": 84
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 238,
+    "fields": {
+      "goals": 1,
+      "assists": 7,
+      "game": 19,
+      "player": 87
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 239,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 19,
+      "player": 78
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 240,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 19,
+      "player": 94
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 241,
+    "fields": {
+      "goals": 2,
+      "assists": 4,
+      "game": 19,
+      "player": 86
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 242,
+    "fields": {
+      "goals": 3,
+      "assists": 0,
+      "game": 19,
+      "player": 92
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 243,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 19,
+      "player": 79
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 244,
+    "fields": {
+      "goals": 0,
+      "assists": 0,
+      "game": 19,
+      "player": 93
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 245,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 19,
+      "player": 89
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 246,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 19,
+      "player": 83
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 247,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 19,
+      "player": 84
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 248,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 19,
+      "player": 30
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 249,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 19,
+      "player": 23
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 250,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 19,
+      "player": 29
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 251,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 19,
+      "player": 25
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 252,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 20,
+      "player": 105
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 253,
+    "fields": {
+      "goals": 4,
+      "assists": 0,
+      "game": 20,
+      "player": 99
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 254,
+    "fields": {
+      "goals": 1,
+      "assists": 6,
+      "game": 20,
+      "player": 98
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 255,
+    "fields": {
+      "goals": 2,
+      "assists": 3,
+      "game": 20,
+      "player": 97
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 256,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 20,
+      "player": 106
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 257,
+    "fields": {
+      "goals": 2,
+      "assists": 2,
+      "game": 20,
+      "player": 96
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 258,
+    "fields": {
+      "goals": 1,
+      "assists": 4,
+      "game": 20,
+      "player": 45
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 259,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 20,
+      "player": 42
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 260,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 20,
+      "player": 34
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 261,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 20,
+      "player": 46
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 262,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 20,
+      "player": 51
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 263,
+    "fields": {
+      "goals": 0,
+      "assists": 3,
+      "game": 21,
+      "player": 19
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 264,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 21,
+      "player": 21
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 265,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 21,
+      "player": 11
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 266,
+    "fields": {
+      "goals": 0,
+      "assists": 3,
+      "game": 21,
+      "player": 16
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 267,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 21,
+      "player": 13
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 268,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 21,
+      "player": 18
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 269,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 21,
+      "player": 20
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 270,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 21,
+      "player": 12
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 271,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 21,
+      "player": 9
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 272,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 21,
+      "player": 37
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 273,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 21,
+      "player": 42
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 274,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 21,
+      "player": 46
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 275,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 21,
+      "player": 41
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 276,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 21,
+      "player": 51
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 277,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 22,
+      "player": 160
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 278,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 22,
+      "player": 165
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 279,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 22,
+      "player": 152
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 280,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 22,
+      "player": 153
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 281,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 22,
+      "player": 155
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 282,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 22,
+      "player": 150
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 283,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 22,
+      "player": 161
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 284,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 22,
+      "player": 164
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 285,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 22,
+      "player": 172
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 286,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 22,
+      "player": 177
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 287,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 22,
+      "player": 178
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 288,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 22,
+      "player": 168
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 289,
+    "fields": {
+      "goals": 0,
+      "assists": 3,
+      "game": 23,
+      "player": 134
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 290,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 23,
+      "player": 130
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 291,
+    "fields": {
+      "goals": 2,
+      "assists": 5,
+      "game": 23,
+      "player": 135
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 292,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 23,
+      "player": 137
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 293,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 23,
+      "player": 139
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 294,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 23,
+      "player": 132
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 295,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 23,
+      "player": 142
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 296,
+    "fields": {
+      "goals": 3,
+      "assists": 3,
+      "game": 23,
+      "player": 136
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 297,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 23,
+      "player": 145
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 298,
+    "fields": {
+      "goals": 0,
+      "assists": 3,
+      "game": 23,
+      "player": 87
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 299,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 23,
+      "player": 78
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 300,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 23,
+      "player": 94
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 301,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 23,
+      "player": 79
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 302,
+    "fields": {
+      "goals": 0,
+      "assists": 3,
+      "game": 23,
+      "player": 88
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 303,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 23,
+      "player": 83
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 304,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 23,
+      "player": 84
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 305,
+    "fields": {
+      "goals": 4,
+      "assists": 0,
+      "game": 24,
+      "player": 59
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 306,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 24,
+      "player": 64
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 307,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 24,
+      "player": 73
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 308,
+    "fields": {
+      "goals": 0,
+      "assists": 3,
+      "game": 24,
+      "player": 56
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 309,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 24,
+      "player": 65
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 310,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 24,
+      "player": 63
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 311,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 24,
+      "player": 75
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 312,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 24,
+      "player": 70
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 313,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 24,
+      "player": 55
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 314,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 24,
+      "player": 71
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 315,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 24,
+      "player": 60
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 316,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 24,
+      "player": 62
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 317,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 24,
+      "player": 76
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 318,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 24,
+      "player": 61
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 319,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 24,
+      "player": 182
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 320,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 24,
+      "player": 28
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 321,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 24,
+      "player": 26
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 322,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 24,
+      "player": 23
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 323,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 24,
+      "player": 27
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 324,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 24,
+      "player": 32
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 325,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 25,
+      "player": 183
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 326,
+    "fields": {
+      "goals": 1,
+      "assists": 3,
+      "game": 25,
+      "player": 120
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 327,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 25,
+      "player": 118
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 328,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 25,
+      "player": 119
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 329,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 25,
+      "player": 121
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 330,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 25,
+      "player": 115
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 331,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 25,
+      "player": 105
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 332,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 25,
+      "player": 99
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 333,
+    "fields": {
+      "goals": 0,
+      "assists": 3,
+      "game": 25,
+      "player": 98
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 334,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 25,
+      "player": 97
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 335,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 25,
+      "player": 107
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 336,
+    "fields": {
+      "goals": 1,
+      "assists": 3,
+      "game": 25,
+      "player": 96
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 337,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 26,
+      "player": 19
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 338,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 26,
+      "player": 21
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 339,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 26,
+      "player": 11
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 340,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 26,
+      "player": 16
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 341,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 26,
+      "player": 6
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 342,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 27,
+      "player": 160
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 343,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 27,
+      "player": 158
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 344,
+    "fields": {
+      "goals": 1,
+      "assists": 4,
+      "game": 27,
+      "player": 165
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 345,
+    "fields": {
+      "goals": 4,
+      "assists": 0,
+      "game": 27,
+      "player": 159
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 346,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 27,
+      "player": 153
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 347,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 27,
+      "player": 163
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 348,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 27,
+      "player": 155
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 349,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 27,
+      "player": 150
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 350,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 27,
+      "player": 161
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 351,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 27,
+      "player": 164
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 352,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 27,
+      "player": 87
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 353,
+    "fields": {
+      "goals": 3,
+      "assists": 0,
+      "game": 27,
+      "player": 94
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 354,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 27,
+      "player": 93
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 355,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 28,
+      "player": 134
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 356,
+    "fields": {
+      "goals": 2,
+      "assists": 3,
+      "game": 28,
+      "player": 130
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 357,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 28,
+      "player": 140
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 358,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 28,
+      "player": 132
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 359,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 28,
+      "player": 138
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 360,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 28,
+      "player": 141
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 361,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 28,
+      "player": 136
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 362,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 28,
+      "player": 31
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 363,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 28,
+      "player": 29
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 364,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 28,
+      "player": 27
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 365,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 29,
+      "player": 73
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 366,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 29,
+      "player": 56
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 367,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 29,
+      "player": 69
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 368,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 29,
+      "player": 68
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 369,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 29,
+      "player": 55
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 370,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 29,
+      "player": 172
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 371,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 29,
+      "player": 169
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 372,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 29,
+      "player": 176
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 373,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 29,
+      "player": 177
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 374,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 29,
+      "player": 173
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 375,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 29,
+      "player": 168
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 376,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 29,
+      "player": 181
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 377,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 29,
+      "player": 171
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 378,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 30,
+      "player": 122
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 379,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 30,
+      "player": 120
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 380,
+    "fields": {
+      "goals": 1,
+      "assists": 5,
+      "game": 30,
+      "player": 118
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 381,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 30,
+      "player": 119
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 382,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 30,
+      "player": 125
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 383,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 30,
+      "player": 115
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 384,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 30,
+      "player": 42
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 385,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 30,
+      "player": 38
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 386,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 30,
+      "player": 51
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 387,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 31,
+      "player": 134
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 388,
+    "fields": {
+      "goals": 2,
+      "assists": 3,
+      "game": 31,
+      "player": 130
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 389,
+    "fields": {
+      "goals": 0,
+      "assists": 4,
+      "game": 31,
+      "player": 135
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 390,
+    "fields": {
+      "goals": 2,
+      "assists": 2,
+      "game": 31,
+      "player": 140
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 391,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 31,
+      "player": 137
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 392,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 31,
+      "player": 139
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 393,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 31,
+      "player": 138
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 394,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 31,
+      "player": 142
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 395,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 31,
+      "player": 145
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 396,
+    "fields": {
+      "goals": 1,
+      "assists": 3,
+      "game": 31,
+      "player": 45
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 397,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 31,
+      "player": 48
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 398,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 31,
+      "player": 42
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 399,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 31,
+      "player": 41
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 400,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 32,
+      "player": 19
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 401,
+    "fields": {
+      "goals": 1,
+      "assists": 3,
+      "game": 32,
+      "player": 21
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 402,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 32,
+      "player": 16
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 403,
+    "fields": {
+      "goals": 3,
+      "assists": 4,
+      "game": 32,
+      "player": 17
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 404,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 32,
+      "player": 13
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 405,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 32,
+      "player": 18
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 406,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 32,
+      "player": 20
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 407,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 32,
+      "player": 12
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 408,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 32,
+      "player": 8
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 409,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 32,
+      "player": 7
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 410,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 32,
+      "player": 9
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 411,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 32,
+      "player": 10
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 412,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 32,
+      "player": 99
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 413,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 32,
+      "player": 98
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 414,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 32,
+      "player": 97
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 415,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 32,
+      "player": 106
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 416,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 32,
+      "player": 96
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 417,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 33,
+      "player": 57
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 418,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 33,
+      "player": 59
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 419,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 33,
+      "player": 73
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 420,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 33,
+      "player": 56
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 421,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 33,
+      "player": 65
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 422,
+    "fields": {
+      "goals": 3,
+      "assists": 1,
+      "game": 33,
+      "player": 75
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 423,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 33,
+      "player": 55
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 424,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 33,
+      "player": 120
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 425,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 33,
+      "player": 118
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 426,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 33,
+      "player": 115
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 427,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 33,
+      "player": 113
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 428,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 34,
+      "player": 158
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 429,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 34,
+      "player": 165
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 430,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 34,
+      "player": 153
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 431,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 34,
+      "player": 163
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 432,
+    "fields": {
+      "goals": 3,
+      "assists": 0,
+      "game": 34,
+      "player": 155
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 433,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 34,
+      "player": 172
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 434,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 34,
+      "player": 169
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 435,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 34,
+      "player": 173
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 436,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 34,
+      "player": 174
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 437,
+    "fields": {
+      "goals": 2,
+      "assists": 4,
+      "game": 35,
+      "player": 130
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 438,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 35,
+      "player": 140
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 439,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 35,
+      "player": 135
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 440,
+    "fields": {
+      "goals": 2,
+      "assists": 3,
+      "game": 35,
+      "player": 134
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 441,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 35,
+      "player": 137
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 442,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 35,
+      "player": 133
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 443,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 35,
+      "player": 145
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 444,
+    "fields": {
+      "goals": 0,
+      "assists": 3,
+      "game": 35,
+      "player": 165
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 445,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 35,
+      "player": 163
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 446,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 35,
+      "player": 159
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 447,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 35,
+      "player": 158
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 448,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 35,
+      "player": 153
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 449,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 35,
+      "player": 152
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 450,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 35,
+      "player": 149
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 451,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 4,
+      "player": 183
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 452,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 5,
+      "player": 183
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 453,
+    "fields": {
+      "goals": 1,
+      "assists": 2,
+      "game": 36,
+      "player": 19
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 454,
+    "fields": {
+      "goals": 3,
+      "assists": 4,
+      "game": 36,
+      "player": 17
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 455,
+    "fields": {
+      "goals": 0,
+      "assists": 2,
+      "game": 36,
+      "player": 16
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 456,
+    "fields": {
+      "goals": 1,
+      "assists": 3,
+      "game": 36,
+      "player": 20
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 457,
+    "fields": {
+      "goals": 4,
+      "assists": 0,
+      "game": 36,
+      "player": 21
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 458,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 36,
+      "player": 9
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 459,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 36,
+      "player": 7
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 460,
+    "fields": {
+      "goals": 1,
+      "assists": 4,
+      "game": 36,
+      "player": 56
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 461,
+    "fields": {
+      "goals": 2,
+      "assists": 1,
+      "game": 36,
+      "player": 59
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 462,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 36,
+      "player": 70
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 463,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 36,
+      "player": 58
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 464,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 36,
+      "player": 64
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 465,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 36,
+      "player": 73
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 466,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 37,
+      "player": 19
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 467,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 37,
+      "player": 17
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 468,
+    "fields": {
+      "goals": 0,
+      "assists": 4,
+      "game": 37,
+      "player": 16
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 469,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 37,
+      "player": 20
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 470,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 37,
+      "player": 21
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 471,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 37,
+      "player": 9
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 472,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 37,
+      "player": 7
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 473,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 37,
+      "player": 8
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 474,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 37,
+      "player": 6
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 475,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 37,
+      "player": 18
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 476,
+    "fields": {
+      "goals": 1,
+      "assists": 4,
+      "game": 37,
+      "player": 130
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 477,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 37,
+      "player": 140
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 478,
+    "fields": {
+      "goals": 1,
+      "assists": 1,
+      "game": 37,
+      "player": 135
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 479,
+    "fields": {
+      "goals": 1,
+      "assists": 3,
+      "game": 37,
+      "player": 134
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 480,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 37,
+      "player": 137
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 481,
+    "fields": {
+      "goals": 0,
+      "assists": 1,
+      "game": 37,
+      "player": 138
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 482,
+    "fields": {
+      "goals": 1,
+      "assists": 0,
+      "game": 37,
+      "player": 133
+    }
+  },
+  {
+    "model": "games.scoring",
+    "pk": 483,
+    "fields": {
+      "goals": 2,
+      "assists": 0,
+      "game": 37,
+      "player": 142
+    }
+  }
+]

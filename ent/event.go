@@ -43,6 +43,16 @@ type Event struct {
 	Description *string `json:"description,omitempty"`
 	// Settings holds the value of the "settings" field.
 	Settings map[string]interface{} `json:"settings,omitempty"`
+	// Event categories: outdoor, hat, beach, indoor, league
+	Categories []string `json:"categories,omitempty"`
+	// URL to event logo image
+	LogoURL *string `json:"logo_url,omitempty"`
+	// URL to event banner image
+	BannerURL *string `json:"banner_url,omitempty"`
+	// Denormalized count of teams for efficient queries
+	TeamsCount int `json:"teams_count,omitempty"`
+	// Denormalized count of games for efficient queries
+	GamesCount int `json:"games_count,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the EventQuery when eager-loading is set.
 	Edges             EventEdges `json:"edges"`
@@ -133,11 +143,11 @@ func (*Event) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case event.FieldSettings:
+		case event.FieldSettings, event.FieldCategories:
 			values[i] = new([]byte)
-		case event.FieldYear:
+		case event.FieldYear, event.FieldTeamsCount, event.FieldGamesCount:
 			values[i] = new(sql.NullInt64)
-		case event.FieldName, event.FieldSlug, event.FieldStatus, event.FieldDescription:
+		case event.FieldName, event.FieldSlug, event.FieldStatus, event.FieldDescription, event.FieldLogoURL, event.FieldBannerURL:
 			values[i] = new(sql.NullString)
 		case event.FieldCreatedAt, event.FieldUpdatedAt, event.FieldDeletedAt, event.FieldStartDate, event.FieldEndDate:
 			values[i] = new(sql.NullTime)
@@ -237,6 +247,40 @@ func (_m *Event) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &_m.Settings); err != nil {
 					return fmt.Errorf("unmarshal field settings: %w", err)
 				}
+			}
+		case event.FieldCategories:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field categories", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Categories); err != nil {
+					return fmt.Errorf("unmarshal field categories: %w", err)
+				}
+			}
+		case event.FieldLogoURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field logo_url", values[i])
+			} else if value.Valid {
+				_m.LogoURL = new(string)
+				*_m.LogoURL = value.String
+			}
+		case event.FieldBannerURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field banner_url", values[i])
+			} else if value.Valid {
+				_m.BannerURL = new(string)
+				*_m.BannerURL = value.String
+			}
+		case event.FieldTeamsCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field teams_count", values[i])
+			} else if value.Valid {
+				_m.TeamsCount = int(value.Int64)
+			}
+		case event.FieldGamesCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field games_count", values[i])
+			} else if value.Valid {
+				_m.GamesCount = int(value.Int64)
 			}
 		case event.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -354,6 +398,25 @@ func (_m *Event) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("settings=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Settings))
+	builder.WriteString(", ")
+	builder.WriteString("categories=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Categories))
+	builder.WriteString(", ")
+	if v := _m.LogoURL; v != nil {
+		builder.WriteString("logo_url=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.BannerURL; v != nil {
+		builder.WriteString("banner_url=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	builder.WriteString("teams_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TeamsCount))
+	builder.WriteString(", ")
+	builder.WriteString("games_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.GamesCount))
 	builder.WriteByte(')')
 	return builder.String()
 }

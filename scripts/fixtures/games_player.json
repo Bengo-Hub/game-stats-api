@@ -1,0 +1,1960 @@
+[
+  {
+    "model": "games.player",
+    "pk": 6,
+    "fields": {
+      "name": " Samantha Jepkosgei",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 7,
+    "fields": {
+      "name": " Emily Nyaga S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 8,
+    "fields": {
+      "name": " Emmaculate Chebet S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 9,
+    "fields": {
+      "name": " Liza Jeptoo S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 10,
+    "fields": {
+      "name": " Fatma Abdalla S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 11,
+    "fields": {
+      "name": " Suesseth Chepkemoi S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 12,
+    "fields": {
+      "name": " Linda Naretu",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 13,
+    "fields": {
+      "name": " James Selelo S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 14,
+    "fields": {
+      "name": " Solomon Sieta",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 15,
+    "fields": {
+      "name": " Cyprian Kisienya",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 16,
+    "fields": {
+      "name": " Likam Ateti S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 17,
+    "fields": {
+      "name": " Dennis Kiprono S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 18,
+    "fields": {
+      "name": " Marius Kipkirui",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 19,
+    "fields": {
+      "name": " Robert Korir",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 20,
+    "fields": {
+      "name": " Martin Shitindo",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 21,
+    "fields": {
+      "name": " Kimurgor Allan",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 1,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 22,
+    "fields": {
+      "name": "A",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 4,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 23,
+    "fields": {
+      "name": " Marion Murey S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 4,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 24,
+    "fields": {
+      "name": " Sandra Jepkorir S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 4,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 25,
+    "fields": {
+      "name": " Sheila Tesot S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 4,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 26,
+    "fields": {
+      "name": " Mercy Jepchirchir S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 4,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 27,
+    "fields": {
+      "name": " Isaac Tirike S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 4,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 28,
+    "fields": {
+      "name": " Son Ha ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 4,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 29,
+    "fields": {
+      "name": " Samuel Cheloti S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 4,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 30,
+    "fields": {
+      "name": " Geoffrey Sang",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 4,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 31,
+    "fields": {
+      "name": " Daniel Kigen S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 4,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 32,
+    "fields": {
+      "name": " Ericah Joy S",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 4,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 33,
+    "fields": {
+      "name": "A",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 34,
+    "fields": {
+      "name": "Vincent Kipkirui",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 35,
+    "fields": {
+      "name": "Caleb wafula",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 36,
+    "fields": {
+      "name": "Mark Muinde",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 37,
+    "fields": {
+      "name": "Daybe Mongare",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 38,
+    "fields": {
+      "name": "Luke Rapaito",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 39,
+    "fields": {
+      "name": "Agrey Omare",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 40,
+    "fields": {
+      "name": "Freddy Kibali ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 41,
+    "fields": {
+      "name": "Victor Kiprop",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 42,
+    "fields": {
+      "name": "Nahashon Kibe",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 43,
+    "fields": {
+      "name": "Emmanuel Mwendwa",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 44,
+    "fields": {
+      "name": "Dennis Otieno ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 45,
+    "fields": {
+      "name": "Delvo",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 46,
+    "fields": {
+      "name": "Ashley Achieng",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 47,
+    "fields": {
+      "name": "Mercy Rupia",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 48,
+    "fields": {
+      "name": "Faith Cherop",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 49,
+    "fields": {
+      "name": "Melody Muniafu",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 50,
+    "fields": {
+      "name": "Grandya Grace ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 51,
+    "fields": {
+      "name": "Sheryl Achieng",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 52,
+    "fields": {
+      "name": "Grace Tsitsi",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 53,
+    "fields": {
+      "name": "Lyne",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 3,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 54,
+    "fields": {
+      "name": "A",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 55,
+    "fields": {
+      "name": "Tomaso Evans",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 56,
+    "fields": {
+      "name": "Kaleke David",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 57,
+    "fields": {
+      "name": "Gilbert Wambani",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 58,
+    "fields": {
+      "name": "brian Otieno",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 59,
+    "fields": {
+      "name": "Okari  Meshack ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 60,
+    "fields": {
+      "name": "Bobby Mbogua",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 61,
+    "fields": {
+      "name": "Meshack Ekiru",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 62,
+    "fields": {
+      "name": "Mutwiri Josphat ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 63,
+    "fields": {
+      "name": "Abdi Wario",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 64,
+    "fields": {
+      "name": "Tom ngugi",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 65,
+    "fields": {
+      "name": "Benard Otieno",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 66,
+    "fields": {
+      "name": "Sweng",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 67,
+    "fields": {
+      "name": "Eugene Owino ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 68,
+    "fields": {
+      "name": "Mary Kamau",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 69,
+    "fields": {
+      "name": "Nash Wambui",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 70,
+    "fields": {
+      "name": "Edith Kiprotich",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 71,
+    "fields": {
+      "name": "Seeyian Sempele",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 72,
+    "fields": {
+      "name": "Eliza Wandabwa",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 73,
+    "fields": {
+      "name": "Mbonne Phoebe",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 74,
+    "fields": {
+      "name": "Brilliant Mayio",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 75,
+    "fields": {
+      "name": "Bridgid Amwai",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 76,
+    "fields": {
+      "name": "Moraa Idah",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 7,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 77,
+    "fields": {
+      "name": "A",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 78,
+    "fields": {
+      "name": "Adah",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 79,
+    "fields": {
+      "name": "Mercy",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 80,
+    "fields": {
+      "name": "Farida",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 81,
+    "fields": {
+      "name": "Edna",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 82,
+    "fields": {
+      "name": "Esther",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 83,
+    "fields": {
+      "name": "Ann",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 84,
+    "fields": {
+      "name": "Sylvia",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 85,
+    "fields": {
+      "name": "Kris",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 86,
+    "fields": {
+      "name": "Frank",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 87,
+    "fields": {
+      "name": "Mwangi",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 88,
+    "fields": {
+      "name": "Steve",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 89,
+    "fields": {
+      "name": "Alex",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 90,
+    "fields": {
+      "name": "Mophine",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 91,
+    "fields": {
+      "name": "Isaac",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 92,
+    "fields": {
+      "name": "Nahashon",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 93,
+    "fields": {
+      "name": "Afido",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 94,
+    "fields": {
+      "name": "Jose",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 10,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 95,
+    "fields": {
+      "name": "A",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 96,
+    "fields": {
+      "name": "Antony Kaiser ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 97,
+    "fields": {
+      "name": "Gideon kileteni",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 98,
+    "fields": {
+      "name": "Amos Tonkei ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 99,
+    "fields": {
+      "name": "Tyson Maundu",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 100,
+    "fields": {
+      "name": "John Maruti",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 101,
+    "fields": {
+      "name": "Andrew Anyona",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 102,
+    "fields": {
+      "name": "Babra Simiyu",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 103,
+    "fields": {
+      "name": "Nowels Jelimo",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 104,
+    "fields": {
+      "name": "Stacy Adiyo",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 105,
+    "fields": {
+      "name": "Mitchelle Jepchumba ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 106,
+    "fields": {
+      "name": "Vomiller Jelagat",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 107,
+    "fields": {
+      "name": "Juliet Anyango",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 108,
+    "fields": {
+      "name": "Denis Keter",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 109,
+    "fields": {
+      "name": "Justus Kiplimo",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 110,
+    "fields": {
+      "name": "Alex Ondego",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 111,
+    "fields": {
+      "name": "Denis Kibet.",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 8,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 112,
+    "fields": {
+      "name": "A",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 113,
+    "fields": {
+      "name": "Susan Murithi ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 114,
+    "fields": {
+      "name": "Kerubo Dorcah",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 115,
+    "fields": {
+      "name": "Alexandra Rank",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 116,
+    "fields": {
+      "name": "Purity ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 117,
+    "fields": {
+      "name": "Grace Nanetia",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 118,
+    "fields": {
+      "name": "Partet Kisai",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 119,
+    "fields": {
+      "name": "Evans Parit",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 120,
+    "fields": {
+      "name": "Zack Ateti",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 121,
+    "fields": {
+      "name": "Rob stevens ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 122,
+    "fields": {
+      "name": "Gideon Makau",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 123,
+    "fields": {
+      "name": "Ahmet Sheriff ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 124,
+    "fields": {
+      "name": "Abdinassir Hassan  ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 125,
+    "fields": {
+      "name": "Adan Maalim ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 126,
+    "fields": {
+      "name": "Mercy Jepchirchir ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 127,
+    "fields": {
+      "name": "Valentine Osebe",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 128,
+    "fields": {
+      "name": "A",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 129,
+    "fields": {
+      "name": "A",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 130,
+    "fields": {
+      "name": "Diagracious Ebirenget",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 131,
+    "fields": {
+      "name": "Sospeter Omondi",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 132,
+    "fields": {
+      "name": "Klein Odera",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 133,
+    "fields": {
+      "name": "Terence Ogendo",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 134,
+    "fields": {
+      "name": "Tevin Apolo",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 135,
+    "fields": {
+      "name": "Peter Kamolo",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 136,
+    "fields": {
+      "name": "Jack Odhiambo",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 137,
+    "fields": {
+      "name": "Faith Karicha ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 138,
+    "fields": {
+      "name": "Eric Onyango",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 139,
+    "fields": {
+      "name": "Colette Ng'iela ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 140,
+    "fields": {
+      "name": "Phylis Wasike",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 141,
+    "fields": {
+      "name": "Iman Muhonda",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 142,
+    "fields": {
+      "name": "Ivy Ong'aya",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 143,
+    "fields": {
+      "name": "Mildred Masinza",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 144,
+    "fields": {
+      "name": "Skylet Khamuru ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 145,
+    "fields": {
+      "name": "Eddie Oketch",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 5,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 146,
+    "fields": {
+      "name": "A",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 147,
+    "fields": {
+      "name": " Flovian Andeso",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 148,
+    "fields": {
+      "name": " Becky Adhiambo",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 149,
+    "fields": {
+      "name": " Christine Atieno",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 150,
+    "fields": {
+      "name": " Melvine Aluku",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 151,
+    "fields": {
+      "name": " Dorcas Loice",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 152,
+    "fields": {
+      "name": " Natalie Kibor",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 153,
+    "fields": {
+      "name": " Angela Kweyu",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 154,
+    "fields": {
+      "name": " Velma Mmbone",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 155,
+    "fields": {
+      "name": " Felisters Kenei",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 156,
+    "fields": {
+      "name": " Abigail Ombaka",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 157,
+    "fields": {
+      "name": " Lencer Omoga",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 158,
+    "fields": {
+      "name": " Jackson Kibiru ",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 159,
+    "fields": {
+      "name": " Daniel Kwemoi",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 160,
+    "fields": {
+      "name": " Derrick Jumba",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 161,
+    "fields": {
+      "name": " Peter Pusaren",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 162,
+    "fields": {
+      "name": " Desmond Jesse",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 163,
+    "fields": {
+      "name": " Adrian Olangu",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 164,
+    "fields": {
+      "name": " Benard  Maiyo",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 165,
+    "fields": {
+      "name": " Sammy Kipsisei",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 166,
+    "fields": {
+      "name": " Boaz Omunyin",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 2,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 167,
+    "fields": {
+      "name": "A",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 168,
+    "fields": {
+      "name": "Solomon",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 169,
+    "fields": {
+      "name": "Nelson",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 170,
+    "fields": {
+      "name": "Moses Njatha",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 171,
+    "fields": {
+      "name": "Antony",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 172,
+    "fields": {
+      "name": "Collins",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 173,
+    "fields": {
+      "name": "Felix",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 174,
+    "fields": {
+      "name": "Jolobi",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "M"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 175,
+    "fields": {
+      "name": "Rose",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 176,
+    "fields": {
+      "name": "Ashley",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 177,
+    "fields": {
+      "name": "Faith",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 178,
+    "fields": {
+      "name": "Theophine",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 179,
+    "fields": {
+      "name": "Diana",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 180,
+    "fields": {
+      "name": "Lavender",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 181,
+    "fields": {
+      "name": "Stacy",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 6,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 182,
+    "fields": {
+      "name": "Angie",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 4,
+      "gender": "F"
+    }
+  },
+  {
+    "model": "games.player",
+    "pk": 183,
+    "fields": {
+      "name": "Keen Lengete",
+      "spirit_award_nominations": "0",
+      "mvp_nominations": "0",
+      "team": 9,
+      "gender": "M"
+    }
+  }
+]

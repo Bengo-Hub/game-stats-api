@@ -43,6 +43,12 @@ func (Player) Fields() []ent.Field {
 		field.String("profile_image_url").
 			Optional().
 			Nillable(),
+		field.Bool("is_captain").
+			Default(false).
+			Comment("Whether this player is the team captain"),
+		field.Bool("is_spirit_captain").
+			Default(false).
+			Comment("Whether this player is the spirit captain"),
 		field.JSON("metadata", map[string]interface{}{}).
 			Optional(),
 	}

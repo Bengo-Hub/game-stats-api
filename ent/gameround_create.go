@@ -292,15 +292,15 @@ func (_c *GameRoundCreate) createSpec() (*GameRound, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.RoundNumber(); ok {
 		_spec.SetField(gameround.FieldRoundNumber, field.TypeInt, value)
-		_node.RoundNumber = value
+		_node.RoundNumber = &value
 	}
 	if value, ok := _c.mutation.StartDate(); ok {
 		_spec.SetField(gameround.FieldStartDate, field.TypeTime, value)
-		_node.StartDate = value
+		_node.StartDate = &value
 	}
 	if value, ok := _c.mutation.EndDate(); ok {
 		_spec.SetField(gameround.FieldEndDate, field.TypeTime, value)
-		_node.EndDate = value
+		_node.EndDate = &value
 	}
 	if nodes := _c.mutation.EventIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -30,11 +30,11 @@ type GameRound struct {
 	// RoundType holds the value of the "round_type" field.
 	RoundType string `json:"round_type,omitempty"`
 	// RoundNumber holds the value of the "round_number" field.
-	RoundNumber int `json:"round_number,omitempty"`
+	RoundNumber *int `json:"round_number,omitempty"`
 	// StartDate holds the value of the "start_date" field.
-	StartDate time.Time `json:"start_date,omitempty"`
+	StartDate *time.Time `json:"start_date,omitempty"`
 	// EndDate holds the value of the "end_date" field.
-	EndDate time.Time `json:"end_date,omitempty"`
+	EndDate *time.Time `json:"end_date,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GameRoundQuery when eager-loading is set.
 	Edges             GameRoundEdges `json:"edges"`
@@ -144,19 +144,22 @@ func (_m *GameRound) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field round_number", values[i])
 			} else if value.Valid {
-				_m.RoundNumber = int(value.Int64)
+				_m.RoundNumber = new(int)
+				*_m.RoundNumber = int(value.Int64)
 			}
 		case gameround.FieldStartDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field start_date", values[i])
 			} else if value.Valid {
-				_m.StartDate = value.Time
+				_m.StartDate = new(time.Time)
+				*_m.StartDate = value.Time
 			}
 		case gameround.FieldEndDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field end_date", values[i])
 			} else if value.Valid {
-				_m.EndDate = value.Time
+				_m.EndDate = new(time.Time)
+				*_m.EndDate = value.Time
 			}
 		case gameround.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -228,14 +231,20 @@ func (_m *GameRound) String() string {
 	builder.WriteString("round_type=")
 	builder.WriteString(_m.RoundType)
 	builder.WriteString(", ")
-	builder.WriteString("round_number=")
-	builder.WriteString(fmt.Sprintf("%v", _m.RoundNumber))
+	if v := _m.RoundNumber; v != nil {
+		builder.WriteString("round_number=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
-	builder.WriteString("start_date=")
-	builder.WriteString(_m.StartDate.Format(time.ANSIC))
+	if v := _m.StartDate; v != nil {
+		builder.WriteString("start_date=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
-	builder.WriteString("end_date=")
-	builder.WriteString(_m.EndDate.Format(time.ANSIC))
+	if v := _m.EndDate; v != nil {
+		builder.WriteString("end_date=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

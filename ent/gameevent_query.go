@@ -336,12 +336,12 @@ func (_q *GameEventQuery) WithPlayer(opts ...func(*PlayerQuery)) *GameEventQuery
 // Example:
 //
 //	var v []struct {
-//		EventType string `json:"event_type,omitempty"`
+//		CreatedAt time.Time `json:"created_at,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.GameEvent.Query().
-//		GroupBy(gameevent.FieldEventType).
+//		GroupBy(gameevent.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *GameEventQuery) GroupBy(field string, fields ...string) *GameEventGroupBy {
@@ -359,11 +359,11 @@ func (_q *GameEventQuery) GroupBy(field string, fields ...string) *GameEventGrou
 // Example:
 //
 //	var v []struct {
-//		EventType string `json:"event_type,omitempty"`
+//		CreatedAt time.Time `json:"created_at,omitempty"`
 //	}
 //
 //	client.GameEvent.Query().
-//		Select(gameevent.FieldEventType).
+//		Select(gameevent.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (_q *GameEventQuery) Select(fields ...string) *GameEventSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

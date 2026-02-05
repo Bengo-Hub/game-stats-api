@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/bengobox/game-stats-api/ent/analyticsearch"
 	"github.com/bengobox/game-stats-api/ent/analyticsembedding"
+	"github.com/bengobox/game-stats-api/ent/auditlog"
 	"github.com/bengobox/game-stats-api/ent/continent"
 	"github.com/bengobox/game-stats-api/ent/country"
 	"github.com/bengobox/game-stats-api/ent/discipline"
@@ -96,6 +97,7 @@ func checkColumn(t, c string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			analyticsearch.Table:      analyticsearch.ValidColumn,
 			analyticsembedding.Table:  analyticsembedding.ValidColumn,
+			auditlog.Table:            auditlog.ValidColumn,
 			continent.Table:           continent.ValidColumn,
 			country.Table:             country.ValidColumn,
 			discipline.Table:          discipline.ValidColumn,

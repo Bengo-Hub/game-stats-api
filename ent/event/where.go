@@ -106,6 +106,26 @@ func Description(v string) predicate.Event {
 	return predicate.Event(sql.FieldEQ(FieldDescription, v))
 }
 
+// LogoURL applies equality check predicate on the "logo_url" field. It's identical to LogoURLEQ.
+func LogoURL(v string) predicate.Event {
+	return predicate.Event(sql.FieldEQ(FieldLogoURL, v))
+}
+
+// BannerURL applies equality check predicate on the "banner_url" field. It's identical to BannerURLEQ.
+func BannerURL(v string) predicate.Event {
+	return predicate.Event(sql.FieldEQ(FieldBannerURL, v))
+}
+
+// TeamsCount applies equality check predicate on the "teams_count" field. It's identical to TeamsCountEQ.
+func TeamsCount(v int) predicate.Event {
+	return predicate.Event(sql.FieldEQ(FieldTeamsCount, v))
+}
+
+// GamesCount applies equality check predicate on the "games_count" field. It's identical to GamesCountEQ.
+func GamesCount(v int) predicate.Event {
+	return predicate.Event(sql.FieldEQ(FieldGamesCount, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Event {
 	return predicate.Event(sql.FieldEQ(FieldCreatedAt, v))
@@ -634,6 +654,246 @@ func SettingsIsNil() predicate.Event {
 // SettingsNotNil applies the NotNil predicate on the "settings" field.
 func SettingsNotNil() predicate.Event {
 	return predicate.Event(sql.FieldNotNull(FieldSettings))
+}
+
+// CategoriesIsNil applies the IsNil predicate on the "categories" field.
+func CategoriesIsNil() predicate.Event {
+	return predicate.Event(sql.FieldIsNull(FieldCategories))
+}
+
+// CategoriesNotNil applies the NotNil predicate on the "categories" field.
+func CategoriesNotNil() predicate.Event {
+	return predicate.Event(sql.FieldNotNull(FieldCategories))
+}
+
+// LogoURLEQ applies the EQ predicate on the "logo_url" field.
+func LogoURLEQ(v string) predicate.Event {
+	return predicate.Event(sql.FieldEQ(FieldLogoURL, v))
+}
+
+// LogoURLNEQ applies the NEQ predicate on the "logo_url" field.
+func LogoURLNEQ(v string) predicate.Event {
+	return predicate.Event(sql.FieldNEQ(FieldLogoURL, v))
+}
+
+// LogoURLIn applies the In predicate on the "logo_url" field.
+func LogoURLIn(vs ...string) predicate.Event {
+	return predicate.Event(sql.FieldIn(FieldLogoURL, vs...))
+}
+
+// LogoURLNotIn applies the NotIn predicate on the "logo_url" field.
+func LogoURLNotIn(vs ...string) predicate.Event {
+	return predicate.Event(sql.FieldNotIn(FieldLogoURL, vs...))
+}
+
+// LogoURLGT applies the GT predicate on the "logo_url" field.
+func LogoURLGT(v string) predicate.Event {
+	return predicate.Event(sql.FieldGT(FieldLogoURL, v))
+}
+
+// LogoURLGTE applies the GTE predicate on the "logo_url" field.
+func LogoURLGTE(v string) predicate.Event {
+	return predicate.Event(sql.FieldGTE(FieldLogoURL, v))
+}
+
+// LogoURLLT applies the LT predicate on the "logo_url" field.
+func LogoURLLT(v string) predicate.Event {
+	return predicate.Event(sql.FieldLT(FieldLogoURL, v))
+}
+
+// LogoURLLTE applies the LTE predicate on the "logo_url" field.
+func LogoURLLTE(v string) predicate.Event {
+	return predicate.Event(sql.FieldLTE(FieldLogoURL, v))
+}
+
+// LogoURLContains applies the Contains predicate on the "logo_url" field.
+func LogoURLContains(v string) predicate.Event {
+	return predicate.Event(sql.FieldContains(FieldLogoURL, v))
+}
+
+// LogoURLHasPrefix applies the HasPrefix predicate on the "logo_url" field.
+func LogoURLHasPrefix(v string) predicate.Event {
+	return predicate.Event(sql.FieldHasPrefix(FieldLogoURL, v))
+}
+
+// LogoURLHasSuffix applies the HasSuffix predicate on the "logo_url" field.
+func LogoURLHasSuffix(v string) predicate.Event {
+	return predicate.Event(sql.FieldHasSuffix(FieldLogoURL, v))
+}
+
+// LogoURLIsNil applies the IsNil predicate on the "logo_url" field.
+func LogoURLIsNil() predicate.Event {
+	return predicate.Event(sql.FieldIsNull(FieldLogoURL))
+}
+
+// LogoURLNotNil applies the NotNil predicate on the "logo_url" field.
+func LogoURLNotNil() predicate.Event {
+	return predicate.Event(sql.FieldNotNull(FieldLogoURL))
+}
+
+// LogoURLEqualFold applies the EqualFold predicate on the "logo_url" field.
+func LogoURLEqualFold(v string) predicate.Event {
+	return predicate.Event(sql.FieldEqualFold(FieldLogoURL, v))
+}
+
+// LogoURLContainsFold applies the ContainsFold predicate on the "logo_url" field.
+func LogoURLContainsFold(v string) predicate.Event {
+	return predicate.Event(sql.FieldContainsFold(FieldLogoURL, v))
+}
+
+// BannerURLEQ applies the EQ predicate on the "banner_url" field.
+func BannerURLEQ(v string) predicate.Event {
+	return predicate.Event(sql.FieldEQ(FieldBannerURL, v))
+}
+
+// BannerURLNEQ applies the NEQ predicate on the "banner_url" field.
+func BannerURLNEQ(v string) predicate.Event {
+	return predicate.Event(sql.FieldNEQ(FieldBannerURL, v))
+}
+
+// BannerURLIn applies the In predicate on the "banner_url" field.
+func BannerURLIn(vs ...string) predicate.Event {
+	return predicate.Event(sql.FieldIn(FieldBannerURL, vs...))
+}
+
+// BannerURLNotIn applies the NotIn predicate on the "banner_url" field.
+func BannerURLNotIn(vs ...string) predicate.Event {
+	return predicate.Event(sql.FieldNotIn(FieldBannerURL, vs...))
+}
+
+// BannerURLGT applies the GT predicate on the "banner_url" field.
+func BannerURLGT(v string) predicate.Event {
+	return predicate.Event(sql.FieldGT(FieldBannerURL, v))
+}
+
+// BannerURLGTE applies the GTE predicate on the "banner_url" field.
+func BannerURLGTE(v string) predicate.Event {
+	return predicate.Event(sql.FieldGTE(FieldBannerURL, v))
+}
+
+// BannerURLLT applies the LT predicate on the "banner_url" field.
+func BannerURLLT(v string) predicate.Event {
+	return predicate.Event(sql.FieldLT(FieldBannerURL, v))
+}
+
+// BannerURLLTE applies the LTE predicate on the "banner_url" field.
+func BannerURLLTE(v string) predicate.Event {
+	return predicate.Event(sql.FieldLTE(FieldBannerURL, v))
+}
+
+// BannerURLContains applies the Contains predicate on the "banner_url" field.
+func BannerURLContains(v string) predicate.Event {
+	return predicate.Event(sql.FieldContains(FieldBannerURL, v))
+}
+
+// BannerURLHasPrefix applies the HasPrefix predicate on the "banner_url" field.
+func BannerURLHasPrefix(v string) predicate.Event {
+	return predicate.Event(sql.FieldHasPrefix(FieldBannerURL, v))
+}
+
+// BannerURLHasSuffix applies the HasSuffix predicate on the "banner_url" field.
+func BannerURLHasSuffix(v string) predicate.Event {
+	return predicate.Event(sql.FieldHasSuffix(FieldBannerURL, v))
+}
+
+// BannerURLIsNil applies the IsNil predicate on the "banner_url" field.
+func BannerURLIsNil() predicate.Event {
+	return predicate.Event(sql.FieldIsNull(FieldBannerURL))
+}
+
+// BannerURLNotNil applies the NotNil predicate on the "banner_url" field.
+func BannerURLNotNil() predicate.Event {
+	return predicate.Event(sql.FieldNotNull(FieldBannerURL))
+}
+
+// BannerURLEqualFold applies the EqualFold predicate on the "banner_url" field.
+func BannerURLEqualFold(v string) predicate.Event {
+	return predicate.Event(sql.FieldEqualFold(FieldBannerURL, v))
+}
+
+// BannerURLContainsFold applies the ContainsFold predicate on the "banner_url" field.
+func BannerURLContainsFold(v string) predicate.Event {
+	return predicate.Event(sql.FieldContainsFold(FieldBannerURL, v))
+}
+
+// TeamsCountEQ applies the EQ predicate on the "teams_count" field.
+func TeamsCountEQ(v int) predicate.Event {
+	return predicate.Event(sql.FieldEQ(FieldTeamsCount, v))
+}
+
+// TeamsCountNEQ applies the NEQ predicate on the "teams_count" field.
+func TeamsCountNEQ(v int) predicate.Event {
+	return predicate.Event(sql.FieldNEQ(FieldTeamsCount, v))
+}
+
+// TeamsCountIn applies the In predicate on the "teams_count" field.
+func TeamsCountIn(vs ...int) predicate.Event {
+	return predicate.Event(sql.FieldIn(FieldTeamsCount, vs...))
+}
+
+// TeamsCountNotIn applies the NotIn predicate on the "teams_count" field.
+func TeamsCountNotIn(vs ...int) predicate.Event {
+	return predicate.Event(sql.FieldNotIn(FieldTeamsCount, vs...))
+}
+
+// TeamsCountGT applies the GT predicate on the "teams_count" field.
+func TeamsCountGT(v int) predicate.Event {
+	return predicate.Event(sql.FieldGT(FieldTeamsCount, v))
+}
+
+// TeamsCountGTE applies the GTE predicate on the "teams_count" field.
+func TeamsCountGTE(v int) predicate.Event {
+	return predicate.Event(sql.FieldGTE(FieldTeamsCount, v))
+}
+
+// TeamsCountLT applies the LT predicate on the "teams_count" field.
+func TeamsCountLT(v int) predicate.Event {
+	return predicate.Event(sql.FieldLT(FieldTeamsCount, v))
+}
+
+// TeamsCountLTE applies the LTE predicate on the "teams_count" field.
+func TeamsCountLTE(v int) predicate.Event {
+	return predicate.Event(sql.FieldLTE(FieldTeamsCount, v))
+}
+
+// GamesCountEQ applies the EQ predicate on the "games_count" field.
+func GamesCountEQ(v int) predicate.Event {
+	return predicate.Event(sql.FieldEQ(FieldGamesCount, v))
+}
+
+// GamesCountNEQ applies the NEQ predicate on the "games_count" field.
+func GamesCountNEQ(v int) predicate.Event {
+	return predicate.Event(sql.FieldNEQ(FieldGamesCount, v))
+}
+
+// GamesCountIn applies the In predicate on the "games_count" field.
+func GamesCountIn(vs ...int) predicate.Event {
+	return predicate.Event(sql.FieldIn(FieldGamesCount, vs...))
+}
+
+// GamesCountNotIn applies the NotIn predicate on the "games_count" field.
+func GamesCountNotIn(vs ...int) predicate.Event {
+	return predicate.Event(sql.FieldNotIn(FieldGamesCount, vs...))
+}
+
+// GamesCountGT applies the GT predicate on the "games_count" field.
+func GamesCountGT(v int) predicate.Event {
+	return predicate.Event(sql.FieldGT(FieldGamesCount, v))
+}
+
+// GamesCountGTE applies the GTE predicate on the "games_count" field.
+func GamesCountGTE(v int) predicate.Event {
+	return predicate.Event(sql.FieldGTE(FieldGamesCount, v))
+}
+
+// GamesCountLT applies the LT predicate on the "games_count" field.
+func GamesCountLT(v int) predicate.Event {
+	return predicate.Event(sql.FieldLT(FieldGamesCount, v))
+}
+
+// GamesCountLTE applies the LTE predicate on the "games_count" field.
+func GamesCountLTE(v int) predicate.Event {
+	return predicate.Event(sql.FieldLTE(FieldGamesCount, v))
 }
 
 // HasDiscipline applies the HasEdge predicate on the "discipline" edge.

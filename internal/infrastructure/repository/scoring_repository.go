@@ -36,7 +36,9 @@ func (r *scoringRepository) GetByID(ctx context.Context, id uuid.UUID) (*ent.Sco
 	return r.client.Scoring.Query().
 		Where(scoring.ID(id)).
 		WithGame().
-		WithPlayer().
+		WithPlayer(func(pq *ent.PlayerQuery) {
+			pq.WithTeam() // Load team for team detection
+		}).
 		Only(ctx)
 }
 
@@ -44,7 +46,9 @@ func (r *scoringRepository) ListByGame(ctx context.Context, gameID uuid.UUID) ([
 	return r.client.Scoring.Query().
 		Where(scoring.HasGameWith(game.ID(gameID))).
 		Where(scoring.DeletedAtIsNil()).
-		WithPlayer().
+		WithPlayer(func(pq *ent.PlayerQuery) {
+			pq.WithTeam() // Load team for team detection in scoring calculations
+		}).
 		All(ctx)
 }
 

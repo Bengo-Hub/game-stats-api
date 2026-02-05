@@ -7,6 +7,7 @@ import (
 
 	"github.com/bengobox/game-stats-api/ent/analyticsearch"
 	"github.com/bengobox/game-stats-api/ent/analyticsembedding"
+	"github.com/bengobox/game-stats-api/ent/auditlog"
 	"github.com/bengobox/game-stats-api/ent/continent"
 	"github.com/bengobox/game-stats-api/ent/country"
 	"github.com/bengobox/game-stats-api/ent/discipline"
@@ -80,6 +81,32 @@ func init() {
 	analyticsembeddingDescID := analyticsembeddingFields[0].Descriptor()
 	// analyticsembedding.DefaultID holds the default value on creation for the id field.
 	analyticsembedding.DefaultID = analyticsembeddingDescID.Default.(func() uuid.UUID)
+	auditlogFields := schema.AuditLog{}.Fields()
+	_ = auditlogFields
+	// auditlogDescEntityType is the schema descriptor for entity_type field.
+	auditlogDescEntityType := auditlogFields[1].Descriptor()
+	// auditlog.EntityTypeValidator is a validator for the "entity_type" field. It is called by the builders before save.
+	auditlog.EntityTypeValidator = auditlogDescEntityType.Validators[0].(func(string) error)
+	// auditlogDescAction is the schema descriptor for action field.
+	auditlogDescAction := auditlogFields[3].Descriptor()
+	// auditlog.ActionValidator is a validator for the "action" field. It is called by the builders before save.
+	auditlog.ActionValidator = auditlogDescAction.Validators[0].(func(string) error)
+	// auditlogDescUsername is the schema descriptor for username field.
+	auditlogDescUsername := auditlogFields[5].Descriptor()
+	// auditlog.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	auditlog.UsernameValidator = auditlogDescUsername.Validators[0].(func(string) error)
+	// auditlogDescReason is the schema descriptor for reason field.
+	auditlogDescReason := auditlogFields[7].Descriptor()
+	// auditlog.ReasonValidator is a validator for the "reason" field. It is called by the builders before save.
+	auditlog.ReasonValidator = auditlogDescReason.Validators[0].(func(string) error)
+	// auditlogDescCreatedAt is the schema descriptor for created_at field.
+	auditlogDescCreatedAt := auditlogFields[10].Descriptor()
+	// auditlog.DefaultCreatedAt holds the default value on creation for the created_at field.
+	auditlog.DefaultCreatedAt = auditlogDescCreatedAt.Default.(func() time.Time)
+	// auditlogDescID is the schema descriptor for id field.
+	auditlogDescID := auditlogFields[0].Descriptor()
+	// auditlog.DefaultID holds the default value on creation for the id field.
+	auditlog.DefaultID = auditlogDescID.Default.(func() uuid.UUID)
 	continentMixin := schema.Continent{}.Mixin()
 	continentMixinFields0 := continentMixin[0].Fields()
 	_ = continentMixinFields0
@@ -375,6 +402,22 @@ func init() {
 	event.DefaultStatus = eventDescStatus.Default.(string)
 	// event.StatusValidator is a validator for the "status" field. It is called by the builders before save.
 	event.StatusValidator = eventDescStatus.Validators[0].(func(string) error)
+	// eventDescLogoURL is the schema descriptor for logo_url field.
+	eventDescLogoURL := eventFields[10].Descriptor()
+	// event.LogoURLValidator is a validator for the "logo_url" field. It is called by the builders before save.
+	event.LogoURLValidator = eventDescLogoURL.Validators[0].(func(string) error)
+	// eventDescBannerURL is the schema descriptor for banner_url field.
+	eventDescBannerURL := eventFields[11].Descriptor()
+	// event.BannerURLValidator is a validator for the "banner_url" field. It is called by the builders before save.
+	event.BannerURLValidator = eventDescBannerURL.Validators[0].(func(string) error)
+	// eventDescTeamsCount is the schema descriptor for teams_count field.
+	eventDescTeamsCount := eventFields[12].Descriptor()
+	// event.DefaultTeamsCount holds the default value on creation for the teams_count field.
+	event.DefaultTeamsCount = eventDescTeamsCount.Default.(int)
+	// eventDescGamesCount is the schema descriptor for games_count field.
+	eventDescGamesCount := eventFields[13].Descriptor()
+	// event.DefaultGamesCount holds the default value on creation for the games_count field.
+	event.DefaultGamesCount = eventDescGamesCount.Default.(int)
 	// eventDescID is the schema descriptor for id field.
 	eventDescID := eventFields[0].Descriptor()
 	// event.DefaultID holds the default value on creation for the id field.
@@ -512,8 +555,21 @@ func init() {
 	gameDescID := gameFields[0].Descriptor()
 	// game.DefaultID holds the default value on creation for the id field.
 	game.DefaultID = gameDescID.Default.(func() uuid.UUID)
+	gameeventMixin := schema.GameEvent{}.Mixin()
+	gameeventMixinFields0 := gameeventMixin[0].Fields()
+	_ = gameeventMixinFields0
 	gameeventFields := schema.GameEvent{}.Fields()
 	_ = gameeventFields
+	// gameeventDescCreatedAt is the schema descriptor for created_at field.
+	gameeventDescCreatedAt := gameeventMixinFields0[0].Descriptor()
+	// gameevent.DefaultCreatedAt holds the default value on creation for the created_at field.
+	gameevent.DefaultCreatedAt = gameeventDescCreatedAt.Default.(func() time.Time)
+	// gameeventDescUpdatedAt is the schema descriptor for updated_at field.
+	gameeventDescUpdatedAt := gameeventMixinFields0[1].Descriptor()
+	// gameevent.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	gameevent.DefaultUpdatedAt = gameeventDescUpdatedAt.Default.(func() time.Time)
+	// gameevent.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	gameevent.UpdateDefaultUpdatedAt = gameeventDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// gameeventDescEventType is the schema descriptor for event_type field.
 	gameeventDescEventType := gameeventFields[1].Descriptor()
 	// gameevent.EventTypeValidator is a validator for the "event_type" field. It is called by the builders before save.
@@ -532,10 +588,6 @@ func init() {
 			return nil
 		}
 	}()
-	// gameeventDescCreatedAt is the schema descriptor for created_at field.
-	gameeventDescCreatedAt := gameeventFields[6].Descriptor()
-	// gameevent.DefaultCreatedAt holds the default value on creation for the created_at field.
-	gameevent.DefaultCreatedAt = gameeventDescCreatedAt.Default.(func() time.Time)
 	// gameeventDescID is the schema descriptor for id field.
 	gameeventDescID := gameeventFields[0].Descriptor()
 	// gameevent.DefaultID holds the default value on creation for the id field.
@@ -737,6 +789,14 @@ func init() {
 			return nil
 		}
 	}()
+	// playerDescIsCaptain is the schema descriptor for is_captain field.
+	playerDescIsCaptain := playerFields[7].Descriptor()
+	// player.DefaultIsCaptain holds the default value on creation for the is_captain field.
+	player.DefaultIsCaptain = playerDescIsCaptain.Default.(bool)
+	// playerDescIsSpiritCaptain is the schema descriptor for is_spirit_captain field.
+	playerDescIsSpiritCaptain := playerFields[8].Descriptor()
+	// player.DefaultIsSpiritCaptain holds the default value on creation for the is_spirit_captain field.
+	player.DefaultIsSpiritCaptain = playerDescIsSpiritCaptain.Default.(bool)
 	// playerDescID is the schema descriptor for id field.
 	playerDescID := playerFields[0].Descriptor()
 	// player.DefaultID holds the default value on creation for the id field.

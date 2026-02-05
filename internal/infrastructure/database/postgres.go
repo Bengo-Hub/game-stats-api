@@ -21,8 +21,7 @@ func NewClient(dataSourceName string, debug bool) (*ent.Client, error) {
 		client = client.Debug()
 	}
 
-	// Run the auto migration tool.
-	// In production, you might want to use a migration tool like 'atlas'.
+	// Run the auto migration tool using Ent's built-in schema migration
 	if err := client.Schema.Create(context.Background()); err != nil {
 		return nil, fmt.Errorf("failed creating schema resources: %v", err)
 	}

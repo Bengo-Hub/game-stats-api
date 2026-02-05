@@ -12,6 +12,9 @@ type AnalyticSearch func(*sql.Selector)
 // AnalyticsEmbedding is the predicate function for analyticsembedding builders.
 type AnalyticsEmbedding func(*sql.Selector)
 
+// AuditLog is the predicate function for auditlog builders.
+type AuditLog func(*sql.Selector)
+
 // Continent is the predicate function for continent builders.
 type Continent func(*sql.Selector)
 

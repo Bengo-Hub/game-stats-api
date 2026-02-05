@@ -33,6 +33,10 @@ const (
 	FieldJerseyNumber = "jersey_number"
 	// FieldProfileImageURL holds the string denoting the profile_image_url field in the database.
 	FieldProfileImageURL = "profile_image_url"
+	// FieldIsCaptain holds the string denoting the is_captain field in the database.
+	FieldIsCaptain = "is_captain"
+	// FieldIsSpiritCaptain holds the string denoting the is_spirit_captain field in the database.
+	FieldIsSpiritCaptain = "is_spirit_captain"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
 	// EdgeTeam holds the string denoting the team edge name in mutations.
@@ -96,6 +100,8 @@ var Columns = []string{
 	FieldDateOfBirth,
 	FieldJerseyNumber,
 	FieldProfileImageURL,
+	FieldIsCaptain,
+	FieldIsSpiritCaptain,
 	FieldMetadata,
 }
 
@@ -131,6 +137,10 @@ var (
 	NameValidator func(string) error
 	// GenderValidator is a validator for the "gender" field. It is called by the builders before save.
 	GenderValidator func(string) error
+	// DefaultIsCaptain holds the default value on creation for the "is_captain" field.
+	DefaultIsCaptain bool
+	// DefaultIsSpiritCaptain holds the default value on creation for the "is_spirit_captain" field.
+	DefaultIsSpiritCaptain bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -186,6 +196,16 @@ func ByJerseyNumber(opts ...sql.OrderTermOption) OrderOption {
 // ByProfileImageURL orders the results by the profile_image_url field.
 func ByProfileImageURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProfileImageURL, opts...).ToFunc()
+}
+
+// ByIsCaptain orders the results by the is_captain field.
+func ByIsCaptain(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsCaptain, opts...).ToFunc()
+}
+
+// ByIsSpiritCaptain orders the results by the is_spirit_captain field.
+func ByIsSpiritCaptain(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsSpiritCaptain, opts...).ToFunc()
 }
 
 // ByTeamField orders the results by team field.

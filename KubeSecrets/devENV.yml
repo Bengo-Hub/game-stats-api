@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: game-stats-api-secrets
+  namespace: mosuon
+type: Opaque
+stringData:
+  # Database Configuration
+  DATABASE_URL: "postgresql://game_stats_user:localdev123@localhost:5432/game_stats?sslmode=disable"
+  
+  # Redis Configuration
+  REDIS_URL: "redis://localhost:6379/0"
+  REDIS_PASSWORD: "localdev123"
+  
+  # JWT Configuration
+  JWT_SECRET: "local-dev-jwt-secret-change-in-production"
+  JWT_ISSUER: "game-stats-api"
+  JWT_AUDIENCE: "game-stats-ui"
+  JWT_EXPIRATION: "24h"
+  
+  # Metabase Integration (replaces Superset)
+  METABASE_BASE_URL: "http://localhost:3000"
+  METABASE_USERNAME: "admin@ultimatestats.co.ke"
+  METABASE_PASSWORD: "admin"
+  
+  # Ollama AI Configuration
+  OLLAMA_BASE_URL: "http://localhost:11434"
+  OLLAMA_MODEL: "duckdb-nsql:7b"
+  
+  # Application Configuration
+  PORT: "4000"
+  ENV: "development"
+  LOG_LEVEL: "debug"
+  RUN_MIGRATION: "true"
+  FIXTURES_DIR: "./scripts/fixtures"
+  
+  # CORS Configuration
+  CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:3001"
+  
+  # Feature Flags
+  ENABLE_ANALYTICS: "true"
+  ENABLE_AI_QUERIES: "true"
+  ENABLE_SSE: "true"
+  
+  # Rate Limiting
+  RATE_LIMIT_ENABLED: "true"
+  RATE_LIMIT_REQUESTS: "100"
+  RATE_LIMIT_WINDOW: "60s"
+
+---
+# Development PostgreSQL Pod (optional for local K8s testing)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres-dev
+  namespace: mosuon
+  labels:
+    app: postgres
+    env: dev
+spec:
+  containers:
+  - name: postgres
+    image: postgres:15-alpine
+    env:
+    - name: POSTGRES_DB
+      value: game_stats
+    - name: POSTGRES_USER
+      value: game_stats_user
+    - name: POSTGRES_PASSWORD
+      value: localdev123
+    ports:
+    - containerPort: 5432
+    volumeMounts:
+    - name: postgres-data
+      mountPath: /var/lib/postgresql/data
+  volumes:
+  - name: postgres-data
+    emptyDir: {}
+
+---
+# Development Redis Pod (optional for local K8s testing)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redis-dev
+  namespace: mosuon
+  labels:
+    app: redis
+    env: dev
+spec:
+  containers:
+  - name: redis
+    image: redis:7-alpine
+    command: ["redis-server", "--requirepass", "localdev123"]
+    ports:
+    - containerPort: 6379

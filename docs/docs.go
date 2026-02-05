@@ -24,6 +24,627 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/games/{id}/audit": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves all administrative changes made to a game",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get game audit history (Admin only)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.AuditLogDTO"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/games/{id}/score": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates a game's score with audit trail",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Update game score (Admin only)",
+                "parameters": [
+                    {
+                        "description": "Score update request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.UpdateGameScoreRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin.UpdateGameScoreResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/spirit-scores/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates a spirit score with audit trail",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Update spirit score (Admin only)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Spirit Score ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Spirit score update request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.UpdateSpiritScoreRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin.UpdateSpiritScoreResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/dashboards": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves all available analytics dashboards",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "summary": "List all Superset dashboards",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/analytics.ListDashboardsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/dashboards/{dashboard_uuid}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves a specific dashboard's metadata",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "summary": "Get dashboard by UUID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Dashboard UUID",
+                        "name": "dashboard_uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/analytics.Dashboard"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/embed-token/{dashboard_uuid}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a guest token for embedding a Superset dashboard with RLS",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "summary": "Generate embed token for dashboard",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Dashboard UUID",
+                        "name": "dashboard_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Embed token parameters",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GenerateEmbedTokenRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/analytics.GenerateEmbedTokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/events/{event_id}/statistics": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves comprehensive analytics for an event",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "summary": "Get event statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event UUID",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/analytics.EventStatistics"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/health": {
+            "get": {
+                "description": "Verifies Superset connectivity",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "summary": "Analytics health check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/query": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Converts natural language to SQL using Ollama LLM and executes the query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "summary": "Process natural language query",
+                "parameters": [
+                    {
+                        "description": "Natural language question",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.NaturalLanguageQueryRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/analytics.NaturalLanguageQueryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/events/{id}/bracket": {
+            "get": {
+                "description": "Get the bracket structure for an event's bracket round",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "brackets"
+                ],
+                "summary": "Get event bracket",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/bracket.GetBracketResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/events/{id}/generate-bracket": {
+            "post": {
+                "description": "Generate a tournament bracket structure with games",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "brackets"
+                ],
+                "summary": "Generate tournament bracket",
+                "parameters": [
+                    {
+                        "description": "Bracket generation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/bracket.GenerateBracketRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/bracket.GenerateBracketResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/rounds/{id}/bracket": {
+            "get": {
+                "description": "Get the bracket structure for a specific round",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "brackets"
+                ],
+                "summary": "Get round bracket",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Round ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/bracket.GetBracketResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "Authenticate user and return access/refresh tokens.",
@@ -44,7 +665,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.LoginRequest"
+                            "$ref": "#/definitions/auth.LoginRequest"
                         }
                     }
                 ],
@@ -52,41 +673,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.LoginResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "unauthorized",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/me": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get information about the currently authenticated user.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Get Current User",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.UserDTO"
+                            "$ref": "#/definitions/auth.LoginResponse"
                         }
                     },
                     "401": {
@@ -118,7 +705,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.RefreshRequest"
+                            "$ref": "#/definitions/auth.RefreshRequest"
                         }
                     }
                 ],
@@ -126,11 +713,1037 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.TokenResponse"
+                            "$ref": "#/definitions/auth.TokenResponse"
                         }
                     },
                     "401": {
                         "description": "unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/divisions/advance": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Advance top N teams from division to bracket round",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rankings"
+                ],
+                "summary": "Advance teams to next round",
+                "parameters": [
+                    {
+                        "description": "Advancement request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ranking.AdvanceTeamsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ranking.AdvanceTeamsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/divisions/{id}/criteria": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update the ranking rules for a division",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rankings"
+                ],
+                "summary": "Update division ranking criteria",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Division ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Ranking criteria",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ranking.UpdateRankingCriteriaRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/divisions/{id}/games": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new game schedule",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Schedule Game",
+                "parameters": [
+                    {
+                        "description": "Game Schedule Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.CreateGameRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "field conflict",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/divisions/{id}/standings": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get current team standings for a division with ranking",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rankings"
+                ],
+                "summary": "Get division standings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Division ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ranking.DivisionStandingsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{event_id}/rounds": {
+            "get": {
+                "description": "List all rounds for an event",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game-rounds"
+                ],
+                "summary": "List Game Rounds",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/gamemanagement.GameRoundDTO"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new round for an event (pool, bracket, etc.)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game-rounds"
+                ],
+                "summary": "Create Game Round",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Game Round Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.CreateGameRoundRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.GameRoundDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/games": {
+            "get": {
+                "description": "List games with optional filters",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "List Games",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Division Pool ID",
+                        "name": "division_pool_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Game Status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Field ID",
+                        "name": "field_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start Date (RFC3339)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End Date (RFC3339)",
+                        "name": "end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Limit results",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/gamemanagement.GameDTO"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/games/{id}": {
+            "get": {
+                "description": "Get game details by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Get Game",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update game details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Update Game",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.UpdateGameRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Cancel a scheduled or in-progress game",
+                "tags": [
+                    "games"
+                ],
+                "summary": "Cancel Game",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/games/{id}/end": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Finalize game submission by scorekeeper",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "End Game",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/games/{id}/finish": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mark game timer as finished (scores can still be edited)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Finish Game",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/games/{id}/scores": {
+            "get": {
+                "description": "Get all player scores for a game",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Get Game Scores",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/gamemanagement.ScoringDTO"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Record player goals, assists, blocks, etc.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Record Score",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Score Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.RecordScoreRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/games/{id}/spirit": {
+            "get": {
+                "description": "Get all spirit scores submitted for a specific game",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Spirit Scores"
+                ],
+                "summary": "Get spirit scores for a game",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/gamemanagement.SpiritScoreDTO"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Submit spirit score for a game by a team captain/manager",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Spirit Scores"
+                ],
+                "summary": "Submit spirit score for a game",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Spirit score submission",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.SubmitSpiritScoreRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.SpiritScoreDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/games/{id}/start": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Start game timer and set status to in_progress",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Start Game",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Start Game Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.StartGameRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/games/{id}/stoppages": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Record game stoppage and extend game time",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Record Stoppage",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Stoppage Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.RecordStoppageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/games/{id}/stream": {
+            "get": {
+                "description": "Get real-time game updates via Server-Sent Events",
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Stream Game Updates",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "event stream",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/games/{id}/timeline": {
+            "get": {
+                "description": "Get complete game event timeline",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Get Game Timeline",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.GameTimelineDTO"
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
                         "schema": {
                             "type": "string"
                         }
@@ -157,7 +1770,41 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.ContinentDTO"
+                                "$ref": "#/definitions/metadata.ContinentDTO"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/geographic/countries": {
+            "get": {
+                "description": "Get a list of all countries, optionally filtered by continent.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "geographic"
+                ],
+                "summary": "List Countries",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by continent ID",
+                        "name": "continent_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/metadata.CountryDTO"
                             }
                         }
                     }
@@ -183,7 +1830,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO"
+                                "$ref": "#/definitions/metadata.WorldDTO"
                             }
                         }
                     }
@@ -209,10 +1856,823 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get information about the currently authenticated user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Get Current User",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.UserDTO"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/events": {
+            "get": {
+                "description": "List all events with optional filtering",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "List events",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by status (draft, published, in_progress, completed, canceled)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by year",
+                        "name": "year",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by time: past, upcoming, live, all",
+                        "name": "temporal",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Filter by categories (outdoor, hat, beach, indoor, league)",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by country code (2-letter ISO)",
+                        "name": "country",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search in name and description",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Events starting after this date (RFC3339)",
+                        "name": "startDateFrom",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Events starting before this date (RFC3339)",
+                        "name": "startDateTo",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "start_date",
+                        "description": "Sort by field: start_date, name, teams_count",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "desc",
+                        "description": "Sort order: asc, desc",
+                        "name": "sortOrder",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Limit results",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.EventResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/events/{id}": {
+            "get": {
+                "description": "Get an event by ID or slug",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get an event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID or slug",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.EventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/events/{id}/crew": {
+            "get": {
+                "description": "Get tournament admins and scorekeepers for an event",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get event crew/staff",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID or slug",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.EventCrewResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/leaderboards/players": {
+            "get": {
+                "description": "Get top players by goals or assists",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "leaderboards"
+                ],
+                "summary": "Get player leaderboard",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "goals",
+                        "description": "Category: goals or assists",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Filter by event ID",
+                        "name": "eventId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Filter by division pool ID",
+                        "name": "divisionPoolId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Limit results",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.PlayerStatResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/leaderboards/spirit": {
+            "get": {
+                "description": "Get teams ranked by spirit scores",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "leaderboards"
+                ],
+                "summary": "Get spirit leaderboard",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Filter by event ID",
+                        "name": "eventId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Filter by division pool ID",
+                        "name": "divisionPoolId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Limit results",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.SpiritLeaderboardResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/teams": {
+            "get": {
+                "description": "List all teams with optional filtering",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "List teams",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Filter by event ID",
+                        "name": "eventId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Filter by division pool ID",
+                        "name": "divisionPoolId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search by team name",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Limit results",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.TeamResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/teams/{id}": {
+            "get": {
+                "description": "Get a team by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Get a team",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Team ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TeamResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/rounds/{id}": {
+            "get": {
+                "description": "Get game round details by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game-rounds"
+                ],
+                "summary": "Get Game Round",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Round ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.GameRoundDTO"
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update game round details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game-rounds"
+                ],
+                "summary": "Update Game Round",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Round ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.UpdateGameRoundRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.GameRoundDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/{id}/spirit-average": {
+            "get": {
+                "description": "Get average spirit scores received by a team across all games",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Spirit Scores"
+                ],
+                "summary": "Get team spirit average",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Team ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamemanagement.TeamSpiritAverageDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "github_com_bengobox_game-stats-api_internal_application_auth.LoginRequest": {
+        "admin.UpdateGameScoreResponse": {
+            "type": "object",
+            "properties": {
+                "audit_log_id": {
+                    "type": "string"
+                },
+                "away_score": {
+                    "type": "integer"
+                },
+                "game_id": {
+                    "type": "string"
+                },
+                "home_score": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin.UpdateSpiritScoreResponse": {
+            "type": "object",
+            "properties": {
+                "attitude": {
+                    "type": "integer"
+                },
+                "audit_log_id": {
+                    "type": "string"
+                },
+                "communication": {
+                    "type": "integer"
+                },
+                "fair_mindedness": {
+                    "type": "integer"
+                },
+                "fouls": {
+                    "type": "integer"
+                },
+                "rules_knowledge": {
+                    "type": "integer"
+                },
+                "spirit_score_id": {
+                    "type": "string"
+                },
+                "total_score": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "analytics.Dashboard": {
+            "type": "object",
+            "properties": {
+                "dashboard_title": {
+                    "type": "string"
+                },
+                "dashboard_uuid": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "published": {
+                    "type": "boolean"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "analytics.EventStatistics": {
+            "type": "object",
+            "properties": {
+                "average_spirit_score": {
+                    "type": "number"
+                },
+                "completed_games": {
+                    "type": "integer"
+                },
+                "event_id": {
+                    "type": "string"
+                },
+                "in_progress_games": {
+                    "type": "integer"
+                },
+                "scheduled_games": {
+                    "type": "integer"
+                },
+                "top_scorer": {
+                    "$ref": "#/definitions/analytics.PlayerStat"
+                },
+                "total_games": {
+                    "type": "integer"
+                },
+                "total_players": {
+                    "type": "integer"
+                },
+                "total_teams": {
+                    "type": "integer"
+                }
+            }
+        },
+        "analytics.GenerateEmbedTokenResponse": {
+            "type": "object",
+            "properties": {
+                "dashboard_uuid": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "analytics.ListDashboardsResponse": {
+            "type": "object",
+            "properties": {
+                "dashboards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/analytics.Dashboard"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "analytics.NaturalLanguageQueryResponse": {
+            "type": "object",
+            "properties": {
+                "confidence": {
+                    "type": "number"
+                },
+                "explanation": {
+                    "type": "string"
+                },
+                "question": {
+                    "type": "string"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                },
+                "sql": {
+                    "type": "string"
+                },
+                "warning": {
+                    "type": "string"
+                }
+            }
+        },
+        "analytics.PlayerStat": {
+            "type": "object",
+            "properties": {
+                "assists": {
+                    "type": "integer"
+                },
+                "games_played": {
+                    "type": "integer"
+                },
+                "goals": {
+                    "type": "integer"
+                },
+                "player_id": {
+                    "type": "string"
+                },
+                "player_name": {
+                    "type": "string"
+                },
+                "team_id": {
+                    "type": "string"
+                },
+                "team_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.LoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -227,7 +2687,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_bengobox_game-stats-api_internal_application_auth.LoginResponse": {
+        "auth.LoginResponse": {
             "type": "object",
             "properties": {
                 "access_token": {
@@ -237,11 +2697,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.UserDTO"
+                    "$ref": "#/definitions/auth.UserDTO"
                 }
             }
         },
-        "github_com_bengobox_game-stats-api_internal_application_auth.RefreshRequest": {
+        "auth.RefreshRequest": {
             "type": "object",
             "required": [
                 "refresh_token"
@@ -252,7 +2712,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_bengobox_game-stats-api_internal_application_auth.TokenResponse": {
+        "auth.TokenResponse": {
             "type": "object",
             "properties": {
                 "access_token": {
@@ -263,7 +2723,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_bengobox_game-stats-api_internal_application_auth.UserDTO": {
+        "auth.UserDTO": {
             "type": "object",
             "properties": {
                 "email": {
@@ -280,7 +2740,1246 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_bengobox_game-stats-api_internal_application_metadata.ContinentDTO": {
+        "bracket.BracketNode": {
+            "type": "object",
+            "properties": {
+                "game_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "left_child": {
+                    "$ref": "#/definitions/bracket.BracketNode"
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "right_child": {
+                    "$ref": "#/definitions/bracket.BracketNode"
+                },
+                "round": {
+                    "type": "integer"
+                },
+                "scheduled_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "team1_id": {
+                    "type": "string"
+                },
+                "team1_name": {
+                    "type": "string"
+                },
+                "team1_score": {
+                    "type": "integer"
+                },
+                "team1_seed": {
+                    "type": "integer"
+                },
+                "team2_id": {
+                    "type": "string"
+                },
+                "team2_name": {
+                    "type": "string"
+                },
+                "team2_score": {
+                    "type": "integer"
+                },
+                "team2_seed": {
+                    "type": "integer"
+                },
+                "winner_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "bracket.BracketType": {
+            "type": "string",
+            "enum": [
+                "single_elimination",
+                "double_elimination"
+            ],
+            "x-enum-varnames": [
+                "BracketTypeSingleElimination",
+                "BracketTypeDoubleElimination"
+            ]
+        },
+        "bracket.GenerateBracketRequest": {
+            "type": "object",
+            "required": [
+                "bracket_type",
+                "event_id",
+                "field_id",
+                "game_duration",
+                "round_id",
+                "start_time",
+                "teams"
+            ],
+            "properties": {
+                "bracket_type": {
+                    "enum": [
+                        "single_elimination",
+                        "double_elimination"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/bracket.BracketType"
+                        }
+                    ]
+                },
+                "event_id": {
+                    "type": "string"
+                },
+                "field_id": {
+                    "type": "string"
+                },
+                "game_duration": {
+                    "type": "integer",
+                    "minimum": 30
+                },
+                "round_id": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "teams": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": {
+                        "$ref": "#/definitions/bracket.TeamSeed"
+                    }
+                }
+            }
+        },
+        "bracket.GenerateBracketResponse": {
+            "type": "object",
+            "properties": {
+                "bracket_id": {
+                    "type": "string"
+                },
+                "bracket_tree": {
+                    "$ref": "#/definitions/bracket.BracketNode"
+                },
+                "bracket_type": {
+                    "$ref": "#/definitions/bracket.BracketType"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string"
+                },
+                "games_created": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "round_id": {
+                    "type": "string"
+                },
+                "total_games": {
+                    "type": "integer"
+                },
+                "total_rounds": {
+                    "type": "integer"
+                }
+            }
+        },
+        "bracket.GetBracketResponse": {
+            "type": "object",
+            "properties": {
+                "bracket_tree": {
+                    "$ref": "#/definitions/bracket.BracketNode"
+                },
+                "bracket_type": {
+                    "$ref": "#/definitions/bracket.BracketType"
+                },
+                "event_id": {
+                    "type": "string"
+                },
+                "round_id": {
+                    "type": "string"
+                },
+                "total_games": {
+                    "type": "integer"
+                },
+                "total_rounds": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "bracket.TeamSeed": {
+            "type": "object",
+            "required": [
+                "seed",
+                "team_id",
+                "team_name"
+            ],
+            "properties": {
+                "seed": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "team_id": {
+                    "type": "string"
+                },
+                "team_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamemanagement.CreateGameRequest": {
+            "type": "object",
+            "required": [
+                "allocated_time_minutes",
+                "away_team_id",
+                "division_pool_id",
+                "field_location_id",
+                "home_team_id",
+                "name",
+                "scheduled_time"
+            ],
+            "properties": {
+                "allocated_time_minutes": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "away_team_id": {
+                    "type": "string"
+                },
+                "division_pool_id": {
+                    "type": "string"
+                },
+                "field_location_id": {
+                    "type": "string"
+                },
+                "first_pull_by": {
+                    "type": "string"
+                },
+                "game_round_id": {
+                    "type": "string"
+                },
+                "home_team_id": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "scheduled_time": {
+                    "type": "string"
+                },
+                "scorekeeper_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamemanagement.CreateGameRoundRequest": {
+            "type": "object",
+            "required": [
+                "event_id",
+                "name",
+                "round_type"
+            ],
+            "properties": {
+                "end_date": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "round_number": {
+                    "type": "integer"
+                },
+                "round_type": {
+                    "type": "string",
+                    "enum": [
+                        "pool",
+                        "bracket",
+                        "semifinal",
+                        "final"
+                    ]
+                },
+                "start_date": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamemanagement.FieldSummaryDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamemanagement.GameDTO": {
+            "type": "object",
+            "properties": {
+                "actual_end_time": {
+                    "type": "string"
+                },
+                "actual_start_time": {
+                    "type": "string"
+                },
+                "allocated_time_minutes": {
+                    "type": "integer"
+                },
+                "away_team": {
+                    "$ref": "#/definitions/gamemanagement.TeamSummaryDTO"
+                },
+                "away_team_score": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "field_location": {
+                    "$ref": "#/definitions/gamemanagement.FieldSummaryDTO"
+                },
+                "first_pull_by": {
+                    "type": "string"
+                },
+                "game_round": {
+                    "$ref": "#/definitions/gamemanagement.GameRoundSummaryDTO"
+                },
+                "home_team": {
+                    "$ref": "#/definitions/gamemanagement.TeamSummaryDTO"
+                },
+                "home_team_score": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scheduled_time": {
+                    "type": "string"
+                },
+                "scorekeeper": {
+                    "$ref": "#/definitions/gamemanagement.UserSummaryDTO"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "stoppage_time_seconds": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gamemanagement.GameEventDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "event_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "minute": {
+                    "type": "integer"
+                },
+                "second": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gamemanagement.GameRoundDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string"
+                },
+                "games_count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "round_number": {
+                    "type": "integer"
+                },
+                "round_type": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamemanagement.GameRoundSummaryDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "round_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamemanagement.GameTimelineDTO": {
+            "type": "object",
+            "properties": {
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gamemanagement.GameEventDTO"
+                    }
+                }
+            }
+        },
+        "gamemanagement.RecordScoreRequest": {
+            "type": "object",
+            "required": [
+                "player_id"
+            ],
+            "properties": {
+                "assists": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "blocks": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "goals": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "minute": {
+                    "type": "integer"
+                },
+                "player_id": {
+                    "type": "string"
+                },
+                "second": {
+                    "type": "integer"
+                },
+                "turns": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "gamemanagement.RecordStoppageRequest": {
+            "type": "object",
+            "required": [
+                "duration_seconds",
+                "reason"
+            ],
+            "properties": {
+                "duration_seconds": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "reason": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "gamemanagement.ScoringDTO": {
+            "type": "object",
+            "properties": {
+                "assists": {
+                    "type": "integer"
+                },
+                "blocks": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "goals": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "player_id": {
+                    "type": "string"
+                },
+                "player_name": {
+                    "type": "string"
+                },
+                "turns": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamemanagement.SpiritScoreDTO": {
+            "type": "object",
+            "properties": {
+                "attitude": {
+                    "type": "integer"
+                },
+                "comments": {
+                    "type": "string"
+                },
+                "communication": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "fair_mindedness": {
+                    "type": "integer"
+                },
+                "fouls_body_contact": {
+                    "type": "integer"
+                },
+                "game_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "rules_knowledge": {
+                    "type": "integer"
+                },
+                "scored_by_team": {
+                    "$ref": "#/definitions/gamemanagement.TeamSummaryDTO"
+                },
+                "submitted_by": {
+                    "$ref": "#/definitions/gamemanagement.UserSummaryDTO"
+                },
+                "team": {
+                    "$ref": "#/definitions/gamemanagement.TeamSummaryDTO"
+                },
+                "total_score": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamemanagement.StartGameRequest": {
+            "type": "object",
+            "properties": {
+                "first_pull_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamemanagement.SubmitSpiritScoreRequest": {
+            "type": "object",
+            "required": [
+                "attitude",
+                "communication",
+                "fair_mindedness",
+                "fouls_body_contact",
+                "rules_knowledge",
+                "scored_by_team_id",
+                "team_id"
+            ],
+            "properties": {
+                "attitude": {
+                    "type": "integer",
+                    "maximum": 4,
+                    "minimum": 0
+                },
+                "comments": {
+                    "type": "string"
+                },
+                "communication": {
+                    "type": "integer",
+                    "maximum": 4,
+                    "minimum": 0
+                },
+                "fair_mindedness": {
+                    "type": "integer",
+                    "maximum": 4,
+                    "minimum": 0
+                },
+                "fouls_body_contact": {
+                    "type": "integer",
+                    "maximum": 4,
+                    "minimum": 0
+                },
+                "mvp_nomination": {
+                    "type": "string"
+                },
+                "rules_knowledge": {
+                    "type": "integer",
+                    "maximum": 4,
+                    "minimum": 0
+                },
+                "scored_by_team_id": {
+                    "type": "string"
+                },
+                "spirit_nomination": {
+                    "type": "string"
+                },
+                "team_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamemanagement.TeamSpiritAverageDTO": {
+            "type": "object",
+            "properties": {
+                "attitude": {
+                    "type": "number"
+                },
+                "average_total": {
+                    "type": "number"
+                },
+                "communication": {
+                    "type": "number"
+                },
+                "fair_mindedness": {
+                    "type": "number"
+                },
+                "fouls_body_contact": {
+                    "type": "number"
+                },
+                "games_played": {
+                    "type": "integer"
+                },
+                "rules_knowledge": {
+                    "type": "number"
+                },
+                "team_id": {
+                    "type": "string"
+                },
+                "team_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamemanagement.TeamSummaryDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "logo_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamemanagement.UpdateGameRequest": {
+            "type": "object",
+            "properties": {
+                "allocated_time_minutes": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "first_pull_by": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "scheduled_time": {
+                    "type": "string"
+                },
+                "scorekeeper_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamemanagement.UpdateGameRoundRequest": {
+            "type": "object",
+            "properties": {
+                "end_date": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "round_number": {
+                    "type": "integer"
+                },
+                "round_type": {
+                    "type": "string",
+                    "enum": [
+                        "pool",
+                        "bracket",
+                        "semifinal",
+                        "final"
+                    ]
+                },
+                "start_date": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamemanagement.UserSummaryDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.AuditLogDTO": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "example": "update"
+                },
+                "changes": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2026-02-04T12:00:00Z"
+                },
+                "entity_id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440001"
+                },
+                "entity_type": {
+                    "type": "string",
+                    "example": "game"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "ip_address": {
+                    "type": "string",
+                    "example": "192.168.1.1"
+                },
+                "reason": {
+                    "type": "string",
+                    "example": "Score correction"
+                },
+                "user_agent": {
+                    "type": "string",
+                    "example": "Mozilla/5.0"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440002"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "admin@example.com"
+                }
+            }
+        },
+        "handlers.CountryDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.CrewMemberDTO": {
+            "type": "object",
+            "properties": {
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.DivisionDTO": {
+            "type": "object",
+            "properties": {
+                "divisionType": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "teamsCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handlers.ErrorResponse": {
+            "description": "Error response structure",
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "error message"
+                }
+            }
+        },
+        "handlers.EventCrewResponse": {
+            "type": "object",
+            "properties": {
+                "admins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.CrewMemberDTO"
+                    }
+                },
+                "eventId": {
+                    "type": "string"
+                },
+                "eventName": {
+                    "type": "string"
+                },
+                "scorekeepers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.CrewMemberDTO"
+                    }
+                }
+            }
+        },
+        "handlers.EventResponse": {
+            "type": "object",
+            "properties": {
+                "bannerUrl": {
+                    "type": "string"
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "discipline": {
+                    "$ref": "#/definitions/handlers.RefDTO"
+                },
+                "divisions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.DivisionDTO"
+                    }
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "gamesCount": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "location": {
+                    "$ref": "#/definitions/handlers.LocationDTO"
+                },
+                "logoUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "teamPreview": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.TeamPreviewDTO"
+                    }
+                },
+                "teamsCount": {
+                    "type": "integer"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handlers.GenerateEmbedTokenRequestDTO": {
+            "type": "object",
+            "required": [
+                "first_name",
+                "last_name",
+                "user_id",
+                "username"
+            ],
+            "properties": {
+                "event_id": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "team_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.LocationDTO": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "$ref": "#/definitions/handlers.CountryDTO"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.NaturalLanguageQueryRequestDTO": {
+            "type": "object",
+            "required": [
+                "question",
+                "user_id"
+            ],
+            "properties": {
+                "context": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string"
+                },
+                "question": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.PlayerResponse": {
+            "type": "object",
+            "properties": {
+                "gender": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isCaptain": {
+                    "type": "boolean"
+                },
+                "isSpiritCaptain": {
+                    "type": "boolean"
+                },
+                "jerseyNumber": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "profileImageUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.PlayerStatResponse": {
+            "type": "object",
+            "properties": {
+                "assists": {
+                    "type": "integer"
+                },
+                "gamesPlayed": {
+                    "type": "integer"
+                },
+                "goals": {
+                    "type": "integer"
+                },
+                "playerId": {
+                    "type": "string"
+                },
+                "playerName": {
+                    "type": "string"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "teamName": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.RefDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.SpiritBreakdownAverage": {
+            "type": "object",
+            "properties": {
+                "attitude": {
+                    "type": "number"
+                },
+                "communication": {
+                    "type": "number"
+                },
+                "fairMindedness": {
+                    "type": "number"
+                },
+                "foulsBodyContact": {
+                    "type": "number"
+                },
+                "rulesKnowledge": {
+                    "type": "number"
+                }
+            }
+        },
+        "handlers.SpiritLeaderboardResponse": {
+            "type": "object",
+            "properties": {
+                "averageScore": {
+                    "type": "number"
+                },
+                "breakdown": {
+                    "$ref": "#/definitions/handlers.SpiritBreakdownAverage"
+                },
+                "gamesPlayed": {
+                    "type": "integer"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "teamName": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.TeamPreviewDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "logoUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.TeamResponse": {
+            "type": "object",
+            "properties": {
+                "captain": {
+                    "$ref": "#/definitions/handlers.PlayerResponse"
+                },
+                "divisionName": {
+                    "type": "string"
+                },
+                "divisionPoolId": {
+                    "type": "string"
+                },
+                "finalPlacement": {
+                    "type": "integer"
+                },
+                "homeLocationId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "initialSeed": {
+                    "type": "integer"
+                },
+                "locationName": {
+                    "type": "string"
+                },
+                "logoUrl": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string"
+                },
+                "players": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.PlayerResponse"
+                    }
+                },
+                "playersCount": {
+                    "type": "integer"
+                },
+                "spiritCaptain": {
+                    "$ref": "#/definitions/handlers.PlayerResponse"
+                }
+            }
+        },
+        "handlers.UpdateGameScoreRequestDTO": {
+            "type": "object",
+            "required": [
+                "reason"
+            ],
+            "properties": {
+                "away_score": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "home_score": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "reason": {
+                    "type": "string",
+                    "minLength": 10
+                }
+            }
+        },
+        "handlers.UpdateSpiritScoreRequestDTO": {
+            "type": "object",
+            "required": [
+                "reason"
+            ],
+            "properties": {
+                "attitude": {
+                    "type": "integer",
+                    "maximum": 4,
+                    "minimum": 0
+                },
+                "communication": {
+                    "type": "integer",
+                    "maximum": 4,
+                    "minimum": 0
+                },
+                "fair_mindedness": {
+                    "type": "integer",
+                    "maximum": 4,
+                    "minimum": 0
+                },
+                "fouls": {
+                    "type": "integer",
+                    "maximum": 4,
+                    "minimum": 0
+                },
+                "reason": {
+                    "type": "string",
+                    "minLength": 10
+                },
+                "rules_knowledge": {
+                    "type": "integer",
+                    "maximum": 4,
+                    "minimum": 0
+                }
+            }
+        },
+        "metadata.ContinentDTO": {
             "type": "object",
             "properties": {
                 "id": {
@@ -297,7 +3996,27 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO": {
+        "metadata.CountryDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "continent_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "metadata.WorldDTO": {
             "type": "object",
             "properties": {
                 "id": {
@@ -308,6 +4027,196 @@ const docTemplate = `{
                 },
                 "slug": {
                     "type": "string"
+                }
+            }
+        },
+        "ranking.AdvanceTeamsRequest": {
+            "type": "object",
+            "required": [
+                "division_id",
+                "target_round_id",
+                "top_n"
+            ],
+            "properties": {
+                "division_id": {
+                    "type": "string"
+                },
+                "field_id": {
+                    "type": "string"
+                },
+                "game_duration": {
+                    "type": "integer",
+                    "minimum": 30
+                },
+                "generate_bracket": {
+                    "type": "boolean"
+                },
+                "notify_teams": {
+                    "type": "boolean"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "target_round_id": {
+                    "type": "string"
+                },
+                "top_n": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "ranking.AdvanceTeamsResponse": {
+            "type": "object",
+            "properties": {
+                "advanced_teams": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "bracket_id": {
+                    "type": "string"
+                },
+                "games_created": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "target_round_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "ranking.DivisionStandingsResponse": {
+            "type": "object",
+            "properties": {
+                "division_id": {
+                    "type": "string"
+                },
+                "division_name": {
+                    "type": "string"
+                },
+                "last_updated": {
+                    "type": "string"
+                },
+                "ranking_criteria": {
+                    "$ref": "#/definitions/ranking.RankingCriteria"
+                },
+                "standings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ranking.TeamStanding"
+                    }
+                }
+            }
+        },
+        "ranking.RankingCriteria": {
+            "type": "object",
+            "properties": {
+                "points_per_draw": {
+                    "type": "integer"
+                },
+                "points_per_loss": {
+                    "type": "integer"
+                },
+                "points_per_win": {
+                    "type": "integer"
+                },
+                "primary_sort": {
+                    "description": "\"points\", \"win_percentage\", \"goal_diff\"",
+                    "type": "string"
+                },
+                "secondary_sort": {
+                    "description": "Tiebreakers: [\"goal_diff\", \"head_to_head\", \"goals_for\"]",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "ranking.TeamStanding": {
+            "type": "object",
+            "properties": {
+                "draws": {
+                    "type": "integer"
+                },
+                "games_played": {
+                    "type": "integer"
+                },
+                "goal_difference": {
+                    "type": "integer"
+                },
+                "goals_against": {
+                    "type": "integer"
+                },
+                "goals_for": {
+                    "type": "integer"
+                },
+                "last_updated": {
+                    "type": "string"
+                },
+                "losses": {
+                    "type": "integer"
+                },
+                "points": {
+                    "type": "integer"
+                },
+                "rank": {
+                    "type": "integer"
+                },
+                "spirit_average": {
+                    "type": "number"
+                },
+                "team_id": {
+                    "type": "string"
+                },
+                "team_name": {
+                    "type": "string"
+                },
+                "win_percentage": {
+                    "type": "number"
+                },
+                "wins": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ranking.UpdateRankingCriteriaRequest": {
+            "type": "object",
+            "required": [
+                "points_per_draw",
+                "points_per_win",
+                "primary_sort"
+            ],
+            "properties": {
+                "points_per_draw": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "points_per_loss": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "points_per_win": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "primary_sort": {
+                    "type": "string",
+                    "enum": [
+                        "points",
+                        "win_percentage",
+                        "goal_diff"
+                    ]
+                },
+                "secondary_sort": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         }

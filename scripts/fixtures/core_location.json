@@ -1,0 +1,24 @@
+[
+  {
+    "model": "core.location",
+    "pk": 1,
+    "fields": {
+      "name": "Western",
+      "slug": "western-kakamega",
+      "address": "Kakamega",
+      "city": "kakamega",
+      "country": 1
+    }
+  },
+  {
+    "model": "core.location",
+    "pk": 2,
+    "fields": {
+      "name": "Nairobi",
+      "slug": "nairobi",
+      "address": "Nairobi",
+      "city": "Nairobi",
+      "country": 1
+    }
+  }
+]

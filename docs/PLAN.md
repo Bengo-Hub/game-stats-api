@@ -9,12 +9,16 @@ This document outlines the comprehensive backend architecture for the Game Stats
 - [x] Core Database Schema (Ent)
 - [x] Authentication & Authorization layer
 - [x] Shared Infrastructure (pgvector/Redis)
-- [ ] Real-time score updates via Server-Sent Events (SSE)
-- [ ] Game timeline with stoppage tracking
-- [ ] Automatic ranking and round progression
-- [ ] Tournament brackets visualization
-- [ ] Spirit of the Game tracking
-- [ ] AI-powered analytics with natural language queries
+- [x] Real-time score updates via Server-Sent Events (SSE)
+- [x] Game timeline with stoppage tracking
+- [x] Game timer system with state management
+- [x] GameRound and tournament structure
+- [x] Automatic ranking and round progression
+- [x] Tournament brackets visualization
+- [x] Spirit of the Game tracking
+- [x] Admin score editing with audit trail
+- [x] Data migration from Django/PostgreSQL
+- [ ] AI-powered analytics with natural language queries (Metabase/Ollama - docs ready)
 - [ ] PWA support with offline capabilities
 
 ---
