@@ -91,6 +91,21 @@ fi
 success "Prerequisite checks passed"
 
 # =============================================================================
+# Auto-sync secrets from mosuon-devops-k8s
+# =============================================================================
+if [[ ${DEPLOY} == "true" ]]; then
+  info "Checking and syncing required secrets from mosuon-devops-k8s..."
+  SYNC_SCRIPT=$(mktemp)
+  if curl -fsSL https://raw.githubusercontent.com/Bengo-Hub/mosuon-devops-k8s/master/scripts/tools/check-and-sync-secrets.sh -o "$SYNC_SCRIPT" 2>/dev/null; then
+    source "$SYNC_SCRIPT"
+    check_and_sync_secrets "KUBE_CONFIG" "REGISTRY_USERNAME" "REGISTRY_PASSWORD" "GIT_TOKEN" "POSTGRES_PASSWORD" "REDIS_PASSWORD" || warn "Secret sync failed - continuing with existing secrets"
+    rm -f "$SYNC_SCRIPT"
+  else
+    warn "Unable to download secret sync script - continuing with existing secrets"
+  fi
+fi
+
+# =============================================================================
 # SECURITY SCAN
 # =============================================================================
 info "Running Trivy filesystem scan"
