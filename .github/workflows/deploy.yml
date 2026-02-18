@@ -139,7 +139,7 @@ jobs:
 
       - name: Install DevOps Tools
         if: needs.sync-secrets.outputs.result != 'synced'
-        uses: Bengo-Hub/mosuon-devops-k8s/.github/actions/install-devops-tools@main
+        uses: Bengo-Hub/mosuon-devops-k8s/.github/actions/install-devops-tools@master
 
       - name: Set deployment variables
         if: needs.sync-secrets.outputs.result != 'synced'
