@@ -171,13 +171,13 @@ func main() {
 		redisClient,
 	)
 
-	// Initialize analytics service with Superset client
-	supersetClient := analytics.NewSupersetClient(
-		cfg.SupersetBaseURL,
-		cfg.SupersetUsername,
-		cfg.SupersetPassword,
+	// Initialize analytics service with Metabase client (adapter)
+	metabaseClient := analytics.NewMetabaseClient(
+		cfg.MetabaseBaseURL,
+		cfg.MetabaseUsername,
+		cfg.MetabasePassword,
 	)
-	analyticsService := analytics.NewService(supersetClient, client)
+	analyticsService := analytics.NewService(metabaseClient, client)
 
 	// Initialize Ollama client and text-to-SQL service
 	ollamaClient := analytics.NewOllamaClient(

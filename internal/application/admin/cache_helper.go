@@ -12,6 +12,10 @@ import (
 
 // InvalidateCaches invalidates game-related caches after admin updates
 func InvalidateCaches(ctx context.Context, c *cache.RedisClient, gameID uuid.UUID, g *ent.Game) error {
+	// If no cache client provided (e.g., in unit tests), skip cache invalidation
+	if c == nil {
+		return nil
+	}
 	// Delete specific game cache
 	gameKey := cache.CacheKey("game", gameID.String())
 	if err := c.Delete(ctx, gameKey); err != nil {

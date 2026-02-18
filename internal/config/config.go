@@ -14,9 +14,10 @@ type Config struct {
 	RedisURL         string
 	LogLevel         string
 	JWTSecret        string
-	SupersetBaseURL  string
-	SupersetUsername string
-	SupersetPassword string
+	// Analytics (Metabase)
+	MetabaseBaseURL  string
+	MetabaseUsername string
+	MetabasePassword string
 	OllamaBaseURL    string
 	OllamaModel      string
 
@@ -32,9 +33,9 @@ func Load() *Config {
 	viper.SetDefault("DATABASE_URL", "postgres://postgres:postgres@localhost:5433/postgres?sslmode=disable")
 	viper.SetDefault("REDIS_URL", "redis://localhost:6380/0")
 	viper.SetDefault("JWT_SECRET", "dev-secret-key")
-	viper.SetDefault("SUPERSET_BASE_URL", "https://superset.codevertexitsolutions.com")
-	viper.SetDefault("SUPERSET_USERNAME", "admin")
-	viper.SetDefault("SUPERSET_PASSWORD", "")
+	viper.SetDefault("METABASE_BASE_URL", "https://analytics.ultimatestats.co.ke")
+	viper.SetDefault("METABASE_USERNAME", "admin")
+	viper.SetDefault("METABASE_PASSWORD", "")
 	viper.SetDefault("OLLAMA_BASE_URL", "http://localhost:11434")
 	viper.SetDefault("OLLAMA_MODEL", "duckdb-nsql:7b")
 	viper.SetDefault("RUN_MIGRATION", "true")
@@ -56,11 +57,12 @@ func Load() *Config {
 		RedisURL:         viper.GetString("REDIS_URL"),
 		LogLevel:         viper.GetString("LOG_LEVEL"),
 		JWTSecret:        viper.GetString("JWT_SECRET"),
-		SupersetBaseURL:  viper.GetString("SUPERSET_BASE_URL"),
+		MetabaseBaseURL:  viper.GetString("METABASE_BASE_URL"),
+		MetabaseUsername: viper.GetString("METABASE_USERNAME"),
+		MetabasePassword: viper.GetString("METABASE_PASSWORD"),
 		OllamaBaseURL:    viper.GetString("OLLAMA_BASE_URL"),
 		OllamaModel:      viper.GetString("OLLAMA_MODEL"),
-		SupersetUsername: viper.GetString("SUPERSET_USERNAME"),
-		SupersetPassword: viper.GetString("SUPERSET_PASSWORD"),
+        
 		RunMigration:     viper.GetBool("RUN_MIGRATION"),
 		FixturesDir:      viper.GetString("FIXTURES_DIR"),
 	}
