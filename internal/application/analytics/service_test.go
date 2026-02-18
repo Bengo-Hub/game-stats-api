@@ -10,12 +10,12 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// MockSupersetClient mocks the Superset client
-type MockSupersetClient struct {
+// MockAnalyticsClient mocks the analytics client
+type MockAnalyticsClient struct {
 	mock.Mock
 }
 
-func (m *MockSupersetClient) Login(ctx context.Context) (*LoginResponse, error) {
+func (m *MockAnalyticsClient) Login(ctx context.Context) (*LoginResponse, error) {
 	args := m.Called(ctx)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -23,12 +23,12 @@ func (m *MockSupersetClient) Login(ctx context.Context) (*LoginResponse, error) 
 	return args.Get(0).(*LoginResponse), args.Error(1)
 }
 
-func (m *MockSupersetClient) GenerateGuestToken(ctx context.Context, accessToken string, req GuestTokenRequest) (string, error) {
+func (m *MockAnalyticsClient) GenerateGuestToken(ctx context.Context, accessToken string, req GuestTokenRequest) (string, error) {
 	args := m.Called(ctx, accessToken, req)
 	return args.String(0), args.Error(1)
 }
 
-func (m *MockSupersetClient) GetDashboards(ctx context.Context, accessToken string) ([]Dashboard, error) {
+func (m *MockAnalyticsClient) GetDashboards(ctx context.Context, accessToken string) ([]Dashboard, error) {
 	args := m.Called(ctx, accessToken)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -36,7 +36,7 @@ func (m *MockSupersetClient) GetDashboards(ctx context.Context, accessToken stri
 	return args.Get(0).([]Dashboard), args.Error(1)
 }
 
-func (m *MockSupersetClient) GetDashboard(ctx context.Context, accessToken string, dashboardUUID uuid.UUID) (*Dashboard, error) {
+func (m *MockAnalyticsClient) GetDashboard(ctx context.Context, accessToken string, dashboardUUID uuid.UUID) (*Dashboard, error) {
 	args := m.Called(ctx, accessToken, dashboardUUID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -44,16 +44,16 @@ func (m *MockSupersetClient) GetDashboard(ctx context.Context, accessToken strin
 	return args.Get(0).(*Dashboard), args.Error(1)
 }
 
-func (m *MockSupersetClient) HealthCheck(ctx context.Context) error {
+func (m *MockAnalyticsClient) HealthCheck(ctx context.Context) error {
 	args := m.Called(ctx)
 	return args.Error(0)
 }
 
 func TestGenerateEmbedToken_Success(t *testing.T) {
 	// Setup
-	mockClient := new(MockSupersetClient)
+	mockClient := new(MockAnalyticsClient)
 	service := &Service{
-		supersetClient: mockClient,
+		analyticsClient: mockClient,
 	}
 
 	dashboardUUID := uuid.New()
@@ -96,9 +96,9 @@ func TestGenerateEmbedToken_Success(t *testing.T) {
 
 func TestGenerateEmbedToken_AuthenticationFailure(t *testing.T) {
 	// Setup
-	mockClient := new(MockSupersetClient)
+	mockClient := new(MockAnalyticsClient)
 	service := &Service{
-		supersetClient: mockClient,
+		analyticsClient: mockClient,
 	}
 
 	request := GenerateEmbedTokenRequest{
@@ -164,9 +164,9 @@ func TestBuildRLSRules(t *testing.T) {
 
 func TestListDashboards_Success(t *testing.T) {
 	// Setup
-	mockClient := new(MockSupersetClient)
+	mockClient := new(MockAnalyticsClient)
 	service := &Service{
-		supersetClient: mockClient,
+		analyticsClient: mockClient,
 	}
 
 	expectedDashboards := []Dashboard{
@@ -210,9 +210,9 @@ func TestListDashboards_Success(t *testing.T) {
 
 func TestGetDashboard_Success(t *testing.T) {
 	// Setup
-	mockClient := new(MockSupersetClient)
+	mockClient := new(MockAnalyticsClient)
 	service := &Service{
-		supersetClient: mockClient,
+		analyticsClient: mockClient,
 	}
 
 	dashboardUUID := uuid.New()
@@ -247,9 +247,9 @@ func TestGetDashboard_Success(t *testing.T) {
 
 func TestHealthCheck(t *testing.T) {
 	// Setup
-	mockClient := new(MockSupersetClient)
+	mockClient := new(MockAnalyticsClient)
 	service := &Service{
-		supersetClient: mockClient,
+		analyticsClient: mockClient,
 	}
 
 	mockClient.On("HealthCheck", mock.Anything).Return(nil)
