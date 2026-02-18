@@ -16,17 +16,17 @@ import (
 	"github.com/google/uuid"
 )
 
-// Service handles analytics operations and Superset integration
+// Service handles analytics operations and analytics provider integration
 type Service struct {
-	supersetClient SupersetClientInterface
-	dbClient       *ent.Client
+	analyticsClient AnalyticsClientInterface
+	dbClient        *ent.Client
 }
 
 // NewService creates a new analytics service
-func NewService(supersetClient SupersetClientInterface, dbClient *ent.Client) *Service {
+func NewService(analyticsClient AnalyticsClientInterface, dbClient *ent.Client) *Service {
 	return &Service{
-		supersetClient: supersetClient,
-		dbClient:       dbClient,
+		analyticsClient: analyticsClient,
+		dbClient:        dbClient,
 	}
 }
 
@@ -56,8 +56,8 @@ type ListDashboardsResponse struct {
 
 // GenerateEmbedToken creates a guest token for embedding Superset dashboards
 func (s *Service) GenerateEmbedToken(ctx context.Context, req GenerateEmbedTokenRequest) (*GenerateEmbedTokenResponse, error) {
-	// Authenticate with Superset
-	loginResp, err := s.supersetClient.Login(ctx)
+	// Authenticate with analytics provider
+	loginResp, err := s.analyticsClient.Login(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to authenticate with Superset: %w", err)
 	}
@@ -82,7 +82,7 @@ func (s *Service) GenerateEmbedToken(ctx context.Context, req GenerateEmbedToken
 	}
 
 	// Generate guest token
-	token, err := s.supersetClient.GenerateGuestToken(ctx, loginResp.AccessToken, guestReq)
+	token, err := s.analyticsClient.GenerateGuestToken(ctx, loginResp.AccessToken, guestReq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate guest token: %w", err)
 	}
@@ -99,14 +99,14 @@ func (s *Service) GenerateEmbedToken(ctx context.Context, req GenerateEmbedToken
 
 // ListDashboards retrieves all available Superset dashboards
 func (s *Service) ListDashboards(ctx context.Context) (*ListDashboardsResponse, error) {
-	// Authenticate with Superset
-	loginResp, err := s.supersetClient.Login(ctx)
+	// Authenticate with analytics provider
+	loginResp, err := s.analyticsClient.Login(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to authenticate with Superset: %w", err)
 	}
 
 	// Get dashboards
-	dashboards, err := s.supersetClient.GetDashboards(ctx, loginResp.AccessToken)
+	dashboards, err := s.analyticsClient.GetDashboards(ctx, loginResp.AccessToken)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list dashboards: %w", err)
 	}
@@ -119,14 +119,14 @@ func (s *Service) ListDashboards(ctx context.Context) (*ListDashboardsResponse, 
 
 // GetDashboard retrieves a specific dashboard by UUID
 func (s *Service) GetDashboard(ctx context.Context, dashboardUUID uuid.UUID) (*Dashboard, error) {
-	// Authenticate with Superset
-	loginResp, err := s.supersetClient.Login(ctx)
+	// Authenticate with analytics provider
+	loginResp, err := s.analyticsClient.Login(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to authenticate with Superset: %w", err)
 	}
 
 	// Get dashboard
-	dashboard, err := s.supersetClient.GetDashboard(ctx, loginResp.AccessToken, dashboardUUID)
+	dashboard, err := s.analyticsClient.GetDashboard(ctx, loginResp.AccessToken, dashboardUUID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dashboard: %w", err)
 	}
@@ -160,9 +160,9 @@ func (s *Service) buildRLSRules(eventID *uuid.UUID, teamIDs []uuid.UUID) []RLSRu
 	return rules
 }
 
-// HealthCheck verifies Superset connectivity
+// HealthCheck verifies analytics provider connectivity
 func (s *Service) HealthCheck(ctx context.Context) error {
-	return s.supersetClient.HealthCheck(ctx)
+	return s.analyticsClient.HealthCheck(ctx)
 }
 
 // GetEventStatistics retrieves comprehensive event analytics
