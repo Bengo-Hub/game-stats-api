@@ -43,6 +43,7 @@ NAMESPACE=${NAMESPACE:-"mosuon"}
 ENV_SECRET_NAME=${ENV_SECRET_NAME:-"game-stats-api-secrets"}
 DEPLOY=${DEPLOY:-true}
 SETUP_DATABASES=${SETUP_DATABASES:-true}
+SETUP_SECRETS=${SETUP_SECRETS:-true}
 DB_TYPES=${DB_TYPES:-postgres,redis}
 
 # Per-service database configuration
