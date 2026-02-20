@@ -237,22 +237,6 @@ if [[ -f "${DEVOPS_DIR}/scripts/tools/update-helm-values.sh" ]]; then
   info "Updating Helm values in devops repo..."
   chmod +x "${DEVOPS_DIR}/scripts/tools/update-helm-values.sh"
   
-  # Delegate solely to the centralized updater tool
-  "${DEVOPS_DIR}/scripts/tools/update-helm-values.sh" "$APP_NAME" "$GIT_COMMIT_ID" || warn "Helm values update failed"
-
-  # Wait for deployment to be ready (ArgoCD will trigger the rollout)
-  if [[ -n ${KUBE_CONFIG:-} || -n ${KUBECONFIG:-} ]]; then
-    info "Waiting for deployment ${APP_NAME} to be ready in namespace ${NAMESPACE}..."
-    info "Note: This depends on ArgoCD synchronization speed."
-    kubectl -n "$NAMESPACE" rollout status deployment/"$APP_NAME" --timeout=300s || {
-      error "Deployment failed to become ready within 300s. Check pod logs or ImagePullBackOff."
-      exit 1
-    }
-    success "Deployment ${APP_NAME} is ready!"
-  fi
-else
-  warn "update-helm-values.sh not found - manual Helm values update may be required"
-fi
 
 # =============================================================================
 # SUMMARY
