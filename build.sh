@@ -15,7 +15,7 @@
 #   SERVICE_DB_NAME   - Database name (default: game_stats)
 #   SERVICE_DB_USER   - Database user (default: game_stats_user)
 #   DEVOPS_REPO       - DevOps repository (default: Bengo-Hub/mosuon-devops-k8s)
-#   DEVOPS_DIR        - Local devops directory (default: $HOME/mosuon-devops-k8s)
+#   DEVOPS_DIR        - Local devops directory (default: d:/Projects/BengoBox/mosuon/mosuon-devops-k8s)
 # =============================================================================
 
 set -euo pipefail
@@ -72,6 +72,9 @@ if [[ -z ${GITHUB_SHA:-} ]]; then
 else
   GIT_COMMIT_ID=${GITHUB_SHA::8}
 fi
+
+# Handle KUBE_CONFIG fallback for B64 variant
+KUBE_CONFIG=${KUBE_CONFIG:-${KUBE_CONFIG_B64:-}}
 
 info "Service: ${APP_NAME}"
 info "Namespace: ${NAMESPACE}"
@@ -210,7 +213,6 @@ if [[ -f "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" ]]; then
   info "Creating secrets using centralized script..."
   chmod +x "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh"
   # Initialize the cluster connection secrets via the centralized script
-  # Pass JWT_SECRET if available in the environment (e.g. from GitHub Actions)
   SERVICE_NAME="$APP_NAME" \
   NAMESPACE="$NAMESPACE" \
   PG_NAMESPACE="$DB_NAMESPACE" \
@@ -233,6 +235,17 @@ if [[ -f "${DEVOPS_DIR}/scripts/tools/update-helm-values.sh" ]]; then
   
   # Delegate solely to the centralized updater tool
   "${DEVOPS_DIR}/scripts/tools/update-helm-values.sh" "$APP_NAME" "$GIT_COMMIT_ID" || warn "Helm values update failed"
+
+  # Wait for deployment to be ready (ArgoCD will trigger the rollout)
+  if [[ -n ${KUBE_CONFIG:-} || -n ${KUBECONFIG:-} ]]; then
+    info "Waiting for deployment ${APP_NAME} to be ready in namespace ${NAMESPACE}..."
+    info "Note: This depends on ArgoCD synchronization speed."
+    kubectl -n "$NAMESPACE" rollout status deployment/"$APP_NAME" --timeout=300s || {
+      error "Deployment failed to become ready within 300s. Check pod logs or ImagePullBackOff."
+      exit 1
+    }
+    success "Deployment ${APP_NAME} is ready!"
+  fi
 else
   warn "update-helm-values.sh not found - manual Helm values update may be required"
 fi
