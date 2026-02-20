@@ -54,7 +54,18 @@ DB_NAMESPACE=${DB_NAMESPACE:-infra}
 # Registry configuration
 REGISTRY_SERVER=${REGISTRY_SERVER:-docker.io}
 REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE:-codevertex}
+IMAGE_REPO="${REGISTRY_SERVER}/${REGISTRY_NAMESPACE}/${APP_NAME}"
 
+# DevOps repository configuration
+DEVOPS_REPO=${DEVOPS_REPO:-"Bengo-Hub/mosuon-devops-k8s"}
+if [[ -d "d:/Projects/BengoBox/mosuon/mosuon-devops-k8s" ]]; then
+  DEVOPS_DIR=${DEVOPS_DIR:-"d:/Projects/BengoBox/mosuon/mosuon-devops-k8s"}
+else
+  DEVOPS_DIR=${DEVOPS_DIR:-"../mosuon-devops-k8s"}
+fi
+VALUES_FILE_PATH=${VALUES_FILE_PATH:-"apps/${APP_NAME}/values.yaml"}
+
+# Git configuration
 GIT_EMAIL=${GIT_EMAIL:-"dev@ultistats.ultichange.org"}
 GIT_USER=${GIT_USER:-"Game Stats Bot"}
 TRIVY_ECODE=${TRIVY_ECODE:-0}
