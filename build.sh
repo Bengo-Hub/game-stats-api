@@ -207,6 +207,8 @@ fi
 if [[ -f "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" ]]; then
   info "Creating secrets using centralized script..."
   chmod +x "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh"
+  # Initialize the cluster connection secrets via the centralized script
+  # Pass JWT_SECRET if available in the environment (e.g. from GitHub Actions)
   SERVICE_NAME="$APP_NAME" \
   NAMESPACE="$NAMESPACE" \
   PG_NAMESPACE="$DB_NAMESPACE" \
