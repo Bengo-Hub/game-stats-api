@@ -56,9 +56,6 @@ REGISTRY_SERVER=${REGISTRY_SERVER:-docker.io}
 REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE:-codevertex}
 IMAGE_REPO="${REGISTRY_SERVER}/${REGISTRY_NAMESPACE}/${APP_NAME}"
 
-# DevOps repository configuration
-DEVOPS_REPO=${DEVOPS_REPO:-"Bengo-Hub/mosuon-devops-k8s"}
-DEVOPS_DIR=${DEVOPS_DIR:-"d:/Projects/BengoBox/mosuon/mosuon-devops-k8s"}
 VALUES_FILE_PATH=${VALUES_FILE_PATH:-"apps/${APP_NAME}/values.yaml"}
 
 # Git configuration
