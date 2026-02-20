@@ -7,23 +7,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Config struct {
-	Env              string
-	Port             string
-	DatabaseURL      string
-	RedisURL         string
-	LogLevel         string
-	JWTSecret        string
-	// Analytics (Metabase)
-	MetabaseBaseURL  string
-	MetabaseUsername string
-	MetabasePassword string
-	OllamaBaseURL    string
-	OllamaModel      string
-
-	// Migration settings
-	RunMigration bool
-	FixturesDir  string
+	// Swagger
+	SwaggerHost      string
 }
 
 func Load() *Config {
@@ -40,6 +25,7 @@ func Load() *Config {
 	viper.SetDefault("OLLAMA_MODEL", "duckdb-nsql:7b")
 	viper.SetDefault("RUN_MIGRATION", "true")
 	viper.SetDefault("FIXTURES_DIR", "./scripts/fixtures")
+	viper.SetDefault("SWAGGER_HOST", "localhost:4000")
 
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
@@ -65,6 +51,7 @@ func Load() *Config {
         
 		RunMigration:     viper.GetBool("RUN_MIGRATION"),
 		FixturesDir:      viper.GetString("FIXTURES_DIR"),
+		SwaggerHost:      viper.GetString("SWAGGER_HOST"),
 	}
 }
 

@@ -24,6 +24,8 @@ import (
 	"github.com/bengobox/game-stats-api/internal/infrastructure/migration"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/repository"
 	"github.com/bengobox/game-stats-api/internal/pkg/logger"
+	_ "github.com/bengobox/game-stats-api/docs"
+	"github.com/bengobox/game-stats-api/docs"
 	appHttp "github.com/bengobox/game-stats-api/internal/presentation/http"
 	"github.com/bengobox/game-stats-api/internal/presentation/http/handlers"
 )
@@ -54,6 +56,14 @@ func main() {
 	// 2. Initialize logger
 	logger.Init(cfg.LogLevel, cfg.IsProduction())
 	defer logger.Log.Sync()
+
+	// 2.1 Setup Swagger Info
+	docs.SwaggerInfo.Host = cfg.SwaggerHost
+	if cfg.IsProduction() {
+		docs.SwaggerInfo.Schemes = []string{"https"}
+	} else {
+		docs.SwaggerInfo.Schemes = []string{"http"}
+	}
 
 	logger.Info("Starting DigiGameStats API",
 		logger.String("env", cfg.Env),
