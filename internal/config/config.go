@@ -36,7 +36,7 @@ func Load() *Config {
 	viper.SetDefault("DATABASE_URL", "postgres://postgres:postgres@localhost:5433/postgres?sslmode=disable")
 	viper.SetDefault("REDIS_URL", "redis://localhost:6380/0")
 	viper.SetDefault("JWT_SECRET", "dev-secret-key")
-	viper.SetDefault("METABASE_BASE_URL", "https://analytics.ultimatestats.co.ke")
+	viper.SetDefault("METABASE_BASE_URL", "https://analytics.ultichange.org")
 	viper.SetDefault("METABASE_USERNAME", "admin")
 	viper.SetDefault("METABASE_PASSWORD", "")
 	viper.SetDefault("OLLAMA_BASE_URL", "http://localhost:11434")
