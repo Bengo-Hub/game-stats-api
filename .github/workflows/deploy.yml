@@ -232,7 +232,7 @@ jobs:
           APP_NAME: game-stats-api
           DEVOPS_REPO: Bengo-Hub/mosuon-devops-k8s
           GIT_USER: ${{ secrets.GIT_USER || 'Game Stats Bot' }}
-          GIT_EMAIL: ${{ secrets.GIT_EMAIL || 'dev@ultimatestats.co.ke' }}
+          GIT_EMAIL: ${{ secrets.GIT_EMAIL || 'dev@ultistats.ultichange.org' }}
         run: |
           chmod +x build.sh
           ./build.sh

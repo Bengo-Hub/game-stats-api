@@ -62,7 +62,7 @@ DEVOPS_DIR=${DEVOPS_DIR:-"$HOME/mosuon-devops-k8s"}
 VALUES_FILE_PATH=${VALUES_FILE_PATH:-"apps/${APP_NAME}/values.yaml"}
 
 # Git configuration
-GIT_EMAIL=${GIT_EMAIL:-"dev@ultimatestats.co.ke"}
+GIT_EMAIL=${GIT_EMAIL:-"dev@ultistats.ultichange.org"}
 GIT_USER=${GIT_USER:-"Game Stats Bot"}
 TRIVY_ECODE=${TRIVY_ECODE:-0}
 
@@ -117,7 +117,7 @@ trivy fs . --exit-code "$TRIVY_ECODE" --format table || true
 # =============================================================================
 info "Building Docker image"
 DOCKER_BUILDKIT=1 docker build . -t "${IMAGE_REPO}:${GIT_COMMIT_ID}" \
-  --build-arg SUPERSET_BASE_URL=https://superset.ultimatestats.co.ke
+  --build-arg METABASE_BASE_URL=https://analytics.ultichange.org
 success "Docker build complete"
 
 if [[ ${DEPLOY} != "true" ]]; then

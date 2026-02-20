@@ -20,7 +20,7 @@ stringData:
   
   # Metabase Integration (replaces Superset)
   METABASE_BASE_URL: "http://localhost:3000"
-  METABASE_USERNAME: "admin@ultimatestats.co.ke"
+  METABASE_USERNAME: "admin@ultichange.org"
   METABASE_PASSWORD: "admin"
   
   # Ollama AI Configuration
