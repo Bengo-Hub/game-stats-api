@@ -54,11 +54,7 @@ DB_NAMESPACE=${DB_NAMESPACE:-infra}
 # Registry configuration
 REGISTRY_SERVER=${REGISTRY_SERVER:-docker.io}
 REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE:-codevertex}
-IMAGE_REPO="${REGISTRY_SERVER}/${REGISTRY_NAMESPACE}/${APP_NAME}"
 
-VALUES_FILE_PATH=${VALUES_FILE_PATH:-"apps/${APP_NAME}/values.yaml"}
-
-# Git configuration
 GIT_EMAIL=${GIT_EMAIL:-"dev@ultistats.ultichange.org"}
 GIT_USER=${GIT_USER:-"Game Stats Bot"}
 TRIVY_ECODE=${TRIVY_ECODE:-0}
