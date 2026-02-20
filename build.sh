@@ -189,27 +189,11 @@ if [[ "$SETUP_DATABASES" == "true" && -n "${KUBE_CONFIG:-}" ]]; then
       SERVICE_DB_USER="$SERVICE_DB_USER" \
       APP_NAME="$APP_NAME" \
       NAMESPACE="$NAMESPACE" \
-      DB_NAMESPACE="$DB_NAMESPACE" \
+      PG_NAMESPACE="$DB_NAMESPACE" \
       POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}" \
       bash "$DEVOPS_DIR/scripts/infrastructure/create-service-database.sh" || warn "Database creation failed or already exists"
     else
-      warn "create-service-database.sh not found - using inline database creation"
-      # Fallback to inline creation
-      kubectl -n "$DB_NAMESPACE" exec -i postgresql-0 -- psql -U postgres <<EOF || warn "Database creation failed"
-DO \$\$
-BEGIN
-  IF NOT EXISTS (SELECT FROM pg_database WHERE datname = '${SERVICE_DB_NAME}') THEN
-    CREATE DATABASE ${SERVICE_DB_NAME};
-  END IF;
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${SERVICE_DB_USER}') THEN
-    CREATE USER ${SERVICE_DB_USER} WITH PASSWORD '${POSTGRES_PASSWORD}';
-  END IF;
-  GRANT ALL PRIVILEGES ON DATABASE ${SERVICE_DB_NAME} TO ${SERVICE_DB_USER};
-END
-\$\$;
-\c ${SERVICE_DB_NAME}
-GRANT ALL ON SCHEMA public TO ${SERVICE_DB_USER};
-EOF
+      warn "create-service-database.sh not found (checked $DEVOPS_DIR/scripts/infrastructure/create-service-database.sh)"
     fi
     success "Database setup complete"
   else
@@ -220,63 +204,33 @@ fi
 # =============================================================================
 # SECRETS SETUP (using centralized devops script)
 # =============================================================================
-if ! kubectl -n "$NAMESPACE" get secret "$ENV_SECRET_NAME" >/dev/null 2>&1; then
-  if [[ -f "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" ]]; then
-    info "Creating secrets using centralized script..."
-    chmod +x "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh"
-    SERVICE_NAME="$APP_NAME" \
-    NAMESPACE="$NAMESPACE" \
-    DB_NAMESPACE="$DB_NAMESPACE" \
-    DB_NAME="$SERVICE_DB_NAME" \
-    DB_USER="$SERVICE_DB_USER" \
-    SECRET_NAME="$ENV_SECRET_NAME" \
-    POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}" \
-    bash "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" || warn "Secret creation failed"
-  elif [[ -n "${POSTGRES_PASSWORD:-}" ]]; then
-    info "Creating secrets inline..."
-    DATABASE_URL="postgresql://${SERVICE_DB_USER}:${POSTGRES_PASSWORD}@postgresql.${DB_NAMESPACE}.svc.cluster.local:5432/${SERVICE_DB_NAME}?sslmode=disable"
-    JWT_SECRET=${JWT_SECRET:-$(openssl rand -base64 32)}
-    
-    kubectl create secret generic "$ENV_SECRET_NAME" -n "$NAMESPACE" \
-      --from-literal=DATABASE_URL="${DATABASE_URL}" \
-      --from-literal=REDIS_PASSWORD="${POSTGRES_PASSWORD}" \
-      --from-literal=JWT_SECRET="${JWT_SECRET}" \
-      --dry-run=client -o yaml | kubectl apply -f -
-    success "Secrets created"
-  else
-    warn "POSTGRES_PASSWORD not set and centralized script not available - secrets not created"
-  fi
+if [[ -f "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" ]]; then
+  info "Creating secrets using centralized script..."
+  chmod +x "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh"
+  SERVICE_NAME="$APP_NAME" \
+  NAMESPACE="$NAMESPACE" \
+  PG_NAMESPACE="$DB_NAMESPACE" \
+  DB_NAME="$SERVICE_DB_NAME" \
+  DB_USER="$SERVICE_DB_USER" \
+  SECRET_NAME="$ENV_SECRET_NAME" \
+  POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}" \
+  JWT_SECRET="${JWT_SECRET:-}" \
+  bash "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" || warn "Secret creation failed"
 else
-  info "Secret ${ENV_SECRET_NAME} already exists"
+  warn "create-service-secrets.sh not found (checked $DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh)"
 fi
 
 # =============================================================================
 # UPDATE HELM VALUES (using centralized script)
 # =============================================================================
-if [[ -f "${DEVOPS_DIR}/scripts/helm/update-values.sh" ]]; then
+if [[ -f "${DEVOPS_DIR}/scripts/tools/update-helm-values.sh" ]]; then
   info "Updating Helm values in devops repo..."
-  chmod +x "${DEVOPS_DIR}/scripts/helm/update-values.sh"
+  chmod +x "${DEVOPS_DIR}/scripts/tools/update-helm-values.sh"
   
-  # Source and call the function
-  source "${DEVOPS_DIR}/scripts/helm/update-values.sh" 2>/dev/null || true
-  
-  if declare -f update_helm_values >/dev/null 2>&1; then
-    update_helm_values "$APP_NAME" "$GIT_COMMIT_ID" "$IMAGE_REPO"
-    success "Helm values updated - ArgoCD will auto-sync"
-  else
-    # Direct script execution as fallback
-    APP_NAME="$APP_NAME" \
-    IMAGE_TAG="$GIT_COMMIT_ID" \
-    IMAGE_REPO="$IMAGE_REPO" \
-    DEVOPS_REPO="$DEVOPS_REPO" \
-    DEVOPS_DIR="$DEVOPS_DIR" \
-    VALUES_FILE_PATH="$VALUES_FILE_PATH" \
-    GIT_EMAIL="$GIT_EMAIL" \
-    GIT_USER="$GIT_USER" \
-    bash "${DEVOPS_DIR}/scripts/helm/update-values.sh" --app "$APP_NAME" --tag "$GIT_COMMIT_ID" --repo "$IMAGE_REPO" || warn "Helm values update failed"
-  fi
+  # Delegate solely to the centralized updater tool
+  "${DEVOPS_DIR}/scripts/tools/update-helm-values.sh" "$APP_NAME" "$GIT_COMMIT_ID" || warn "Helm values update failed"
 else
-  warn "update-values.sh not found - manual Helm values update may be required"
+  warn "update-helm-values.sh not found - manual Helm values update may be required"
 fi
 
 # =============================================================================
