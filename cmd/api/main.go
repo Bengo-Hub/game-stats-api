@@ -9,8 +9,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/bengobox/game-stats-api/docs"
+	_ "github.com/bengobox/game-stats-api/docs"
 	"github.com/bengobox/game-stats-api/internal/application/admin"
-	_ "github.com/lib/pq"
 	"github.com/bengobox/game-stats-api/internal/application/analytics"
 	"github.com/bengobox/game-stats-api/internal/application/auth"
 	"github.com/bengobox/game-stats-api/internal/application/bracket"
@@ -24,10 +25,9 @@ import (
 	"github.com/bengobox/game-stats-api/internal/infrastructure/migration"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/repository"
 	"github.com/bengobox/game-stats-api/internal/pkg/logger"
-	_ "github.com/bengobox/game-stats-api/docs"
-	"github.com/bengobox/game-stats-api/docs"
 	appHttp "github.com/bengobox/game-stats-api/internal/presentation/http"
 	"github.com/bengobox/game-stats-api/internal/presentation/http/handlers"
+	_ "github.com/lib/pq"
 )
 
 // @title DigiGameStats API
@@ -41,9 +41,6 @@ import (
 
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @host localhost:4000
-// @BasePath /api/v1
 
 // @securityDefinitions.apikey BearerAuth
 // @in header

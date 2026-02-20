@@ -237,6 +237,9 @@ if [[ -f "${DEVOPS_DIR}/scripts/tools/update-helm-values.sh" ]]; then
   info "Updating Helm values in devops repo..."
   chmod +x "${DEVOPS_DIR}/scripts/tools/update-helm-values.sh"
   
+  # Delegate solely to the centralized updater tool
+  "${DEVOPS_DIR}/scripts/tools/update-helm-values.sh" "$APP_NAME" "$GIT_COMMIT_ID" || warn "Helm values update failed"
+fi
 
 # =============================================================================
 # SUMMARY
