@@ -58,7 +58,7 @@ IMAGE_REPO="${REGISTRY_SERVER}/${REGISTRY_NAMESPACE}/${APP_NAME}"
 
 # DevOps repository configuration
 DEVOPS_REPO=${DEVOPS_REPO:-"Bengo-Hub/mosuon-devops-k8s"}
-DEVOPS_DIR=${DEVOPS_DIR:-"$HOME/mosuon-devops-k8s"}
+DEVOPS_DIR=${DEVOPS_DIR:-"d:/Projects/BengoBox/mosuon/mosuon-devops-k8s"}
 VALUES_FILE_PATH=${VALUES_FILE_PATH:-"apps/${APP_NAME}/values.yaml"}
 
 # Git configuration
@@ -81,9 +81,11 @@ info "Database: ${SERVICE_DB_NAME} (user: ${SERVICE_DB_USER})"
 # =============================================================================
 # PREREQUISITE CHECKS
 # =============================================================================
-for tool in git docker trivy; do
+for tool in git docker; do
   command -v "$tool" >/dev/null || { error "$tool is required"; exit 1; }
 done
+# Trivy is optional
+command -v trivy >/dev/null || warn "trivy is not installed - security scan will be skipped"
 if [[ ${DEPLOY} == "true" ]]; then
   for tool in kubectl helm yq jq; do
     command -v "$tool" >/dev/null || { error "$tool is required"; exit 1; }
