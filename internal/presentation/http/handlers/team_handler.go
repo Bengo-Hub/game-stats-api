@@ -59,6 +59,8 @@ type PlayerResponse struct {
 	ProfileImageURL *string `json:"profileImageUrl,omitempty"`
 	IsCaptain       bool    `json:"isCaptain"`
 	IsSpiritCaptain bool    `json:"isSpiritCaptain"`
+	TeamID          *string `json:"teamId,omitempty"`
+	TeamName        *string `json:"teamName,omitempty"`
 }
 
 // TeamResponse represents a team in API responses
@@ -70,6 +72,7 @@ type TeamResponse struct {
 	LogoURL        *string                `json:"logoUrl,omitempty"`
 	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 	DivisionPoolID *string                `json:"divisionPoolId,omitempty"`
+	EventID        *string                `json:"eventId,omitempty"`
 	HomeLocationID *string                `json:"homeLocationId,omitempty"`
 	LocationName   *string                `json:"locationName,omitempty"`
 	DivisionName   *string                `json:"divisionName,omitempty"`
@@ -92,6 +95,11 @@ func toPlayerResponse(p *ent.Player) PlayerResponse {
 	}
 	if p.ProfileImageURL != nil {
 		resp.ProfileImageURL = p.ProfileImageURL
+	}
+	if p.Edges.Team != nil {
+		id := p.Edges.Team.ID.String()
+		resp.TeamID = &id
+		resp.TeamName = &p.Edges.Team.Name
 	}
 	return resp
 }
@@ -117,6 +125,11 @@ func toTeamResponse(t *ent.Team) TeamResponse {
 		id := t.Edges.DivisionPool.ID.String()
 		resp.DivisionPoolID = &id
 		resp.DivisionName = &t.Edges.DivisionPool.Name
+
+		if t.Edges.DivisionPool.Edges.Event != nil {
+			eventID := t.Edges.DivisionPool.Edges.Event.ID.String()
+			resp.EventID = &eventID
+		}
 	}
 
 	if t.Edges.HomeLocation != nil {
@@ -243,7 +256,9 @@ func (h *TeamHandler) GetTeam(w http.ResponseWriter, r *http.Request) {
 	t, err := h.client.Team.Query().
 		Where(team.ID(teamID)).
 		Where(team.DeletedAtIsNil()).
-		WithDivisionPool().
+		WithDivisionPool(func(dpq *ent.DivisionPoolQuery) {
+			dpq.WithEvent()
+		}).
 		WithHomeLocation().
 		WithPlayers().
 		Only(ctx)
@@ -422,6 +437,59 @@ func (h *TeamHandler) GetPlayer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondJSON(w, http.StatusOK, toPlayerResponse(p))
+}
+
+// ListPlayers godoc
+// @Summary List all players
+// @Description List all players with pagination and search
+// @Tags players
+// @Produce json
+// @Param search query string false "Search by player name"
+// @Param teamId query string false "Filter by team ID" format(uuid)
+// @Param limit query int false "Limit results" default(50)
+// @Param offset query int false "Offset for pagination" default(0)
+// @Success 200 {array} PlayerResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /public/players [get]
+func (h *TeamHandler) ListPlayers(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	query := h.client.Player.Query().
+		Where(player.DeletedAtIsNil()).
+		WithTeam()
+
+	if search := r.URL.Query().Get("search"); search != "" {
+		query = query.Where(player.NameContainsFold(search))
+	}
+
+	if teamIDStr := r.URL.Query().Get("teamId"); teamIDStr != "" {
+		if teamID, err := uuid.Parse(teamIDStr); err == nil {
+			query = query.Where(player.HasTeamWith(team.ID(teamID)))
+		} else {
+			respondError(w, http.StatusBadRequest, "Invalid team ID")
+			return
+		}
+	}
+
+	pagination := ParsePagination(r)
+
+	players, err := query.
+		Limit(pagination.Limit).
+		Offset(pagination.Offset).
+		Order(ent.Asc(player.FieldName)).
+		All(ctx)
+
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to list players")
+		return
+	}
+
+	response := make([]PlayerResponse, len(players))
+	for i, p := range players {
+		response[i] = toPlayerResponse(p)
+	}
+
+	respondJSON(w, http.StatusOK, response)
 }
 
 // BulkImportPlayersResponse represents the result of a bulk import

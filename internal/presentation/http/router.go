@@ -119,6 +119,7 @@ func NewRouter(opts RouterOptions) chi.Router {
 				r.Get("/geographic/countries", opts.GeographicHandler.ListCountries)
 
 				// Players
+				r.Get("/players", opts.TeamHandler.ListPlayers)
 				r.Get("/players/{id}", opts.TeamHandler.GetPlayer)
 			})
 		})

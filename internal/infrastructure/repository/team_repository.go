@@ -38,7 +38,9 @@ func (r *teamRepository) Create(ctx context.Context, t *ent.Team) (*ent.Team, er
 func (r *teamRepository) GetByID(ctx context.Context, id uuid.UUID) (*ent.Team, error) {
 	return r.client.Team.Query().
 		Where(team.ID(id)).
-		WithDivisionPool().
+		WithDivisionPool(func(query *ent.DivisionPoolQuery) {
+			query.WithEvent()
+		}).
 		WithHomeLocation().
 		WithPlayers().
 		Only(ctx)
@@ -48,7 +50,9 @@ func (r *teamRepository) ListByDivision(ctx context.Context, divisionID uuid.UUI
 	return r.client.Team.Query().
 		Where(team.HasDivisionPoolWith(divisionpool.ID(divisionID))).
 		Where(team.DeletedAtIsNil()).
-		WithDivisionPool().
+		WithDivisionPool(func(query *ent.DivisionPoolQuery) {
+			query.WithEvent()
+		}).
 		All(ctx)
 }
 

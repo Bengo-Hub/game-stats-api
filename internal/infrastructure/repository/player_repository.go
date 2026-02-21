@@ -46,6 +46,29 @@ func (r *playerRepository) ListByTeam(ctx context.Context, teamID uuid.UUID) ([]
 		All(ctx)
 }
 
+func (r *playerRepository) ListAll(ctx context.Context, limit, offset int, search string) ([]*ent.Player, int, error) {
+	query := r.client.Player.Query().
+		Where(player.DeletedAtIsNil()).
+		WithTeam()
+
+	if search != "" {
+		query = query.Where(player.NameContainsFold(search))
+	}
+
+	total, err := query.Count(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	players, err := query.
+		Limit(limit).
+		Offset(offset).
+		Order(ent.Asc(player.FieldName)).
+		All(ctx)
+
+	return players, total, err
+}
+
 func (r *playerRepository) SearchByName(ctx context.Context, name string, limit int) ([]*ent.Player, error) {
 	// Case-insensitive name search using PostgreSQL ILIKE
 	return r.client.Player.Query().
