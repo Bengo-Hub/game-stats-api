@@ -24,6 +24,56 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/audit-logs": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all audit log entries, newest first",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get audit logs (Admin only)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Limit results",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/internal_presentation_http_handlers.AuditLogDTO"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/games/{id}/audit": {
             "get": {
                 "security": [
@@ -55,20 +105,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handlers.AuditLogDTO"
+                                "$ref": "#/definitions/internal_presentation_http_handlers.AuditLogDTO"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -99,7 +149,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.UpdateGameScoreRequestDTO"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.UpdateGameScoreRequestDTO"
                         }
                     }
                 ],
@@ -107,25 +157,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin.UpdateGameScoreResponse"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_admin.UpdateGameScoreResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -164,7 +214,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.UpdateSpiritScoreRequestDTO"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.UpdateSpiritScoreRequestDTO"
                         }
                     }
                 ],
@@ -172,25 +222,301 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin.UpdateSpiritScoreResponse"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_admin.UpdateSpiritScoreResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/system/health": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get system health information including counts and service status",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get system health (Admin only)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "List all users in the system with their roles and status",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "List all users (Admin only)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/internal_presentation_http_handlers.AdminUserDTO"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new user with specified role",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Create a new user (Admin only)",
+                "parameters": [
+                    {
+                        "description": "User creation request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.CreateUserRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.AdminUserDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a specific user's details by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get user details (Admin only)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.AdminUserDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update a user's name, role, or active status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Update a user (Admin only)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "User update request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.UpdateUserRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.AdminUserDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Soft deletes a user account",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Delete a user (Admin only)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -218,13 +544,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/analytics.ListDashboardsResponse"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_analytics.ListDashboardsResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -262,25 +588,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/analytics.Dashboard"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_analytics.Dashboard"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -319,7 +645,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.GenerateEmbedTokenRequestDTO"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.GenerateEmbedTokenRequestDTO"
                         }
                     }
                 ],
@@ -327,19 +653,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/analytics.GenerateEmbedTokenResponse"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_analytics.GenerateEmbedTokenResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -377,25 +703,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/analytics.EventStatistics"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_analytics.EventStatistics"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -424,7 +750,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -455,7 +781,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.NaturalLanguageQueryRequestDTO"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.NaturalLanguageQueryRequestDTO"
                         }
                     }
                 ],
@@ -463,19 +789,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/analytics.NaturalLanguageQueryResponse"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_analytics.NaturalLanguageQueryResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -504,7 +830,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/bracket.GetBracketResponse"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.GetBracketResponse"
                         }
                     },
                     "400": {
@@ -557,7 +883,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/bracket.GenerateBracketRequest"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.GenerateBracketRequest"
                         }
                     }
                 ],
@@ -565,7 +891,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/bracket.GenerateBracketResponse"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.GenerateBracketResponse"
                         }
                     },
                     "400": {
@@ -612,7 +938,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/bracket.GetBracketResponse"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.GetBracketResponse"
                         }
                     },
                     "400": {
@@ -665,7 +991,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.LoginRequest"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.LoginRequest"
                         }
                     }
                 ],
@@ -673,7 +999,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.LoginResponse"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.LoginResponse"
                         }
                     },
                     "401": {
@@ -705,7 +1031,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.RefreshRequest"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.RefreshRequest"
                         }
                     }
                 ],
@@ -713,7 +1039,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.TokenResponse"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.TokenResponse"
                         }
                     },
                     "401": {
@@ -750,7 +1076,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ranking.AdvanceTeamsRequest"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.AdvanceTeamsRequest"
                         }
                     }
                 ],
@@ -758,25 +1084,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ranking.AdvanceTeamsResponse"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.AdvanceTeamsResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -815,7 +1141,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ranking.UpdateRankingCriteriaRequest"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.UpdateRankingCriteriaRequest"
                         }
                     }
                 ],
@@ -832,19 +1158,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -875,7 +1201,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.CreateGameRequest"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.CreateGameRequest"
                         }
                     }
                 ],
@@ -883,7 +1209,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO"
                         }
                     },
                     "400": {
@@ -930,25 +1256,76 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ranking.DivisionStandingsResponse"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.DivisionStandingsResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/events": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new tournament or event",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Create a new event",
+                "parameters": [
+                    {
+                        "description": "Event data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.CreateEventRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.EventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -979,7 +1356,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/gamemanagement.GameRoundDTO"
+                                "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundDTO"
                             }
                         }
                     },
@@ -1022,7 +1399,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.CreateGameRoundRequest"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.CreateGameRoundRequest"
                         }
                     }
                 ],
@@ -1030,13 +1407,78 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.GameRoundDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundDTO"
                         }
                     },
                     "400": {
                         "description": "bad request",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{id}/divisions": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new division pool for an event",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Create a new division pool",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Division data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.CreateDivisionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.DivisionDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1104,7 +1546,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/gamemanagement.GameDTO"
+                                "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO"
                             }
                         }
                     },
@@ -1140,7 +1582,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO"
                         }
                     },
                     "404": {
@@ -1182,7 +1624,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.UpdateGameRequest"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.UpdateGameRequest"
                         }
                     }
                 ],
@@ -1190,7 +1632,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO"
                         }
                     },
                     "400": {
@@ -1274,7 +1716,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO"
                         }
                     },
                     "400": {
@@ -1326,7 +1768,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO"
                         }
                     },
                     "400": {
@@ -1375,7 +1817,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/gamemanagement.ScoringDTO"
+                                "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.ScoringDTO"
                             }
                         }
                     },
@@ -1418,7 +1860,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.RecordScoreRequest"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.RecordScoreRequest"
                         }
                     }
                 ],
@@ -1426,7 +1868,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO"
                         }
                     },
                     "400": {
@@ -1476,20 +1918,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/gamemanagement.SpiritScoreDTO"
+                                "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.SpiritScoreDTO"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1521,7 +1963,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.SubmitSpiritScoreRequest"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.SubmitSpiritScoreRequest"
                         }
                     }
                 ],
@@ -1529,31 +1971,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.SpiritScoreDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.SpiritScoreDTO"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1591,7 +2033,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.StartGameRequest"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.StartGameRequest"
                         }
                     }
                 ],
@@ -1599,7 +2041,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO"
                         }
                     },
                     "400": {
@@ -1655,7 +2097,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.RecordStoppageRequest"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.RecordStoppageRequest"
                         }
                     }
                 ],
@@ -1663,7 +2105,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.GameDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO"
                         }
                     },
                     "400": {
@@ -1739,7 +2181,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.GameTimelineDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameTimelineDTO"
                         }
                     },
                     "404": {
@@ -1770,7 +2212,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/metadata.ContinentDTO"
+                                "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.ContinentDTO"
                             }
                         }
                     }
@@ -1804,7 +2246,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/metadata.CountryDTO"
+                                "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.CountryDTO"
                             }
                         }
                     }
@@ -1830,7 +2272,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/metadata.WorldDTO"
+                                "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO"
                             }
                         }
                     }
@@ -1876,13 +2318,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.UserDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.UserDTO"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1986,20 +2428,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handlers.EventResponse"
+                                "$ref": "#/definitions/internal_presentation_http_handlers.EventResponse"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2028,25 +2470,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.EventResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.EventResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2075,19 +2517,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.EventCrewResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.EventCrewResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2107,7 +2549,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "default": "goals",
-                        "description": "Category: goals or assists",
+                        "description": "Category: goals, assists, or total (goals+assists)",
                         "name": "category",
                         "in": "query"
                     },
@@ -2146,20 +2588,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handlers.PlayerStatResponse"
+                                "$ref": "#/definitions/internal_presentation_http_handlers.PlayerStatResponse"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2211,20 +2653,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handlers.SpiritLeaderboardResponse"
+                                "$ref": "#/definitions/internal_presentation_http_handlers.SpiritLeaderboardResponse"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2282,20 +2724,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handlers.TeamResponse"
+                                "$ref": "#/definitions/internal_presentation_http_handlers.TeamResponse"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2325,25 +2767,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.TeamResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.TeamResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2372,7 +2814,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.GameRoundDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundDTO"
                         }
                     },
                     "404": {
@@ -2414,7 +2856,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.UpdateGameRoundRequest"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.UpdateGameRoundRequest"
                         }
                     }
                 ],
@@ -2422,7 +2864,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.GameRoundDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundDTO"
                         }
                     },
                     "400": {
@@ -2435,6 +2877,308 @@ const docTemplate = `{
                         "description": "not found",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/settings/account": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Permanently delete the authenticated user's account",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Delete own account",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/settings/password": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Change the authenticated user's password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Change password",
+                "parameters": [
+                    {
+                        "description": "Password change request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ChangePasswordRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/settings/profile": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get the authenticated user's profile",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Get current user profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ProfileResponseDTO"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update the authenticated user's name or avatar",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Update current user profile",
+                "parameters": [
+                    {
+                        "description": "Profile update request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.UpdateProfileRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ProfileResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new team for an event",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Create a new team",
+                "parameters": [
+                    {
+                        "description": "Team data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.CreateTeamRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.TeamResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/{id}/players": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Add a new player to an existing team",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Add a player to a team",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Team ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Player data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.CreatePlayerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.PlayerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2464,19 +3208,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gamemanagement.TeamSpiritAverageDTO"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSpiritAverageDTO"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2484,7 +3228,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "admin.UpdateGameScoreResponse": {
+        "github_com_bengobox_game-stats-api_internal_application_admin.UpdateGameScoreResponse": {
             "type": "object",
             "properties": {
                 "audit_log_id": {
@@ -2504,7 +3248,7 @@ const docTemplate = `{
                 }
             }
         },
-        "admin.UpdateSpiritScoreResponse": {
+        "github_com_bengobox_game-stats-api_internal_application_admin.UpdateSpiritScoreResponse": {
             "type": "object",
             "properties": {
                 "attitude": {
@@ -2536,7 +3280,7 @@ const docTemplate = `{
                 }
             }
         },
-        "analytics.Dashboard": {
+        "github_com_bengobox_game-stats-api_internal_application_analytics.Dashboard": {
             "type": "object",
             "properties": {
                 "dashboard_title": {
@@ -2559,7 +3303,7 @@ const docTemplate = `{
                 }
             }
         },
-        "analytics.EventStatistics": {
+        "github_com_bengobox_game-stats-api_internal_application_analytics.EventStatistics": {
             "type": "object",
             "properties": {
                 "average_spirit_score": {
@@ -2578,7 +3322,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "top_scorer": {
-                    "$ref": "#/definitions/analytics.PlayerStat"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_analytics.PlayerStat"
                 },
                 "total_games": {
                     "type": "integer"
@@ -2591,7 +3335,7 @@ const docTemplate = `{
                 }
             }
         },
-        "analytics.GenerateEmbedTokenResponse": {
+        "github_com_bengobox_game-stats-api_internal_application_analytics.GenerateEmbedTokenResponse": {
             "type": "object",
             "properties": {
                 "dashboard_uuid": {
@@ -2605,13 +3349,13 @@ const docTemplate = `{
                 }
             }
         },
-        "analytics.ListDashboardsResponse": {
+        "github_com_bengobox_game-stats-api_internal_application_analytics.ListDashboardsResponse": {
             "type": "object",
             "properties": {
                 "dashboards": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/analytics.Dashboard"
+                        "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_analytics.Dashboard"
                     }
                 },
                 "total": {
@@ -2619,7 +3363,7 @@ const docTemplate = `{
                 }
             }
         },
-        "analytics.NaturalLanguageQueryResponse": {
+        "github_com_bengobox_game-stats-api_internal_application_analytics.NaturalLanguageQueryResponse": {
             "type": "object",
             "properties": {
                 "confidence": {
@@ -2646,7 +3390,7 @@ const docTemplate = `{
                 }
             }
         },
-        "analytics.PlayerStat": {
+        "github_com_bengobox_game-stats-api_internal_application_analytics.PlayerStat": {
             "type": "object",
             "properties": {
                 "assists": {
@@ -2672,7 +3416,7 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.LoginRequest": {
+        "github_com_bengobox_game-stats-api_internal_application_auth.LoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -2687,7 +3431,7 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.LoginResponse": {
+        "github_com_bengobox_game-stats-api_internal_application_auth.LoginResponse": {
             "type": "object",
             "properties": {
                 "access_token": {
@@ -2697,11 +3441,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/auth.UserDTO"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.UserDTO"
                 }
             }
         },
-        "auth.RefreshRequest": {
+        "github_com_bengobox_game-stats-api_internal_application_auth.RefreshRequest": {
             "type": "object",
             "required": [
                 "refresh_token"
@@ -2712,7 +3456,7 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.TokenResponse": {
+        "github_com_bengobox_game-stats-api_internal_application_auth.TokenResponse": {
             "type": "object",
             "properties": {
                 "access_token": {
@@ -2723,7 +3467,7 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.UserDTO": {
+        "github_com_bengobox_game-stats-api_internal_application_auth.UserDTO": {
             "type": "object",
             "properties": {
                 "email": {
@@ -2740,7 +3484,7 @@ const docTemplate = `{
                 }
             }
         },
-        "bracket.BracketNode": {
+        "github_com_bengobox_game-stats-api_internal_application_bracket.BracketNode": {
             "type": "object",
             "properties": {
                 "game_id": {
@@ -2750,13 +3494,13 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "left_child": {
-                    "$ref": "#/definitions/bracket.BracketNode"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.BracketNode"
                 },
                 "position": {
                     "type": "integer"
                 },
                 "right_child": {
-                    "$ref": "#/definitions/bracket.BracketNode"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.BracketNode"
                 },
                 "round": {
                     "type": "integer"
@@ -2796,7 +3540,7 @@ const docTemplate = `{
                 }
             }
         },
-        "bracket.BracketType": {
+        "github_com_bengobox_game-stats-api_internal_application_bracket.BracketType": {
             "type": "string",
             "enum": [
                 "single_elimination",
@@ -2807,7 +3551,7 @@ const docTemplate = `{
                 "BracketTypeDoubleElimination"
             ]
         },
-        "bracket.GenerateBracketRequest": {
+        "github_com_bengobox_game-stats-api_internal_application_bracket.GenerateBracketRequest": {
             "type": "object",
             "required": [
                 "bracket_type",
@@ -2826,7 +3570,7 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/bracket.BracketType"
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.BracketType"
                         }
                     ]
                 },
@@ -2850,22 +3594,22 @@ const docTemplate = `{
                     "type": "array",
                     "minItems": 2,
                     "items": {
-                        "$ref": "#/definitions/bracket.TeamSeed"
+                        "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.TeamSeed"
                     }
                 }
             }
         },
-        "bracket.GenerateBracketResponse": {
+        "github_com_bengobox_game-stats-api_internal_application_bracket.GenerateBracketResponse": {
             "type": "object",
             "properties": {
                 "bracket_id": {
                     "type": "string"
                 },
                 "bracket_tree": {
-                    "$ref": "#/definitions/bracket.BracketNode"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.BracketNode"
                 },
                 "bracket_type": {
-                    "$ref": "#/definitions/bracket.BracketType"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.BracketType"
                 },
                 "created_at": {
                     "type": "string"
@@ -2890,14 +3634,14 @@ const docTemplate = `{
                 }
             }
         },
-        "bracket.GetBracketResponse": {
+        "github_com_bengobox_game-stats-api_internal_application_bracket.GetBracketResponse": {
             "type": "object",
             "properties": {
                 "bracket_tree": {
-                    "$ref": "#/definitions/bracket.BracketNode"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.BracketNode"
                 },
                 "bracket_type": {
-                    "$ref": "#/definitions/bracket.BracketType"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.BracketType"
                 },
                 "event_id": {
                     "type": "string"
@@ -2916,7 +3660,7 @@ const docTemplate = `{
                 }
             }
         },
-        "bracket.TeamSeed": {
+        "github_com_bengobox_game-stats-api_internal_application_bracket.TeamSeed": {
             "type": "object",
             "required": [
                 "seed",
@@ -2936,7 +3680,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.CreateGameRequest": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.CreateGameRequest": {
             "type": "object",
             "required": [
                 "allocated_time_minutes",
@@ -2986,7 +3730,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.CreateGameRoundRequest": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.CreateGameRoundRequest": {
             "type": "object",
             "required": [
                 "event_id",
@@ -3021,7 +3765,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.FieldSummaryDTO": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.FieldSummaryDTO": {
             "type": "object",
             "properties": {
                 "id": {
@@ -3032,7 +3776,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.GameDTO": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO": {
             "type": "object",
             "properties": {
                 "actual_end_time": {
@@ -3045,7 +3789,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "away_team": {
-                    "$ref": "#/definitions/gamemanagement.TeamSummaryDTO"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO"
                 },
                 "away_team_score": {
                     "type": "integer"
@@ -3054,16 +3798,16 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "field_location": {
-                    "$ref": "#/definitions/gamemanagement.FieldSummaryDTO"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.FieldSummaryDTO"
                 },
                 "first_pull_by": {
                     "type": "string"
                 },
                 "game_round": {
-                    "$ref": "#/definitions/gamemanagement.GameRoundSummaryDTO"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundSummaryDTO"
                 },
                 "home_team": {
-                    "$ref": "#/definitions/gamemanagement.TeamSummaryDTO"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO"
                 },
                 "home_team_score": {
                     "type": "integer"
@@ -3082,7 +3826,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "scorekeeper": {
-                    "$ref": "#/definitions/gamemanagement.UserSummaryDTO"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.UserSummaryDTO"
                 },
                 "status": {
                     "type": "string"
@@ -3098,7 +3842,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.GameEventDTO": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameEventDTO": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3125,7 +3869,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.GameRoundDTO": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundDTO": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3160,7 +3904,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.GameRoundSummaryDTO": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundSummaryDTO": {
             "type": "object",
             "properties": {
                 "id": {
@@ -3174,18 +3918,18 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.GameTimelineDTO": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameTimelineDTO": {
             "type": "object",
             "properties": {
                 "events": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/gamemanagement.GameEventDTO"
+                        "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameEventDTO"
                     }
                 }
             }
         },
-        "gamemanagement.RecordScoreRequest": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.RecordScoreRequest": {
             "type": "object",
             "required": [
                 "player_id"
@@ -3218,7 +3962,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.RecordStoppageRequest": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.RecordStoppageRequest": {
             "type": "object",
             "required": [
                 "duration_seconds",
@@ -3235,7 +3979,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.ScoringDTO": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.ScoringDTO": {
             "type": "object",
             "properties": {
                 "assists": {
@@ -3259,6 +4003,15 @@ const docTemplate = `{
                 "player_name": {
                     "type": "string"
                 },
+                "player_number": {
+                    "type": "integer"
+                },
+                "team_id": {
+                    "type": "string"
+                },
+                "team_name": {
+                    "type": "string"
+                },
                 "turns": {
                     "type": "integer"
                 },
@@ -3267,7 +4020,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.SpiritScoreDTO": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.SpiritScoreDTO": {
             "type": "object",
             "properties": {
                 "attitude": {
@@ -3298,13 +4051,13 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "scored_by_team": {
-                    "$ref": "#/definitions/gamemanagement.TeamSummaryDTO"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO"
                 },
                 "submitted_by": {
-                    "$ref": "#/definitions/gamemanagement.UserSummaryDTO"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.UserSummaryDTO"
                 },
                 "team": {
-                    "$ref": "#/definitions/gamemanagement.TeamSummaryDTO"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO"
                 },
                 "total_score": {
                     "type": "integer"
@@ -3314,7 +4067,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.StartGameRequest": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.StartGameRequest": {
             "type": "object",
             "properties": {
                 "first_pull_by": {
@@ -3322,7 +4075,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.SubmitSpiritScoreRequest": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.SubmitSpiritScoreRequest": {
             "type": "object",
             "required": [
                 "attitude",
@@ -3376,7 +4129,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.TeamSpiritAverageDTO": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSpiritAverageDTO": {
             "type": "object",
             "properties": {
                 "attitude": {
@@ -3408,7 +4161,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.TeamSummaryDTO": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO": {
             "type": "object",
             "properties": {
                 "id": {
@@ -3422,7 +4175,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.UpdateGameRequest": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.UpdateGameRequest": {
             "type": "object",
             "properties": {
                 "allocated_time_minutes": {
@@ -3448,7 +4201,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.UpdateGameRoundRequest": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.UpdateGameRoundRequest": {
             "type": "object",
             "properties": {
                 "end_date": {
@@ -3475,7 +4228,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gamemanagement.UserSummaryDTO": {
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.UserSummaryDTO": {
             "type": "object",
             "properties": {
                 "email": {
@@ -3489,7 +4242,280 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.AuditLogDTO": {
+        "github_com_bengobox_game-stats-api_internal_application_metadata.ContinentDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "world_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_bengobox_game-stats-api_internal_application_metadata.CountryDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "continent_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_bengobox_game-stats-api_internal_application_ranking.AdvanceTeamsRequest": {
+            "type": "object",
+            "required": [
+                "division_id",
+                "target_round_id",
+                "top_n"
+            ],
+            "properties": {
+                "division_id": {
+                    "type": "string"
+                },
+                "field_id": {
+                    "type": "string"
+                },
+                "game_duration": {
+                    "type": "integer",
+                    "minimum": 30
+                },
+                "generate_bracket": {
+                    "type": "boolean"
+                },
+                "notify_teams": {
+                    "type": "boolean"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "target_round_id": {
+                    "type": "string"
+                },
+                "top_n": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "github_com_bengobox_game-stats-api_internal_application_ranking.AdvanceTeamsResponse": {
+            "type": "object",
+            "properties": {
+                "advanced_teams": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "bracket_id": {
+                    "type": "string"
+                },
+                "games_created": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "target_round_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_bengobox_game-stats-api_internal_application_ranking.DivisionStandingsResponse": {
+            "type": "object",
+            "properties": {
+                "division_id": {
+                    "type": "string"
+                },
+                "division_name": {
+                    "type": "string"
+                },
+                "last_updated": {
+                    "type": "string"
+                },
+                "ranking_criteria": {
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.RankingCriteria"
+                },
+                "standings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.TeamStanding"
+                    }
+                }
+            }
+        },
+        "github_com_bengobox_game-stats-api_internal_application_ranking.RankingCriteria": {
+            "type": "object",
+            "properties": {
+                "points_per_draw": {
+                    "type": "integer"
+                },
+                "points_per_loss": {
+                    "type": "integer"
+                },
+                "points_per_win": {
+                    "type": "integer"
+                },
+                "primary_sort": {
+                    "description": "\"points\", \"win_percentage\", \"goal_diff\"",
+                    "type": "string"
+                },
+                "secondary_sort": {
+                    "description": "Tiebreakers: [\"goal_diff\", \"head_to_head\", \"goals_for\"]",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_bengobox_game-stats-api_internal_application_ranking.TeamStanding": {
+            "type": "object",
+            "properties": {
+                "draws": {
+                    "type": "integer"
+                },
+                "games_played": {
+                    "type": "integer"
+                },
+                "goal_difference": {
+                    "type": "integer"
+                },
+                "goals_against": {
+                    "type": "integer"
+                },
+                "goals_for": {
+                    "type": "integer"
+                },
+                "last_updated": {
+                    "type": "string"
+                },
+                "losses": {
+                    "type": "integer"
+                },
+                "points": {
+                    "type": "integer"
+                },
+                "rank": {
+                    "type": "integer"
+                },
+                "spirit_average": {
+                    "type": "number"
+                },
+                "team_id": {
+                    "type": "string"
+                },
+                "team_name": {
+                    "type": "string"
+                },
+                "win_percentage": {
+                    "type": "number"
+                },
+                "wins": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_bengobox_game-stats-api_internal_application_ranking.UpdateRankingCriteriaRequest": {
+            "type": "object",
+            "required": [
+                "points_per_draw",
+                "points_per_win",
+                "primary_sort"
+            ],
+            "properties": {
+                "points_per_draw": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "points_per_loss": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "points_per_win": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "primary_sort": {
+                    "type": "string",
+                    "enum": [
+                        "points",
+                        "win_percentage",
+                        "goal_diff"
+                    ]
+                },
+                "secondary_sort": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "internal_presentation_http_handlers.AdminUserDTO": {
+            "type": "object",
+            "properties": {
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "lastLoginAt": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.AuditLogDTO": {
             "type": "object",
             "properties": {
                 "action": {
@@ -3538,7 +4564,18 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.CountryDTO": {
+        "internal_presentation_http_handlers.ChangePasswordRequestDTO": {
+            "type": "object",
+            "properties": {
+                "currentPassword": {
+                    "type": "string"
+                },
+                "newPassword": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.CountryDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3552,7 +4589,160 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.CrewMemberDTO": {
+        "internal_presentation_http_handlers.CreateDivisionRequest": {
+            "type": "object",
+            "required": [
+                "divisionType",
+                "name"
+            ],
+            "properties": {
+                "divisionType": {
+                    "type": "string",
+                    "enum": [
+                        "pool",
+                        "bracket"
+                    ]
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.CreateEventRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "slug"
+            ],
+            "properties": {
+                "bannerUrl": {
+                    "type": "string"
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "locationId": {
+                    "type": "string"
+                },
+                "logoUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.CreatePlayerRequest": {
+            "type": "object",
+            "required": [
+                "eventId",
+                "gender",
+                "name",
+                "teamId"
+            ],
+            "properties": {
+                "eventId": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string",
+                    "enum": [
+                        "M",
+                        "F",
+                        "X"
+                    ]
+                },
+                "isCaptain": {
+                    "type": "boolean"
+                },
+                "isSpiritCaptain": {
+                    "type": "boolean"
+                },
+                "jerseyNumber": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "profileImageUrl": {
+                    "type": "string"
+                },
+                "teamId": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.CreateTeamRequest": {
+            "type": "object",
+            "required": [
+                "divisionPoolId",
+                "eventId",
+                "name"
+            ],
+            "properties": {
+                "divisionPoolId": {
+                    "type": "string"
+                },
+                "eventId": {
+                    "type": "string"
+                },
+                "homeLocationId": {
+                    "type": "string"
+                },
+                "initialSeed": {
+                    "type": "integer"
+                },
+                "logoUrl": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.CreateUserRequestDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.CrewMemberDTO": {
             "type": "object",
             "properties": {
                 "avatarUrl": {
@@ -3569,7 +4759,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.DivisionDTO": {
+        "internal_presentation_http_handlers.DivisionDTO": {
             "type": "object",
             "properties": {
                 "divisionType": {
@@ -3586,7 +4776,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.ErrorResponse": {
+        "internal_presentation_http_handlers.ErrorResponse": {
             "description": "Error response structure",
             "type": "object",
             "properties": {
@@ -3596,13 +4786,13 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.EventCrewResponse": {
+        "internal_presentation_http_handlers.EventCrewResponse": {
             "type": "object",
             "properties": {
                 "admins": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handlers.CrewMemberDTO"
+                        "$ref": "#/definitions/internal_presentation_http_handlers.CrewMemberDTO"
                     }
                 },
                 "eventId": {
@@ -3614,12 +4804,12 @@ const docTemplate = `{
                 "scorekeepers": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handlers.CrewMemberDTO"
+                        "$ref": "#/definitions/internal_presentation_http_handlers.CrewMemberDTO"
                     }
                 }
             }
         },
-        "handlers.EventResponse": {
+        "internal_presentation_http_handlers.EventResponse": {
             "type": "object",
             "properties": {
                 "bannerUrl": {
@@ -3635,12 +4825,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "discipline": {
-                    "$ref": "#/definitions/handlers.RefDTO"
+                    "$ref": "#/definitions/internal_presentation_http_handlers.RefDTO"
                 },
                 "divisions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handlers.DivisionDTO"
+                        "$ref": "#/definitions/internal_presentation_http_handlers.DivisionDTO"
                     }
                 },
                 "endDate": {
@@ -3653,7 +4843,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "location": {
-                    "$ref": "#/definitions/handlers.LocationDTO"
+                    "$ref": "#/definitions/internal_presentation_http_handlers.LocationDTO"
                 },
                 "logoUrl": {
                     "type": "string"
@@ -3673,7 +4863,7 @@ const docTemplate = `{
                 "teamPreview": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handlers.TeamPreviewDTO"
+                        "$ref": "#/definitions/internal_presentation_http_handlers.TeamPreviewDTO"
                     }
                 },
                 "teamsCount": {
@@ -3684,7 +4874,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.GenerateEmbedTokenRequestDTO": {
+        "internal_presentation_http_handlers.GenerateEmbedTokenRequestDTO": {
             "type": "object",
             "required": [
                 "first_name",
@@ -3716,14 +4906,14 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.LocationDTO": {
+        "internal_presentation_http_handlers.LocationDTO": {
             "type": "object",
             "properties": {
                 "city": {
                     "type": "string"
                 },
                 "country": {
-                    "$ref": "#/definitions/handlers.CountryDTO"
+                    "$ref": "#/definitions/internal_presentation_http_handlers.CountryDTO"
                 },
                 "id": {
                     "type": "string"
@@ -3733,7 +4923,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.NaturalLanguageQueryRequestDTO": {
+        "internal_presentation_http_handlers.NaturalLanguageQueryRequestDTO": {
             "type": "object",
             "required": [
                 "question",
@@ -3754,7 +4944,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.PlayerResponse": {
+        "internal_presentation_http_handlers.PlayerResponse": {
             "type": "object",
             "properties": {
                 "gender": {
@@ -3780,7 +4970,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.PlayerStatResponse": {
+        "internal_presentation_http_handlers.PlayerStatResponse": {
             "type": "object",
             "properties": {
                 "assists": {
@@ -3806,7 +4996,27 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.RefDTO": {
+        "internal_presentation_http_handlers.ProfileResponseDTO": {
+            "type": "object",
+            "properties": {
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.RefDTO": {
             "type": "object",
             "properties": {
                 "id": {
@@ -3817,7 +5027,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.SpiritBreakdownAverage": {
+        "internal_presentation_http_handlers.SpiritBreakdownAverage": {
             "type": "object",
             "properties": {
                 "attitude": {
@@ -3837,14 +5047,14 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.SpiritLeaderboardResponse": {
+        "internal_presentation_http_handlers.SpiritLeaderboardResponse": {
             "type": "object",
             "properties": {
                 "averageScore": {
                     "type": "number"
                 },
                 "breakdown": {
-                    "$ref": "#/definitions/handlers.SpiritBreakdownAverage"
+                    "$ref": "#/definitions/internal_presentation_http_handlers.SpiritBreakdownAverage"
                 },
                 "gamesPlayed": {
                     "type": "integer"
@@ -3857,7 +5067,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.TeamPreviewDTO": {
+        "internal_presentation_http_handlers.TeamPreviewDTO": {
             "type": "object",
             "properties": {
                 "id": {
@@ -3871,11 +5081,11 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.TeamResponse": {
+        "internal_presentation_http_handlers.TeamResponse": {
             "type": "object",
             "properties": {
                 "captain": {
-                    "$ref": "#/definitions/handlers.PlayerResponse"
+                    "$ref": "#/definitions/internal_presentation_http_handlers.PlayerResponse"
                 },
                 "divisionName": {
                     "type": "string"
@@ -3911,18 +5121,18 @@ const docTemplate = `{
                 "players": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handlers.PlayerResponse"
+                        "$ref": "#/definitions/internal_presentation_http_handlers.PlayerResponse"
                     }
                 },
                 "playersCount": {
                     "type": "integer"
                 },
                 "spiritCaptain": {
-                    "$ref": "#/definitions/handlers.PlayerResponse"
+                    "$ref": "#/definitions/internal_presentation_http_handlers.PlayerResponse"
                 }
             }
         },
-        "handlers.UpdateGameScoreRequestDTO": {
+        "internal_presentation_http_handlers.UpdateGameScoreRequestDTO": {
             "type": "object",
             "required": [
                 "reason"
@@ -3942,7 +5152,18 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.UpdateSpiritScoreRequestDTO": {
+        "internal_presentation_http_handlers.UpdateProfileRequestDTO": {
+            "type": "object",
+            "properties": {
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.UpdateSpiritScoreRequestDTO": {
             "type": "object",
             "required": [
                 "reason"
@@ -3979,244 +5200,17 @@ const docTemplate = `{
                 }
             }
         },
-        "metadata.ContinentDTO": {
+        "internal_presentation_http_handlers.UpdateUserRequestDTO": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "world_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "metadata.CountryDTO": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "continent_id": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                }
-            }
-        },
-        "metadata.WorldDTO": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                }
-            }
-        },
-        "ranking.AdvanceTeamsRequest": {
-            "type": "object",
-            "required": [
-                "division_id",
-                "target_round_id",
-                "top_n"
-            ],
-            "properties": {
-                "division_id": {
-                    "type": "string"
-                },
-                "field_id": {
-                    "type": "string"
-                },
-                "game_duration": {
-                    "type": "integer",
-                    "minimum": 30
-                },
-                "generate_bracket": {
+                "isActive": {
                     "type": "boolean"
                 },
-                "notify_teams": {
-                    "type": "boolean"
-                },
-                "start_time": {
+                "name": {
                     "type": "string"
                 },
-                "target_round_id": {
+                "role": {
                     "type": "string"
-                },
-                "top_n": {
-                    "type": "integer",
-                    "minimum": 1
-                }
-            }
-        },
-        "ranking.AdvanceTeamsResponse": {
-            "type": "object",
-            "properties": {
-                "advanced_teams": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "bracket_id": {
-                    "type": "string"
-                },
-                "games_created": {
-                    "type": "integer"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "target_round_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "ranking.DivisionStandingsResponse": {
-            "type": "object",
-            "properties": {
-                "division_id": {
-                    "type": "string"
-                },
-                "division_name": {
-                    "type": "string"
-                },
-                "last_updated": {
-                    "type": "string"
-                },
-                "ranking_criteria": {
-                    "$ref": "#/definitions/ranking.RankingCriteria"
-                },
-                "standings": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/ranking.TeamStanding"
-                    }
-                }
-            }
-        },
-        "ranking.RankingCriteria": {
-            "type": "object",
-            "properties": {
-                "points_per_draw": {
-                    "type": "integer"
-                },
-                "points_per_loss": {
-                    "type": "integer"
-                },
-                "points_per_win": {
-                    "type": "integer"
-                },
-                "primary_sort": {
-                    "description": "\"points\", \"win_percentage\", \"goal_diff\"",
-                    "type": "string"
-                },
-                "secondary_sort": {
-                    "description": "Tiebreakers: [\"goal_diff\", \"head_to_head\", \"goals_for\"]",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "ranking.TeamStanding": {
-            "type": "object",
-            "properties": {
-                "draws": {
-                    "type": "integer"
-                },
-                "games_played": {
-                    "type": "integer"
-                },
-                "goal_difference": {
-                    "type": "integer"
-                },
-                "goals_against": {
-                    "type": "integer"
-                },
-                "goals_for": {
-                    "type": "integer"
-                },
-                "last_updated": {
-                    "type": "string"
-                },
-                "losses": {
-                    "type": "integer"
-                },
-                "points": {
-                    "type": "integer"
-                },
-                "rank": {
-                    "type": "integer"
-                },
-                "spirit_average": {
-                    "type": "number"
-                },
-                "team_id": {
-                    "type": "string"
-                },
-                "team_name": {
-                    "type": "string"
-                },
-                "win_percentage": {
-                    "type": "number"
-                },
-                "wins": {
-                    "type": "integer"
-                }
-            }
-        },
-        "ranking.UpdateRankingCriteriaRequest": {
-            "type": "object",
-            "required": [
-                "points_per_draw",
-                "points_per_win",
-                "primary_sort"
-            ],
-            "properties": {
-                "points_per_draw": {
-                    "type": "integer",
-                    "minimum": 0
-                },
-                "points_per_loss": {
-                    "type": "integer",
-                    "minimum": 0
-                },
-                "points_per_win": {
-                    "type": "integer",
-                    "minimum": 0
-                },
-                "primary_sort": {
-                    "type": "string",
-                    "enum": [
-                        "points",
-                        "win_percentage",
-                        "goal_diff"
-                    ]
-                },
-                "secondary_sort": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         }
@@ -4233,8 +5227,8 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:4000",
-	BasePath:         "/api/v1",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "DigiGameStats API",
 	Description:      "API for DigiGameStats reimplementation.",

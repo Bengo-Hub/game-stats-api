@@ -19,6 +19,29 @@ import (
 
 // Note: Pagination uses ParsePagination from pagination.go
 
+// ============================================
+// Request DTOs
+// ============================================
+
+type CreateEventRequest struct {
+	Name        string     `json:"name" validate:"required"`
+	Slug        string     `json:"slug" validate:"required"`
+	Year        int        `json:"year"`
+	StartDate   time.Time  `json:"startDate"`
+	EndDate     time.Time  `json:"endDate"`
+	Status      string     `json:"status"`
+	Description *string    `json:"description,omitempty"`
+	Categories  []string   `json:"categories,omitempty"`
+	LogoUrl     *string    `json:"logoUrl,omitempty"`
+	BannerUrl   *string    `json:"bannerUrl,omitempty"`
+	LocationID  *uuid.UUID `json:"locationId,omitempty"`
+}
+
+type CreateDivisionRequest struct {
+	Name         string `json:"name" validate:"required"`
+	DivisionType string `json:"divisionType" validate:"required,oneof=pool bracket"`
+}
+
 type EventHandler struct {
 	client *ent.Client
 }
@@ -33,23 +56,23 @@ func NewEventHandler(client *ent.Client) *EventHandler {
 
 // EventResponse represents an event in API responses
 type EventResponse struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Slug        string            `json:"slug"`
-	Year        int               `json:"year"`
-	StartDate   time.Time         `json:"startDate"`
-	EndDate     time.Time         `json:"endDate"`
-	Status      string            `json:"status"`
-	Description *string           `json:"description,omitempty"`
-	Categories  []string          `json:"categories,omitempty"`
-	LogoUrl     *string           `json:"logoUrl,omitempty"`
-	BannerUrl   *string           `json:"bannerUrl,omitempty"`
-	TeamsCount  int               `json:"teamsCount"`
-	GamesCount  int               `json:"gamesCount"`
-	Discipline  *RefDTO           `json:"discipline,omitempty"`
-	Location    *LocationDTO      `json:"location,omitempty"`
-	Divisions   []DivisionDTO     `json:"divisions,omitempty"`
-	TeamPreview []TeamPreviewDTO  `json:"teamPreview,omitempty"`
+	ID          string           `json:"id"`
+	Name        string           `json:"name"`
+	Slug        string           `json:"slug"`
+	Year        int              `json:"year"`
+	StartDate   time.Time        `json:"startDate"`
+	EndDate     time.Time        `json:"endDate"`
+	Status      string           `json:"status"`
+	Description *string          `json:"description,omitempty"`
+	Categories  []string         `json:"categories,omitempty"`
+	LogoUrl     *string          `json:"logoUrl,omitempty"`
+	BannerUrl   *string          `json:"bannerUrl,omitempty"`
+	TeamsCount  int              `json:"teamsCount"`
+	GamesCount  int              `json:"gamesCount"`
+	Discipline  *RefDTO          `json:"discipline,omitempty"`
+	Location    *LocationDTO     `json:"location,omitempty"`
+	Divisions   []DivisionDTO    `json:"divisions,omitempty"`
+	TeamPreview []TeamPreviewDTO `json:"teamPreview,omitempty"`
 }
 
 type RefDTO struct {
@@ -185,6 +208,117 @@ func toEventResponse(e *ent.Event) EventResponse {
 	}
 
 	return resp
+}
+
+// ============================================
+// Create Event Handler
+// ============================================
+
+// CreateEvent godoc
+// @Summary Create a new event
+// @Description Create a new tournament or event
+// @Tags events
+// @Accept json
+// @Produce json
+// @Param request body CreateEventRequest true "Event data"
+// @Success 201 {object} EventResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Security BearerAuth
+// @Router /events [post]
+func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var req CreateEventRequest
+	if err := parseJSONBody(r, &req); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	builder := h.client.Event.Create().
+		SetName(req.Name).
+		SetSlug(req.Slug).
+		SetYear(req.Year).
+		SetStartDate(req.StartDate).
+		SetEndDate(req.EndDate).
+		SetStatus(req.Status)
+
+	if req.Description != nil {
+		builder.SetDescription(*req.Description)
+	}
+	if req.Categories != nil {
+		builder.SetCategories(req.Categories)
+	}
+	if req.LogoUrl != nil {
+		builder.SetLogoURL(*req.LogoUrl)
+	}
+	if req.BannerUrl != nil {
+		builder.SetBannerURL(*req.BannerUrl)
+	}
+	if req.LocationID != nil {
+		builder.SetLocationID(*req.LocationID)
+	}
+
+	e, err := builder.Save(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to create event")
+		return
+	}
+
+	respondJSON(w, http.StatusCreated, toEventResponse(e))
+}
+
+// ============================================
+// Create Division Handler
+// ============================================
+
+// CreateDivisionPool godoc
+// @Summary Create a new division pool
+// @Description Create a new division pool for an event
+// @Tags events
+// @Accept json
+// @Produce json
+// @Param id path string true "Event ID" format(uuid)
+// @Param request body CreateDivisionRequest true "Division data"
+// @Success 201 {object} DivisionDTO
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Security BearerAuth
+// @Router /events/{id}/divisions [post]
+func (h *EventHandler) CreateDivisionPool(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	eventIDStr := chi.URLParam(r, "id")
+	eventID, err := uuid.Parse(eventIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid event ID path parameter")
+		return
+	}
+
+	var req CreateDivisionRequest
+	if err := parseJSONBody(r, &req); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	dp, err := h.client.DivisionPool.Create().
+		SetName(req.Name).
+		SetDivisionType(req.DivisionType).
+		SetEventID(eventID).
+		Save(ctx)
+
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to create division pool")
+		return
+	}
+
+	respondJSON(w, http.StatusCreated, DivisionDTO{
+		ID:           dp.ID.String(),
+		Name:         dp.Name,
+		DivisionType: dp.DivisionType,
+		TeamsCount:   0,
+	})
 }
 
 // ============================================

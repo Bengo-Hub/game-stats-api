@@ -4,10 +4,10 @@ import psycopg2
 import requests
 
 # Base URLs
-API_URL = os.getenv("TEST_API_URL", "http://localhost:8080/api/v1")
-DB_HOST = os.getenv("TEST_DB_HOST", "localhost")
+API_URL = os.getenv("TEST_API_URL", "https://ultistatsapi.ultichange.org/api/v1")
+DB_HOST = os.getenv("TEST_DB_HOST", "localhost")  # We will port-forward to this
 DB_PORT = os.getenv("TEST_DB_PORT", "5432")
-DB_NAME = os.getenv("TEST_DB_NAME", "game_stats")
+DB_NAME = os.getenv("TEST_DB_NAME", "gamestats")
 DB_USER = os.getenv("TEST_DB_USER", "postgres")
 DB_PASS = os.getenv("TEST_DB_PASS", "postgres")
 

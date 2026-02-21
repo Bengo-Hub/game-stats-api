@@ -1,6 +1,5 @@
-basePath: /api/v1
 definitions:
-  admin.UpdateGameScoreResponse:
+  github_com_bengobox_game-stats-api_internal_application_admin.UpdateGameScoreResponse:
     properties:
       audit_log_id:
         type: string
@@ -13,7 +12,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  admin.UpdateSpiritScoreResponse:
+  github_com_bengobox_game-stats-api_internal_application_admin.UpdateSpiritScoreResponse:
     properties:
       attitude:
         type: integer
@@ -34,7 +33,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  analytics.Dashboard:
+  github_com_bengobox_game-stats-api_internal_application_analytics.Dashboard:
     properties:
       dashboard_title:
         type: string
@@ -49,7 +48,7 @@ definitions:
       url:
         type: string
     type: object
-  analytics.EventStatistics:
+  github_com_bengobox_game-stats-api_internal_application_analytics.EventStatistics:
     properties:
       average_spirit_score:
         type: number
@@ -62,7 +61,7 @@ definitions:
       scheduled_games:
         type: integer
       top_scorer:
-        $ref: '#/definitions/analytics.PlayerStat'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_analytics.PlayerStat'
       total_games:
         type: integer
       total_players:
@@ -70,7 +69,7 @@ definitions:
       total_teams:
         type: integer
     type: object
-  analytics.GenerateEmbedTokenResponse:
+  github_com_bengobox_game-stats-api_internal_application_analytics.GenerateEmbedTokenResponse:
     properties:
       dashboard_uuid:
         type: string
@@ -79,16 +78,16 @@ definitions:
       token:
         type: string
     type: object
-  analytics.ListDashboardsResponse:
+  github_com_bengobox_game-stats-api_internal_application_analytics.ListDashboardsResponse:
     properties:
       dashboards:
         items:
-          $ref: '#/definitions/analytics.Dashboard'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_analytics.Dashboard'
         type: array
       total:
         type: integer
     type: object
-  analytics.NaturalLanguageQueryResponse:
+  github_com_bengobox_game-stats-api_internal_application_analytics.NaturalLanguageQueryResponse:
     properties:
       confidence:
         type: number
@@ -106,7 +105,7 @@ definitions:
       warning:
         type: string
     type: object
-  analytics.PlayerStat:
+  github_com_bengobox_game-stats-api_internal_application_analytics.PlayerStat:
     properties:
       assists:
         type: integer
@@ -123,7 +122,7 @@ definitions:
       team_name:
         type: string
     type: object
-  auth.LoginRequest:
+  github_com_bengobox_game-stats-api_internal_application_auth.LoginRequest:
     properties:
       email:
         type: string
@@ -133,30 +132,30 @@ definitions:
     - email
     - password
     type: object
-  auth.LoginResponse:
+  github_com_bengobox_game-stats-api_internal_application_auth.LoginResponse:
     properties:
       access_token:
         type: string
       refresh_token:
         type: string
       user:
-        $ref: '#/definitions/auth.UserDTO'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.UserDTO'
     type: object
-  auth.RefreshRequest:
+  github_com_bengobox_game-stats-api_internal_application_auth.RefreshRequest:
     properties:
       refresh_token:
         type: string
     required:
     - refresh_token
     type: object
-  auth.TokenResponse:
+  github_com_bengobox_game-stats-api_internal_application_auth.TokenResponse:
     properties:
       access_token:
         type: string
       refresh_token:
         type: string
     type: object
-  auth.UserDTO:
+  github_com_bengobox_game-stats-api_internal_application_auth.UserDTO:
     properties:
       email:
         type: string
@@ -167,18 +166,18 @@ definitions:
       role:
         type: string
     type: object
-  bracket.BracketNode:
+  github_com_bengobox_game-stats-api_internal_application_bracket.BracketNode:
     properties:
       game_id:
         type: string
       id:
         type: string
       left_child:
-        $ref: '#/definitions/bracket.BracketNode'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.BracketNode'
       position:
         type: integer
       right_child:
-        $ref: '#/definitions/bracket.BracketNode'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.BracketNode'
       round:
         type: integer
       scheduled_time:
@@ -204,7 +203,7 @@ definitions:
       winner_id:
         type: string
     type: object
-  bracket.BracketType:
+  github_com_bengobox_game-stats-api_internal_application_bracket.BracketType:
     enum:
     - single_elimination
     - double_elimination
@@ -212,11 +211,11 @@ definitions:
     x-enum-varnames:
     - BracketTypeSingleElimination
     - BracketTypeDoubleElimination
-  bracket.GenerateBracketRequest:
+  github_com_bengobox_game-stats-api_internal_application_bracket.GenerateBracketRequest:
     properties:
       bracket_type:
         allOf:
-        - $ref: '#/definitions/bracket.BracketType'
+        - $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.BracketType'
         enum:
         - single_elimination
         - double_elimination
@@ -233,7 +232,7 @@ definitions:
         type: string
       teams:
         items:
-          $ref: '#/definitions/bracket.TeamSeed'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.TeamSeed'
         minItems: 2
         type: array
     required:
@@ -245,14 +244,14 @@ definitions:
     - start_time
     - teams
     type: object
-  bracket.GenerateBracketResponse:
+  github_com_bengobox_game-stats-api_internal_application_bracket.GenerateBracketResponse:
     properties:
       bracket_id:
         type: string
       bracket_tree:
-        $ref: '#/definitions/bracket.BracketNode'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.BracketNode'
       bracket_type:
-        $ref: '#/definitions/bracket.BracketType'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.BracketType'
       created_at:
         type: string
       event_id:
@@ -268,12 +267,12 @@ definitions:
       total_rounds:
         type: integer
     type: object
-  bracket.GetBracketResponse:
+  github_com_bengobox_game-stats-api_internal_application_bracket.GetBracketResponse:
     properties:
       bracket_tree:
-        $ref: '#/definitions/bracket.BracketNode'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.BracketNode'
       bracket_type:
-        $ref: '#/definitions/bracket.BracketType'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.BracketType'
       event_id:
         type: string
       round_id:
@@ -285,7 +284,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  bracket.TeamSeed:
+  github_com_bengobox_game-stats-api_internal_application_bracket.TeamSeed:
     properties:
       seed:
         minimum: 1
@@ -299,7 +298,7 @@ definitions:
     - team_id
     - team_name
     type: object
-  gamemanagement.CreateGameRequest:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.CreateGameRequest:
     properties:
       allocated_time_minutes:
         minimum: 1
@@ -335,7 +334,7 @@ definitions:
     - name
     - scheduled_time
     type: object
-  gamemanagement.CreateGameRoundRequest:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.CreateGameRoundRequest:
     properties:
       end_date:
         type: string
@@ -360,14 +359,14 @@ definitions:
     - name
     - round_type
     type: object
-  gamemanagement.FieldSummaryDTO:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.FieldSummaryDTO:
     properties:
       id:
         type: string
       name:
         type: string
     type: object
-  gamemanagement.GameDTO:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO:
     properties:
       actual_end_time:
         type: string
@@ -376,19 +375,19 @@ definitions:
       allocated_time_minutes:
         type: integer
       away_team:
-        $ref: '#/definitions/gamemanagement.TeamSummaryDTO'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO'
       away_team_score:
         type: integer
       created_at:
         type: string
       field_location:
-        $ref: '#/definitions/gamemanagement.FieldSummaryDTO'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.FieldSummaryDTO'
       first_pull_by:
         type: string
       game_round:
-        $ref: '#/definitions/gamemanagement.GameRoundSummaryDTO'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundSummaryDTO'
       home_team:
-        $ref: '#/definitions/gamemanagement.TeamSummaryDTO'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO'
       home_team_score:
         type: integer
       id:
@@ -401,7 +400,7 @@ definitions:
       scheduled_time:
         type: string
       scorekeeper:
-        $ref: '#/definitions/gamemanagement.UserSummaryDTO'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.UserSummaryDTO'
       status:
         type: string
       stoppage_time_seconds:
@@ -411,7 +410,7 @@ definitions:
       version:
         type: integer
     type: object
-  gamemanagement.GameEventDTO:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameEventDTO:
     properties:
       created_at:
         type: string
@@ -429,7 +428,7 @@ definitions:
       second:
         type: integer
     type: object
-  gamemanagement.GameRoundDTO:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundDTO:
     properties:
       created_at:
         type: string
@@ -452,7 +451,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  gamemanagement.GameRoundSummaryDTO:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundSummaryDTO:
     properties:
       id:
         type: string
@@ -461,14 +460,14 @@ definitions:
       round_type:
         type: string
     type: object
-  gamemanagement.GameTimelineDTO:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameTimelineDTO:
     properties:
       events:
         items:
-          $ref: '#/definitions/gamemanagement.GameEventDTO'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameEventDTO'
         type: array
     type: object
-  gamemanagement.RecordScoreRequest:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.RecordScoreRequest:
     properties:
       assists:
         minimum: 0
@@ -491,7 +490,7 @@ definitions:
     required:
     - player_id
     type: object
-  gamemanagement.RecordStoppageRequest:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.RecordStoppageRequest:
     properties:
       duration_seconds:
         minimum: 1
@@ -503,7 +502,7 @@ definitions:
     - duration_seconds
     - reason
     type: object
-  gamemanagement.ScoringDTO:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.ScoringDTO:
     properties:
       assists:
         type: integer
@@ -519,12 +518,18 @@ definitions:
         type: string
       player_name:
         type: string
+      player_number:
+        type: integer
+      team_id:
+        type: string
+      team_name:
+        type: string
       turns:
         type: integer
       updated_at:
         type: string
     type: object
-  gamemanagement.SpiritScoreDTO:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.SpiritScoreDTO:
     properties:
       attitude:
         type: integer
@@ -545,22 +550,22 @@ definitions:
       rules_knowledge:
         type: integer
       scored_by_team:
-        $ref: '#/definitions/gamemanagement.TeamSummaryDTO'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO'
       submitted_by:
-        $ref: '#/definitions/gamemanagement.UserSummaryDTO'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.UserSummaryDTO'
       team:
-        $ref: '#/definitions/gamemanagement.TeamSummaryDTO'
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO'
       total_score:
         type: integer
       updated_at:
         type: string
     type: object
-  gamemanagement.StartGameRequest:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.StartGameRequest:
     properties:
       first_pull_by:
         type: string
     type: object
-  gamemanagement.SubmitSpiritScoreRequest:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.SubmitSpiritScoreRequest:
     properties:
       attitude:
         maximum: 4
@@ -601,7 +606,7 @@ definitions:
     - scored_by_team_id
     - team_id
     type: object
-  gamemanagement.TeamSpiritAverageDTO:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSpiritAverageDTO:
     properties:
       attitude:
         type: number
@@ -622,7 +627,7 @@ definitions:
       team_name:
         type: string
     type: object
-  gamemanagement.TeamSummaryDTO:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO:
     properties:
       id:
         type: string
@@ -631,7 +636,7 @@ definitions:
       name:
         type: string
     type: object
-  gamemanagement.UpdateGameRequest:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.UpdateGameRequest:
     properties:
       allocated_time_minutes:
         minimum: 1
@@ -649,7 +654,7 @@ definitions:
       scorekeeper_id:
         type: string
     type: object
-  gamemanagement.UpdateGameRoundRequest:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.UpdateGameRoundRequest:
     properties:
       end_date:
         type: string
@@ -668,7 +673,7 @@ definitions:
       start_date:
         type: string
     type: object
-  gamemanagement.UserSummaryDTO:
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.UserSummaryDTO:
     properties:
       email:
         type: string
@@ -677,7 +682,190 @@ definitions:
       name:
         type: string
     type: object
-  handlers.AuditLogDTO:
+  github_com_bengobox_game-stats-api_internal_application_metadata.ContinentDTO:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+      world_id:
+        type: string
+    type: object
+  github_com_bengobox_game-stats-api_internal_application_metadata.CountryDTO:
+    properties:
+      code:
+        type: string
+      continent_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
+  github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
+  github_com_bengobox_game-stats-api_internal_application_ranking.AdvanceTeamsRequest:
+    properties:
+      division_id:
+        type: string
+      field_id:
+        type: string
+      game_duration:
+        minimum: 30
+        type: integer
+      generate_bracket:
+        type: boolean
+      notify_teams:
+        type: boolean
+      start_time:
+        type: string
+      target_round_id:
+        type: string
+      top_n:
+        minimum: 1
+        type: integer
+    required:
+    - division_id
+    - target_round_id
+    - top_n
+    type: object
+  github_com_bengobox_game-stats-api_internal_application_ranking.AdvanceTeamsResponse:
+    properties:
+      advanced_teams:
+        items:
+          type: string
+        type: array
+      bracket_id:
+        type: string
+      games_created:
+        type: integer
+      message:
+        type: string
+      target_round_id:
+        type: string
+    type: object
+  github_com_bengobox_game-stats-api_internal_application_ranking.DivisionStandingsResponse:
+    properties:
+      division_id:
+        type: string
+      division_name:
+        type: string
+      last_updated:
+        type: string
+      ranking_criteria:
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.RankingCriteria'
+      standings:
+        items:
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.TeamStanding'
+        type: array
+    type: object
+  github_com_bengobox_game-stats-api_internal_application_ranking.RankingCriteria:
+    properties:
+      points_per_draw:
+        type: integer
+      points_per_loss:
+        type: integer
+      points_per_win:
+        type: integer
+      primary_sort:
+        description: '"points", "win_percentage", "goal_diff"'
+        type: string
+      secondary_sort:
+        description: 'Tiebreakers: ["goal_diff", "head_to_head", "goals_for"]'
+        items:
+          type: string
+        type: array
+    type: object
+  github_com_bengobox_game-stats-api_internal_application_ranking.TeamStanding:
+    properties:
+      draws:
+        type: integer
+      games_played:
+        type: integer
+      goal_difference:
+        type: integer
+      goals_against:
+        type: integer
+      goals_for:
+        type: integer
+      last_updated:
+        type: string
+      losses:
+        type: integer
+      points:
+        type: integer
+      rank:
+        type: integer
+      spirit_average:
+        type: number
+      team_id:
+        type: string
+      team_name:
+        type: string
+      win_percentage:
+        type: number
+      wins:
+        type: integer
+    type: object
+  github_com_bengobox_game-stats-api_internal_application_ranking.UpdateRankingCriteriaRequest:
+    properties:
+      points_per_draw:
+        minimum: 0
+        type: integer
+      points_per_loss:
+        minimum: 0
+        type: integer
+      points_per_win:
+        minimum: 0
+        type: integer
+      primary_sort:
+        enum:
+        - points
+        - win_percentage
+        - goal_diff
+        type: string
+      secondary_sort:
+        items:
+          type: string
+        type: array
+    required:
+    - points_per_draw
+    - points_per_win
+    - primary_sort
+    type: object
+  internal_presentation_http_handlers.AdminUserDTO:
+    properties:
+      avatarUrl:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      lastLoginAt:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  internal_presentation_http_handlers.AuditLogDTO:
     properties:
       action:
         example: update
@@ -713,7 +901,14 @@ definitions:
         example: admin@example.com
         type: string
     type: object
-  handlers.CountryDTO:
+  internal_presentation_http_handlers.ChangePasswordRequestDTO:
+    properties:
+      currentPassword:
+        type: string
+      newPassword:
+        type: string
+    type: object
+  internal_presentation_http_handlers.CountryDTO:
     properties:
       code:
         type: string
@@ -722,7 +917,111 @@ definitions:
       name:
         type: string
     type: object
-  handlers.CrewMemberDTO:
+  internal_presentation_http_handlers.CreateDivisionRequest:
+    properties:
+      divisionType:
+        enum:
+        - pool
+        - bracket
+        type: string
+      name:
+        type: string
+    required:
+    - divisionType
+    - name
+    type: object
+  internal_presentation_http_handlers.CreateEventRequest:
+    properties:
+      bannerUrl:
+        type: string
+      categories:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      endDate:
+        type: string
+      locationId:
+        type: string
+      logoUrl:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+      startDate:
+        type: string
+      status:
+        type: string
+      year:
+        type: integer
+    required:
+    - name
+    - slug
+    type: object
+  internal_presentation_http_handlers.CreatePlayerRequest:
+    properties:
+      eventId:
+        type: string
+      gender:
+        enum:
+        - M
+        - F
+        - X
+        type: string
+      isCaptain:
+        type: boolean
+      isSpiritCaptain:
+        type: boolean
+      jerseyNumber:
+        type: integer
+      name:
+        type: string
+      profileImageUrl:
+        type: string
+      teamId:
+        type: string
+    required:
+    - eventId
+    - gender
+    - name
+    - teamId
+    type: object
+  internal_presentation_http_handlers.CreateTeamRequest:
+    properties:
+      divisionPoolId:
+        type: string
+      eventId:
+        type: string
+      homeLocationId:
+        type: string
+      initialSeed:
+        type: integer
+      logoUrl:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        type: string
+    required:
+    - divisionPoolId
+    - eventId
+    - name
+    type: object
+  internal_presentation_http_handlers.CreateUserRequestDTO:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+    type: object
+  internal_presentation_http_handlers.CrewMemberDTO:
     properties:
       avatarUrl:
         type: string
@@ -733,7 +1032,7 @@ definitions:
       role:
         type: string
     type: object
-  handlers.DivisionDTO:
+  internal_presentation_http_handlers.DivisionDTO:
     properties:
       divisionType:
         type: string
@@ -744,18 +1043,18 @@ definitions:
       teamsCount:
         type: integer
     type: object
-  handlers.ErrorResponse:
+  internal_presentation_http_handlers.ErrorResponse:
     description: Error response structure
     properties:
       error:
         example: error message
         type: string
     type: object
-  handlers.EventCrewResponse:
+  internal_presentation_http_handlers.EventCrewResponse:
     properties:
       admins:
         items:
-          $ref: '#/definitions/handlers.CrewMemberDTO'
+          $ref: '#/definitions/internal_presentation_http_handlers.CrewMemberDTO'
         type: array
       eventId:
         type: string
@@ -763,10 +1062,10 @@ definitions:
         type: string
       scorekeepers:
         items:
-          $ref: '#/definitions/handlers.CrewMemberDTO'
+          $ref: '#/definitions/internal_presentation_http_handlers.CrewMemberDTO'
         type: array
     type: object
-  handlers.EventResponse:
+  internal_presentation_http_handlers.EventResponse:
     properties:
       bannerUrl:
         type: string
@@ -777,10 +1076,10 @@ definitions:
       description:
         type: string
       discipline:
-        $ref: '#/definitions/handlers.RefDTO'
+        $ref: '#/definitions/internal_presentation_http_handlers.RefDTO'
       divisions:
         items:
-          $ref: '#/definitions/handlers.DivisionDTO'
+          $ref: '#/definitions/internal_presentation_http_handlers.DivisionDTO'
         type: array
       endDate:
         type: string
@@ -789,7 +1088,7 @@ definitions:
       id:
         type: string
       location:
-        $ref: '#/definitions/handlers.LocationDTO'
+        $ref: '#/definitions/internal_presentation_http_handlers.LocationDTO'
       logoUrl:
         type: string
       name:
@@ -802,14 +1101,14 @@ definitions:
         type: string
       teamPreview:
         items:
-          $ref: '#/definitions/handlers.TeamPreviewDTO'
+          $ref: '#/definitions/internal_presentation_http_handlers.TeamPreviewDTO'
         type: array
       teamsCount:
         type: integer
       year:
         type: integer
     type: object
-  handlers.GenerateEmbedTokenRequestDTO:
+  internal_presentation_http_handlers.GenerateEmbedTokenRequestDTO:
     properties:
       event_id:
         type: string
@@ -831,18 +1130,18 @@ definitions:
     - user_id
     - username
     type: object
-  handlers.LocationDTO:
+  internal_presentation_http_handlers.LocationDTO:
     properties:
       city:
         type: string
       country:
-        $ref: '#/definitions/handlers.CountryDTO'
+        $ref: '#/definitions/internal_presentation_http_handlers.CountryDTO'
       id:
         type: string
       name:
         type: string
     type: object
-  handlers.NaturalLanguageQueryRequestDTO:
+  internal_presentation_http_handlers.NaturalLanguageQueryRequestDTO:
     properties:
       context:
         type: string
@@ -856,7 +1155,7 @@ definitions:
     - question
     - user_id
     type: object
-  handlers.PlayerResponse:
+  internal_presentation_http_handlers.PlayerResponse:
     properties:
       gender:
         type: string
@@ -873,7 +1172,7 @@ definitions:
       profileImageUrl:
         type: string
     type: object
-  handlers.PlayerStatResponse:
+  internal_presentation_http_handlers.PlayerStatResponse:
     properties:
       assists:
         type: integer
@@ -890,14 +1189,27 @@ definitions:
       teamName:
         type: string
     type: object
-  handlers.RefDTO:
+  internal_presentation_http_handlers.ProfileResponseDTO:
+    properties:
+      avatarUrl:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  internal_presentation_http_handlers.RefDTO:
     properties:
       id:
         type: string
       name:
         type: string
     type: object
-  handlers.SpiritBreakdownAverage:
+  internal_presentation_http_handlers.SpiritBreakdownAverage:
     properties:
       attitude:
         type: number
@@ -910,12 +1222,12 @@ definitions:
       rulesKnowledge:
         type: number
     type: object
-  handlers.SpiritLeaderboardResponse:
+  internal_presentation_http_handlers.SpiritLeaderboardResponse:
     properties:
       averageScore:
         type: number
       breakdown:
-        $ref: '#/definitions/handlers.SpiritBreakdownAverage'
+        $ref: '#/definitions/internal_presentation_http_handlers.SpiritBreakdownAverage'
       gamesPlayed:
         type: integer
       teamId:
@@ -923,7 +1235,7 @@ definitions:
       teamName:
         type: string
     type: object
-  handlers.TeamPreviewDTO:
+  internal_presentation_http_handlers.TeamPreviewDTO:
     properties:
       id:
         type: string
@@ -932,10 +1244,10 @@ definitions:
       name:
         type: string
     type: object
-  handlers.TeamResponse:
+  internal_presentation_http_handlers.TeamResponse:
     properties:
       captain:
-        $ref: '#/definitions/handlers.PlayerResponse'
+        $ref: '#/definitions/internal_presentation_http_handlers.PlayerResponse'
       divisionName:
         type: string
       divisionPoolId:
@@ -959,14 +1271,14 @@ definitions:
         type: string
       players:
         items:
-          $ref: '#/definitions/handlers.PlayerResponse'
+          $ref: '#/definitions/internal_presentation_http_handlers.PlayerResponse'
         type: array
       playersCount:
         type: integer
       spiritCaptain:
-        $ref: '#/definitions/handlers.PlayerResponse'
+        $ref: '#/definitions/internal_presentation_http_handlers.PlayerResponse'
     type: object
-  handlers.UpdateGameScoreRequestDTO:
+  internal_presentation_http_handlers.UpdateGameScoreRequestDTO:
     properties:
       away_score:
         minimum: 0
@@ -980,7 +1292,14 @@ definitions:
     required:
     - reason
     type: object
-  handlers.UpdateSpiritScoreRequestDTO:
+  internal_presentation_http_handlers.UpdateProfileRequestDTO:
+    properties:
+      avatarUrl:
+        type: string
+      name:
+        type: string
+    type: object
+  internal_presentation_http_handlers.UpdateSpiritScoreRequestDTO:
     properties:
       attitude:
         maximum: 4
@@ -1008,169 +1327,15 @@ definitions:
     required:
     - reason
     type: object
-  metadata.ContinentDTO:
+  internal_presentation_http_handlers.UpdateUserRequestDTO:
     properties:
-      id:
-        type: string
-      name:
-        type: string
-      slug:
-        type: string
-      world_id:
-        type: string
-    type: object
-  metadata.CountryDTO:
-    properties:
-      code:
-        type: string
-      continent_id:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      slug:
-        type: string
-    type: object
-  metadata.WorldDTO:
-    properties:
-      id:
-        type: string
-      name:
-        type: string
-      slug:
-        type: string
-    type: object
-  ranking.AdvanceTeamsRequest:
-    properties:
-      division_id:
-        type: string
-      field_id:
-        type: string
-      game_duration:
-        minimum: 30
-        type: integer
-      generate_bracket:
+      isActive:
         type: boolean
-      notify_teams:
-        type: boolean
-      start_time:
+      name:
         type: string
-      target_round_id:
-        type: string
-      top_n:
-        minimum: 1
-        type: integer
-    required:
-    - division_id
-    - target_round_id
-    - top_n
-    type: object
-  ranking.AdvanceTeamsResponse:
-    properties:
-      advanced_teams:
-        items:
-          type: string
-        type: array
-      bracket_id:
-        type: string
-      games_created:
-        type: integer
-      message:
-        type: string
-      target_round_id:
+      role:
         type: string
     type: object
-  ranking.DivisionStandingsResponse:
-    properties:
-      division_id:
-        type: string
-      division_name:
-        type: string
-      last_updated:
-        type: string
-      ranking_criteria:
-        $ref: '#/definitions/ranking.RankingCriteria'
-      standings:
-        items:
-          $ref: '#/definitions/ranking.TeamStanding'
-        type: array
-    type: object
-  ranking.RankingCriteria:
-    properties:
-      points_per_draw:
-        type: integer
-      points_per_loss:
-        type: integer
-      points_per_win:
-        type: integer
-      primary_sort:
-        description: '"points", "win_percentage", "goal_diff"'
-        type: string
-      secondary_sort:
-        description: 'Tiebreakers: ["goal_diff", "head_to_head", "goals_for"]'
-        items:
-          type: string
-        type: array
-    type: object
-  ranking.TeamStanding:
-    properties:
-      draws:
-        type: integer
-      games_played:
-        type: integer
-      goal_difference:
-        type: integer
-      goals_against:
-        type: integer
-      goals_for:
-        type: integer
-      last_updated:
-        type: string
-      losses:
-        type: integer
-      points:
-        type: integer
-      rank:
-        type: integer
-      spirit_average:
-        type: number
-      team_id:
-        type: string
-      team_name:
-        type: string
-      win_percentage:
-        type: number
-      wins:
-        type: integer
-    type: object
-  ranking.UpdateRankingCriteriaRequest:
-    properties:
-      points_per_draw:
-        minimum: 0
-        type: integer
-      points_per_loss:
-        minimum: 0
-        type: integer
-      points_per_win:
-        minimum: 0
-        type: integer
-      primary_sort:
-        enum:
-        - points
-        - win_percentage
-        - goal_diff
-        type: string
-      secondary_sort:
-        items:
-          type: string
-        type: array
-    required:
-    - points_per_draw
-    - points_per_win
-    - primary_sort
-    type: object
-host: localhost:4000
 info:
   contact:
     email: support@swagger.io
@@ -1184,6 +1349,38 @@ info:
   title: DigiGameStats API
   version: "1.0"
 paths:
+  /admin/audit-logs:
+    get:
+      description: Get all audit log entries, newest first
+      parameters:
+      - default: 50
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_presentation_http_handlers.AuditLogDTO'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get audit logs (Admin only)
+      tags:
+      - admin
   /admin/games/{id}/audit:
     get:
       description: Retrieves all administrative changes made to a game
@@ -1201,16 +1398,16 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/handlers.AuditLogDTO'
+              $ref: '#/definitions/internal_presentation_http_handlers.AuditLogDTO'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get game audit history (Admin only)
@@ -1227,26 +1424,26 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.UpdateGameScoreRequestDTO'
+          $ref: '#/definitions/internal_presentation_http_handlers.UpdateGameScoreRequestDTO'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/admin.UpdateGameScoreResponse'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_admin.UpdateGameScoreResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update game score (Admin only)
@@ -1269,29 +1466,205 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.UpdateSpiritScoreRequestDTO'
+          $ref: '#/definitions/internal_presentation_http_handlers.UpdateSpiritScoreRequestDTO'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/admin.UpdateSpiritScoreResponse'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_admin.UpdateSpiritScoreResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update spirit score (Admin only)
+      tags:
+      - admin
+  /admin/system/health:
+    get:
+      description: Get system health information including counts and service status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get system health (Admin only)
+      tags:
+      - admin
+  /admin/users:
+    get:
+      description: List all users in the system with their roles and status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_presentation_http_handlers.AdminUserDTO'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List all users (Admin only)
+      tags:
+      - admin
+    post:
+      consumes:
+      - application/json
+      description: Create a new user with specified role
+      parameters:
+      - description: User creation request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.CreateUserRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.AdminUserDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new user (Admin only)
+      tags:
+      - admin
+  /admin/users/{id}:
+    delete:
+      description: Soft deletes a user account
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a user (Admin only)
+      tags:
+      - admin
+    get:
+      description: Get a specific user's details by ID
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.AdminUserDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user details (Admin only)
+      tags:
+      - admin
+    put:
+      consumes:
+      - application/json
+      description: Update a user's name, role, or active status
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User update request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.UpdateUserRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.AdminUserDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a user (Admin only)
       tags:
       - admin
   /analytics/dashboards:
@@ -1305,11 +1678,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/analytics.ListDashboardsResponse'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_analytics.ListDashboardsResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List all Superset dashboards
@@ -1333,19 +1706,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/analytics.Dashboard'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_analytics.Dashboard'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get dashboard by UUID
@@ -1368,22 +1741,22 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.GenerateEmbedTokenRequestDTO'
+          $ref: '#/definitions/internal_presentation_http_handlers.GenerateEmbedTokenRequestDTO'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/analytics.GenerateEmbedTokenResponse'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_analytics.GenerateEmbedTokenResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Generate embed token for dashboard
@@ -1407,19 +1780,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/analytics.EventStatistics'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_analytics.EventStatistics'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get event statistics
@@ -1440,7 +1813,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       summary: Analytics health check
       tags:
       - analytics
@@ -1456,22 +1829,22 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.NaturalLanguageQueryRequestDTO'
+          $ref: '#/definitions/internal_presentation_http_handlers.NaturalLanguageQueryRequestDTO'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/analytics.NaturalLanguageQueryResponse'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_analytics.NaturalLanguageQueryResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Process natural language query
@@ -1492,7 +1865,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/bracket.GetBracketResponse'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.GetBracketResponse'
         "400":
           description: Bad Request
           schema:
@@ -1525,14 +1898,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/bracket.GenerateBracketRequest'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.GenerateBracketRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/bracket.GenerateBracketResponse'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.GenerateBracketResponse'
         "400":
           description: Bad Request
           schema:
@@ -1563,7 +1936,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/bracket.GetBracketResponse'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_bracket.GetBracketResponse'
         "400":
           description: Bad Request
           schema:
@@ -1596,14 +1969,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.LoginRequest'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.LoginResponse'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.LoginResponse'
         "401":
           description: unauthorized
           schema:
@@ -1622,14 +1995,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.RefreshRequest'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.RefreshRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.TokenResponse'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.TokenResponse'
         "401":
           description: unauthorized
           schema:
@@ -1654,7 +2027,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/ranking.UpdateRankingCriteriaRequest'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.UpdateRankingCriteriaRequest'
       produces:
       - application/json
       responses:
@@ -1667,15 +2040,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update division ranking criteria
@@ -1692,14 +2065,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/gamemanagement.CreateGameRequest'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.CreateGameRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/gamemanagement.GameDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO'
         "400":
           description: bad request
           schema:
@@ -1729,19 +2102,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ranking.DivisionStandingsResponse'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.DivisionStandingsResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get division standings
@@ -1758,31 +2131,63 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/ranking.AdvanceTeamsRequest'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.AdvanceTeamsRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ranking.AdvanceTeamsResponse'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.AdvanceTeamsResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Advance teams to next round
       tags:
       - rankings
+  /events:
+    post:
+      consumes:
+      - application/json
+      description: Create a new tournament or event
+      parameters:
+      - description: Event data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.CreateEventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.EventResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new event
+      tags:
+      - events
   /events/{event_id}/rounds:
     get:
       description: List all rounds for an event
@@ -1799,7 +2204,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/gamemanagement.GameRoundDTO'
+              $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundDTO'
             type: array
         "400":
           description: bad request
@@ -1823,14 +2228,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/gamemanagement.CreateGameRoundRequest'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.CreateGameRoundRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/gamemanagement.GameRoundDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundDTO'
         "400":
           description: bad request
           schema:
@@ -1840,6 +2245,48 @@ paths:
       summary: Create Game Round
       tags:
       - game-rounds
+  /events/{id}/divisions:
+    post:
+      consumes:
+      - application/json
+      description: Create a new division pool for an event
+      parameters:
+      - description: Event ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Division data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.CreateDivisionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.DivisionDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new division pool
+      tags:
+      - events
   /games:
     get:
       description: List games with optional filters
@@ -1881,7 +2328,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/gamemanagement.GameDTO'
+              $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO'
             type: array
         "400":
           description: bad request
@@ -1929,7 +2376,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gamemanagement.GameDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO'
         "404":
           description: not found
           schema:
@@ -1952,14 +2399,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/gamemanagement.UpdateGameRequest'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.UpdateGameRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gamemanagement.GameDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO'
         "400":
           description: bad request
           schema:
@@ -1988,7 +2435,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gamemanagement.GameDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO'
         "400":
           description: bad request
           schema:
@@ -2021,7 +2468,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gamemanagement.GameDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO'
         "400":
           description: bad request
           schema:
@@ -2055,7 +2502,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/gamemanagement.ScoringDTO'
+              $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.ScoringDTO'
             type: array
         "404":
           description: not found
@@ -2079,14 +2526,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/gamemanagement.RecordScoreRequest'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.RecordScoreRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gamemanagement.GameDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO'
         "400":
           description: bad request
           schema:
@@ -2121,16 +2568,16 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/gamemanagement.SpiritScoreDTO'
+              $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.SpiritScoreDTO'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       summary: Get spirit scores for a game
       tags:
       - Spirit Scores
@@ -2150,30 +2597,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/gamemanagement.SubmitSpiritScoreRequest'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.SubmitSpiritScoreRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/gamemanagement.SpiritScoreDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.SpiritScoreDTO'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       summary: Submit spirit score for a game
       tags:
       - Spirit Scores
@@ -2193,14 +2640,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/gamemanagement.StartGameRequest'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.StartGameRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gamemanagement.GameDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO'
         "400":
           description: bad request
           schema:
@@ -2234,14 +2681,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/gamemanagement.RecordStoppageRequest'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.RecordStoppageRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gamemanagement.GameDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO'
         "400":
           description: bad request
           schema:
@@ -2293,7 +2740,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gamemanagement.GameTimelineDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameTimelineDTO'
         "404":
           description: not found
           schema:
@@ -2313,7 +2760,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/metadata.ContinentDTO'
+              $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.ContinentDTO'
             type: array
       summary: List Continents
       tags:
@@ -2335,7 +2782,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/metadata.CountryDTO'
+              $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.CountryDTO'
             type: array
       summary: List Countries
       tags:
@@ -2352,7 +2799,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/metadata.WorldDTO'
+              $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO'
             type: array
       summary: List Worlds
       tags:
@@ -2379,11 +2826,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.UserDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_auth.UserDTO'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get Current User
@@ -2455,16 +2902,16 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/handlers.EventResponse'
+              $ref: '#/definitions/internal_presentation_http_handlers.EventResponse'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       summary: List events
       tags:
       - events
@@ -2483,19 +2930,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.EventResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.EventResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       summary: Get an event
       tags:
       - events
@@ -2514,15 +2961,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.EventCrewResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.EventCrewResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       summary: Get event crew/staff
       tags:
       - events
@@ -2531,7 +2978,7 @@ paths:
       description: Get top players by goals or assists
       parameters:
       - default: goals
-        description: 'Category: goals or assists'
+        description: 'Category: goals, assists, or total (goals+assists)'
         in: query
         name: category
         type: string
@@ -2562,16 +3009,16 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/handlers.PlayerStatResponse'
+              $ref: '#/definitions/internal_presentation_http_handlers.PlayerStatResponse'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       summary: Get player leaderboard
       tags:
       - leaderboards
@@ -2606,16 +3053,16 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/handlers.SpiritLeaderboardResponse'
+              $ref: '#/definitions/internal_presentation_http_handlers.SpiritLeaderboardResponse'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       summary: Get spirit leaderboard
       tags:
       - leaderboards
@@ -2654,16 +3101,16 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/handlers.TeamResponse'
+              $ref: '#/definitions/internal_presentation_http_handlers.TeamResponse'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       summary: List teams
       tags:
       - teams
@@ -2683,19 +3130,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.TeamResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.TeamResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       summary: Get a team
       tags:
       - teams
@@ -2714,7 +3161,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gamemanagement.GameRoundDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundDTO'
         "404":
           description: not found
           schema:
@@ -2737,14 +3184,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/gamemanagement.UpdateGameRoundRequest'
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.UpdateGameRoundRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gamemanagement.GameRoundDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundDTO'
         "400":
           description: bad request
           schema:
@@ -2758,6 +3205,197 @@ paths:
       summary: Update Game Round
       tags:
       - game-rounds
+  /settings/account:
+    delete:
+      description: Permanently delete the authenticated user's account
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete own account
+      tags:
+      - settings
+  /settings/password:
+    put:
+      consumes:
+      - application/json
+      description: Change the authenticated user's password
+      parameters:
+      - description: Password change request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.ChangePasswordRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - settings
+  /settings/profile:
+    get:
+      description: Get the authenticated user's profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ProfileResponseDTO'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - settings
+    put:
+      consumes:
+      - application/json
+      description: Update the authenticated user's name or avatar
+      parameters:
+      - description: Profile update request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.UpdateProfileRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ProfileResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update current user profile
+      tags:
+      - settings
+  /teams:
+    post:
+      consumes:
+      - application/json
+      description: Create a new team for an event
+      parameters:
+      - description: Team data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.CreateTeamRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.TeamResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new team
+      tags:
+      - teams
+  /teams/{id}/players:
+    post:
+      consumes:
+      - application/json
+      description: Add a new player to an existing team
+      parameters:
+      - description: Team ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Player data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.CreatePlayerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.PlayerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add a player to a team
+      tags:
+      - teams
   /teams/{id}/spirit-average:
     get:
       description: Get average spirit scores received by a team across all games
@@ -2774,15 +3412,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gamemanagement.TeamSpiritAverageDTO'
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSpiritAverageDTO'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       summary: Get team spirit average
       tags:
       - Spirit Scores

@@ -230,7 +230,7 @@ func (s *TextToSQLService) applyRLSFilters(sql string, eventID *uuid.UUID) strin
 	// Simple RLS: Add WHERE clause for event_id
 	// This is a basic implementation - production would parse SQL AST
 	sqlUpper := strings.ToUpper(sql)
-	
+
 	if strings.Contains(sqlUpper, "FROM GAMES") || strings.Contains(sqlUpper, "FROM TEAMS") {
 		// Add event filtering via JOIN if not already present
 		if !strings.Contains(sqlUpper, "WHERE") {

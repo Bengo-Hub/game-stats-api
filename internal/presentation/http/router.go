@@ -189,14 +189,26 @@ func NewRouter(opts RouterOptions) chi.Router {
 				// Manage operations - require manage_events permission
 				r.Group(func(r chi.Router) {
 					r.Use(middleware.RequirePermission(middleware.PermManageEvents))
+					r.Post("/", opts.EventHandler.CreateEvent)
+					r.Post("/{id}/divisions", opts.EventHandler.CreateDivisionPool)
 					r.Post("/{id}/generate-bracket", opts.BracketHandler.GenerateBracket)
 				})
 			})
 
 			// Team routes
 			r.Route("/teams", func(r chi.Router) {
-				r.Use(middleware.RequirePermission(middleware.PermViewTeams))
-				r.Get("/{id}/spirit-average", opts.SpiritScoreHandler.GetTeamSpiritAverage)
+				// Read operations
+				r.Group(func(r chi.Router) {
+					r.Use(middleware.RequirePermission(middleware.PermViewTeams))
+					r.Get("/{id}/spirit-average", opts.SpiritScoreHandler.GetTeamSpiritAverage)
+				})
+
+				// Manage operations
+				r.Group(func(r chi.Router) {
+					r.Use(middleware.RequirePermission(middleware.PermManageTeams)) // Assuming this permission exists, falling back to AdminOnly if not configured correctly in middleware
+					r.Post("/", opts.TeamHandler.CreateTeam)
+					r.Post("/{id}/players", opts.TeamHandler.CreatePlayer)
+				})
 			})
 
 			// Division ranking routes

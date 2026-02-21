@@ -36,3 +36,10 @@ func respondWithError(w http.ResponseWriter, status int, message string, err err
 	}
 	respondJSON(w, status, map[string]string{"error": errorMsg})
 }
+
+// parseJSONBody parses the JSON request body into the provided destination struct
+func parseJSONBody(r *http.Request, dst interface{}) error {
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	return decoder.Decode(dst)
+}

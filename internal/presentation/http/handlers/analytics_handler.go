@@ -183,6 +183,7 @@ func (h *AnalyticsHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 		"service": "superset",
 	})
 }
+
 // NaturalLanguageQuery godoc
 // @Summary Process natural language query
 // @Description Converts natural language to SQL using Ollama LLM and executes the query
@@ -229,6 +230,7 @@ type NaturalLanguageQueryRequestDTO struct {
 	UserID   uuid.UUID  `json:"user_id" validate:"required"`
 	Context  string     `json:"context,omitempty"`
 }
+
 // GenerateEmbedTokenRequestDTO is the DTO for embed token generation
 type GenerateEmbedTokenRequestDTO struct {
 	UserID    uuid.UUID   `json:"user_id" validate:"required"`

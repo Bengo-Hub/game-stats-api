@@ -11,6 +11,31 @@ import (
 	"github.com/google/uuid"
 )
 
+// ============================================
+// Request DTOs
+// ============================================
+
+type CreateTeamRequest struct {
+	Name           string                 `json:"name" validate:"required"`
+	EventID        uuid.UUID              `json:"eventId" validate:"required"`
+	DivisionPoolID uuid.UUID              `json:"divisionPoolId" validate:"required"`
+	HomeLocationID *uuid.UUID             `json:"homeLocationId,omitempty"`
+	LogoURL        *string                `json:"logoUrl,omitempty"`
+	InitialSeed    *int                   `json:"initialSeed,omitempty"`
+	Metadata       map[string]interface{} `json:"metadata,omitempty"`
+}
+
+type CreatePlayerRequest struct {
+	Name            string    `json:"name" validate:"required"`
+	EventID         uuid.UUID `json:"eventId" validate:"required"`
+	TeamID          uuid.UUID `json:"teamId" validate:"required"`
+	Gender          string    `json:"gender" validate:"required,oneof=M F X"`
+	JerseyNumber    *int      `json:"jerseyNumber,omitempty"`
+	ProfileImageURL *string   `json:"profileImageUrl,omitempty"`
+	IsCaptain       bool      `json:"isCaptain"`
+	IsSpiritCaptain bool      `json:"isSpiritCaptain"`
+}
+
 type TeamHandler struct {
 	client *ent.Client
 }
@@ -226,4 +251,132 @@ func (h *TeamHandler) GetTeam(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondJSON(w, http.StatusOK, toTeamResponse(t))
+}
+
+// ============================================
+// Create Team Handler
+// ============================================
+
+// CreateTeam godoc
+// @Summary Create a new team
+// @Description Create a new team for an event
+// @Tags teams
+// @Accept json
+// @Produce json
+// @Param request body CreateTeamRequest true "Team data"
+// @Success 201 {object} TeamResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Security BearerAuth
+// @Router /teams [post]
+func (h *TeamHandler) CreateTeam(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var req CreateTeamRequest
+	if err := parseJSONBody(r, &req); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	builder := h.client.Team.Create().
+		SetName(req.Name).
+		SetDivisionPoolID(req.DivisionPoolID)
+
+	if req.HomeLocationID != nil {
+		builder.SetHomeLocationID(*req.HomeLocationID)
+	}
+	if req.LogoURL != nil {
+		builder.SetLogoURL(*req.LogoURL)
+	}
+	if req.InitialSeed != nil {
+		builder.SetInitialSeed(*req.InitialSeed)
+	}
+	if req.Metadata != nil {
+		builder.SetMetadata(req.Metadata)
+	}
+
+	t, err := builder.Save(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to create team")
+		return
+	}
+
+	// Refetch to get related division pool and event data
+	tFull, err := h.client.Team.Query().
+		Where(team.ID(t.ID)).
+		WithDivisionPool().
+		WithHomeLocation().
+		WithPlayers().
+		Only(ctx)
+
+	if err != nil {
+		// Output the basic model if full fetch fails
+		respondJSON(w, http.StatusCreated, toTeamResponse(t))
+		return
+	}
+
+	respondJSON(w, http.StatusCreated, toTeamResponse(tFull))
+}
+
+// ============================================
+// Create Player Handler
+// ============================================
+
+// CreatePlayer godoc
+// @Summary Add a player to a team
+// @Description Add a new player to an existing team
+// @Tags teams
+// @Accept json
+// @Produce json
+// @Param id path string true "Team ID" format(uuid)
+// @Param request body CreatePlayerRequest true "Player data"
+// @Success 201 {object} PlayerResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Security BearerAuth
+// @Router /teams/{id}/players [post]
+func (h *TeamHandler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	teamIDStr := chi.URLParam(r, "id")
+	teamID, err := uuid.Parse(teamIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid team ID path parameter")
+		return
+	}
+
+	var req CreatePlayerRequest
+	if err := parseJSONBody(r, &req); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Verify path matches request
+	if req.TeamID != teamID {
+		respondError(w, http.StatusBadRequest, "Team ID in path and body must match")
+		return
+	}
+
+	builder := h.client.Player.Create().
+		SetName(req.Name).
+		SetGender(req.Gender).
+		SetTeamID(teamID).
+		SetIsCaptain(req.IsCaptain).
+		SetIsSpiritCaptain(req.IsSpiritCaptain)
+
+	if req.JerseyNumber != nil {
+		builder.SetJerseyNumber(*req.JerseyNumber)
+	}
+	if req.ProfileImageURL != nil {
+		builder.SetProfileImageURL(*req.ProfileImageURL)
+	}
+
+	p, err := builder.Save(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to create player")
+		return
+	}
+
+	respondJSON(w, http.StatusCreated, toPlayerResponse(p))
 }

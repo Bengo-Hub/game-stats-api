@@ -190,9 +190,9 @@ func (s *Service) calculateTeamStanding(team *ent.Team, games []*ent.Game, crite
 
 // headToHeadRecord stores the result of head-to-head games between two teams
 type headToHeadRecord struct {
-	wins       int
-	losses     int
-	goalDiff   int
+	wins     int
+	losses   int
+	goalDiff int
 }
 
 // buildHeadToHeadMap creates a map of head-to-head records between all teams
