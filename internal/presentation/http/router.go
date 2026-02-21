@@ -181,11 +181,12 @@ func NewRouter(opts RouterOptions) chi.Router {
 				})
 			})
 
-			// Event routes (rounds and brackets)
 			r.Route("/events", func(r chi.Router) {
 				// Read operations
 				r.Group(func(r chi.Router) {
 					r.Use(middleware.RequirePermission(middleware.PermViewEvents))
+					r.Get("/", opts.EventHandler.ListEvents)
+					r.Get("/{id}", opts.EventHandler.GetEvent)
 					r.Get("/{event_id}/rounds", opts.GameRoundHandler.ListGameRounds)
 					r.Get("/{id}/bracket", opts.BracketHandler.GetEventBracket)
 				})
@@ -194,16 +195,18 @@ func NewRouter(opts RouterOptions) chi.Router {
 				r.Group(func(r chi.Router) {
 					r.Use(middleware.RequirePermission(middleware.PermManageEvents))
 					r.Post("/", opts.EventHandler.CreateEvent)
+					r.Put("/{id}", opts.EventHandler.UpdateEvent)
 					r.Post("/{id}/divisions", opts.EventHandler.CreateDivisionPool)
 					r.Post("/{id}/generate-bracket", opts.BracketHandler.GenerateBracket)
 				})
 			})
 
-			// Team routes
 			r.Route("/teams", func(r chi.Router) {
 				// Read operations
 				r.Group(func(r chi.Router) {
 					r.Use(middleware.RequirePermission(middleware.PermViewTeams))
+					r.Get("/", opts.TeamHandler.ListTeams)
+					r.Get("/{id}", opts.TeamHandler.GetTeam)
 					r.Get("/{id}/spirit-average", opts.SpiritScoreHandler.GetTeamSpiritAverage)
 				})
 

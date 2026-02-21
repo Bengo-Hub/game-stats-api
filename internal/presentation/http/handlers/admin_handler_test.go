@@ -12,6 +12,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/internal/application/admin"
 	"github.com/bengobox/game-stats-api/internal/domain/audit"
+	"github.com/bengobox/game-stats-api/internal/domain/game"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/cache"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/repository"
 	"github.com/go-chi/chi/v5"
@@ -55,6 +56,10 @@ func (m *MockGameRepository) ListByDivision(ctx context.Context, divisionID uuid
 }
 
 func (m *MockGameRepository) ListByRound(ctx context.Context, roundID uuid.UUID) ([]*ent.Game, error) {
+	return nil, nil
+}
+
+func (m *MockGameRepository) ListWithFilter(ctx context.Context, filter game.SearchFilter) ([]*ent.Game, error) {
 	return nil, nil
 }
 

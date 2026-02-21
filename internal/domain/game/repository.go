@@ -8,10 +8,22 @@ import (
 	"github.com/google/uuid"
 )
 
+type SearchFilter struct {
+	EventID        *uuid.UUID
+	DivisionPoolID *uuid.UUID
+	Status         *string
+	FieldID        *uuid.UUID
+	StartDate      *time.Time
+	EndDate        *time.Time
+	Limit          int
+	Offset         int
+}
+
 type Repository interface {
 	Create(ctx context.Context, game *ent.Game) (*ent.Game, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*ent.Game, error)
 	GetByIDWithRelations(ctx context.Context, id uuid.UUID) (*ent.Game, error)
+	ListWithFilter(ctx context.Context, filter SearchFilter) ([]*ent.Game, error)
 	ListByDivision(ctx context.Context, divisionID uuid.UUID) ([]*ent.Game, error)
 	ListByRound(ctx context.Context, roundID uuid.UUID) ([]*ent.Game, error)
 	ListByStatus(ctx context.Context, status string) ([]*ent.Game, error)

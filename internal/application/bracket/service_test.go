@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bengobox/game-stats-api/ent"
+	"github.com/bengobox/game-stats-api/internal/domain/game"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -46,6 +47,10 @@ func (m *MockGameRepository) ListByRound(ctx context.Context, roundID uuid.UUID)
 		return nil, args.Error(1)
 	}
 	return args.Get(0).([]*ent.Game), args.Error(1)
+}
+
+func (m *MockGameRepository) ListWithFilter(ctx context.Context, filter game.SearchFilter) ([]*ent.Game, error) {
+	return nil, nil
 }
 
 type MockGameRoundRepository struct {

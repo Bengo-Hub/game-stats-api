@@ -7,9 +7,11 @@ import (
 
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/event"
 	entfield "github.com/bengobox/game-stats-api/ent/field"
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/gameround"
+	domaingame "github.com/bengobox/game-stats-api/internal/domain/game"
 	"github.com/google/uuid"
 )
 
@@ -149,6 +151,53 @@ func (r *gameRepository) List(ctx context.Context, limit, offset int) ([]*ent.Ga
 		Order(ent.Desc(game.FieldScheduledTime)).
 		Limit(limit).
 		Offset(offset).
+		All(ctx)
+}
+
+func (r *gameRepository) ListWithFilter(ctx context.Context, filter domaingame.SearchFilter) ([]*ent.Game, error) {
+	query := r.client.Game.Query().Where(game.DeletedAtIsNil())
+
+	if filter.EventID != nil {
+		// Need to join through division_pool to reach event
+		query = query.Where(game.HasDivisionPoolWith(divisionpool.HasEventWith(event.ID(*filter.EventID))))
+	}
+
+	if filter.DivisionPoolID != nil {
+		query = query.Where(game.HasDivisionPoolWith(divisionpool.ID(*filter.DivisionPoolID)))
+	}
+
+	if filter.Status != nil && *filter.Status != "" && *filter.Status != "all" {
+		query = query.Where(game.Status(*filter.Status))
+	}
+
+	if filter.FieldID != nil {
+		query = query.Where(game.HasFieldLocationWith(entfield.ID(*filter.FieldID)))
+	}
+
+	if filter.StartDate != nil && filter.EndDate != nil {
+		query = query.Where(
+			game.And(
+				game.ScheduledTimeGTE(*filter.StartDate),
+				game.ScheduledTimeLTE(*filter.EndDate),
+			),
+		)
+	}
+
+	// Default sort by schedule time
+	query = query.Order(ent.Asc(game.FieldScheduledTime))
+
+	if filter.Limit > 0 {
+		query = query.Limit(filter.Limit)
+	}
+	if filter.Offset > 0 {
+		query = query.Offset(filter.Offset)
+	}
+
+	return query.
+		WithHomeTeam().
+		WithAwayTeam().
+		WithFieldLocation().
+		WithGameRound().
 		All(ctx)
 }
 

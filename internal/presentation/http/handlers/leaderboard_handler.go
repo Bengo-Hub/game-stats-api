@@ -4,8 +4,12 @@ import (
 	"net/http"
 
 	"github.com/bengobox/game-stats-api/ent"
+	"github.com/bengobox/game-stats-api/ent/player"
+	"github.com/bengobox/game-stats-api/ent/predicate"
 	"github.com/bengobox/game-stats-api/ent/scoring"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
+	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/google/uuid"
 )
 
 type LeaderboardHandler struct {
@@ -66,8 +70,21 @@ func (h *LeaderboardHandler) GetPlayerLeaderboard(w http.ResponseWriter, r *http
 	if category == "" {
 		category = "goals"
 	}
+	teamIdStr := r.URL.Query().Get("teamId")
+	gender := r.URL.Query().Get("gender")
 
 	pagination := ParsePagination(r)
+
+	// Build player predicates for filtering
+	var playerPreds []predicate.Player
+	if teamIdStr != "" {
+		if teamId, err := uuid.Parse(teamIdStr); err == nil {
+			playerPreds = append(playerPreds, player.HasTeamWith(team.IDEQ(teamId)))
+		}
+	}
+	if gender != "" {
+		playerPreds = append(playerPreds, player.GenderEQ(gender))
+	}
 
 	// Query scoring records to calculate player stats
 	query := h.client.Scoring.Query().
@@ -76,6 +93,10 @@ func (h *LeaderboardHandler) GetPlayerLeaderboard(w http.ResponseWriter, r *http
 			pq.WithTeam()
 		}).
 		WithGame()
+
+	if len(playerPreds) > 0 {
+		query = query.Where(scoring.HasPlayerWith(playerPreds...))
+	}
 
 	scores, err := query.All(ctx)
 	if err != nil {

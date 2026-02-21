@@ -178,9 +178,6 @@ func (s *Service) GetGame(ctx context.Context, id uuid.UUID) (*GameDTO, error) {
 }
 
 func (s *Service) ListGames(ctx context.Context, filter ListGamesFilter) ([]*GameDTO, error) {
-	var games []*ent.Game
-	var err error
-
 	// Set default pagination if not provided
 	limit := filter.Limit
 	if limit <= 0 {
@@ -194,39 +191,25 @@ func (s *Service) ListGames(ctx context.Context, filter ListGamesFilter) ([]*Gam
 		offset = 0
 	}
 
-	if filter.DivisionPoolID != nil {
-		games, err = s.gameRepo.ListByDivision(ctx, *filter.DivisionPoolID)
-	} else if filter.Status != nil {
-		games, err = s.gameRepo.ListByStatus(ctx, *filter.Status)
-	} else if filter.FieldID != nil {
-		games, err = s.gameRepo.ListByField(ctx, *filter.FieldID)
-	} else if filter.StartDate != nil && filter.EndDate != nil {
-		games, err = s.gameRepo.ListByDateRange(ctx, *filter.StartDate, *filter.EndDate)
-	} else {
-		// No filter - list all games with pagination
-		games, err = s.gameRepo.List(ctx, limit, offset)
+	searchFilter := game.SearchFilter{
+		EventID:        filter.EventID,
+		DivisionPoolID: filter.DivisionPoolID,
+		Status:         filter.Status,
+		FieldID:        filter.FieldID,
+		StartDate:      filter.StartDate,
+		EndDate:        filter.EndDate,
+		Limit:          limit,
+		Offset:         offset,
 	}
 
+	games, err := s.gameRepo.ListWithFilter(ctx, searchFilter)
 	if err != nil {
 		return nil, err
 	}
 
-	// Apply pagination to filtered results (List method already has pagination applied)
-	if filter.DivisionPoolID != nil || filter.Status != nil || filter.FieldID != nil || (filter.StartDate != nil && filter.EndDate != nil) {
-		if offset < len(games) {
-			end := offset + limit
-			if end > len(games) {
-				end = len(games)
-			}
-			games = games[offset:end]
-		} else {
-			games = []*ent.Game{}
-		}
-	}
-
 	result := make([]*GameDTO, len(games))
-	for i, game := range games {
-		result[i] = mapGameToDTO(game)
+	for i, g := range games {
+		result[i] = mapGameToDTO(g)
 	}
 
 	return result, nil

@@ -203,6 +203,7 @@ type TeamSpiritAverageDTO struct {
 
 // List filters
 type ListGamesFilter struct {
+	EventID        *uuid.UUID
 	DivisionPoolID *uuid.UUID
 	Status         *string
 	FieldID        *uuid.UUID

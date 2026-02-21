@@ -42,6 +42,20 @@ type CreateDivisionRequest struct {
 	DivisionType string `json:"divisionType" validate:"required,oneof=pool bracket"`
 }
 
+type UpdateEventRequest struct {
+	Name         *string    `json:"name"`
+	Slug         *string    `json:"slug"`
+	Description  *string    `json:"description"`
+	StartDate    *time.Time `json:"startDate"`
+	EndDate      *time.Time `json:"endDate"`
+	DisciplineID *uuid.UUID `json:"disciplineId"`
+	LocationID   *uuid.UUID `json:"locationId"`
+	Categories   []string   `json:"categories"`
+	LogoUrl      *string    `json:"logoUrl"`
+	BannerUrl    *string    `json:"bannerUrl"`
+	Status       *string    `json:"status"`
+}
+
 type EventHandler struct {
 	client *ent.Client
 }
@@ -266,6 +280,127 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondJSON(w, http.StatusCreated, toEventResponse(e))
+}
+
+// UpdateEvent updates an existing event
+// @Summary Update an event
+// @Tags events
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Event ID" format(uuid)
+// @Param request body UpdateEventRequest true "Update Event Request"
+// @Success 200 {object} EventResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /events/{id} [put]
+func (h *EventHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid event ID format")
+		return
+	}
+
+	var req UpdateEventRequest
+	if err := parseJSONBody(r, &req); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	ctx := r.Context()
+
+	// Check if event exists
+	_, err = h.client.Event.Get(ctx, id)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			respondError(w, http.StatusNotFound, "Event not found")
+			return
+		}
+		respondError(w, http.StatusInternalServerError, "Failed to check event")
+		return
+	}
+
+	// Prepare update
+	updater := h.client.Event.UpdateOneID(id)
+
+	if req.Name != nil {
+		updater.SetName(*req.Name)
+	}
+	if req.Slug != nil {
+		updater.SetSlug(*req.Slug)
+	}
+	if req.Description != nil {
+		if *req.Description == "" {
+			updater.ClearDescription()
+		} else {
+			updater.SetDescription(*req.Description)
+		}
+	}
+	if req.StartDate != nil {
+		updater.SetStartDate(*req.StartDate)
+	}
+	if req.EndDate != nil {
+		updater.SetEndDate(*req.EndDate)
+	}
+	if req.Status != nil {
+		updater.SetStatus(*req.Status)
+	}
+	if req.Categories != nil {
+		updater.SetCategories(req.Categories)
+	}
+	if req.LogoUrl != nil {
+		if *req.LogoUrl == "" {
+			updater.ClearLogoURL()
+		} else {
+			updater.SetLogoURL(*req.LogoUrl)
+		}
+	}
+	if req.BannerUrl != nil {
+		if *req.BannerUrl == "" {
+			updater.ClearBannerURL()
+		} else {
+			updater.SetBannerURL(*req.BannerUrl)
+		}
+	}
+
+	// Handle discipline
+	if req.DisciplineID != nil {
+		updater.SetDisciplineID(*req.DisciplineID)
+	}
+
+	// Handle location
+	if req.LocationID != nil {
+		updater.SetLocationID(*req.LocationID)
+	}
+
+	// Execute update
+	eUpdated, err := updater.Save(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to update event")
+		return
+	}
+
+	// Reload with edges for response
+	eUpdated, err = h.client.Event.Query().
+		Where(event.ID(eUpdated.ID)).
+		WithDiscipline().
+		WithLocation(func(lq *ent.LocationQuery) {
+			lq.WithCountry()
+		}).
+		WithDivisionPools(func(dpq *ent.DivisionPoolQuery) {
+			dpq.WithTeams()
+			dpq.WithGames()
+		}).
+		Only(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to load updated event")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, toEventResponse(eUpdated))
 }
 
 // ============================================

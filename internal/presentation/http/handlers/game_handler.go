@@ -111,6 +111,15 @@ func (h *GameHandler) ListGames(w http.ResponseWriter, r *http.Request) {
 		Offset: pagination.Offset,
 	}
 
+	if eventStr := r.URL.Query().Get("event_id"); eventStr != "" {
+		eventID, err := uuid.Parse(eventStr)
+		if err != nil {
+			http.Error(w, "invalid event_id", http.StatusBadRequest)
+			return
+		}
+		filter.EventID = &eventID
+	}
+
 	if divisionStr := r.URL.Query().Get("division_pool_id"); divisionStr != "" {
 		divisionID, err := uuid.Parse(divisionStr)
 		if err != nil {
