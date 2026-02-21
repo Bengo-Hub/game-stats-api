@@ -27,6 +27,10 @@ type Config struct {
 
 	// Swagger
 	SwaggerHost string
+
+	// Media
+	UploadsDir string
+	ApiBaseURL string
 }
 
 func Load() *Config {
@@ -44,6 +48,8 @@ func Load() *Config {
 	viper.SetDefault("RUN_MIGRATION", "true")
 	viper.SetDefault("FIXTURES_DIR", "./scripts/fixtures")
 	viper.SetDefault("SWAGGER_HOST", "localhost:4000")
+	viper.SetDefault("UPLOADS_DIR", "./uploads")
+	viper.SetDefault("API_BASE_URL", "http://localhost:4000")
 
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
@@ -70,6 +76,9 @@ func Load() *Config {
 		RunMigration: viper.GetBool("RUN_MIGRATION"),
 		FixturesDir:  viper.GetString("FIXTURES_DIR"),
 		SwaggerHost:  viper.GetString("SWAGGER_HOST"),
+
+		UploadsDir: viper.GetString("UPLOADS_DIR"),
+		ApiBaseURL: viper.GetString("API_BASE_URL"),
 	}
 }
 

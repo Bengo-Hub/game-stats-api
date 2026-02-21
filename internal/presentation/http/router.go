@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/bengobox/game-stats-api/internal/config"
 	"github.com/bengobox/game-stats-api/internal/presentation/http/handlers"
@@ -31,6 +32,7 @@ type RouterOptions struct {
 	TeamHandler        *handlers.TeamHandler
 	LeaderboardHandler *handlers.LeaderboardHandler
 	EventHandler       *handlers.EventHandler
+	MediaHandler       *handlers.MediaHandler
 }
 
 func NewRouter(opts RouterOptions) chi.Router {
@@ -59,6 +61,21 @@ func NewRouter(opts RouterOptions) chi.Router {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/swagger/index.html", http.StatusMovedPermanently)
 	})
+
+	// Static files for uploads
+	// Construct the absolute path for the uploads directory
+	uploadsDir := opts.Config.UploadsDir
+	if uploadsDir == "" {
+		uploadsDir = "./uploads"
+	}
+
+	// Create directory if it doesn't exist
+	if _, err := os.Stat(uploadsDir); os.IsNotExist(err) {
+		os.MkdirAll(uploadsDir, 0755)
+	}
+
+	fileServer := http.FileServer(http.Dir(uploadsDir))
+	r.Handle("/uploads/*", http.StripPrefix("/uploads/", fileServer))
 
 	// API v1
 	r.Route("/api/v1", func(r chi.Router) {
@@ -298,6 +315,9 @@ func NewRouter(opts RouterOptions) chi.Router {
 				r.Put("/password", opts.SettingsHandler.ChangePassword)
 				r.Delete("/account", opts.SettingsHandler.DeleteAccount)
 			})
+
+			// Media upload route
+			r.Post("/upload", opts.MediaHandler.Upload)
 		})
 	})
 

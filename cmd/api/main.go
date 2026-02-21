@@ -215,6 +215,7 @@ func main() {
 	teamHandler := handlers.NewTeamHandler(client)
 	leaderboardHandler := handlers.NewLeaderboardHandler(client)
 	eventHandler := handlers.NewEventHandler(client)
+	mediaHandler := handlers.NewMediaHandler(cfg.UploadsDir, cfg.ApiBaseURL)
 
 	// 7. Setup router
 	router := appHttp.NewRouter(appHttp.RouterOptions{
@@ -234,6 +235,7 @@ func main() {
 		TeamHandler:        teamHandler,
 		LeaderboardHandler: leaderboardHandler,
 		EventHandler:       eventHandler,
+		MediaHandler:       mediaHandler,
 	})
 
 	// 8. Start server

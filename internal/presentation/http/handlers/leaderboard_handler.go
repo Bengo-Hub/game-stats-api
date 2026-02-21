@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/ent/player"
@@ -83,6 +84,15 @@ func (h *LeaderboardHandler) GetPlayerLeaderboard(w http.ResponseWriter, r *http
 		}
 	}
 	if gender != "" {
+		// Normalize gender
+		g := strings.ToUpper(gender)
+		if strings.HasPrefix(g, "M") {
+			gender = "M"
+		} else if strings.HasPrefix(g, "F") || strings.HasPrefix(g, "W") {
+			gender = "F"
+		} else {
+			gender = "X"
+		}
 		playerPreds = append(playerPreds, player.GenderEQ(gender))
 	}
 

@@ -471,6 +471,28 @@ func (h *TeamHandler) ListPlayers(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if eventIDStr := r.URL.Query().Get("eventId"); eventIDStr != "" {
+		if eventID, err := uuid.Parse(eventIDStr); err == nil {
+			query = query.Where(player.HasTeamWith(team.HasDivisionPoolWith(divisionpool.HasEventWith(event.ID(eventID)))))
+		} else {
+			respondError(w, http.StatusBadRequest, "Invalid event ID")
+			return
+		}
+	}
+
+	if gender := r.URL.Query().Get("gender"); gender != "" {
+		// Normalize gender
+		g := strings.ToUpper(gender)
+		if strings.HasPrefix(g, "M") {
+			gender = "M"
+		} else if strings.HasPrefix(g, "F") || strings.HasPrefix(g, "W") {
+			gender = "F"
+		} else {
+			gender = "X"
+		}
+		query = query.Where(player.GenderEQ(gender))
+	}
+
 	pagination := ParsePagination(r)
 
 	players, err := query.
