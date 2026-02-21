@@ -117,6 +117,9 @@ func NewRouter(opts RouterOptions) chi.Router {
 				r.Get("/geographic/worlds", opts.GeographicHandler.ListWorlds)
 				r.Get("/geographic/continents", opts.GeographicHandler.ListContinents)
 				r.Get("/geographic/countries", opts.GeographicHandler.ListCountries)
+
+				// Players
+				r.Get("/players/{id}", opts.TeamHandler.GetPlayer)
 			})
 		})
 
@@ -208,6 +211,7 @@ func NewRouter(opts RouterOptions) chi.Router {
 					r.Use(middleware.RequirePermission(middleware.PermManageTeams)) // Assuming this permission exists, falling back to AdminOnly if not configured correctly in middleware
 					r.Post("/", opts.TeamHandler.CreateTeam)
 					r.Post("/{id}/players", opts.TeamHandler.CreatePlayer)
+					r.Post("/{id}/players/upload", opts.TeamHandler.BulkImportPlayers)
 				})
 			})
 

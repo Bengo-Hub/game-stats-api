@@ -1,11 +1,17 @@
 package handlers
 
 import (
+	"encoding/csv"
+	"fmt"
+	"io"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -379,4 +385,163 @@ func (h *TeamHandler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondJSON(w, http.StatusCreated, toPlayerResponse(p))
+}
+
+// GetPlayer godoc
+// @Summary Get a player
+// @Description Get a player by ID
+// @Tags players
+// @Produce json
+// @Param id path string true "Player ID" format(uuid)
+// @Success 200 {object} PlayerResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /public/players/{id} [get]
+func (h *TeamHandler) GetPlayer(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	playerIDStr := chi.URLParam(r, "id")
+	playerID, err := uuid.Parse(playerIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid player ID")
+		return
+	}
+
+	p, err := h.client.Player.Query().
+		Where(player.ID(playerID)).
+		WithTeam().
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			respondError(w, http.StatusNotFound, "Player not found")
+			return
+		}
+		respondError(w, http.StatusInternalServerError, "Failed to get player")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, toPlayerResponse(p))
+}
+
+// BulkImportPlayersResponse represents the result of a bulk import
+type BulkImportPlayersResponse struct {
+	Count  int      `json:"count"`
+	Errors []string `json:"errors,omitempty"`
+}
+
+// BulkImportPlayers godoc
+// @Summary Bulk import players for a team
+// @Description Import players from a CSV file (columns: Name, Gender, JerseyNumber)
+// @Tags teams
+// @Accept multipart/form-data
+// @Produce json
+// @Param id path string true "Team ID" format(uuid)
+// @Param file formData file true "CSV file"
+// @Success 200 {object} BulkImportPlayersResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Security BearerAuth
+// @Router /teams/{id}/players/upload [post]
+func (h *TeamHandler) BulkImportPlayers(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	teamIDStr := chi.URLParam(r, "id")
+	teamID, err := uuid.Parse(teamIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid team ID")
+		return
+	}
+
+	// Parse multipart form (10MB max)
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		respondError(w, http.StatusBadRequest, "Failed to parse multipart form")
+		return
+	}
+
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Missing file in request")
+		return
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	// Allow variable number of columns
+	reader.FieldsPerRecord = -1
+
+	// Skip header
+	header, err := reader.Read()
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Failed to read CSV header")
+		return
+	}
+
+	// Simple validation: check if it's a valid CSV
+	if len(header) < 1 {
+		respondError(w, http.StatusBadRequest, "Invalid CSV format")
+		return
+	}
+
+	count := 0
+	var importErrors []string
+
+	for {
+		record, err := reader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			importErrors = append(importErrors, fmt.Sprintf("Error reading row: %v", err))
+			continue
+		}
+
+		if len(record) < 1 {
+			continue
+		}
+
+		name := strings.TrimSpace(record[0])
+		if name == "" {
+			continue // Skip empty names
+		}
+
+		// Skip header if it was repeated or similarly named
+		if strings.EqualFold(name, "Name") || strings.EqualFold(name, "Player Name") {
+			continue
+		}
+
+		gender := "X" // Default
+		if len(record) > 1 {
+			g := strings.ToUpper(strings.TrimSpace(record[1]))
+			if g == "M" || g == "F" || g == "X" {
+				gender = g
+			}
+		}
+
+		builder := h.client.Player.Create().
+			SetName(name).
+			SetGender(gender).
+			SetTeamID(teamID)
+
+		if len(record) > 2 {
+			jerseyStr := strings.TrimSpace(record[2])
+			if jerseyStr != "" {
+				if j, err := strconv.Atoi(jerseyStr); err == nil {
+					builder.SetJerseyNumber(j)
+				}
+			}
+		}
+
+		_, err = builder.Save(ctx)
+		if err != nil {
+			importErrors = append(importErrors, fmt.Sprintf("Failed to save player %s: %v", name, err))
+		} else {
+			count++
+		}
+	}
+
+	respondJSON(w, http.StatusOK, BulkImportPlayersResponse{
+		Count:  count,
+		Errors: importErrors,
+	})
 }
