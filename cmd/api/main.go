@@ -210,6 +210,8 @@ func main() {
 	bracketHandler := handlers.NewBracketHandler(bracketService)
 	analyticsHandler := handlers.NewAnalyticsHandler(analyticsService, textToSQLService)
 	adminHandler := handlers.NewAdminHandler(adminService)
+	adminUsersHandler := handlers.NewAdminUsersHandler(userRepo, client)
+	settingsHandler := handlers.NewSettingsHandler(userRepo)
 	teamHandler := handlers.NewTeamHandler(client)
 	leaderboardHandler := handlers.NewLeaderboardHandler(client)
 	eventHandler := handlers.NewEventHandler(client)
@@ -227,6 +229,8 @@ func main() {
 		BracketHandler:     bracketHandler,
 		AnalyticsHandler:   analyticsHandler,
 		AdminHandler:       adminHandler,
+		AdminUsersHandler:  adminUsersHandler,
+		SettingsHandler:    settingsHandler,
 		TeamHandler:        teamHandler,
 		LeaderboardHandler: leaderboardHandler,
 		EventHandler:       eventHandler,

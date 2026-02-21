@@ -13,7 +13,9 @@
       "is_active": true,
       "date_joined": "2024-01-01T00:00:00Z",
       "role": "admin",
-      "groups": [1]
+      "groups": [
+        1
+      ]
     }
   },
   {
@@ -166,6 +168,46 @@
       "role": "team_manager",
       "groups": [
         2
+      ]
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 10,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$UIhUURVykbPiyqSxVINv9k$KLOw5FjFlwJCEU9xIqAhMh+raI8r6gkQ2E6ia2LJCAM=",
+      "last_login": "2025-03-01T10:14:39Z",
+      "is_superuser": false,
+      "username": "gameadmin",
+      "first_name": "Game",
+      "last_name": "Administrator",
+      "email": "gameadmin@test.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2025-03-01T04:36:08Z",
+      "role": "game_admin",
+      "groups": [
+        3
+      ]
+    }
+  },
+  {
+    "model": "authman.user",
+    "pk": 11,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$UIhUURVykbPiyqSxVINv9k$KLOw5FjFlwJCEU9xIqAhMh+raI8r6gkQ2E6ia2LJCAM=",
+      "last_login": "2025-03-01T10:14:39Z",
+      "is_superuser": false,
+      "username": "scorekeeper",
+      "first_name": "Score",
+      "last_name": "Keeper",
+      "email": "scorekeeper@test.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2025-03-01T04:36:08Z",
+      "role": "scorekeeper",
+      "groups": [
+        4
       ]
     }
   }

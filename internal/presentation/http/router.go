@@ -26,6 +26,8 @@ type RouterOptions struct {
 	BracketHandler     *handlers.BracketHandler
 	AnalyticsHandler   *handlers.AnalyticsHandler
 	AdminHandler       *handlers.AdminHandler
+	AdminUsersHandler  *handlers.AdminUsersHandler
+	SettingsHandler    *handlers.SettingsHandler
 	TeamHandler        *handlers.TeamHandler
 	LeaderboardHandler *handlers.LeaderboardHandler
 	EventHandler       *handlers.EventHandler
@@ -253,7 +255,28 @@ func NewRouter(opts RouterOptions) chi.Router {
 
 					// Spirit score updates
 					r.Put("/spirit-scores/{id}", opts.AdminHandler.UpdateSpiritScore)
+
+					// User management
+					r.Get("/users", opts.AdminUsersHandler.ListUsers)
+					r.Post("/users", opts.AdminUsersHandler.CreateUser)
+					r.Get("/users/{id}", opts.AdminUsersHandler.GetUser)
+					r.Put("/users/{id}", opts.AdminUsersHandler.UpdateUser)
+					r.Delete("/users/{id}", opts.AdminUsersHandler.DeleteUser)
+
+					// Audit logs
+					r.Get("/audit-logs", opts.AdminUsersHandler.GetAuditLogs)
+
+					// System health
+					r.Get("/system/health", opts.AdminUsersHandler.GetSystemHealth)
 				})
+			})
+
+			// Settings routes (authenticated users)
+			r.Route("/settings", func(r chi.Router) {
+				r.Get("/profile", opts.SettingsHandler.GetProfile)
+				r.Put("/profile", opts.SettingsHandler.UpdateProfile)
+				r.Put("/password", opts.SettingsHandler.ChangePassword)
+				r.Delete("/account", opts.SettingsHandler.DeleteAccount)
 			})
 		})
 	})

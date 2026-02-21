@@ -49,7 +49,7 @@ type SpiritBreakdownAverage struct {
 // @Description Get top players by goals or assists
 // @Tags leaderboards
 // @Produce json
-// @Param category query string false "Category: goals or assists" default(goals)
+// @Param category query string false "Category: goals, assists, or total (goals+assists)" default(goals)
 // @Param eventId query string false "Filter by event ID" format(uuid)
 // @Param divisionPoolId query string false "Filter by division pool ID" format(uuid)
 // @Param limit query int false "Limit results" default(50)
@@ -145,11 +145,22 @@ func (h *LeaderboardHandler) GetPlayerLeaderboard(w http.ResponseWriter, r *http
 				}
 			}
 		}
-	} else {
+	} else if category == "assists" {
 		// Sort by assists descending
 		for i := 0; i < len(result)-1; i++ {
 			for j := i + 1; j < len(result); j++ {
 				if result[j].Assists > result[i].Assists {
+					result[i], result[j] = result[j], result[i]
+				}
+			}
+		}
+	} else {
+		// Sort by total (goals + assists) descending
+		for i := 0; i < len(result)-1; i++ {
+			for j := i + 1; j < len(result); j++ {
+				totalJ := result[j].Goals + result[j].Assists
+				totalI := result[i].Goals + result[i].Assists
+				if totalJ > totalI {
 					result[i], result[j] = result[j], result[i]
 				}
 			}

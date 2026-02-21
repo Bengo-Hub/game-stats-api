@@ -110,14 +110,22 @@ func (s *Service) RecordScore(ctx context.Context, gameID uuid.UUID, userID uuid
 
 	// Create game event for goal if this was a new goal
 	if req.Goals > 0 && req.Minute != nil && req.Second != nil {
+		// Detect Callahan: goal scored without an assist (interception in end zone)
+		isCallahan := req.Goals > 0 && req.Assists == 0
+		description := "Goal scored"
+		if isCallahan {
+			description = "Callahan goal scored"
+		}
+
 		_, err = s.gameEventRepo.Create(ctx, &ent.GameEvent{
 			EventType:   "goal_scored",
 			Minute:      *req.Minute,
 			Second:      *req.Second,
-			Description: "Goal scored",
+			Description: description,
 			Metadata: map[string]interface{}{
-				"player_id": req.PlayerID,
-				"goals":     req.Goals,
+				"player_id":   req.PlayerID,
+				"goals":       req.Goals,
+				"is_callahan": isCallahan,
 			},
 			Edges: ent.GameEventEdges{
 				Game: updatedGame,

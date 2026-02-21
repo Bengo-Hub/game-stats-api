@@ -107,8 +107,8 @@ func (b *Broker) listen() {
 			for _, clientChan := range gameClients {
 				select {
 				case clientChan <- event.Event:
-				case <-time.After(1 * time.Second):
-					// Client is slow, skip this event
+				default:
+					// Client is slow and buffer is full, skip this event
 				}
 			}
 		}
