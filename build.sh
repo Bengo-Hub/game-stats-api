@@ -213,21 +213,23 @@ fi
 # =============================================================================
 # SECRETS SETUP (using centralized devops script)
 # =============================================================================
-if [[ -f "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" ]]; then
-  info "Creating secrets using centralized script..."
-  chmod +x "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh"
-  # Initialize the cluster connection secrets via the centralized script
-  SERVICE_NAME="$APP_NAME" \
-  NAMESPACE="$NAMESPACE" \
-  PG_NAMESPACE="$DB_NAMESPACE" \
-  DB_NAME="$SERVICE_DB_NAME" \
-  DB_USER="$SERVICE_DB_USER" \
-  SECRET_NAME="$ENV_SECRET_NAME" \
-  POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}" \
-  JWT_SECRET="${JWT_SECRET:-}" \
-  bash "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" || warn "Secret creation failed"
-else
-  warn "create-service-secrets.sh not found (checked $DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh)"
+# Create service secrets using mosuon-devops-k8s script if not exists
+if ! kubectl -n "$NAMESPACE" get secret "$ENV_SECRET_NAME" >/dev/null 2>&1; then
+  if [[ -d "$DEVOPS_DIR" && -f "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" ]]; then
+    info "Creating secrets for ${APP_NAME} using devops-k8s script..."
+    # Initialize the cluster connection secrets via the centralized script
+    SERVICE_NAME="$APP_NAME" \
+    NAMESPACE="$NAMESPACE" \
+    PG_NAMESPACE="$DB_NAMESPACE" \
+    DB_NAME="$SERVICE_DB_NAME" \
+    DB_USER="$SERVICE_DB_USER" \
+    SECRET_NAME="$ENV_SECRET_NAME" \
+    POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}" \
+    JWT_SECRET="${JWT_SECRET:-}" \
+    bash "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" || warn "Secret creation failed or already exists"
+  else
+    warn "Secret $ENV_SECRET_NAME not found and create-service-secrets.sh not available"
+  fi
 fi
 
 # =============================================================================
