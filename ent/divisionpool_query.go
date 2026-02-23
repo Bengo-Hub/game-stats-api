@@ -15,6 +15,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/predicate"
 	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/google/uuid"
@@ -23,14 +24,15 @@ import (
 // DivisionPoolQuery is the builder for querying DivisionPool entities.
 type DivisionPoolQuery struct {
 	config
-	ctx        *QueryContext
-	order      []divisionpool.OrderOption
-	inters     []Interceptor
-	predicates []predicate.DivisionPool
-	withEvent  *EventQuery
-	withTeams  *TeamQuery
-	withGames  *GameQuery
-	withFKs    bool
+	ctx             *QueryContext
+	order           []divisionpool.OrderOption
+	inters          []Interceptor
+	predicates      []predicate.DivisionPool
+	withEvent       *EventQuery
+	withTeams       *TeamQuery
+	withGames       *GameQuery
+	withTargetRound *GameRoundQuery
+	withFKs         bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -126,6 +128,28 @@ func (_q *DivisionPoolQuery) QueryGames() *GameQuery {
 			sqlgraph.From(divisionpool.Table, divisionpool.FieldID, selector),
 			sqlgraph.To(game.Table, game.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, divisionpool.GamesTable, divisionpool.GamesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTargetRound chains the current query on the "target_round" edge.
+func (_q *DivisionPoolQuery) QueryTargetRound() *GameRoundQuery {
+	query := (&GameRoundClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(divisionpool.Table, divisionpool.FieldID, selector),
+			sqlgraph.To(gameround.Table, gameround.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, divisionpool.TargetRoundTable, divisionpool.TargetRoundColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -320,14 +344,15 @@ func (_q *DivisionPoolQuery) Clone() *DivisionPoolQuery {
 		return nil
 	}
 	return &DivisionPoolQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]divisionpool.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.DivisionPool{}, _q.predicates...),
-		withEvent:  _q.withEvent.Clone(),
-		withTeams:  _q.withTeams.Clone(),
-		withGames:  _q.withGames.Clone(),
+		config:          _q.config,
+		ctx:             _q.ctx.Clone(),
+		order:           append([]divisionpool.OrderOption{}, _q.order...),
+		inters:          append([]Interceptor{}, _q.inters...),
+		predicates:      append([]predicate.DivisionPool{}, _q.predicates...),
+		withEvent:       _q.withEvent.Clone(),
+		withTeams:       _q.withTeams.Clone(),
+		withGames:       _q.withGames.Clone(),
+		withTargetRound: _q.withTargetRound.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -364,6 +389,17 @@ func (_q *DivisionPoolQuery) WithGames(opts ...func(*GameQuery)) *DivisionPoolQu
 		opt(query)
 	}
 	_q.withGames = query
+	return _q
+}
+
+// WithTargetRound tells the query-builder to eager-load the nodes that are connected to
+// the "target_round" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *DivisionPoolQuery) WithTargetRound(opts ...func(*GameRoundQuery)) *DivisionPoolQuery {
+	query := (&GameRoundClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTargetRound = query
 	return _q
 }
 
@@ -446,13 +482,14 @@ func (_q *DivisionPoolQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		nodes       = []*DivisionPool{}
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			_q.withEvent != nil,
 			_q.withTeams != nil,
 			_q.withGames != nil,
+			_q.withTargetRound != nil,
 		}
 	)
-	if _q.withEvent != nil {
+	if _q.withEvent != nil || _q.withTargetRound != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -493,6 +530,12 @@ func (_q *DivisionPoolQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		if err := _q.loadGames(ctx, query, nodes,
 			func(n *DivisionPool) { n.Edges.Games = []*Game{} },
 			func(n *DivisionPool, e *Game) { n.Edges.Games = append(n.Edges.Games, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withTargetRound; query != nil {
+		if err := _q.loadTargetRound(ctx, query, nodes, nil,
+			func(n *DivisionPool, e *GameRound) { n.Edges.TargetRound = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -590,6 +633,38 @@ func (_q *DivisionPoolQuery) loadGames(ctx context.Context, query *GameQuery, no
 			return fmt.Errorf(`unexpected referenced foreign-key "division_pool_games" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
+	}
+	return nil
+}
+func (_q *DivisionPoolQuery) loadTargetRound(ctx context.Context, query *GameRoundQuery, nodes []*DivisionPool, init func(*DivisionPool), assign func(*DivisionPool, *GameRound)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*DivisionPool)
+	for i := range nodes {
+		if nodes[i].division_pool_target_round == nil {
+			continue
+		}
+		fk := *nodes[i].division_pool_target_round
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(gameround.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "division_pool_target_round" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
 	}
 	return nil
 }

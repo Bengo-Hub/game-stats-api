@@ -28,6 +28,8 @@ type Tx struct {
 	DivisionPool *DivisionPoolClient
 	// Event is the client for interacting with the Event builders.
 	Event *EventClient
+	// EventParticipation is the client for interacting with the EventParticipation builders.
+	EventParticipation *EventParticipationClient
 	// EventReconciliation is the client for interacting with the EventReconciliation builders.
 	EventReconciliation *EventReconciliationClient
 	// Field is the client for interacting with the Field builders.
@@ -195,6 +197,7 @@ func (tx *Tx) init() {
 	tx.Discipline = NewDisciplineClient(tx.config)
 	tx.DivisionPool = NewDivisionPoolClient(tx.config)
 	tx.Event = NewEventClient(tx.config)
+	tx.EventParticipation = NewEventParticipationClient(tx.config)
 	tx.EventReconciliation = NewEventReconciliationClient(tx.config)
 	tx.Field = NewFieldClient(tx.config)
 	tx.Game = NewGameClient(tx.config)

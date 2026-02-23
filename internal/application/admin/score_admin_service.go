@@ -316,13 +316,15 @@ func (s *ScoreAdminService) UpdateSpiritScore(
 		updatedScore.FairMindedness + updatedScore.Attitude + updatedScore.Communication
 
 	// Invalidate spirit-related caches
-	if currentScore.Edges.Team != nil {
-		cacheKey := cache.CacheKey("spirit", "team", currentScore.Edges.Team.ID.String())
-		_ = s.cache.Delete(ctx, cacheKey)
-	}
-	if currentScore.Edges.Game != nil {
-		cacheKey := cache.CacheKey("spirit", "game", currentScore.Edges.Game.ID.String())
-		_ = s.cache.Delete(ctx, cacheKey)
+	if s.cache != nil {
+		if currentScore.Edges.Team != nil {
+			cacheKey := cache.CacheKey("spirit", "team", currentScore.Edges.Team.ID.String())
+			_ = s.cache.Delete(ctx, cacheKey)
+		}
+		if currentScore.Edges.Game != nil {
+			cacheKey := cache.CacheKey("spirit", "game", currentScore.Edges.Game.ID.String())
+			_ = s.cache.Delete(ctx, cacheKey)
+		}
 	}
 
 	return &UpdateSpiritScoreResponse{

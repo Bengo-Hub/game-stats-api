@@ -13,6 +13,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/google/uuid"
 )
@@ -112,6 +113,34 @@ func (_c *DivisionPoolCreate) SetNillableDescription(v *string) *DivisionPoolCre
 	return _c
 }
 
+// SetAutoAdvance sets the "auto_advance" field.
+func (_c *DivisionPoolCreate) SetAutoAdvance(v bool) *DivisionPoolCreate {
+	_c.mutation.SetAutoAdvance(v)
+	return _c
+}
+
+// SetNillableAutoAdvance sets the "auto_advance" field if the given value is not nil.
+func (_c *DivisionPoolCreate) SetNillableAutoAdvance(v *bool) *DivisionPoolCreate {
+	if v != nil {
+		_c.SetAutoAdvance(*v)
+	}
+	return _c
+}
+
+// SetTopNTeams sets the "top_n_teams" field.
+func (_c *DivisionPoolCreate) SetTopNTeams(v int) *DivisionPoolCreate {
+	_c.mutation.SetTopNTeams(v)
+	return _c
+}
+
+// SetNillableTopNTeams sets the "top_n_teams" field if the given value is not nil.
+func (_c *DivisionPoolCreate) SetNillableTopNTeams(v *int) *DivisionPoolCreate {
+	if v != nil {
+		_c.SetTopNTeams(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *DivisionPoolCreate) SetID(v uuid.UUID) *DivisionPoolCreate {
 	_c.mutation.SetID(v)
@@ -167,6 +196,25 @@ func (_c *DivisionPoolCreate) AddGames(v ...*Game) *DivisionPoolCreate {
 	return _c.AddGameIDs(ids...)
 }
 
+// SetTargetRoundID sets the "target_round" edge to the GameRound entity by ID.
+func (_c *DivisionPoolCreate) SetTargetRoundID(id uuid.UUID) *DivisionPoolCreate {
+	_c.mutation.SetTargetRoundID(id)
+	return _c
+}
+
+// SetNillableTargetRoundID sets the "target_round" edge to the GameRound entity by ID if the given value is not nil.
+func (_c *DivisionPoolCreate) SetNillableTargetRoundID(id *uuid.UUID) *DivisionPoolCreate {
+	if id != nil {
+		_c = _c.SetTargetRoundID(*id)
+	}
+	return _c
+}
+
+// SetTargetRound sets the "target_round" edge to the GameRound entity.
+func (_c *DivisionPoolCreate) SetTargetRound(v *GameRound) *DivisionPoolCreate {
+	return _c.SetTargetRoundID(v.ID)
+}
+
 // Mutation returns the DivisionPoolMutation object of the builder.
 func (_c *DivisionPoolCreate) Mutation() *DivisionPoolMutation {
 	return _c.mutation
@@ -210,6 +258,10 @@ func (_c *DivisionPoolCreate) defaults() {
 		v := divisionpool.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.AutoAdvance(); !ok {
+		v := divisionpool.DefaultAutoAdvance
+		_c.mutation.SetAutoAdvance(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := divisionpool.DefaultID()
 		_c.mutation.SetID(v)
@@ -239,6 +291,9 @@ func (_c *DivisionPoolCreate) check() error {
 		if err := divisionpool.DivisionTypeValidator(v); err != nil {
 			return &ValidationError{Name: "division_type", err: fmt.Errorf(`ent: validator failed for field "DivisionPool.division_type": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.AutoAdvance(); !ok {
+		return &ValidationError{Name: "auto_advance", err: errors.New(`ent: missing required field "DivisionPool.auto_advance"`)}
 	}
 	if len(_c.mutation.EventIDs()) == 0 {
 		return &ValidationError{Name: "event", err: errors.New(`ent: missing required edge "DivisionPool.event"`)}
@@ -310,6 +365,14 @@ func (_c *DivisionPoolCreate) createSpec() (*DivisionPool, *sqlgraph.CreateSpec)
 		_spec.SetField(divisionpool.FieldDescription, field.TypeString, value)
 		_node.Description = &value
 	}
+	if value, ok := _c.mutation.AutoAdvance(); ok {
+		_spec.SetField(divisionpool.FieldAutoAdvance, field.TypeBool, value)
+		_node.AutoAdvance = value
+	}
+	if value, ok := _c.mutation.TopNTeams(); ok {
+		_spec.SetField(divisionpool.FieldTopNTeams, field.TypeInt, value)
+		_node.TopNTeams = &value
+	}
 	if nodes := _c.mutation.EventIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -357,6 +420,23 @@ func (_c *DivisionPoolCreate) createSpec() (*DivisionPool, *sqlgraph.CreateSpec)
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.TargetRoundIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   divisionpool.TargetRoundTable,
+			Columns: []string{divisionpool.TargetRoundColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.division_pool_target_round = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

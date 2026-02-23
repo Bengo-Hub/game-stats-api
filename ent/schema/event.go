@@ -87,5 +87,6 @@ func (Event) Edges() []ent.Edge {
 			}),
 		edge.To("game_rounds", GameRound.Type),
 		edge.To("managed_by", User.Type),
+		edge.To("participations", EventParticipation.Type),
 	}
 }

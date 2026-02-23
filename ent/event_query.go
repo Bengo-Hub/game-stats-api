@@ -15,6 +15,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/eventparticipation"
 	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
 	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/location"
@@ -36,6 +37,7 @@ type EventQuery struct {
 	withReconciliations *EventReconciliationQuery
 	withGameRounds      *GameRoundQuery
 	withManagedBy       *UserQuery
+	withParticipations  *EventParticipationQuery
 	withFKs             bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -198,6 +200,28 @@ func (_q *EventQuery) QueryManagedBy() *UserQuery {
 			sqlgraph.From(event.Table, event.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, event.ManagedByTable, event.ManagedByColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryParticipations chains the current query on the "participations" edge.
+func (_q *EventQuery) QueryParticipations() *EventParticipationQuery {
+	query := (&EventParticipationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, selector),
+			sqlgraph.To(eventparticipation.Table, eventparticipation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, event.ParticipationsTable, event.ParticipationsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -403,6 +427,7 @@ func (_q *EventQuery) Clone() *EventQuery {
 		withReconciliations: _q.withReconciliations.Clone(),
 		withGameRounds:      _q.withGameRounds.Clone(),
 		withManagedBy:       _q.withManagedBy.Clone(),
+		withParticipations:  _q.withParticipations.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -472,6 +497,17 @@ func (_q *EventQuery) WithManagedBy(opts ...func(*UserQuery)) *EventQuery {
 		opt(query)
 	}
 	_q.withManagedBy = query
+	return _q
+}
+
+// WithParticipations tells the query-builder to eager-load the nodes that are connected to
+// the "participations" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *EventQuery) WithParticipations(opts ...func(*EventParticipationQuery)) *EventQuery {
+	query := (&EventParticipationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withParticipations = query
 	return _q
 }
 
@@ -554,13 +590,14 @@ func (_q *EventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Event,
 		nodes       = []*Event{}
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [6]bool{
+		loadedTypes = [7]bool{
 			_q.withDiscipline != nil,
 			_q.withLocation != nil,
 			_q.withDivisionPools != nil,
 			_q.withReconciliations != nil,
 			_q.withGameRounds != nil,
 			_q.withManagedBy != nil,
+			_q.withParticipations != nil,
 		}
 	)
 	if _q.withDiscipline != nil || _q.withLocation != nil {
@@ -624,6 +661,13 @@ func (_q *EventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Event,
 		if err := _q.loadManagedBy(ctx, query, nodes,
 			func(n *Event) { n.Edges.ManagedBy = []*User{} },
 			func(n *Event, e *User) { n.Edges.ManagedBy = append(n.Edges.ManagedBy, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withParticipations; query != nil {
+		if err := _q.loadParticipations(ctx, query, nodes,
+			func(n *Event) { n.Edges.Participations = []*EventParticipation{} },
+			func(n *Event, e *EventParticipation) { n.Edges.Participations = append(n.Edges.Participations, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -813,6 +857,37 @@ func (_q *EventQuery) loadManagedBy(ctx context.Context, query *UserQuery, nodes
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "event_managed_by" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *EventQuery) loadParticipations(ctx context.Context, query *EventParticipationQuery, nodes []*Event, init func(*Event), assign func(*Event, *EventParticipation)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Event)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.EventParticipation(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(event.ParticipationsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.event_participations
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "event_participations" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "event_participations" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

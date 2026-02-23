@@ -47,6 +47,8 @@ const (
 	EdgeSpiritScoresGiven = "spirit_scores_given"
 	// EdgeSpiritScoresReceived holds the string denoting the spirit_scores_received edge name in mutations.
 	EdgeSpiritScoresReceived = "spirit_scores_received"
+	// EdgeParticipations holds the string denoting the participations edge name in mutations.
+	EdgeParticipations = "participations"
 	// Table holds the table name of the team in the database.
 	Table = "teams"
 	// DivisionPoolTable is the table that holds the division_pool relation/edge.
@@ -105,6 +107,13 @@ const (
 	SpiritScoresReceivedInverseTable = "spirit_scores"
 	// SpiritScoresReceivedColumn is the table column denoting the spirit_scores_received relation/edge.
 	SpiritScoresReceivedColumn = "team_spirit_scores_received"
+	// ParticipationsTable is the table that holds the participations relation/edge.
+	ParticipationsTable = "event_participations"
+	// ParticipationsInverseTable is the table name for the EventParticipation entity.
+	// It exists in this package in order to avoid circular dependency with the "eventparticipation" package.
+	ParticipationsInverseTable = "event_participations"
+	// ParticipationsColumn is the table column denoting the participations relation/edge.
+	ParticipationsColumn = "team_participations"
 )
 
 // Columns holds all SQL columns for team fields.
@@ -295,6 +304,20 @@ func BySpiritScoresReceived(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOpt
 		sqlgraph.OrderByNeighborTerms(s, newSpiritScoresReceivedStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByParticipationsCount orders the results by participations count.
+func ByParticipationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newParticipationsStep(), opts...)
+	}
+}
+
+// ByParticipations orders the results by participations terms.
+func ByParticipations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newParticipationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newDivisionPoolStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -349,5 +372,12 @@ func newSpiritScoresReceivedStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SpiritScoresReceivedInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, SpiritScoresReceivedTable, SpiritScoresReceivedColumn),
+	)
+}
+func newParticipationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ParticipationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ParticipationsTable, ParticipationsColumn),
 	)
 }

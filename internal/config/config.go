@@ -37,7 +37,7 @@ func Load() *Config {
 	viper.SetDefault("ENV", "development")
 	viper.SetDefault("PORT", "4000")
 	viper.SetDefault("LOG_LEVEL", "debug")
-	viper.SetDefault("DATABASE_URL", "postgres://postgres:postgres@localhost:5433/postgres?sslmode=disable")
+	viper.SetDefault("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/game_stats?sslmode=disable")
 	viper.SetDefault("REDIS_URL", "redis://localhost:6380/0")
 	viper.SetDefault("JWT_SECRET", "dev-secret-key")
 	viper.SetDefault("METABASE_BASE_URL", "https://analytics.ultichange.org")

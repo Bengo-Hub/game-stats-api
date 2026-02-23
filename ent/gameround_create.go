@@ -119,6 +119,34 @@ func (_c *GameRoundCreate) SetNillableEndDate(v *time.Time) *GameRoundCreate {
 	return _c
 }
 
+// SetAutoAdvance sets the "auto_advance" field.
+func (_c *GameRoundCreate) SetAutoAdvance(v bool) *GameRoundCreate {
+	_c.mutation.SetAutoAdvance(v)
+	return _c
+}
+
+// SetNillableAutoAdvance sets the "auto_advance" field if the given value is not nil.
+func (_c *GameRoundCreate) SetNillableAutoAdvance(v *bool) *GameRoundCreate {
+	if v != nil {
+		_c.SetAutoAdvance(*v)
+	}
+	return _c
+}
+
+// SetTopNTeams sets the "top_n_teams" field.
+func (_c *GameRoundCreate) SetTopNTeams(v int) *GameRoundCreate {
+	_c.mutation.SetTopNTeams(v)
+	return _c
+}
+
+// SetNillableTopNTeams sets the "top_n_teams" field if the given value is not nil.
+func (_c *GameRoundCreate) SetNillableTopNTeams(v *int) *GameRoundCreate {
+	if v != nil {
+		_c.SetTopNTeams(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *GameRoundCreate) SetID(v uuid.UUID) *GameRoundCreate {
 	_c.mutation.SetID(v)
@@ -157,6 +185,25 @@ func (_c *GameRoundCreate) AddGames(v ...*Game) *GameRoundCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddGameIDs(ids...)
+}
+
+// SetTargetRoundID sets the "target_round" edge to the GameRound entity by ID.
+func (_c *GameRoundCreate) SetTargetRoundID(id uuid.UUID) *GameRoundCreate {
+	_c.mutation.SetTargetRoundID(id)
+	return _c
+}
+
+// SetNillableTargetRoundID sets the "target_round" edge to the GameRound entity by ID if the given value is not nil.
+func (_c *GameRoundCreate) SetNillableTargetRoundID(id *uuid.UUID) *GameRoundCreate {
+	if id != nil {
+		_c = _c.SetTargetRoundID(*id)
+	}
+	return _c
+}
+
+// SetTargetRound sets the "target_round" edge to the GameRound entity.
+func (_c *GameRoundCreate) SetTargetRound(v *GameRound) *GameRoundCreate {
+	return _c.SetTargetRoundID(v.ID)
 }
 
 // Mutation returns the GameRoundMutation object of the builder.
@@ -202,6 +249,10 @@ func (_c *GameRoundCreate) defaults() {
 		v := gameround.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.AutoAdvance(); !ok {
+		v := gameround.DefaultAutoAdvance
+		_c.mutation.SetAutoAdvance(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := gameround.DefaultID()
 		_c.mutation.SetID(v)
@@ -231,6 +282,9 @@ func (_c *GameRoundCreate) check() error {
 		if err := gameround.RoundTypeValidator(v); err != nil {
 			return &ValidationError{Name: "round_type", err: fmt.Errorf(`ent: validator failed for field "GameRound.round_type": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.AutoAdvance(); !ok {
+		return &ValidationError{Name: "auto_advance", err: errors.New(`ent: missing required field "GameRound.auto_advance"`)}
 	}
 	if len(_c.mutation.EventIDs()) == 0 {
 		return &ValidationError{Name: "event", err: errors.New(`ent: missing required edge "GameRound.event"`)}
@@ -302,6 +356,14 @@ func (_c *GameRoundCreate) createSpec() (*GameRound, *sqlgraph.CreateSpec) {
 		_spec.SetField(gameround.FieldEndDate, field.TypeTime, value)
 		_node.EndDate = &value
 	}
+	if value, ok := _c.mutation.AutoAdvance(); ok {
+		_spec.SetField(gameround.FieldAutoAdvance, field.TypeBool, value)
+		_node.AutoAdvance = value
+	}
+	if value, ok := _c.mutation.TopNTeams(); ok {
+		_spec.SetField(gameround.FieldTopNTeams, field.TypeInt, value)
+		_node.TopNTeams = &value
+	}
 	if nodes := _c.mutation.EventIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -333,6 +395,23 @@ func (_c *GameRoundCreate) createSpec() (*GameRound, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.TargetRoundIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   gameround.TargetRoundTable,
+			Columns: []string{gameround.TargetRoundColumn},
+			Bidi:    true,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.game_round_target_round = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

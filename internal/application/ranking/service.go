@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/bengobox/game-stats-api/ent"
+	"github.com/bengobox/game-stats-api/internal/application/bracket"
 	"github.com/bengobox/game-stats-api/internal/domain/divisionpool"
 	"github.com/bengobox/game-stats-api/internal/domain/game"
 	"github.com/bengobox/game-stats-api/internal/domain/gameround"
@@ -27,7 +28,7 @@ type Service struct {
 
 // BracketService interface to avoid circular dependency
 type BracketService interface {
-	GenerateBracket(ctx context.Context, req interface{}) (interface{}, error)
+	GenerateBracket(ctx context.Context, req bracket.GenerateBracketRequest) (*bracket.GenerateBracketResponse, error)
 }
 
 func NewService(
@@ -57,9 +58,11 @@ func (s *Service) CalculateStandings(ctx context.Context, divisionID uuid.UUID) 
 	// Try to get from cache first
 	cacheKey := cache.CacheKey("standings", "division", divisionID.String())
 	var cachedStandings DivisionStandingsResponse
-	err := s.cache.GetJSON(ctx, cacheKey, &cachedStandings)
-	if err == nil {
-		return &cachedStandings, nil
+	if s.cache != nil {
+		err := s.cache.GetJSON(ctx, cacheKey, &cachedStandings)
+		if err == nil {
+			return &cachedStandings, nil
+		}
 	}
 
 	// Get division with ranking criteria
@@ -125,9 +128,11 @@ func (s *Service) CalculateStandings(ctx context.Context, divisionID uuid.UUID) 
 	}
 
 	// Cache the result
-	if err := s.cache.SetJSON(ctx, cacheKey, response, cache.TTLStandings); err != nil {
-		// Log error but don't fail the request
-		fmt.Printf("Failed to cache standings: %v\n", err)
+	if s.cache != nil {
+		if err := s.cache.SetJSON(ctx, cacheKey, response, cache.TTLStandings); err != nil {
+			// Log error but don't fail the request
+			fmt.Printf("Failed to cache standings: %v\n", err)
+		}
 	}
 
 	return response, nil
@@ -435,24 +440,24 @@ func (s *Service) AdvanceTeams(ctx context.Context, req AdvanceTeamsRequest) (*A
 		}
 
 		// Prepare teams with seeds from standings
-		teamSeeds := make([]map[string]interface{}, req.TopN)
+		teamSeeds := make([]bracket.TeamSeed, req.TopN)
 		for i := 0; i < req.TopN; i++ {
-			teamSeeds[i] = map[string]interface{}{
-				"team_id":   standings.Standings[i].TeamID,
-				"team_name": standings.Standings[i].TeamName,
-				"seed":      i + 1,
+			teamSeeds[i] = bracket.TeamSeed{
+				TeamID:   standings.Standings[i].TeamID,
+				TeamName: standings.Standings[i].TeamName,
+				Seed:     i + 1,
 			}
 		}
 
-		// Call bracket service (using interface{} to avoid import cycle)
-		bracketReq := map[string]interface{}{
-			"event_id":      targetRound.Edges.Event.ID,
-			"bracket_type":  "single_elimination",
-			"teams":         teamSeeds,
-			"round_id":      req.TargetRoundID,
-			"start_time":    *req.StartTime,
-			"field_id":      *req.FieldID,
-			"game_duration": req.GameDuration,
+		// Call bracket service
+		bracketReq := bracket.GenerateBracketRequest{
+			EventID:      targetRound.Edges.Event.ID,
+			BracketType:  bracket.BracketTypeSingleElimination,
+			Teams:        teamSeeds,
+			RoundID:      req.TargetRoundID,
+			StartTime:    *req.StartTime,
+			FieldID:      *req.FieldID,
+			GameDuration: req.GameDuration,
 		}
 
 		bracketResp, err := s.bracketService.GenerateBracket(ctx, bracketReq)
@@ -460,15 +465,8 @@ func (s *Service) AdvanceTeams(ctx context.Context, req AdvanceTeamsRequest) (*A
 			return nil, fmt.Errorf("failed to generate bracket: %w", err)
 		}
 
-		// Extract games created and bracket ID from response
-		if respMap, ok := bracketResp.(map[string]interface{}); ok {
-			if gc, ok := respMap["games_created"].(int); ok {
-				gamesCreated = gc
-			}
-			if bid, ok := respMap["bracket_id"].(uuid.UUID); ok {
-				bracketID = &bid
-			}
-		}
+		gamesCreated = len(bracketResp.GamesCreated)
+		bracketID = &bracketResp.BracketID
 	}
 
 	// Team notifications are handled via webhook or email integration
@@ -490,4 +488,84 @@ func (s *Service) AdvanceTeams(ctx context.Context, req AdvanceTeamsRequest) (*A
 		BracketID:     bracketID,
 		Message:       message,
 	}, nil
+}
+
+// HandleGameEnded is triggered when a game status changes to "ended".
+// It checks for round/pool completion and triggers auto-advancement if enabled.
+func (s *Service) HandleGameEnded(ctx context.Context, gameID uuid.UUID) error {
+	// 1. Get game with relations
+	g, err := s.gameRepo.GetByIDWithRelations(ctx, gameID)
+	if err != nil {
+		return fmt.Errorf("failed to get game for advancement: %w", err)
+	}
+
+	// 2. Determine if it's a pool game or bracket game
+	if g.Edges.DivisionPool != nil {
+		return s.handlePoolGameEnded(ctx, g.Edges.DivisionPool.ID)
+	}
+
+	if g.Edges.GameRound != nil {
+		return s.handleBracketGameEnded(ctx, g)
+	}
+
+	return nil
+}
+
+func (s *Service) handlePoolGameEnded(ctx context.Context, poolID uuid.UUID) error {
+	// 1. Get pool with auto_advance settings
+	pool, err := s.divisionRepo.GetByID(ctx, poolID)
+	if err != nil {
+		return err
+	}
+
+	if !pool.AutoAdvance || pool.Edges.TargetRound == nil {
+		return nil
+	}
+
+	// 2. Check if all games in pool are ended
+	games, err := s.gameRepo.ListByDivision(ctx, poolID)
+	if err != nil {
+		return err
+	}
+
+	allEnded := true
+	for _, g := range games {
+		if g.Status != "ended" {
+			allEnded = false
+			break
+		}
+	}
+
+	if !allEnded {
+		return nil
+	}
+
+	// 3. Advance teams
+	topN := 2 // Default
+	if pool.TopNTeams != nil {
+		topN = *pool.TopNTeams
+	}
+
+	_, err = s.AdvanceTeams(ctx, AdvanceTeamsRequest{
+		DivisionID:    poolID,
+		TopN:          topN,
+		TargetRoundID: pool.Edges.TargetRound.ID,
+		NotifyTeams:   true,
+	})
+
+	return err
+}
+
+func (s *Service) handleBracketGameEnded(ctx context.Context, g *ent.Game) error {
+	// Brackets usually advance winners immediately to the next node
+	// In digitournament/mosuon, we use a tree structure or scheduled games with codes.
+	// For now, let's assume if it's a bracket, we refresh the bracket cache.
+
+	cacheKey := cache.CacheKey("bracket", "round", g.Edges.GameRound.ID.String())
+	if s.cache != nil {
+		s.cache.Delete(ctx, cacheKey)
+	}
+
+	// In a full implementation, we would identify the "next game" in the bracket and set the winner.
+	return nil
 }

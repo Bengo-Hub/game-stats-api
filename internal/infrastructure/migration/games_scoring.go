@@ -9,6 +9,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/bengobox/game-stats-api/ent/user"
 	"github.com/bengobox/game-stats-api/internal/pkg/logger"
 )
 
@@ -138,6 +139,11 @@ func (m *Migrator) migrateGames(ctx context.Context, fixturesDir string) error {
 			continue
 		}
 
+		// Find default scorekeeper
+		scorekeeper, _ := m.client.User.Query().
+			Where(user.Email("scorekeeper@test.com")).
+			Only(ctx)
+
 		// Create game builder with required fields
 		gameBuilder := m.client.Game.Create().
 			SetName(name).
@@ -150,6 +156,10 @@ func (m *Migrator) migrateGames(ctx context.Context, fixturesDir string) error {
 			SetAllocatedTimeMinutes(60). // Default game duration
 			SetDivisionPool(division).
 			SetFieldLocation(fieldLocation)
+
+		if scorekeeper != nil {
+			gameBuilder.SetScorekeeper(scorekeeper)
+		}
 
 		// Add game round if available
 		if roundLegacyID := parseInt(fix.Fields["game_round"]); roundLegacyID > 0 {

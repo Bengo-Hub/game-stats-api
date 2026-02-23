@@ -65,5 +65,6 @@ func (Player) Edges() []ent.Edge {
 		edge.To("game_events", GameEvent.Type),
 		edge.To("mvp_nominations", MVP_Nomination.Type),
 		edge.To("spirit_nominations", SpiritNomination.Type),
+		edge.To("participations", EventParticipation.Type),
 	}
 }

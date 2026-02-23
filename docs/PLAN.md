@@ -18,6 +18,9 @@ This document outlines the comprehensive backend architecture for the Game Stats
 - [x] Spirit of the Game tracking
 - [x] Admin score editing with audit trail
 - [x] Data migration from Django/PostgreSQL
+- [x] Historical data seeding ('outdoor', 'published', scorekeepers)
+- [x] EventParticipation bridge table for historical tracking
+- [wip] Bulk player transfers and mass imports
 - [ ] AI-powered analytics with natural language queries (Metabase/Ollama - docs ready)
 - [ ] PWA support with offline capabilities
 

@@ -63,9 +63,11 @@ type PlayerEdges struct {
 	MvpNominations []*MVP_Nomination `json:"mvp_nominations,omitempty"`
 	// SpiritNominations holds the value of the spirit_nominations edge.
 	SpiritNominations []*SpiritNomination `json:"spirit_nominations,omitempty"`
+	// Participations holds the value of the participations edge.
+	Participations []*EventParticipation `json:"participations,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [6]bool
 }
 
 // TeamOrErr returns the Team value or an error if the edge
@@ -113,6 +115,15 @@ func (e PlayerEdges) SpiritNominationsOrErr() ([]*SpiritNomination, error) {
 		return e.SpiritNominations, nil
 	}
 	return nil, &NotLoadedError{edge: "spirit_nominations"}
+}
+
+// ParticipationsOrErr returns the Participations value or an error if the edge
+// was not loaded in eager-loading.
+func (e PlayerEdges) ParticipationsOrErr() ([]*EventParticipation, error) {
+	if e.loadedTypes[5] {
+		return e.Participations, nil
+	}
+	return nil, &NotLoadedError{edge: "participations"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -277,6 +288,11 @@ func (_m *Player) QueryMvpNominations() *MVPNominationQuery {
 // QuerySpiritNominations queries the "spirit_nominations" edge of the Player entity.
 func (_m *Player) QuerySpiritNominations() *SpiritNominationQuery {
 	return NewPlayerClient(_m.config).QuerySpiritNominations(_m)
+}
+
+// QueryParticipations queries the "participations" edge of the Player entity.
+func (_m *Player) QueryParticipations() *EventParticipationQuery {
+	return NewPlayerClient(_m.config).QueryParticipations(_m)
 }
 
 // Update returns a builder for updating this Player.

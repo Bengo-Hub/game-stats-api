@@ -33,6 +33,7 @@ type RouterOptions struct {
 	LeaderboardHandler *handlers.LeaderboardHandler
 	EventHandler       *handlers.EventHandler
 	MediaHandler       *handlers.MediaHandler
+	BulkHandler        *handlers.BulkHandler
 }
 
 func NewRouter(opts RouterOptions) chi.Router {
@@ -318,6 +319,13 @@ func NewRouter(opts RouterOptions) chi.Router {
 
 			// Media upload route
 			r.Post("/upload", opts.MediaHandler.Upload)
+
+			// Bulk operations
+			r.Route("/bulk", func(r chi.Router) {
+				r.Use(middleware.RequirePermission(middleware.PermManageTeams))
+				r.Post("/players/transfer", opts.BulkHandler.BulkTransferPlayers)
+				r.Post("/players/import", opts.BulkHandler.MassImportPlayers)
+			})
 		})
 	})
 

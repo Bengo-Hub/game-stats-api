@@ -35,6 +35,7 @@ func (r *divisionPoolRepository) GetByID(ctx context.Context, id uuid.UUID) (*en
 		Where(divisionpool.ID(id)).
 		WithEvent().
 		WithTeams().
+		WithTargetRound().
 		Only(ctx)
 }
 

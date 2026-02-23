@@ -63,9 +63,11 @@ type TeamEdges struct {
 	SpiritScoresGiven []*SpiritScore `json:"spirit_scores_given,omitempty"`
 	// SpiritScoresReceived holds the value of the spirit_scores_received edge.
 	SpiritScoresReceived []*SpiritScore `json:"spirit_scores_received,omitempty"`
+	// Participations holds the value of the participations edge.
+	Participations []*EventParticipation `json:"participations,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [8]bool
+	loadedTypes [9]bool
 }
 
 // DivisionPoolOrErr returns the DivisionPool value or an error if the edge
@@ -142,6 +144,15 @@ func (e TeamEdges) SpiritScoresReceivedOrErr() ([]*SpiritScore, error) {
 		return e.SpiritScoresReceived, nil
 	}
 	return nil, &NotLoadedError{edge: "spirit_scores_received"}
+}
+
+// ParticipationsOrErr returns the Participations value or an error if the edge
+// was not loaded in eager-loading.
+func (e TeamEdges) ParticipationsOrErr() ([]*EventParticipation, error) {
+	if e.loadedTypes[8] {
+		return e.Participations, nil
+	}
+	return nil, &NotLoadedError{edge: "participations"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -303,6 +314,11 @@ func (_m *Team) QuerySpiritScoresGiven() *SpiritScoreQuery {
 // QuerySpiritScoresReceived queries the "spirit_scores_received" edge of the Team entity.
 func (_m *Team) QuerySpiritScoresReceived() *SpiritScoreQuery {
 	return NewTeamClient(_m.config).QuerySpiritScoresReceived(_m)
+}
+
+// QueryParticipations queries the "participations" edge of the Team entity.
+func (_m *Team) QueryParticipations() *EventParticipationQuery {
+	return NewTeamClient(_m.config).QueryParticipations(_m)
 }
 
 // Update returns a builder for updating this Team.

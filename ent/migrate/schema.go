@@ -168,6 +168,9 @@ var (
 		{Name: "max_teams", Type: field.TypeInt, Nullable: true},
 		{Name: "ranking_criteria", Type: field.TypeJSON, Nullable: true},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "auto_advance", Type: field.TypeBool, Default: false},
+		{Name: "top_n_teams", Type: field.TypeInt, Nullable: true},
+		{Name: "division_pool_target_round", Type: field.TypeUUID, Nullable: true},
 		{Name: "event_division_pools", Type: field.TypeUUID},
 	}
 	// DivisionPoolsTable holds the schema information for the "division_pools" table.
@@ -177,8 +180,14 @@ var (
 		PrimaryKey: []*schema.Column{DivisionPoolsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
+				Symbol:     "division_pools_game_rounds_target_round",
+				Columns:    []*schema.Column{DivisionPoolsColumns[11]},
+				RefColumns: []*schema.Column{GameRoundsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
 				Symbol:     "division_pools_events_division_pools",
-				Columns:    []*schema.Column{DivisionPoolsColumns[9]},
+				Columns:    []*schema.Column{DivisionPoolsColumns[12]},
 				RefColumns: []*schema.Column{EventsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -222,6 +231,46 @@ var (
 				Symbol:     "events_locations_events",
 				Columns:    []*schema.Column{EventsColumns[18]},
 				RefColumns: []*schema.Column{LocationsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// EventParticipationsColumns holds the columns for the "event_participations" table.
+	EventParticipationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "role", Type: field.TypeString, Default: "player"},
+		{Name: "jersey_number", Type: field.TypeInt, Nullable: true},
+		{Name: "status", Type: field.TypeString, Default: "active"},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "event_participations", Type: field.TypeUUID},
+		{Name: "player_participations", Type: field.TypeUUID},
+		{Name: "team_participations", Type: field.TypeUUID},
+	}
+	// EventParticipationsTable holds the schema information for the "event_participations" table.
+	EventParticipationsTable = &schema.Table{
+		Name:       "event_participations",
+		Columns:    EventParticipationsColumns,
+		PrimaryKey: []*schema.Column{EventParticipationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "event_participations_events_participations",
+				Columns:    []*schema.Column{EventParticipationsColumns[8]},
+				RefColumns: []*schema.Column{EventsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "event_participations_players_participations",
+				Columns:    []*schema.Column{EventParticipationsColumns[9]},
+				RefColumns: []*schema.Column{PlayersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "event_participations_teams_participations",
+				Columns:    []*schema.Column{EventParticipationsColumns[10]},
+				RefColumns: []*schema.Column{TeamsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
@@ -392,7 +441,10 @@ var (
 		{Name: "round_number", Type: field.TypeInt, Nullable: true},
 		{Name: "start_date", Type: field.TypeTime, Nullable: true},
 		{Name: "end_date", Type: field.TypeTime, Nullable: true},
+		{Name: "auto_advance", Type: field.TypeBool, Default: false},
+		{Name: "top_n_teams", Type: field.TypeInt, Nullable: true},
 		{Name: "event_game_rounds", Type: field.TypeUUID},
+		{Name: "game_round_target_round", Type: field.TypeUUID, Unique: true, Nullable: true},
 	}
 	// GameRoundsTable holds the schema information for the "game_rounds" table.
 	GameRoundsTable = &schema.Table{
@@ -402,9 +454,15 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "game_rounds_events_game_rounds",
-				Columns:    []*schema.Column{GameRoundsColumns[9]},
+				Columns:    []*schema.Column{GameRoundsColumns[11]},
 				RefColumns: []*schema.Column{EventsColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "game_rounds_game_rounds_target_round",
+				Columns:    []*schema.Column{GameRoundsColumns[12]},
+				RefColumns: []*schema.Column{GameRoundsColumns[0]},
+				OnDelete:   schema.SetNull,
 			},
 		},
 	}
@@ -724,6 +782,7 @@ var (
 		DisciplinesTable,
 		DivisionPoolsTable,
 		EventsTable,
+		EventParticipationsTable,
 		EventReconciliationsTable,
 		FieldsTable,
 		GamesTable,
@@ -745,9 +804,13 @@ func init() {
 	ContinentsTable.ForeignKeys[0].RefTable = WorldsTable
 	CountriesTable.ForeignKeys[0].RefTable = ContinentsTable
 	DisciplinesTable.ForeignKeys[0].RefTable = CountriesTable
-	DivisionPoolsTable.ForeignKeys[0].RefTable = EventsTable
+	DivisionPoolsTable.ForeignKeys[0].RefTable = GameRoundsTable
+	DivisionPoolsTable.ForeignKeys[1].RefTable = EventsTable
 	EventsTable.ForeignKeys[0].RefTable = DisciplinesTable
 	EventsTable.ForeignKeys[1].RefTable = LocationsTable
+	EventParticipationsTable.ForeignKeys[0].RefTable = EventsTable
+	EventParticipationsTable.ForeignKeys[1].RefTable = PlayersTable
+	EventParticipationsTable.ForeignKeys[2].RefTable = TeamsTable
 	EventReconciliationsTable.ForeignKeys[0].RefTable = EventsTable
 	FieldsTable.ForeignKeys[0].RefTable = LocationsTable
 	GamesTable.ForeignKeys[0].RefTable = DivisionPoolsTable
@@ -759,6 +822,7 @@ func init() {
 	GameEventsTable.ForeignKeys[0].RefTable = GamesTable
 	GameEventsTable.ForeignKeys[1].RefTable = PlayersTable
 	GameRoundsTable.ForeignKeys[0].RefTable = EventsTable
+	GameRoundsTable.ForeignKeys[1].RefTable = GameRoundsTable
 	LocationsTable.ForeignKeys[0].RefTable = CountriesTable
 	MvpNominationsTable.ForeignKeys[0].RefTable = PlayersTable
 	MvpNominationsTable.ForeignKeys[1].RefTable = SpiritScoresTable

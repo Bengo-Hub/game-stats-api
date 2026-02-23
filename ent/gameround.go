@@ -35,11 +35,16 @@ type GameRound struct {
 	StartDate *time.Time `json:"start_date,omitempty"`
 	// EndDate holds the value of the "end_date" field.
 	EndDate *time.Time `json:"end_date,omitempty"`
+	// Whether to automatically advance teams when all games are finished
+	AutoAdvance bool `json:"auto_advance,omitempty"`
+	// Number of top teams to advance automatically
+	TopNTeams *int `json:"top_n_teams,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GameRoundQuery when eager-loading is set.
-	Edges             GameRoundEdges `json:"edges"`
-	event_game_rounds *uuid.UUID
-	selectValues      sql.SelectValues
+	Edges                   GameRoundEdges `json:"edges"`
+	event_game_rounds       *uuid.UUID
+	game_round_target_round *uuid.UUID
+	selectValues            sql.SelectValues
 }
 
 // GameRoundEdges holds the relations/edges for other nodes in the graph.
@@ -48,9 +53,11 @@ type GameRoundEdges struct {
 	Event *Event `json:"event,omitempty"`
 	// Games holds the value of the games edge.
 	Games []*Game `json:"games,omitempty"`
+	// The round to advance teams to automatically
+	TargetRound *GameRound `json:"target_round,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // EventOrErr returns the Event value or an error if the edge
@@ -73,12 +80,25 @@ func (e GameRoundEdges) GamesOrErr() ([]*Game, error) {
 	return nil, &NotLoadedError{edge: "games"}
 }
 
+// TargetRoundOrErr returns the TargetRound value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e GameRoundEdges) TargetRoundOrErr() (*GameRound, error) {
+	if e.TargetRound != nil {
+		return e.TargetRound, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: gameround.Label}
+	}
+	return nil, &NotLoadedError{edge: "target_round"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*GameRound) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case gameround.FieldRoundNumber:
+		case gameround.FieldAutoAdvance:
+			values[i] = new(sql.NullBool)
+		case gameround.FieldRoundNumber, gameround.FieldTopNTeams:
 			values[i] = new(sql.NullInt64)
 		case gameround.FieldName, gameround.FieldRoundType:
 			values[i] = new(sql.NullString)
@@ -87,6 +107,8 @@ func (*GameRound) scanValues(columns []string) ([]any, error) {
 		case gameround.FieldID:
 			values[i] = new(uuid.UUID)
 		case gameround.ForeignKeys[0]: // event_game_rounds
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case gameround.ForeignKeys[1]: // game_round_target_round
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
@@ -161,12 +183,32 @@ func (_m *GameRound) assignValues(columns []string, values []any) error {
 				_m.EndDate = new(time.Time)
 				*_m.EndDate = value.Time
 			}
+		case gameround.FieldAutoAdvance:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field auto_advance", values[i])
+			} else if value.Valid {
+				_m.AutoAdvance = value.Bool
+			}
+		case gameround.FieldTopNTeams:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field top_n_teams", values[i])
+			} else if value.Valid {
+				_m.TopNTeams = new(int)
+				*_m.TopNTeams = int(value.Int64)
+			}
 		case gameround.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field event_game_rounds", values[i])
 			} else if value.Valid {
 				_m.event_game_rounds = new(uuid.UUID)
 				*_m.event_game_rounds = *value.S.(*uuid.UUID)
+			}
+		case gameround.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field game_round_target_round", values[i])
+			} else if value.Valid {
+				_m.game_round_target_round = new(uuid.UUID)
+				*_m.game_round_target_round = *value.S.(*uuid.UUID)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -189,6 +231,11 @@ func (_m *GameRound) QueryEvent() *EventQuery {
 // QueryGames queries the "games" edge of the GameRound entity.
 func (_m *GameRound) QueryGames() *GameQuery {
 	return NewGameRoundClient(_m.config).QueryGames(_m)
+}
+
+// QueryTargetRound queries the "target_round" edge of the GameRound entity.
+func (_m *GameRound) QueryTargetRound() *GameRoundQuery {
+	return NewGameRoundClient(_m.config).QueryTargetRound(_m)
 }
 
 // Update returns a builder for updating this GameRound.
@@ -244,6 +291,14 @@ func (_m *GameRound) String() string {
 	if v := _m.EndDate; v != nil {
 		builder.WriteString("end_date=")
 		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("auto_advance=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AutoAdvance))
+	builder.WriteString(", ")
+	if v := _m.TopNTeams; v != nil {
+		builder.WriteString("top_n_teams=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteByte(')')
 	return builder.String()

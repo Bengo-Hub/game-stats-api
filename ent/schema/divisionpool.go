@@ -38,6 +38,13 @@ func (DivisionPool) Fields() []ent.Field {
 		field.Text("description").
 			Optional().
 			Nillable(),
+		field.Bool("auto_advance").
+			Default(false).
+			Comment("Whether to automatically advance teams when all games are finished"),
+		field.Int("top_n_teams").
+			Optional().
+			Nillable().
+			Comment("Number of top teams to advance automatically"),
 	}
 }
 
@@ -50,5 +57,8 @@ func (DivisionPool) Edges() []ent.Edge {
 			Required(),
 		edge.To("teams", Team.Type),
 		edge.To("games", Game.Type),
+		edge.To("target_round", GameRound.Type).
+			Unique().
+			Comment("The round to advance teams to automatically"),
 	}
 }

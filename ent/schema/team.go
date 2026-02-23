@@ -58,5 +58,6 @@ func (Team) Edges() []ent.Edge {
 		edge.To("away_games", Game.Type),
 		edge.To("spirit_scores_given", SpiritScore.Type),
 		edge.To("spirit_scores_received", SpiritScore.Type),
+		edge.To("participations", EventParticipation.Type),
 	}
 }

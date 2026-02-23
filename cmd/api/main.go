@@ -83,10 +83,11 @@ func main() {
 	// 3.1. Connect to Redis
 	redisClient, err := cache.NewRedisClient(cfg.RedisURL)
 	if err != nil {
-		logger.Fatal("Failed to connect to Redis", logger.Err(err))
+		logger.Warn("Failed to connect to Redis (skipping)", logger.Err(err))
+	} else {
+		defer redisClient.Close()
+		logger.Info("Connected to Redis", logger.String("url", cfg.RedisURL))
 	}
-	defer redisClient.Close()
-	logger.Info("Connected to Redis", logger.String("url", cfg.RedisURL))
 
 	// 3.2. Run data migration from legacy system (idempotent)
 	if cfg.RunMigration {
@@ -130,35 +131,13 @@ func main() {
 
 	// Event repository for bracket generation
 	eventRepo := repository.NewEventRepository(client)
+	participationRepo := repository.NewEventParticipationRepository(client)
 
 	// Instantiate other repositories to ensure they are valid and compiled
 	_ = repository.NewLocationRepository(client)
 	_ = repository.NewDisciplineRepository(client)
 	_ = repository.NewEventReconciliationRepository(client)
 	_ = repository.NewAnalyticsEmbeddingRepository(client)
-
-	// 5. Initialize application services
-	authService := auth.NewService(userRepo, cfg)
-	metadataService := metadata.NewService(worldRepo, continentRepo, countryRepo)
-	gameManagementService := gamemanagement.NewService(
-		gameRepo,
-		gameRoundRepo,
-		gameEventRepo,
-		scoringRepo,
-		spiritScoreRepo,
-		mvpNominationRepo,
-		spiritNominationRepo,
-		teamRepo,
-		playerRepo,
-		fieldRepo,
-		divisionRepo,
-		userRepo,
-		eventRepo,
-	)
-
-	// Initialize SSE broker for real-time updates
-	sseBroker := sse.NewBroker()
-	defer sseBroker.Shutdown()
 
 	// Initialize ranking service with cache
 	rankingService := ranking.NewService(
@@ -177,6 +156,34 @@ func main() {
 		eventRepo,
 		redisClient,
 	)
+
+	// Cross-link services if needed
+	rankingService.SetBracketService(bracketService)
+
+	// 5. Initialize application services
+	authService := auth.NewService(userRepo, cfg)
+	metadataService := metadata.NewService(worldRepo, continentRepo, countryRepo)
+	gameManagementService := gamemanagement.NewService(
+		gameRepo,
+		gameRoundRepo,
+		gameEventRepo,
+		scoringRepo,
+		spiritScoreRepo,
+		mvpNominationRepo,
+		spiritNominationRepo,
+		teamRepo,
+		playerRepo,
+		fieldRepo,
+		divisionRepo,
+		userRepo,
+		eventRepo,
+		participationRepo,
+		rankingService,
+	)
+
+	// Initialize SSE broker for real-time updates
+	sseBroker := sse.NewBroker()
+	defer sseBroker.Shutdown()
 
 	// Initialize analytics service with Metabase client (adapter)
 	metabaseClient := analytics.NewMetabaseClient(
@@ -216,6 +223,7 @@ func main() {
 	leaderboardHandler := handlers.NewLeaderboardHandler(client)
 	eventHandler := handlers.NewEventHandler(client)
 	mediaHandler := handlers.NewMediaHandler(cfg.UploadsDir, cfg.ApiBaseURL)
+	bulkHandler := handlers.NewBulkHandler(gameManagementService)
 
 	// 7. Setup router
 	router := appHttp.NewRouter(appHttp.RouterOptions{
@@ -236,6 +244,7 @@ func main() {
 		LeaderboardHandler: leaderboardHandler,
 		EventHandler:       eventHandler,
 		MediaHandler:       mediaHandler,
+		BulkHandler:        bulkHandler,
 	})
 
 	// 8. Start server

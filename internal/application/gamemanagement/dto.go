@@ -212,3 +212,30 @@ type ListGamesFilter struct {
 	Limit          int
 	Offset         int
 }
+
+// Bulk Operations DTOs
+type BulkTransferRequest struct {
+	Transfers []PlayerTransfer `json:"transfers" validate:"required,dive"`
+	EventID   uuid.UUID        `json:"event_id" validate:"required"`
+}
+
+type PlayerTransfer struct {
+	PlayerID   uuid.UUID `json:"player_id" validate:"required"`
+	ToTeamID   uuid.UUID `json:"to_team_id" validate:"required"`
+	FromTeamID uuid.UUID `json:"from_team_id" validate:"required"`
+	Role       *string   `json:"role,omitempty"`
+	Status     *string   `json:"status,omitempty"`
+}
+
+type MassImportPlayersRequest struct {
+	TeamID  uuid.UUID      `json:"team_id" validate:"required"`
+	Players []ImportPlayer `json:"players" validate:"required,dive"`
+	EventID *uuid.UUID     `json:"event_id,omitempty"`
+}
+
+type ImportPlayer struct {
+	Name         string  `json:"name" validate:"required"`
+	Email        *string `json:"email,omitempty"`
+	Gender       string  `json:"gender" validate:"required,oneof=M F X"`
+	JerseyNumber *int    `json:"jersey_number,omitempty"`
+}

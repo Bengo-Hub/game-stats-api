@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/eventparticipation"
 	"github.com/bengobox/game-stats-api/ent/gameevent"
 	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
 	"github.com/bengobox/game-stats-api/ent/player"
@@ -253,6 +254,21 @@ func (_c *PlayerCreate) AddSpiritNominations(v ...*SpiritNomination) *PlayerCrea
 		ids[i] = v[i].ID
 	}
 	return _c.AddSpiritNominationIDs(ids...)
+}
+
+// AddParticipationIDs adds the "participations" edge to the EventParticipation entity by IDs.
+func (_c *PlayerCreate) AddParticipationIDs(ids ...uuid.UUID) *PlayerCreate {
+	_c.mutation.AddParticipationIDs(ids...)
+	return _c
+}
+
+// AddParticipations adds the "participations" edges to the EventParticipation entity.
+func (_c *PlayerCreate) AddParticipations(v ...*EventParticipation) *PlayerCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddParticipationIDs(ids...)
 }
 
 // Mutation returns the PlayerMutation object of the builder.
@@ -502,6 +518,22 @@ func (_c *PlayerCreate) createSpec() (*Player, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ParticipationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.ParticipationsTable,
+			Columns: []string{player.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(eventparticipation.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

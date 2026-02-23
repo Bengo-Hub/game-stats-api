@@ -71,6 +71,9 @@ func (m *Migrator) RunAll(ctx context.Context, fixturesDir string) error {
 		{"games", m.migrateGames},
 		{"scoring", m.migrateScoring},
 
+		// Historical participation
+		{"event_participation", m.migrateEventParticipation},
+
 		// Spirit scores (with MVP/Spirit nominations)
 		{"spirit_scores", m.migrateSpiritScores},
 	}

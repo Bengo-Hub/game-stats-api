@@ -30,6 +30,9 @@ type DivisionPool func(*sql.Selector)
 // Event is the predicate function for event builders.
 type Event func(*sql.Selector)
 
+// EventParticipation is the predicate function for eventparticipation builders.
+type EventParticipation func(*sql.Selector)
+
 // EventReconciliation is the predicate function for eventreconciliation builders.
 type EventReconciliation func(*sql.Selector)
 

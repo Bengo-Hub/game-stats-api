@@ -766,6 +766,29 @@ func HasSpiritNominationsWith(preds ...predicate.SpiritNomination) predicate.Pla
 	})
 }
 
+// HasParticipations applies the HasEdge predicate on the "participations" edge.
+func HasParticipations() predicate.Player {
+	return predicate.Player(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ParticipationsTable, ParticipationsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasParticipationsWith applies the HasEdge predicate on the "participations" edge with a given conditions (other predicates).
+func HasParticipationsWith(preds ...predicate.EventParticipation) predicate.Player {
+	return predicate.Player(func(s *sql.Selector) {
+		step := newParticipationsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Player) predicate.Player {
 	return predicate.Player(sql.AndPredicates(predicates...))

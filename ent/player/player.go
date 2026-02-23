@@ -49,6 +49,8 @@ const (
 	EdgeMvpNominations = "mvp_nominations"
 	// EdgeSpiritNominations holds the string denoting the spirit_nominations edge name in mutations.
 	EdgeSpiritNominations = "spirit_nominations"
+	// EdgeParticipations holds the string denoting the participations edge name in mutations.
+	EdgeParticipations = "participations"
 	// Table holds the table name of the player in the database.
 	Table = "players"
 	// TeamTable is the table that holds the team relation/edge.
@@ -86,6 +88,13 @@ const (
 	SpiritNominationsInverseTable = "spirit_nominations"
 	// SpiritNominationsColumn is the table column denoting the spirit_nominations relation/edge.
 	SpiritNominationsColumn = "player_spirit_nominations"
+	// ParticipationsTable is the table that holds the participations relation/edge.
+	ParticipationsTable = "event_participations"
+	// ParticipationsInverseTable is the table name for the EventParticipation entity.
+	// It exists in this package in order to avoid circular dependency with the "eventparticipation" package.
+	ParticipationsInverseTable = "event_participations"
+	// ParticipationsColumn is the table column denoting the participations relation/edge.
+	ParticipationsColumn = "player_participations"
 )
 
 // Columns holds all SQL columns for player fields.
@@ -270,6 +279,20 @@ func BySpiritNominations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption
 		sqlgraph.OrderByNeighborTerms(s, newSpiritNominationsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByParticipationsCount orders the results by participations count.
+func ByParticipationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newParticipationsStep(), opts...)
+	}
+}
+
+// ByParticipations orders the results by participations terms.
+func ByParticipations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newParticipationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newTeamStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -303,5 +326,12 @@ func newSpiritNominationsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SpiritNominationsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, SpiritNominationsTable, SpiritNominationsColumn),
+	)
+}
+func newParticipationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ParticipationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ParticipationsTable, ParticipationsColumn),
 	)
 }

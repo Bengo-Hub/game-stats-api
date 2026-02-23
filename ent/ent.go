@@ -20,6 +20,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/eventparticipation"
 	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
 
 	entfield "github.com/bengobox/game-stats-api/ent/field"
@@ -103,6 +104,7 @@ func checkColumn(t, c string) error {
 			discipline.Table:          discipline.ValidColumn,
 			divisionpool.Table:        divisionpool.ValidColumn,
 			event.Table:               event.ValidColumn,
+			eventparticipation.Table:  eventparticipation.ValidColumn,
 			eventreconciliation.Table: eventreconciliation.ValidColumn,
 			entfield.Table:            entfield.ValidColumn,
 			game.Table:                game.ValidColumn,

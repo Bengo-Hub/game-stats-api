@@ -39,6 +39,13 @@ func (GameRound) Fields() []ent.Field {
 		field.Time("end_date").
 			Optional().
 			Nillable(),
+		field.Bool("auto_advance").
+			Default(false).
+			Comment("Whether to automatically advance teams when all games are finished"),
+		field.Int("top_n_teams").
+			Optional().
+			Nillable().
+			Comment("Number of top teams to advance automatically"),
 	}
 }
 
@@ -50,5 +57,8 @@ func (GameRound) Edges() []ent.Edge {
 			Unique().
 			Required(),
 		edge.To("games", Game.Type),
+		edge.To("target_round", GameRound.Type).
+			Unique().
+			Comment("The round to advance teams to automatically"),
 	}
 }

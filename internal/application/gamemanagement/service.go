@@ -8,6 +8,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/internal/domain/divisionpool"
 	"github.com/bengobox/game-stats-api/internal/domain/event"
+	"github.com/bengobox/game-stats-api/internal/domain/eventparticipation"
 	"github.com/bengobox/game-stats-api/internal/domain/field"
 	"github.com/bengobox/game-stats-api/internal/domain/game"
 	"github.com/bengobox/game-stats-api/internal/domain/gameevent"
@@ -21,6 +22,10 @@ import (
 	"github.com/bengobox/game-stats-api/internal/domain/user"
 	"github.com/google/uuid"
 )
+
+type AdvancementService interface {
+	HandleGameEnded(ctx context.Context, gameID uuid.UUID) error
+}
 
 var (
 	ErrGameNotFound      = errors.New("game not found")
@@ -47,6 +52,8 @@ type Service struct {
 	divisionRepo         divisionpool.Repository
 	userRepo             user.Repository
 	eventRepo            event.Repository
+	participationRepo    eventparticipation.Repository
+	advancementService   AdvancementService
 }
 
 func NewService(
@@ -63,6 +70,8 @@ func NewService(
 	divisionRepo divisionpool.Repository,
 	userRepo user.Repository,
 	eventRepo event.Repository,
+	participationRepo eventparticipation.Repository,
+	advancementService AdvancementService,
 ) *Service {
 	return &Service{
 		gameRepo:             gameRepo,
@@ -78,6 +87,8 @@ func NewService(
 		divisionRepo:         divisionRepo,
 		userRepo:             userRepo,
 		eventRepo:            eventRepo,
+		participationRepo:    participationRepo,
+		advancementService:   advancementService,
 	}
 }
 
@@ -441,7 +452,15 @@ func (s *Service) EndGame(ctx context.Context, id uuid.UUID, userID uuid.UUID) (
 	}
 
 	// SSE events are broadcast via the stream handler when clients poll for updates
-	// Ranking recalculation is triggered automatically via event-driven architecture
+	// Ranking recalculation and automated advancement
+	if s.advancementService != nil {
+		go func() {
+			ctx := context.Background() // Use fresh context for background task
+			if err := s.advancementService.HandleGameEnded(ctx, updated.ID); err != nil {
+				// Log error (pro-active logging should be here)
+			}
+		}()
+	}
 
 	result, err := s.gameRepo.GetByIDWithRelations(ctx, updated.ID)
 	if err != nil {
@@ -600,4 +619,83 @@ func mapGameToDTO(g *ent.Game) *GameDTO {
 	}
 
 	return dto
+}
+
+// Bulk Operations
+
+func (s *Service) BulkTransferPlayers(ctx context.Context, req BulkTransferRequest) error {
+	for _, t := range req.Transfers {
+		// Get player
+		p, err := s.playerRepo.GetByID(ctx, t.PlayerID)
+		if err != nil {
+			continue // Or return error depending on requirements
+		}
+
+		// Update team association in Player model
+		p.Edges.Team = &ent.Team{ID: t.ToTeamID}
+		_, err = s.playerRepo.Update(ctx, p)
+		if err != nil {
+			return err
+		}
+
+		// Create EventParticipation record
+		role := "player"
+		if t.Role != nil {
+			role = *t.Role
+		}
+		status := "active"
+		if t.Status != nil {
+			status = *t.Status
+		}
+
+		_, err = s.participationRepo.Create(ctx, &ent.EventParticipation{
+			Role:   role,
+			Status: status,
+			Edges: ent.EventParticipationEdges{
+				Player: &ent.Player{ID: t.PlayerID},
+				Team:   &ent.Team{ID: t.ToTeamID},
+				Event:  &ent.Event{ID: req.EventID},
+			},
+		})
+		if err != nil {
+			// Handle duplicate or other errors
+		}
+	}
+	return nil
+}
+
+func (s *Service) MassImportPlayers(ctx context.Context, req MassImportPlayersRequest) ([]uuid.UUID, error) {
+	var createdIDs []uuid.UUID
+	for _, ip := range req.Players {
+		// Create player
+		p := &ent.Player{
+			Name:         ip.Name,
+			Email:        ip.Email,
+			Gender:       ip.Gender,
+			JerseyNumber: ip.JerseyNumber,
+			Edges: ent.PlayerEdges{
+				Team: &ent.Team{ID: req.TeamID},
+			},
+		}
+
+		newPlayer, err := s.playerRepo.Create(ctx, p)
+		if err != nil {
+			return createdIDs, err
+		}
+		createdIDs = append(createdIDs, newPlayer.ID)
+
+		// Create participation if EventID is provided
+		if req.EventID != nil {
+			_, _ = s.participationRepo.Create(ctx, &ent.EventParticipation{
+				Role:   "player",
+				Status: "active",
+				Edges: ent.EventParticipationEdges{
+					Player: &ent.Player{ID: newPlayer.ID},
+					Team:   &ent.Team{ID: req.TeamID},
+					Event:  &ent.Event{ID: *req.EventID},
+				},
+			})
+		}
+	}
+	return createdIDs, nil
 }

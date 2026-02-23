@@ -13,6 +13,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/eventparticipation"
 	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
 	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/location"
@@ -289,6 +290,21 @@ func (_c *EventCreate) AddManagedBy(v ...*User) *EventCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddManagedByIDs(ids...)
+}
+
+// AddParticipationIDs adds the "participations" edge to the EventParticipation entity by IDs.
+func (_c *EventCreate) AddParticipationIDs(ids ...uuid.UUID) *EventCreate {
+	_c.mutation.AddParticipationIDs(ids...)
+	return _c
+}
+
+// AddParticipations adds the "participations" edges to the EventParticipation entity.
+func (_c *EventCreate) AddParticipations(v ...*EventParticipation) *EventCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddParticipationIDs(ids...)
 }
 
 // Mutation returns the EventMutation object of the builder.
@@ -605,6 +621,22 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ParticipationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.ParticipationsTable,
+			Columns: []string{event.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(eventparticipation.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

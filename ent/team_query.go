@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/eventparticipation"
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/player"
@@ -38,6 +39,7 @@ type TeamQuery struct {
 	withAwayGames            *GameQuery
 	withSpiritScoresGiven    *SpiritScoreQuery
 	withSpiritScoresReceived *SpiritScoreQuery
+	withParticipations       *EventParticipationQuery
 	withFKs                  bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -251,6 +253,28 @@ func (_q *TeamQuery) QuerySpiritScoresReceived() *SpiritScoreQuery {
 	return query
 }
 
+// QueryParticipations chains the current query on the "participations" edge.
+func (_q *TeamQuery) QueryParticipations() *EventParticipationQuery {
+	query := (&EventParticipationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, selector),
+			sqlgraph.To(eventparticipation.Table, eventparticipation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.ParticipationsTable, team.ParticipationsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Team entity from the query.
 // Returns a *NotFoundError when no Team was found.
 func (_q *TeamQuery) First(ctx context.Context) (*Team, error) {
@@ -451,6 +475,7 @@ func (_q *TeamQuery) Clone() *TeamQuery {
 		withAwayGames:            _q.withAwayGames.Clone(),
 		withSpiritScoresGiven:    _q.withSpiritScoresGiven.Clone(),
 		withSpiritScoresReceived: _q.withSpiritScoresReceived.Clone(),
+		withParticipations:       _q.withParticipations.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -545,6 +570,17 @@ func (_q *TeamQuery) WithSpiritScoresReceived(opts ...func(*SpiritScoreQuery)) *
 	return _q
 }
 
+// WithParticipations tells the query-builder to eager-load the nodes that are connected to
+// the "participations" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TeamQuery) WithParticipations(opts ...func(*EventParticipationQuery)) *TeamQuery {
+	query := (&EventParticipationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withParticipations = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -624,7 +660,7 @@ func (_q *TeamQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Team, e
 		nodes       = []*Team{}
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [8]bool{
+		loadedTypes = [9]bool{
 			_q.withDivisionPool != nil,
 			_q.withHomeLocation != nil,
 			_q.withPlayers != nil,
@@ -633,6 +669,7 @@ func (_q *TeamQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Team, e
 			_q.withAwayGames != nil,
 			_q.withSpiritScoresGiven != nil,
 			_q.withSpiritScoresReceived != nil,
+			_q.withParticipations != nil,
 		}
 	)
 	if _q.withDivisionPool != nil || _q.withHomeLocation != nil {
@@ -710,6 +747,13 @@ func (_q *TeamQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Team, e
 		if err := _q.loadSpiritScoresReceived(ctx, query, nodes,
 			func(n *Team) { n.Edges.SpiritScoresReceived = []*SpiritScore{} },
 			func(n *Team, e *SpiritScore) { n.Edges.SpiritScoresReceived = append(n.Edges.SpiritScoresReceived, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withParticipations; query != nil {
+		if err := _q.loadParticipations(ctx, query, nodes,
+			func(n *Team) { n.Edges.Participations = []*EventParticipation{} },
+			func(n *Team, e *EventParticipation) { n.Edges.Participations = append(n.Edges.Participations, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -961,6 +1005,37 @@ func (_q *TeamQuery) loadSpiritScoresReceived(ctx context.Context, query *Spirit
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "team_spirit_scores_received" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *TeamQuery) loadParticipations(ctx context.Context, query *EventParticipationQuery, nodes []*Team, init func(*Team), assign func(*Team, *EventParticipation)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Team)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.EventParticipation(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(team.ParticipationsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.team_participations
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "team_participations" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "team_participations" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

@@ -96,6 +96,16 @@ func EndDate(v time.Time) predicate.GameRound {
 	return predicate.GameRound(sql.FieldEQ(FieldEndDate, v))
 }
 
+// AutoAdvance applies equality check predicate on the "auto_advance" field. It's identical to AutoAdvanceEQ.
+func AutoAdvance(v bool) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldAutoAdvance, v))
+}
+
+// TopNTeams applies equality check predicate on the "top_n_teams" field. It's identical to TopNTeamsEQ.
+func TopNTeams(v int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldTopNTeams, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.GameRound {
 	return predicate.GameRound(sql.FieldEQ(FieldCreatedAt, v))
@@ -506,6 +516,66 @@ func EndDateNotNil() predicate.GameRound {
 	return predicate.GameRound(sql.FieldNotNull(FieldEndDate))
 }
 
+// AutoAdvanceEQ applies the EQ predicate on the "auto_advance" field.
+func AutoAdvanceEQ(v bool) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldAutoAdvance, v))
+}
+
+// AutoAdvanceNEQ applies the NEQ predicate on the "auto_advance" field.
+func AutoAdvanceNEQ(v bool) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNEQ(FieldAutoAdvance, v))
+}
+
+// TopNTeamsEQ applies the EQ predicate on the "top_n_teams" field.
+func TopNTeamsEQ(v int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldEQ(FieldTopNTeams, v))
+}
+
+// TopNTeamsNEQ applies the NEQ predicate on the "top_n_teams" field.
+func TopNTeamsNEQ(v int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNEQ(FieldTopNTeams, v))
+}
+
+// TopNTeamsIn applies the In predicate on the "top_n_teams" field.
+func TopNTeamsIn(vs ...int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldIn(FieldTopNTeams, vs...))
+}
+
+// TopNTeamsNotIn applies the NotIn predicate on the "top_n_teams" field.
+func TopNTeamsNotIn(vs ...int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldNotIn(FieldTopNTeams, vs...))
+}
+
+// TopNTeamsGT applies the GT predicate on the "top_n_teams" field.
+func TopNTeamsGT(v int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGT(FieldTopNTeams, v))
+}
+
+// TopNTeamsGTE applies the GTE predicate on the "top_n_teams" field.
+func TopNTeamsGTE(v int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldGTE(FieldTopNTeams, v))
+}
+
+// TopNTeamsLT applies the LT predicate on the "top_n_teams" field.
+func TopNTeamsLT(v int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLT(FieldTopNTeams, v))
+}
+
+// TopNTeamsLTE applies the LTE predicate on the "top_n_teams" field.
+func TopNTeamsLTE(v int) predicate.GameRound {
+	return predicate.GameRound(sql.FieldLTE(FieldTopNTeams, v))
+}
+
+// TopNTeamsIsNil applies the IsNil predicate on the "top_n_teams" field.
+func TopNTeamsIsNil() predicate.GameRound {
+	return predicate.GameRound(sql.FieldIsNull(FieldTopNTeams))
+}
+
+// TopNTeamsNotNil applies the NotNil predicate on the "top_n_teams" field.
+func TopNTeamsNotNil() predicate.GameRound {
+	return predicate.GameRound(sql.FieldNotNull(FieldTopNTeams))
+}
+
 // HasEvent applies the HasEdge predicate on the "event" edge.
 func HasEvent() predicate.GameRound {
 	return predicate.GameRound(func(s *sql.Selector) {
@@ -544,6 +614,29 @@ func HasGames() predicate.GameRound {
 func HasGamesWith(preds ...predicate.Game) predicate.GameRound {
 	return predicate.GameRound(func(s *sql.Selector) {
 		step := newGamesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTargetRound applies the HasEdge predicate on the "target_round" edge.
+func HasTargetRound() predicate.GameRound {
+	return predicate.GameRound(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, TargetRoundTable, TargetRoundColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTargetRoundWith applies the HasEdge predicate on the "target_round" edge with a given conditions (other predicates).
+func HasTargetRoundWith(preds ...predicate.GameRound) predicate.GameRound {
+	return predicate.GameRound(func(s *sql.Selector) {
+		step := newTargetRoundStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

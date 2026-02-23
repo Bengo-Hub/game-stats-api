@@ -91,6 +91,16 @@ func Description(v string) predicate.DivisionPool {
 	return predicate.DivisionPool(sql.FieldEQ(FieldDescription, v))
 }
 
+// AutoAdvance applies equality check predicate on the "auto_advance" field. It's identical to AutoAdvanceEQ.
+func AutoAdvance(v bool) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldAutoAdvance, v))
+}
+
+// TopNTeams applies equality check predicate on the "top_n_teams" field. It's identical to TopNTeamsEQ.
+func TopNTeams(v int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldTopNTeams, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.DivisionPool {
 	return predicate.DivisionPool(sql.FieldEQ(FieldCreatedAt, v))
@@ -486,6 +496,66 @@ func DescriptionContainsFold(v string) predicate.DivisionPool {
 	return predicate.DivisionPool(sql.FieldContainsFold(FieldDescription, v))
 }
 
+// AutoAdvanceEQ applies the EQ predicate on the "auto_advance" field.
+func AutoAdvanceEQ(v bool) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldAutoAdvance, v))
+}
+
+// AutoAdvanceNEQ applies the NEQ predicate on the "auto_advance" field.
+func AutoAdvanceNEQ(v bool) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNEQ(FieldAutoAdvance, v))
+}
+
+// TopNTeamsEQ applies the EQ predicate on the "top_n_teams" field.
+func TopNTeamsEQ(v int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldEQ(FieldTopNTeams, v))
+}
+
+// TopNTeamsNEQ applies the NEQ predicate on the "top_n_teams" field.
+func TopNTeamsNEQ(v int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNEQ(FieldTopNTeams, v))
+}
+
+// TopNTeamsIn applies the In predicate on the "top_n_teams" field.
+func TopNTeamsIn(vs ...int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldIn(FieldTopNTeams, vs...))
+}
+
+// TopNTeamsNotIn applies the NotIn predicate on the "top_n_teams" field.
+func TopNTeamsNotIn(vs ...int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNotIn(FieldTopNTeams, vs...))
+}
+
+// TopNTeamsGT applies the GT predicate on the "top_n_teams" field.
+func TopNTeamsGT(v int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGT(FieldTopNTeams, v))
+}
+
+// TopNTeamsGTE applies the GTE predicate on the "top_n_teams" field.
+func TopNTeamsGTE(v int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldGTE(FieldTopNTeams, v))
+}
+
+// TopNTeamsLT applies the LT predicate on the "top_n_teams" field.
+func TopNTeamsLT(v int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLT(FieldTopNTeams, v))
+}
+
+// TopNTeamsLTE applies the LTE predicate on the "top_n_teams" field.
+func TopNTeamsLTE(v int) predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldLTE(FieldTopNTeams, v))
+}
+
+// TopNTeamsIsNil applies the IsNil predicate on the "top_n_teams" field.
+func TopNTeamsIsNil() predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldIsNull(FieldTopNTeams))
+}
+
+// TopNTeamsNotNil applies the NotNil predicate on the "top_n_teams" field.
+func TopNTeamsNotNil() predicate.DivisionPool {
+	return predicate.DivisionPool(sql.FieldNotNull(FieldTopNTeams))
+}
+
 // HasEvent applies the HasEdge predicate on the "event" edge.
 func HasEvent() predicate.DivisionPool {
 	return predicate.DivisionPool(func(s *sql.Selector) {
@@ -547,6 +617,29 @@ func HasGames() predicate.DivisionPool {
 func HasGamesWith(preds ...predicate.Game) predicate.DivisionPool {
 	return predicate.DivisionPool(func(s *sql.Selector) {
 		step := newGamesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTargetRound applies the HasEdge predicate on the "target_round" edge.
+func HasTargetRound() predicate.DivisionPool {
+	return predicate.DivisionPool(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, TargetRoundTable, TargetRoundColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTargetRoundWith applies the HasEdge predicate on the "target_round" edge with a given conditions (other predicates).
+func HasTargetRoundWith(preds ...predicate.GameRound) predicate.DivisionPool {
+	return predicate.DivisionPool(func(s *sql.Selector) {
+		step := newTargetRoundStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

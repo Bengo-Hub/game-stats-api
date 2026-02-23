@@ -14,6 +14,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/predicate"
 	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/google/uuid"
@@ -145,6 +146,47 @@ func (_u *DivisionPoolUpdate) ClearDescription() *DivisionPoolUpdate {
 	return _u
 }
 
+// SetAutoAdvance sets the "auto_advance" field.
+func (_u *DivisionPoolUpdate) SetAutoAdvance(v bool) *DivisionPoolUpdate {
+	_u.mutation.SetAutoAdvance(v)
+	return _u
+}
+
+// SetNillableAutoAdvance sets the "auto_advance" field if the given value is not nil.
+func (_u *DivisionPoolUpdate) SetNillableAutoAdvance(v *bool) *DivisionPoolUpdate {
+	if v != nil {
+		_u.SetAutoAdvance(*v)
+	}
+	return _u
+}
+
+// SetTopNTeams sets the "top_n_teams" field.
+func (_u *DivisionPoolUpdate) SetTopNTeams(v int) *DivisionPoolUpdate {
+	_u.mutation.ResetTopNTeams()
+	_u.mutation.SetTopNTeams(v)
+	return _u
+}
+
+// SetNillableTopNTeams sets the "top_n_teams" field if the given value is not nil.
+func (_u *DivisionPoolUpdate) SetNillableTopNTeams(v *int) *DivisionPoolUpdate {
+	if v != nil {
+		_u.SetTopNTeams(*v)
+	}
+	return _u
+}
+
+// AddTopNTeams adds value to the "top_n_teams" field.
+func (_u *DivisionPoolUpdate) AddTopNTeams(v int) *DivisionPoolUpdate {
+	_u.mutation.AddTopNTeams(v)
+	return _u
+}
+
+// ClearTopNTeams clears the value of the "top_n_teams" field.
+func (_u *DivisionPoolUpdate) ClearTopNTeams() *DivisionPoolUpdate {
+	_u.mutation.ClearTopNTeams()
+	return _u
+}
+
 // SetEventID sets the "event" edge to the Event entity by ID.
 func (_u *DivisionPoolUpdate) SetEventID(id uuid.UUID) *DivisionPoolUpdate {
 	_u.mutation.SetEventID(id)
@@ -184,6 +226,25 @@ func (_u *DivisionPoolUpdate) AddGames(v ...*Game) *DivisionPoolUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.AddGameIDs(ids...)
+}
+
+// SetTargetRoundID sets the "target_round" edge to the GameRound entity by ID.
+func (_u *DivisionPoolUpdate) SetTargetRoundID(id uuid.UUID) *DivisionPoolUpdate {
+	_u.mutation.SetTargetRoundID(id)
+	return _u
+}
+
+// SetNillableTargetRoundID sets the "target_round" edge to the GameRound entity by ID if the given value is not nil.
+func (_u *DivisionPoolUpdate) SetNillableTargetRoundID(id *uuid.UUID) *DivisionPoolUpdate {
+	if id != nil {
+		_u = _u.SetTargetRoundID(*id)
+	}
+	return _u
+}
+
+// SetTargetRound sets the "target_round" edge to the GameRound entity.
+func (_u *DivisionPoolUpdate) SetTargetRound(v *GameRound) *DivisionPoolUpdate {
+	return _u.SetTargetRoundID(v.ID)
 }
 
 // Mutation returns the DivisionPoolMutation object of the builder.
@@ -237,6 +298,12 @@ func (_u *DivisionPoolUpdate) RemoveGames(v ...*Game) *DivisionPoolUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveGameIDs(ids...)
+}
+
+// ClearTargetRound clears the "target_round" edge to the GameRound entity.
+func (_u *DivisionPoolUpdate) ClearTargetRound() *DivisionPoolUpdate {
+	_u.mutation.ClearTargetRound()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -340,6 +407,18 @@ func (_u *DivisionPoolUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(divisionpool.FieldDescription, field.TypeString)
+	}
+	if value, ok := _u.mutation.AutoAdvance(); ok {
+		_spec.SetField(divisionpool.FieldAutoAdvance, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.TopNTeams(); ok {
+		_spec.SetField(divisionpool.FieldTopNTeams, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedTopNTeams(); ok {
+		_spec.AddField(divisionpool.FieldTopNTeams, field.TypeInt, value)
+	}
+	if _u.mutation.TopNTeamsCleared() {
+		_spec.ClearField(divisionpool.FieldTopNTeams, field.TypeInt)
 	}
 	if _u.mutation.EventCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -453,6 +532,35 @@ func (_u *DivisionPoolUpdate) sqlSave(ctx context.Context) (_node int, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TargetRoundCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   divisionpool.TargetRoundTable,
+			Columns: []string{divisionpool.TargetRoundColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TargetRoundIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   divisionpool.TargetRoundTable,
+			Columns: []string{divisionpool.TargetRoundColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -593,6 +701,47 @@ func (_u *DivisionPoolUpdateOne) ClearDescription() *DivisionPoolUpdateOne {
 	return _u
 }
 
+// SetAutoAdvance sets the "auto_advance" field.
+func (_u *DivisionPoolUpdateOne) SetAutoAdvance(v bool) *DivisionPoolUpdateOne {
+	_u.mutation.SetAutoAdvance(v)
+	return _u
+}
+
+// SetNillableAutoAdvance sets the "auto_advance" field if the given value is not nil.
+func (_u *DivisionPoolUpdateOne) SetNillableAutoAdvance(v *bool) *DivisionPoolUpdateOne {
+	if v != nil {
+		_u.SetAutoAdvance(*v)
+	}
+	return _u
+}
+
+// SetTopNTeams sets the "top_n_teams" field.
+func (_u *DivisionPoolUpdateOne) SetTopNTeams(v int) *DivisionPoolUpdateOne {
+	_u.mutation.ResetTopNTeams()
+	_u.mutation.SetTopNTeams(v)
+	return _u
+}
+
+// SetNillableTopNTeams sets the "top_n_teams" field if the given value is not nil.
+func (_u *DivisionPoolUpdateOne) SetNillableTopNTeams(v *int) *DivisionPoolUpdateOne {
+	if v != nil {
+		_u.SetTopNTeams(*v)
+	}
+	return _u
+}
+
+// AddTopNTeams adds value to the "top_n_teams" field.
+func (_u *DivisionPoolUpdateOne) AddTopNTeams(v int) *DivisionPoolUpdateOne {
+	_u.mutation.AddTopNTeams(v)
+	return _u
+}
+
+// ClearTopNTeams clears the value of the "top_n_teams" field.
+func (_u *DivisionPoolUpdateOne) ClearTopNTeams() *DivisionPoolUpdateOne {
+	_u.mutation.ClearTopNTeams()
+	return _u
+}
+
 // SetEventID sets the "event" edge to the Event entity by ID.
 func (_u *DivisionPoolUpdateOne) SetEventID(id uuid.UUID) *DivisionPoolUpdateOne {
 	_u.mutation.SetEventID(id)
@@ -632,6 +781,25 @@ func (_u *DivisionPoolUpdateOne) AddGames(v ...*Game) *DivisionPoolUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.AddGameIDs(ids...)
+}
+
+// SetTargetRoundID sets the "target_round" edge to the GameRound entity by ID.
+func (_u *DivisionPoolUpdateOne) SetTargetRoundID(id uuid.UUID) *DivisionPoolUpdateOne {
+	_u.mutation.SetTargetRoundID(id)
+	return _u
+}
+
+// SetNillableTargetRoundID sets the "target_round" edge to the GameRound entity by ID if the given value is not nil.
+func (_u *DivisionPoolUpdateOne) SetNillableTargetRoundID(id *uuid.UUID) *DivisionPoolUpdateOne {
+	if id != nil {
+		_u = _u.SetTargetRoundID(*id)
+	}
+	return _u
+}
+
+// SetTargetRound sets the "target_round" edge to the GameRound entity.
+func (_u *DivisionPoolUpdateOne) SetTargetRound(v *GameRound) *DivisionPoolUpdateOne {
+	return _u.SetTargetRoundID(v.ID)
 }
 
 // Mutation returns the DivisionPoolMutation object of the builder.
@@ -685,6 +853,12 @@ func (_u *DivisionPoolUpdateOne) RemoveGames(v ...*Game) *DivisionPoolUpdateOne 
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveGameIDs(ids...)
+}
+
+// ClearTargetRound clears the "target_round" edge to the GameRound entity.
+func (_u *DivisionPoolUpdateOne) ClearTargetRound() *DivisionPoolUpdateOne {
+	_u.mutation.ClearTargetRound()
+	return _u
 }
 
 // Where appends a list predicates to the DivisionPoolUpdate builder.
@@ -819,6 +993,18 @@ func (_u *DivisionPoolUpdateOne) sqlSave(ctx context.Context) (_node *DivisionPo
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(divisionpool.FieldDescription, field.TypeString)
 	}
+	if value, ok := _u.mutation.AutoAdvance(); ok {
+		_spec.SetField(divisionpool.FieldAutoAdvance, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.TopNTeams(); ok {
+		_spec.SetField(divisionpool.FieldTopNTeams, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedTopNTeams(); ok {
+		_spec.AddField(divisionpool.FieldTopNTeams, field.TypeInt, value)
+	}
+	if _u.mutation.TopNTeamsCleared() {
+		_spec.ClearField(divisionpool.FieldTopNTeams, field.TypeInt)
+	}
 	if _u.mutation.EventCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -931,6 +1117,35 @@ func (_u *DivisionPoolUpdateOne) sqlSave(ctx context.Context) (_node *DivisionPo
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TargetRoundCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   divisionpool.TargetRoundTable,
+			Columns: []string{divisionpool.TargetRoundColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TargetRoundIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   divisionpool.TargetRoundTable,
+			Columns: []string{divisionpool.TargetRoundColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

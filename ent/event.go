@@ -75,9 +75,11 @@ type EventEdges struct {
 	GameRounds []*GameRound `json:"game_rounds,omitempty"`
 	// ManagedBy holds the value of the managed_by edge.
 	ManagedBy []*User `json:"managed_by,omitempty"`
+	// Participations holds the value of the participations edge.
+	Participations []*EventParticipation `json:"participations,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [6]bool
+	loadedTypes [7]bool
 }
 
 // DisciplineOrErr returns the Discipline value or an error if the edge
@@ -136,6 +138,15 @@ func (e EventEdges) ManagedByOrErr() ([]*User, error) {
 		return e.ManagedBy, nil
 	}
 	return nil, &NotLoadedError{edge: "managed_by"}
+}
+
+// ParticipationsOrErr returns the Participations value or an error if the edge
+// was not loaded in eager-loading.
+func (e EventEdges) ParticipationsOrErr() ([]*EventParticipation, error) {
+	if e.loadedTypes[6] {
+		return e.Participations, nil
+	}
+	return nil, &NotLoadedError{edge: "participations"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -337,6 +348,11 @@ func (_m *Event) QueryGameRounds() *GameRoundQuery {
 // QueryManagedBy queries the "managed_by" edge of the Event entity.
 func (_m *Event) QueryManagedBy() *UserQuery {
 	return NewEventClient(_m.config).QueryManagedBy(_m)
+}
+
+// QueryParticipations queries the "participations" edge of the Event entity.
+func (_m *Event) QueryParticipations() *EventParticipationQuery {
+	return NewEventClient(_m.config).QueryParticipations(_m)
 }
 
 // Update returns a builder for updating this Event.

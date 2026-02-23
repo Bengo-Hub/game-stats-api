@@ -13,6 +13,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/eventparticipation"
 	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
 	entfield "github.com/bengobox/game-stats-api/ent/field"
 	"github.com/bengobox/game-stats-api/ent/game"
@@ -341,6 +342,10 @@ func init() {
 			return nil
 		}
 	}()
+	// divisionpoolDescAutoAdvance is the schema descriptor for auto_advance field.
+	divisionpoolDescAutoAdvance := divisionpoolFields[6].Descriptor()
+	// divisionpool.DefaultAutoAdvance holds the default value on creation for the auto_advance field.
+	divisionpool.DefaultAutoAdvance = divisionpoolDescAutoAdvance.Default.(bool)
 	// divisionpoolDescID is the schema descriptor for id field.
 	divisionpoolDescID := divisionpoolFields[0].Descriptor()
 	// divisionpool.DefaultID holds the default value on creation for the id field.
@@ -422,6 +427,33 @@ func init() {
 	eventDescID := eventFields[0].Descriptor()
 	// event.DefaultID holds the default value on creation for the id field.
 	event.DefaultID = eventDescID.Default.(func() uuid.UUID)
+	eventparticipationMixin := schema.EventParticipation{}.Mixin()
+	eventparticipationMixinFields0 := eventparticipationMixin[0].Fields()
+	_ = eventparticipationMixinFields0
+	eventparticipationFields := schema.EventParticipation{}.Fields()
+	_ = eventparticipationFields
+	// eventparticipationDescCreatedAt is the schema descriptor for created_at field.
+	eventparticipationDescCreatedAt := eventparticipationMixinFields0[0].Descriptor()
+	// eventparticipation.DefaultCreatedAt holds the default value on creation for the created_at field.
+	eventparticipation.DefaultCreatedAt = eventparticipationDescCreatedAt.Default.(func() time.Time)
+	// eventparticipationDescUpdatedAt is the schema descriptor for updated_at field.
+	eventparticipationDescUpdatedAt := eventparticipationMixinFields0[1].Descriptor()
+	// eventparticipation.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	eventparticipation.DefaultUpdatedAt = eventparticipationDescUpdatedAt.Default.(func() time.Time)
+	// eventparticipation.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	eventparticipation.UpdateDefaultUpdatedAt = eventparticipationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// eventparticipationDescRole is the schema descriptor for role field.
+	eventparticipationDescRole := eventparticipationFields[1].Descriptor()
+	// eventparticipation.DefaultRole holds the default value on creation for the role field.
+	eventparticipation.DefaultRole = eventparticipationDescRole.Default.(string)
+	// eventparticipationDescStatus is the schema descriptor for status field.
+	eventparticipationDescStatus := eventparticipationFields[3].Descriptor()
+	// eventparticipation.DefaultStatus holds the default value on creation for the status field.
+	eventparticipation.DefaultStatus = eventparticipationDescStatus.Default.(string)
+	// eventparticipationDescID is the schema descriptor for id field.
+	eventparticipationDescID := eventparticipationFields[0].Descriptor()
+	// eventparticipation.DefaultID holds the default value on creation for the id field.
+	eventparticipation.DefaultID = eventparticipationDescID.Default.(func() uuid.UUID)
 	eventreconciliationMixin := schema.EventReconciliation{}.Mixin()
 	eventreconciliationMixinFields0 := eventreconciliationMixin[0].Fields()
 	_ = eventreconciliationMixinFields0
@@ -643,6 +675,10 @@ func init() {
 			return nil
 		}
 	}()
+	// gameroundDescAutoAdvance is the schema descriptor for auto_advance field.
+	gameroundDescAutoAdvance := gameroundFields[6].Descriptor()
+	// gameround.DefaultAutoAdvance holds the default value on creation for the auto_advance field.
+	gameround.DefaultAutoAdvance = gameroundDescAutoAdvance.Default.(bool)
 	// gameroundDescID is the schema descriptor for id field.
 	gameroundDescID := gameroundFields[0].Descriptor()
 	// gameround.DefaultID holds the default value on creation for the id field.

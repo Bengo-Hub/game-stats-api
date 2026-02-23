@@ -24,6 +24,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/eventparticipation"
 	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
 	entfield "github.com/bengobox/game-stats-api/ent/field"
 	"github.com/bengobox/game-stats-api/ent/game"
@@ -61,6 +62,8 @@ type Client struct {
 	DivisionPool *DivisionPoolClient
 	// Event is the client for interacting with the Event builders.
 	Event *EventClient
+	// EventParticipation is the client for interacting with the EventParticipation builders.
+	EventParticipation *EventParticipationClient
 	// EventReconciliation is the client for interacting with the EventReconciliation builders.
 	EventReconciliation *EventReconciliationClient
 	// Field is the client for interacting with the Field builders.
@@ -108,6 +111,7 @@ func (c *Client) init() {
 	c.Discipline = NewDisciplineClient(c.config)
 	c.DivisionPool = NewDivisionPoolClient(c.config)
 	c.Event = NewEventClient(c.config)
+	c.EventParticipation = NewEventParticipationClient(c.config)
 	c.EventReconciliation = NewEventReconciliationClient(c.config)
 	c.Field = NewFieldClient(c.config)
 	c.Game = NewGameClient(c.config)
@@ -222,6 +226,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Discipline:          NewDisciplineClient(cfg),
 		DivisionPool:        NewDivisionPoolClient(cfg),
 		Event:               NewEventClient(cfg),
+		EventParticipation:  NewEventParticipationClient(cfg),
 		EventReconciliation: NewEventReconciliationClient(cfg),
 		Field:               NewFieldClient(cfg),
 		Game:                NewGameClient(cfg),
@@ -263,6 +268,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Discipline:          NewDisciplineClient(cfg),
 		DivisionPool:        NewDivisionPoolClient(cfg),
 		Event:               NewEventClient(cfg),
+		EventParticipation:  NewEventParticipationClient(cfg),
 		EventReconciliation: NewEventReconciliationClient(cfg),
 		Field:               NewFieldClient(cfg),
 		Game:                NewGameClient(cfg),
@@ -307,9 +313,10 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AnalyticSearch, c.AnalyticsEmbedding, c.AuditLog, c.Continent, c.Country,
-		c.Discipline, c.DivisionPool, c.Event, c.EventReconciliation, c.Field, c.Game,
-		c.GameEvent, c.GameRound, c.Location, c.MVP_Nomination, c.Player, c.Scoring,
-		c.SpiritNomination, c.SpiritScore, c.Team, c.User, c.World,
+		c.Discipline, c.DivisionPool, c.Event, c.EventParticipation,
+		c.EventReconciliation, c.Field, c.Game, c.GameEvent, c.GameRound, c.Location,
+		c.MVP_Nomination, c.Player, c.Scoring, c.SpiritNomination, c.SpiritScore,
+		c.Team, c.User, c.World,
 	} {
 		n.Use(hooks...)
 	}
@@ -320,9 +327,10 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AnalyticSearch, c.AnalyticsEmbedding, c.AuditLog, c.Continent, c.Country,
-		c.Discipline, c.DivisionPool, c.Event, c.EventReconciliation, c.Field, c.Game,
-		c.GameEvent, c.GameRound, c.Location, c.MVP_Nomination, c.Player, c.Scoring,
-		c.SpiritNomination, c.SpiritScore, c.Team, c.User, c.World,
+		c.Discipline, c.DivisionPool, c.Event, c.EventParticipation,
+		c.EventReconciliation, c.Field, c.Game, c.GameEvent, c.GameRound, c.Location,
+		c.MVP_Nomination, c.Player, c.Scoring, c.SpiritNomination, c.SpiritScore,
+		c.Team, c.User, c.World,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -347,6 +355,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.DivisionPool.mutate(ctx, m)
 	case *EventMutation:
 		return c.Event.mutate(ctx, m)
+	case *EventParticipationMutation:
+		return c.EventParticipation.mutate(ctx, m)
 	case *EventReconciliationMutation:
 		return c.EventReconciliation.mutate(ctx, m)
 	case *FieldMutation:
@@ -1494,6 +1504,22 @@ func (c *DivisionPoolClient) QueryGames(_m *DivisionPool) *GameQuery {
 	return query
 }
 
+// QueryTargetRound queries the target_round edge of a DivisionPool.
+func (c *DivisionPoolClient) QueryTargetRound(_m *DivisionPool) *GameRoundQuery {
+	query := (&GameRoundClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(divisionpool.Table, divisionpool.FieldID, id),
+			sqlgraph.To(gameround.Table, gameround.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, divisionpool.TargetRoundTable, divisionpool.TargetRoundColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *DivisionPoolClient) Hooks() []Hook {
 	return c.hooks.DivisionPool
@@ -1723,6 +1749,22 @@ func (c *EventClient) QueryManagedBy(_m *Event) *UserQuery {
 	return query
 }
 
+// QueryParticipations queries the participations edge of a Event.
+func (c *EventClient) QueryParticipations(_m *Event) *EventParticipationQuery {
+	query := (&EventParticipationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, id),
+			sqlgraph.To(eventparticipation.Table, eventparticipation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, event.ParticipationsTable, event.ParticipationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *EventClient) Hooks() []Hook {
 	return c.hooks.Event
@@ -1745,6 +1787,187 @@ func (c *EventClient) mutate(ctx context.Context, m *EventMutation) (Value, erro
 		return (&EventDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Event mutation op: %q", m.Op())
+	}
+}
+
+// EventParticipationClient is a client for the EventParticipation schema.
+type EventParticipationClient struct {
+	config
+}
+
+// NewEventParticipationClient returns a client for the EventParticipation from the given config.
+func NewEventParticipationClient(c config) *EventParticipationClient {
+	return &EventParticipationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `eventparticipation.Hooks(f(g(h())))`.
+func (c *EventParticipationClient) Use(hooks ...Hook) {
+	c.hooks.EventParticipation = append(c.hooks.EventParticipation, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `eventparticipation.Intercept(f(g(h())))`.
+func (c *EventParticipationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.EventParticipation = append(c.inters.EventParticipation, interceptors...)
+}
+
+// Create returns a builder for creating a EventParticipation entity.
+func (c *EventParticipationClient) Create() *EventParticipationCreate {
+	mutation := newEventParticipationMutation(c.config, OpCreate)
+	return &EventParticipationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of EventParticipation entities.
+func (c *EventParticipationClient) CreateBulk(builders ...*EventParticipationCreate) *EventParticipationCreateBulk {
+	return &EventParticipationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *EventParticipationClient) MapCreateBulk(slice any, setFunc func(*EventParticipationCreate, int)) *EventParticipationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &EventParticipationCreateBulk{err: fmt.Errorf("calling to EventParticipationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*EventParticipationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &EventParticipationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for EventParticipation.
+func (c *EventParticipationClient) Update() *EventParticipationUpdate {
+	mutation := newEventParticipationMutation(c.config, OpUpdate)
+	return &EventParticipationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *EventParticipationClient) UpdateOne(_m *EventParticipation) *EventParticipationUpdateOne {
+	mutation := newEventParticipationMutation(c.config, OpUpdateOne, withEventParticipation(_m))
+	return &EventParticipationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *EventParticipationClient) UpdateOneID(id uuid.UUID) *EventParticipationUpdateOne {
+	mutation := newEventParticipationMutation(c.config, OpUpdateOne, withEventParticipationID(id))
+	return &EventParticipationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for EventParticipation.
+func (c *EventParticipationClient) Delete() *EventParticipationDelete {
+	mutation := newEventParticipationMutation(c.config, OpDelete)
+	return &EventParticipationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *EventParticipationClient) DeleteOne(_m *EventParticipation) *EventParticipationDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *EventParticipationClient) DeleteOneID(id uuid.UUID) *EventParticipationDeleteOne {
+	builder := c.Delete().Where(eventparticipation.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &EventParticipationDeleteOne{builder}
+}
+
+// Query returns a query builder for EventParticipation.
+func (c *EventParticipationClient) Query() *EventParticipationQuery {
+	return &EventParticipationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeEventParticipation},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a EventParticipation entity by its id.
+func (c *EventParticipationClient) Get(ctx context.Context, id uuid.UUID) (*EventParticipation, error) {
+	return c.Query().Where(eventparticipation.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *EventParticipationClient) GetX(ctx context.Context, id uuid.UUID) *EventParticipation {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryEvent queries the event edge of a EventParticipation.
+func (c *EventParticipationClient) QueryEvent(_m *EventParticipation) *EventQuery {
+	query := (&EventClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(eventparticipation.Table, eventparticipation.FieldID, id),
+			sqlgraph.To(event.Table, event.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, eventparticipation.EventTable, eventparticipation.EventColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTeam queries the team edge of a EventParticipation.
+func (c *EventParticipationClient) QueryTeam(_m *EventParticipation) *TeamQuery {
+	query := (&TeamClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(eventparticipation.Table, eventparticipation.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, eventparticipation.TeamTable, eventparticipation.TeamColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPlayer queries the player edge of a EventParticipation.
+func (c *EventParticipationClient) QueryPlayer(_m *EventParticipation) *PlayerQuery {
+	query := (&PlayerClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(eventparticipation.Table, eventparticipation.FieldID, id),
+			sqlgraph.To(player.Table, player.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, eventparticipation.PlayerTable, eventparticipation.PlayerColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *EventParticipationClient) Hooks() []Hook {
+	return c.hooks.EventParticipation
+}
+
+// Interceptors returns the client interceptors.
+func (c *EventParticipationClient) Interceptors() []Interceptor {
+	return c.inters.EventParticipation
+}
+
+func (c *EventParticipationClient) mutate(ctx context.Context, m *EventParticipationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&EventParticipationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&EventParticipationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&EventParticipationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&EventParticipationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown EventParticipation mutation op: %q", m.Op())
 	}
 }
 
@@ -2644,6 +2867,22 @@ func (c *GameRoundClient) QueryGames(_m *GameRound) *GameQuery {
 	return query
 }
 
+// QueryTargetRound queries the target_round edge of a GameRound.
+func (c *GameRoundClient) QueryTargetRound(_m *GameRound) *GameRoundQuery {
+	query := (&GameRoundClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(gameround.Table, gameround.FieldID, id),
+			sqlgraph.To(gameround.Table, gameround.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, gameround.TargetRoundTable, gameround.TargetRoundColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *GameRoundClient) Hooks() []Hook {
 	return c.hooks.GameRound
@@ -3212,6 +3451,22 @@ func (c *PlayerClient) QuerySpiritNominations(_m *Player) *SpiritNominationQuery
 			sqlgraph.From(player.Table, player.FieldID, id),
 			sqlgraph.To(spiritnomination.Table, spiritnomination.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, player.SpiritNominationsTable, player.SpiritNominationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryParticipations queries the participations edge of a Player.
+func (c *PlayerClient) QueryParticipations(_m *Player) *EventParticipationQuery {
+	query := (&EventParticipationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(player.Table, player.FieldID, id),
+			sqlgraph.To(eventparticipation.Table, eventparticipation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, player.ParticipationsTable, player.ParticipationsColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -4039,6 +4294,22 @@ func (c *TeamClient) QuerySpiritScoresReceived(_m *Team) *SpiritScoreQuery {
 	return query
 }
 
+// QueryParticipations queries the participations edge of a Team.
+func (c *TeamClient) QueryParticipations(_m *Team) *EventParticipationQuery {
+	query := (&EventParticipationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(eventparticipation.Table, eventparticipation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.ParticipationsTable, team.ParticipationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *TeamClient) Hooks() []Hook {
 	return c.hooks.Team
@@ -4462,14 +4733,14 @@ func (c *WorldClient) mutate(ctx context.Context, m *WorldMutation) (Value, erro
 type (
 	hooks struct {
 		AnalyticSearch, AnalyticsEmbedding, AuditLog, Continent, Country, Discipline,
-		DivisionPool, Event, EventReconciliation, Field, Game, GameEvent, GameRound,
-		Location, MVP_Nomination, Player, Scoring, SpiritNomination, SpiritScore, Team,
-		User, World []ent.Hook
+		DivisionPool, Event, EventParticipation, EventReconciliation, Field, Game,
+		GameEvent, GameRound, Location, MVP_Nomination, Player, Scoring,
+		SpiritNomination, SpiritScore, Team, User, World []ent.Hook
 	}
 	inters struct {
 		AnalyticSearch, AnalyticsEmbedding, AuditLog, Continent, Country, Discipline,
-		DivisionPool, Event, EventReconciliation, Field, Game, GameEvent, GameRound,
-		Location, MVP_Nomination, Player, Scoring, SpiritNomination, SpiritScore, Team,
-		User, World []ent.Interceptor
+		DivisionPool, Event, EventParticipation, EventReconciliation, Field, Game,
+		GameEvent, GameRound, Location, MVP_Nomination, Player, Scoring,
+		SpiritNomination, SpiritScore, Team, User, World []ent.Interceptor
 	}
 )

@@ -31,10 +31,16 @@ const (
 	FieldStartDate = "start_date"
 	// FieldEndDate holds the string denoting the end_date field in the database.
 	FieldEndDate = "end_date"
+	// FieldAutoAdvance holds the string denoting the auto_advance field in the database.
+	FieldAutoAdvance = "auto_advance"
+	// FieldTopNTeams holds the string denoting the top_n_teams field in the database.
+	FieldTopNTeams = "top_n_teams"
 	// EdgeEvent holds the string denoting the event edge name in mutations.
 	EdgeEvent = "event"
 	// EdgeGames holds the string denoting the games edge name in mutations.
 	EdgeGames = "games"
+	// EdgeTargetRound holds the string denoting the target_round edge name in mutations.
+	EdgeTargetRound = "target_round"
 	// Table holds the table name of the gameround in the database.
 	Table = "game_rounds"
 	// EventTable is the table that holds the event relation/edge.
@@ -51,6 +57,10 @@ const (
 	GamesInverseTable = "games"
 	// GamesColumn is the table column denoting the games relation/edge.
 	GamesColumn = "game_round_games"
+	// TargetRoundTable is the table that holds the target_round relation/edge.
+	TargetRoundTable = "game_rounds"
+	// TargetRoundColumn is the table column denoting the target_round relation/edge.
+	TargetRoundColumn = "game_round_target_round"
 )
 
 // Columns holds all SQL columns for gameround fields.
@@ -64,12 +74,15 @@ var Columns = []string{
 	FieldRoundNumber,
 	FieldStartDate,
 	FieldEndDate,
+	FieldAutoAdvance,
+	FieldTopNTeams,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "game_rounds"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
 	"event_game_rounds",
+	"game_round_target_round",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -98,6 +111,8 @@ var (
 	NameValidator func(string) error
 	// RoundTypeValidator is a validator for the "round_type" field. It is called by the builders before save.
 	RoundTypeValidator func(string) error
+	// DefaultAutoAdvance holds the default value on creation for the "auto_advance" field.
+	DefaultAutoAdvance bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -150,6 +165,16 @@ func ByEndDate(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEndDate, opts...).ToFunc()
 }
 
+// ByAutoAdvance orders the results by the auto_advance field.
+func ByAutoAdvance(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAutoAdvance, opts...).ToFunc()
+}
+
+// ByTopNTeams orders the results by the top_n_teams field.
+func ByTopNTeams(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTopNTeams, opts...).ToFunc()
+}
+
 // ByEventField orders the results by event field.
 func ByEventField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -170,6 +195,13 @@ func ByGames(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newGamesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByTargetRoundField orders the results by target_round field.
+func ByTargetRoundField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTargetRoundStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newEventStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -182,5 +214,12 @@ func newGamesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(GamesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, GamesTable, GamesColumn),
+	)
+}
+func newTargetRoundStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(Table, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, TargetRoundTable, TargetRoundColumn),
 	)
 }

@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/eventparticipation"
 	"github.com/bengobox/game-stats-api/ent/gameevent"
 	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
 	"github.com/bengobox/game-stats-api/ent/player"
@@ -286,6 +287,21 @@ func (_u *PlayerUpdate) AddSpiritNominations(v ...*SpiritNomination) *PlayerUpda
 	return _u.AddSpiritNominationIDs(ids...)
 }
 
+// AddParticipationIDs adds the "participations" edge to the EventParticipation entity by IDs.
+func (_u *PlayerUpdate) AddParticipationIDs(ids ...uuid.UUID) *PlayerUpdate {
+	_u.mutation.AddParticipationIDs(ids...)
+	return _u
+}
+
+// AddParticipations adds the "participations" edges to the EventParticipation entity.
+func (_u *PlayerUpdate) AddParticipations(v ...*EventParticipation) *PlayerUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddParticipationIDs(ids...)
+}
+
 // Mutation returns the PlayerMutation object of the builder.
 func (_u *PlayerUpdate) Mutation() *PlayerMutation {
 	return _u.mutation
@@ -379,6 +395,27 @@ func (_u *PlayerUpdate) RemoveSpiritNominations(v ...*SpiritNomination) *PlayerU
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveSpiritNominationIDs(ids...)
+}
+
+// ClearParticipations clears all "participations" edges to the EventParticipation entity.
+func (_u *PlayerUpdate) ClearParticipations() *PlayerUpdate {
+	_u.mutation.ClearParticipations()
+	return _u
+}
+
+// RemoveParticipationIDs removes the "participations" edge to EventParticipation entities by IDs.
+func (_u *PlayerUpdate) RemoveParticipationIDs(ids ...uuid.UUID) *PlayerUpdate {
+	_u.mutation.RemoveParticipationIDs(ids...)
+	return _u
+}
+
+// RemoveParticipations removes "participations" edges to EventParticipation entities.
+func (_u *PlayerUpdate) RemoveParticipations(v ...*EventParticipation) *PlayerUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveParticipationIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -710,6 +747,51 @@ func (_u *PlayerUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.ParticipationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.ParticipationsTable,
+			Columns: []string{player.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(eventparticipation.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedParticipationsIDs(); len(nodes) > 0 && !_u.mutation.ParticipationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.ParticipationsTable,
+			Columns: []string{player.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(eventparticipation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ParticipationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.ParticipationsTable,
+			Columns: []string{player.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(eventparticipation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{player.Label}
@@ -982,6 +1064,21 @@ func (_u *PlayerUpdateOne) AddSpiritNominations(v ...*SpiritNomination) *PlayerU
 	return _u.AddSpiritNominationIDs(ids...)
 }
 
+// AddParticipationIDs adds the "participations" edge to the EventParticipation entity by IDs.
+func (_u *PlayerUpdateOne) AddParticipationIDs(ids ...uuid.UUID) *PlayerUpdateOne {
+	_u.mutation.AddParticipationIDs(ids...)
+	return _u
+}
+
+// AddParticipations adds the "participations" edges to the EventParticipation entity.
+func (_u *PlayerUpdateOne) AddParticipations(v ...*EventParticipation) *PlayerUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddParticipationIDs(ids...)
+}
+
 // Mutation returns the PlayerMutation object of the builder.
 func (_u *PlayerUpdateOne) Mutation() *PlayerMutation {
 	return _u.mutation
@@ -1075,6 +1172,27 @@ func (_u *PlayerUpdateOne) RemoveSpiritNominations(v ...*SpiritNomination) *Play
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveSpiritNominationIDs(ids...)
+}
+
+// ClearParticipations clears all "participations" edges to the EventParticipation entity.
+func (_u *PlayerUpdateOne) ClearParticipations() *PlayerUpdateOne {
+	_u.mutation.ClearParticipations()
+	return _u
+}
+
+// RemoveParticipationIDs removes the "participations" edge to EventParticipation entities by IDs.
+func (_u *PlayerUpdateOne) RemoveParticipationIDs(ids ...uuid.UUID) *PlayerUpdateOne {
+	_u.mutation.RemoveParticipationIDs(ids...)
+	return _u
+}
+
+// RemoveParticipations removes "participations" edges to EventParticipation entities.
+func (_u *PlayerUpdateOne) RemoveParticipations(v ...*EventParticipation) *PlayerUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveParticipationIDs(ids...)
 }
 
 // Where appends a list predicates to the PlayerUpdate builder.
@@ -1429,6 +1547,51 @@ func (_u *PlayerUpdateOne) sqlSave(ctx context.Context) (_node *Player, err erro
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(spiritnomination.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ParticipationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.ParticipationsTable,
+			Columns: []string{player.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(eventparticipation.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedParticipationsIDs(); len(nodes) > 0 && !_u.mutation.ParticipationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.ParticipationsTable,
+			Columns: []string{player.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(eventparticipation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ParticipationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   player.ParticipationsTable,
+			Columns: []string{player.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(eventparticipation.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

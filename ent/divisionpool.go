@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/google/uuid"
 )
 
@@ -36,11 +37,16 @@ type DivisionPool struct {
 	RankingCriteria map[string]interface{} `json:"ranking_criteria,omitempty"`
 	// Description holds the value of the "description" field.
 	Description *string `json:"description,omitempty"`
+	// Whether to automatically advance teams when all games are finished
+	AutoAdvance bool `json:"auto_advance,omitempty"`
+	// Number of top teams to advance automatically
+	TopNTeams *int `json:"top_n_teams,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DivisionPoolQuery when eager-loading is set.
-	Edges                DivisionPoolEdges `json:"edges"`
-	event_division_pools *uuid.UUID
-	selectValues         sql.SelectValues
+	Edges                      DivisionPoolEdges `json:"edges"`
+	division_pool_target_round *uuid.UUID
+	event_division_pools       *uuid.UUID
+	selectValues               sql.SelectValues
 }
 
 // DivisionPoolEdges holds the relations/edges for other nodes in the graph.
@@ -51,9 +57,11 @@ type DivisionPoolEdges struct {
 	Teams []*Team `json:"teams,omitempty"`
 	// Games holds the value of the games edge.
 	Games []*Game `json:"games,omitempty"`
+	// The round to advance teams to automatically
+	TargetRound *GameRound `json:"target_round,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // EventOrErr returns the Event value or an error if the edge
@@ -85,6 +93,17 @@ func (e DivisionPoolEdges) GamesOrErr() ([]*Game, error) {
 	return nil, &NotLoadedError{edge: "games"}
 }
 
+// TargetRoundOrErr returns the TargetRound value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e DivisionPoolEdges) TargetRoundOrErr() (*GameRound, error) {
+	if e.TargetRound != nil {
+		return e.TargetRound, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: gameround.Label}
+	}
+	return nil, &NotLoadedError{edge: "target_round"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*DivisionPool) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -92,7 +111,9 @@ func (*DivisionPool) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case divisionpool.FieldRankingCriteria:
 			values[i] = new([]byte)
-		case divisionpool.FieldMaxTeams:
+		case divisionpool.FieldAutoAdvance:
+			values[i] = new(sql.NullBool)
+		case divisionpool.FieldMaxTeams, divisionpool.FieldTopNTeams:
 			values[i] = new(sql.NullInt64)
 		case divisionpool.FieldName, divisionpool.FieldDivisionType, divisionpool.FieldDescription:
 			values[i] = new(sql.NullString)
@@ -100,7 +121,9 @@ func (*DivisionPool) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case divisionpool.FieldID:
 			values[i] = new(uuid.UUID)
-		case divisionpool.ForeignKeys[0]: // event_division_pools
+		case divisionpool.ForeignKeys[0]: // division_pool_target_round
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case divisionpool.ForeignKeys[1]: // event_division_pools
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
@@ -176,7 +199,27 @@ func (_m *DivisionPool) assignValues(columns []string, values []any) error {
 				_m.Description = new(string)
 				*_m.Description = value.String
 			}
+		case divisionpool.FieldAutoAdvance:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field auto_advance", values[i])
+			} else if value.Valid {
+				_m.AutoAdvance = value.Bool
+			}
+		case divisionpool.FieldTopNTeams:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field top_n_teams", values[i])
+			} else if value.Valid {
+				_m.TopNTeams = new(int)
+				*_m.TopNTeams = int(value.Int64)
+			}
 		case divisionpool.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field division_pool_target_round", values[i])
+			} else if value.Valid {
+				_m.division_pool_target_round = new(uuid.UUID)
+				*_m.division_pool_target_round = *value.S.(*uuid.UUID)
+			}
+		case divisionpool.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field event_division_pools", values[i])
 			} else if value.Valid {
@@ -209,6 +252,11 @@ func (_m *DivisionPool) QueryTeams() *TeamQuery {
 // QueryGames queries the "games" edge of the DivisionPool entity.
 func (_m *DivisionPool) QueryGames() *GameQuery {
 	return NewDivisionPoolClient(_m.config).QueryGames(_m)
+}
+
+// QueryTargetRound queries the "target_round" edge of the DivisionPool entity.
+func (_m *DivisionPool) QueryTargetRound() *GameRoundQuery {
+	return NewDivisionPoolClient(_m.config).QueryTargetRound(_m)
 }
 
 // Update returns a builder for updating this DivisionPool.
@@ -262,6 +310,14 @@ func (_m *DivisionPool) String() string {
 	if v := _m.Description; v != nil {
 		builder.WriteString("description=")
 		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	builder.WriteString("auto_advance=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AutoAdvance))
+	builder.WriteString(", ")
+	if v := _m.TopNTeams; v != nil {
+		builder.WriteString("top_n_teams=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteByte(')')
 	return builder.String()

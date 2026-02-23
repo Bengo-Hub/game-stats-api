@@ -59,6 +59,8 @@ const (
 	EdgeGameRounds = "game_rounds"
 	// EdgeManagedBy holds the string denoting the managed_by edge name in mutations.
 	EdgeManagedBy = "managed_by"
+	// EdgeParticipations holds the string denoting the participations edge name in mutations.
+	EdgeParticipations = "participations"
 	// Table holds the table name of the event in the database.
 	Table = "events"
 	// DisciplineTable is the table that holds the discipline relation/edge.
@@ -103,6 +105,13 @@ const (
 	ManagedByInverseTable = "users"
 	// ManagedByColumn is the table column denoting the managed_by relation/edge.
 	ManagedByColumn = "event_managed_by"
+	// ParticipationsTable is the table that holds the participations relation/edge.
+	ParticipationsTable = "event_participations"
+	// ParticipationsInverseTable is the table name for the EventParticipation entity.
+	// It exists in this package in order to avoid circular dependency with the "eventparticipation" package.
+	ParticipationsInverseTable = "event_participations"
+	// ParticipationsColumn is the table column denoting the participations relation/edge.
+	ParticipationsColumn = "event_participations"
 )
 
 // Columns holds all SQL columns for event fields.
@@ -322,6 +331,20 @@ func ByManagedBy(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newManagedByStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByParticipationsCount orders the results by participations count.
+func ByParticipationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newParticipationsStep(), opts...)
+	}
+}
+
+// ByParticipations orders the results by participations terms.
+func ByParticipations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newParticipationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newDisciplineStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -362,5 +385,12 @@ func newManagedByStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ManagedByInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ManagedByTable, ManagedByColumn),
+	)
+}
+func newParticipationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ParticipationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ParticipationsTable, ParticipationsColumn),
 	)
 }

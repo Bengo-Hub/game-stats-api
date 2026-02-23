@@ -105,6 +105,18 @@ func (f EventFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EventMutation", m)
 }
 
+// The EventParticipationFunc type is an adapter to allow the use of ordinary
+// function as EventParticipation mutator.
+type EventParticipationFunc func(context.Context, *ent.EventParticipationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f EventParticipationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.EventParticipationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EventParticipationMutation", m)
+}
+
 // The EventReconciliationFunc type is an adapter to allow the use of ordinary
 // function as EventReconciliation mutator.
 type EventReconciliationFunc func(context.Context, *ent.EventReconciliationMutation) (ent.Value, error)
