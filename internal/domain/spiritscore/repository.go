@@ -12,6 +12,7 @@ type Repository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*ent.SpiritScore, error)
 	ListByGame(ctx context.Context, gameID uuid.UUID) ([]*ent.SpiritScore, error)
 	ListByTeam(ctx context.Context, teamID uuid.UUID) ([]*ent.SpiritScore, error)
+	ListByEvent(ctx context.Context, eventID uuid.UUID) ([]*ent.SpiritScore, error)
 	Update(ctx context.Context, s *ent.SpiritScore) (*ent.SpiritScore, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 }

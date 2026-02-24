@@ -186,8 +186,8 @@ func NewRouter(opts RouterOptions) chi.Router {
 				r.Group(func(r chi.Router) {
 					r.Use(middleware.RequirePermission(middleware.PermRecordScore))
 					r.Post("/{id}/start", opts.GameHandler.StartGame)
-					r.Post("/{id}/finish", opts.GameHandler.FinishGame)
 					r.Post("/{id}/end", opts.GameHandler.EndGame)
+					r.Post("/{id}/complete", opts.GameHandler.CompleteGame)
 					r.Post("/{id}/stoppage", opts.GameHandler.RecordStoppage)
 					r.Post("/{id}/score", opts.GameHandler.RecordScore)
 				})
@@ -205,8 +205,10 @@ func NewRouter(opts RouterOptions) chi.Router {
 					r.Use(middleware.RequirePermission(middleware.PermViewEvents))
 					r.Get("/", opts.EventHandler.ListEvents)
 					r.Get("/{id}", opts.EventHandler.GetEvent)
+					r.Get("/{id}/divisions", opts.EventHandler.ListDivisionsByEvent)
 					r.Get("/{event_id}/rounds", opts.GameRoundHandler.ListGameRounds)
 					r.Get("/{id}/bracket", opts.BracketHandler.GetEventBracket)
+					r.Get("/{id}/spirit", opts.SpiritScoreHandler.GetEventSpiritScores)
 				})
 
 				// Manage operations - require manage_events permission
@@ -223,16 +225,14 @@ func NewRouter(opts RouterOptions) chi.Router {
 				r.With(middleware.RequirePermission(middleware.PermViewTeams)).Get("/", opts.TeamHandler.ListTeams)
 				r.With(middleware.RequirePermission(middleware.PermManageTeams)).Post("/", opts.TeamHandler.CreateTeam)
 
-				r.Route("/{id}", func(r chi.Router) {
-					r.With(middleware.RequirePermission(middleware.PermViewTeams)).Get("/", opts.TeamHandler.GetTeam)
-					r.With(middleware.RequirePermission(middleware.PermManageTeams)).Put("/", opts.TeamHandler.UpdateTeam)
-					r.With(middleware.RequirePermission(middleware.PermViewTeams)).Get("/spirit-average", opts.SpiritScoreHandler.GetTeamSpiritAverage)
+				r.With(middleware.RequirePermission(middleware.PermViewTeams)).Get("/{id}", opts.TeamHandler.GetTeam)
+				r.With(middleware.RequirePermission(middleware.PermManageTeams)).Put("/{id}", opts.TeamHandler.UpdateTeam)
+				r.With(middleware.RequirePermission(middleware.PermViewTeams)).Get("/{id}/spirit-average", opts.SpiritScoreHandler.GetTeamSpiritAverage)
 
-					r.Route("/players", func(r chi.Router) {
-						r.With(middleware.RequirePermission(middleware.PermManageTeams)).Post("/", opts.TeamHandler.CreatePlayer)
-						r.With(middleware.RequirePermission(middleware.PermManageTeams)).Put("/{playerId}", opts.TeamHandler.UpdatePlayer)
-						r.With(middleware.RequirePermission(middleware.PermManageTeams)).Post("/upload", opts.TeamHandler.BulkImportPlayers)
-					})
+				r.Route("/{id}/players", func(r chi.Router) {
+					r.With(middleware.RequirePermission(middleware.PermManageTeams)).Post("/", opts.TeamHandler.CreatePlayer)
+					r.With(middleware.RequirePermission(middleware.PermManageTeams)).Put("/{playerId}", opts.TeamHandler.UpdatePlayer)
+					r.With(middleware.RequirePermission(middleware.PermManageTeams)).Post("/upload", opts.TeamHandler.BulkImportPlayers)
 				})
 			})
 
@@ -309,7 +309,9 @@ func NewRouter(opts RouterOptions) chi.Router {
 						r.Put("/{id}/role", opts.AdminUsersHandler.UpdateUserRole)
 						r.Post("/roles/scoped", opts.AdminUsersHandler.AssignScopedRole)
 						r.Get("/{id}/roles/scoped", opts.AdminUsersHandler.ListUserScopedRoles)
+						r.With(middleware.RequirePermission(middleware.PermResetPassword)).Post("/{id}/reset-password", opts.AdminUsersHandler.ResetUserPassword)
 					})
+					r.With(middleware.RequirePermission(middleware.PermExportData)).Get("/export/{type}", opts.AdminUsersHandler.ExportData)
 
 					r.Route("/spirit-scores", func(r chi.Router) {
 						r.Put("/{id}", opts.AdminHandler.UpdateSpiritScore)
@@ -324,6 +326,7 @@ func NewRouter(opts RouterOptions) chi.Router {
 
 					// Audit logs
 					r.Get("/audit-logs", opts.AdminUsersHandler.GetAuditLogs)
+					r.With(middleware.RequirePermission(middleware.PermExportAudit)).Post("/audit-logs/export", opts.AdminUsersHandler.ExportAuditLogs)
 
 					// System health
 					r.Get("/system/health", opts.AdminUsersHandler.GetSystemHealth)

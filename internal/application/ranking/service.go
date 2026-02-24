@@ -100,7 +100,7 @@ func (s *Service) CalculateStandings(ctx context.Context, divisionID uuid.UUID) 
 	// Filter for completed games only
 	games := make([]*ent.Game, 0)
 	for _, g := range allGames {
-		if g.Status == "finished" || g.Status == "ended" {
+		if g.Status == "ended" || g.Status == "completed" {
 			games = append(games, g)
 		}
 	}

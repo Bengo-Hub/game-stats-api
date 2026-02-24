@@ -63,6 +63,9 @@ const (
 	PermManageUsers    Permission = "manage_users"
 	PermManageRoles    Permission = "manage_roles"
 	PermManageSettings Permission = "manage_settings"
+	PermResetPassword  Permission = "reset_password"
+	PermExportData     Permission = "export_data"
+	PermExportAudit    Permission = "export_audit"
 )
 
 // RolePermissions maps roles to their permissions
@@ -76,6 +79,7 @@ var RolePermissions = map[string][]Permission{
 		PermViewSpirit, PermSubmitSpirit, PermChangeSpirit, PermManageSpirit,
 		PermViewAnalytics, PermExportAnalytics,
 		PermViewAdmin, PermManageUsers, PermManageRoles, PermManageSettings,
+		PermResetPassword, PermExportData, PermExportAudit,
 	},
 	RoleEventManager: {
 		PermViewDashboard,

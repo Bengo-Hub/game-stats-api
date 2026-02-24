@@ -211,6 +211,7 @@ func (s *Service) ListGames(ctx context.Context, filter ListGamesFilter) ([]*Gam
 	searchFilter := game.SearchFilter{
 		EventID:        filter.EventID,
 		DivisionPoolID: filter.DivisionPoolID,
+		GameRoundID:    filter.GameRoundID,
 		Status:         filter.Status,
 		FieldID:        filter.FieldID,
 		StartDate:      filter.StartDate,
@@ -361,7 +362,7 @@ func (s *Service) StartGame(ctx context.Context, id uuid.UUID, userID uuid.UUID,
 	return mapGameToDTO(result), nil
 }
 
-func (s *Service) FinishGame(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*GameDTO, error) {
+func (s *Service) EndGame(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*GameDTO, error) {
 	game, err := s.gameRepo.GetByIDWithRelations(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -375,26 +376,26 @@ func (s *Service) FinishGame(ctx context.Context, id uuid.UUID, userID uuid.UUID
 		return nil, ErrUnauthorized
 	}
 
-	// Can only finish in-progress games
+	// Can only end in-progress games
 	if game.Status != "in_progress" {
 		return nil, ErrInvalidGameStatus
 	}
 
-	// Update to finished status (scores can still be edited)
+	// Update to ended status (scores can still be edited)
 	updated, err := s.gameRepo.UpdateWithVersion(ctx, id, game.Version, func(update *ent.GameUpdateOne) *ent.GameUpdateOne {
-		return update.SetStatus("finished")
+		return update.SetStatus("ended")
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Create game finished event
+	// Create game ended event
 	elapsed := time.Since(*game.ActualStartTime)
 	minute := int(elapsed.Minutes())
 	second := int(elapsed.Seconds()) % 60
 
 	_, err = s.gameEventRepo.Create(ctx, &ent.GameEvent{
-		EventType:   "game_finished",
+		EventType:   "game_ended",
 		Minute:      minute,
 		Second:      second,
 		Description: "Game time expired",
@@ -416,7 +417,7 @@ func (s *Service) FinishGame(ctx context.Context, id uuid.UUID, userID uuid.UUID
 	return mapGameToDTO(result), nil
 }
 
-func (s *Service) EndGame(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*GameDTO, error) {
+func (s *Service) CompleteGame(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*GameDTO, error) {
 	game, err := s.gameRepo.GetByIDWithRelations(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -430,22 +431,22 @@ func (s *Service) EndGame(ctx context.Context, id uuid.UUID, userID uuid.UUID) (
 		return nil, ErrUnauthorized
 	}
 
-	// Can only end finished games
-	if game.Status != "finished" {
+	// Can only complete ended games
+	if game.Status != "ended" {
 		return nil, ErrInvalidGameStatus
 	}
 
 	// Final submission - no more edits allowed
 	updated, err := s.gameRepo.UpdateWithVersion(ctx, id, game.Version, func(update *ent.GameUpdateOne) *ent.GameUpdateOne {
-		return update.SetStatus("ended")
+		return update.SetStatus("completed")
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Create game ended event
+	// Create game completed event
 	_, err = s.gameEventRepo.Create(ctx, &ent.GameEvent{
-		EventType:   "game_ended",
+		EventType:   "game_completed",
 		Minute:      0,
 		Second:      0,
 		Description: "Game finalized by scorekeeper",

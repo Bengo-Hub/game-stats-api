@@ -207,8 +207,8 @@ func FormatSSE(event Event) string {
 // Event type constants
 const (
 	EventGameStarted      = "game_started"
-	EventGameFinished     = "game_finished"
 	EventGameEnded        = "game_ended"
+	EventGameCompleted    = "game_completed"
 	EventGoalScored       = "goal_scored"
 	EventAssistRecorded   = "assist_recorded"
 	EventStoppageRecorded = "stoppage_recorded"

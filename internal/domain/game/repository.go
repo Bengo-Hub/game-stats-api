@@ -11,6 +11,7 @@ import (
 type SearchFilter struct {
 	EventID        *uuid.UUID
 	DivisionPoolID *uuid.UUID
+	GameRoundID    *uuid.UUID
 	Status         *string
 	FieldID        *uuid.UUID
 	StartDate      *time.Time

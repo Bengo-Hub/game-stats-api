@@ -108,7 +108,7 @@ data: {"game_id":"550e8400-e29b-41d4-a716-446655440000","player_id":"660e8400-e2
 event: stoppage_recorded
 data: {"game_id":"550e8400-e29b-41d4-a716-446655440000","duration_seconds":45,"reason":"injury"}
 
-event: game_ended
+event: game_completed
 data: {"game_id":"550e8400-e29b-41d4-a716-446655440000","final_score":{"home":15,"away":13}}
 ```
 
@@ -118,9 +118,9 @@ data: {"game_id":"550e8400-e29b-41d4-a716-446655440000","final_score":{"home":15
 - `assist_recorded` - Assist recorded
 - `stoppage_started` - Stoppage begins
 - `stoppage_ended` - Stoppage ends
-- `game_finished` - Time expired
+- `game_ended` - Time expired
 - `score_updated` - Admin edit
-- `game_ended` - Final submission
+- `game_completed` - Final submission
 
 **Frontend Implementation**:
 ```typescript
@@ -236,7 +236,7 @@ GET /api/v1/games?page=2&limit=50&sort=scheduled_time&order=desc
 
 **Example**:
 ```
-GET /api/v1/games?status=in_progress,finished&scheduled_time__gte=2026-01-20T00:00:00Z
+GET /api/v1/games?status=in_progress,ended&scheduled_time__gte=2026-01-20T00:00:00Z
 ```
 
 ---

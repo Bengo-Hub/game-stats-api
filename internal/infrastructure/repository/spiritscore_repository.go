@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/bengobox/game-stats-api/ent"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
 	"github.com/bengobox/game-stats-api/ent/team"
@@ -60,6 +62,20 @@ func (r *spiritScoreRepository) ListByTeam(ctx context.Context, teamID uuid.UUID
 		Where(spiritscore.DeletedAtIsNil()).
 		WithGame().
 		WithScoredByTeam().
+		All(ctx)
+}
+
+func (r *spiritScoreRepository) ListByEvent(ctx context.Context, eventID uuid.UUID) ([]*ent.SpiritScore, error) {
+	return r.client.SpiritScore.Query().
+		Where(spiritscore.HasGameWith(
+			game.HasDivisionPoolWith(
+				divisionpool.HasEventWith(event.ID(eventID)),
+			),
+		)).
+		Where(spiritscore.DeletedAtIsNil()).
+		WithGame().
+		WithScoredByTeam().
+		WithTeam().
 		All(ctx)
 }
 

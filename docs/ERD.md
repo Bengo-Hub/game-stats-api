@@ -623,7 +623,7 @@ CREATE TABLE events_2026 PARTITION OF events FOR VALUES FROM (2026) TO (2027);
 | actual_end_time | TIMESTAMP | | Actual end time |
 | allocated_time_minutes | INTEGER | NOT NULL | Game duration |
 | stoppage_time_seconds | INTEGER | DEFAULT 0 | Total stoppage time |
-| status | VARCHAR(20) | NOT NULL, DEFAULT 'scheduled' | scheduled, in_progress, finished, ended, canceled |
+| status | VARCHAR(20) | NOT NULL, DEFAULT 'scheduled' | scheduled, in_progress, ended, completed, canceled |
 | home_team_score | INTEGER | DEFAULT 0 | Home team final score |
 | away_team_score | INTEGER | DEFAULT 0 | Away team final score |
 | first_pull_by | VARCHAR(10) | | home or away |

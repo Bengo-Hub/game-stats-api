@@ -25,8 +25,8 @@ func (s *Service) SubmitSpiritScore(ctx context.Context, gameID uuid.UUID, userI
 		return nil, err
 	}
 
-	// Can only submit spirit scores for finished or ended games
-	if game.Status != "finished" && game.Status != "ended" {
+	// Can only submit spirit scores for ended or completed games
+	if game.Status != "ended" && game.Status != "completed" {
 		return nil, ErrInvalidGameStatus
 	}
 
@@ -156,6 +156,20 @@ func (s *Service) SubmitSpiritScore(ctx context.Context, gameID uuid.UUID, userI
 
 func (s *Service) GetGameSpiritScores(ctx context.Context, gameID uuid.UUID) ([]*SpiritScoreDTO, error) {
 	scores, err := s.spiritScoreRepo.ListByGame(ctx, gameID)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*SpiritScoreDTO, len(scores))
+	for i, score := range scores {
+		result[i] = mapSpiritScoreToDTO(score)
+	}
+
+	return result, nil
+}
+
+func (s *Service) GetEventSpiritScores(ctx context.Context, eventID uuid.UUID) ([]*SpiritScoreDTO, error) {
+	scores, err := s.spiritScoreRepo.ListByEvent(ctx, eventID)
 	if err != nil {
 		return nil, err
 	}

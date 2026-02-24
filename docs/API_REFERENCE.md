@@ -56,7 +56,7 @@ Authorization: Bearer {token}
 **Query Parameters**:
 - `page` (int): Page number (default: 1)
 - `limit` (int): Items per page (default: 20, max: 100)
-- `status` (string): Filter by status (scheduled, in_progress, finished, ended)
+- `status` (string): Filter by status (scheduled, in_progress, ended, completed)
 - `division_id` (uuid): Filter by division
 - `field_id` (uuid): Filter by field
 - `date` (date): Filter by date (YYYY-MM-DD)
@@ -150,7 +150,7 @@ Accept: text/event-stream
 event: goal_scored
 data: {"game_id":"uuid","player_id":"uuid","team":"home","minute":15,"score":{"home":6,"away":5}}
 
-event: game_finished
+event: game_ended
 data: {"game_id":"uuid","final_score":{"home":15,"away":13}}
 ```
 

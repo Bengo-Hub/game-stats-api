@@ -197,7 +197,7 @@ func (s *Service) GetEventStatistics(ctx context.Context, eventID uuid.UUID) (*E
 		completedGames, err := s.dbClient.Game.Query().
 			Where(
 				game.HasDivisionPoolWith(divisionpool.IDIn(poolIDs...)),
-				game.StatusIn("ended", "finished"),
+				game.StatusIn("ended", "completed"),
 			).
 			Count(ctx)
 		if err == nil {

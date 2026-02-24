@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/bengobox/game-stats-api/ent"
+	"github.com/bengobox/game-stats-api/ent/auditlog"
 	"github.com/bengobox/game-stats-api/ent/scopedrole"
 	"github.com/bengobox/game-stats-api/internal/domain/user"
 	"github.com/bengobox/game-stats-api/internal/pkg/auth"
@@ -478,4 +481,219 @@ func (h *AdminUsersHandler) ListUserScopedRoles(w http.ResponseWriter, r *http.R
 	}
 
 	respondJSON(w, http.StatusOK, roles)
+}
+
+// ResetUserPassword godoc
+// @Summary Reset a user's password (Admin only)
+// @Description Resets a user's password to a temporary one
+// @Tags admin
+// @Param id path string true "User ID" format(uuid)
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /admin/users/{id}/reset-password [post]
+// @Security BearerAuth
+func (h *AdminUsersHandler) ResetUserPassword(w http.ResponseWriter, r *http.Request) {
+	userID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid user ID")
+		return
+	}
+
+	tempPassword := "temp" + strconv.FormatInt(time.Now().Unix(), 10)[6:]
+	hash, err := auth.HashPassword(tempPassword)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to hash temporary password")
+		return
+	}
+
+	u, err := h.userRepo.GetByID(r.Context(), userID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			respondError(w, http.StatusNotFound, "User not found")
+			return
+		}
+		respondError(w, http.StatusInternalServerError, "Failed to fetch user")
+		return
+	}
+
+	u.PasswordHash = hash
+	_, err = h.userRepo.Update(r.Context(), u)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to reset password")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, map[string]string{
+		"message":      "Password reset successful",
+		"tempPassword": tempPassword,
+	})
+}
+
+// ExportAuditLogs godoc
+// @Summary Export audit logs to CSV (Admin only)
+// @Description Returns a CSV file containing audit logs based on filters
+// @Tags admin
+// @Produce text/csv
+// @Accept json
+// @Param body body ListAuditLogsParams false "Audit log filter parameters"
+// @Success 200 {string} string "CSV data"
+// @Router /admin/audit-logs/export [post]
+// @Security BearerAuth
+func (h *AdminUsersHandler) ExportAuditLogs(w http.ResponseWriter, r *http.Request) {
+	var params struct {
+		UserID     *uuid.UUID `json:"userId"`
+		Action     *string    `json:"action"`
+		EntityType *string    `json:"entityType"`
+		StartDate  *time.Time `json:"startDate"`
+		EndDate    *time.Time `json:"endDate"`
+	}
+
+	if r.Body != http.NoBody {
+		json.NewDecoder(r.Body).Decode(&params)
+	}
+
+	query := h.client.AuditLog.Query()
+	if params.UserID != nil {
+		query = query.Where(auditlog.UserID(*params.UserID))
+	}
+	if params.Action != nil {
+		query = query.Where(auditlog.Action(*params.Action))
+	}
+	if params.EntityType != nil {
+		query = query.Where(auditlog.EntityType(*params.EntityType))
+	}
+	if params.StartDate != nil {
+		query = query.Where(auditlog.CreatedAtGTE(*params.StartDate))
+	}
+	if params.EndDate != nil {
+		query = query.Where(auditlog.CreatedAtLTE(*params.EndDate))
+	}
+
+	logs, err := query.Order(ent.Desc("created_at")).All(r.Context())
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to fetch logs for export")
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", "attachment;filename=audit-logs.csv")
+
+	writer := csv.NewWriter(w)
+	writer.Write([]string{"ID", "Timestamp", "User ID", "Username", "Action", "Entity Type", "Entity ID", "Changes", "Reason", "IP Address"})
+
+	for _, log := range logs {
+		changes, _ := json.Marshal(log.Changes)
+		writer.Write([]string{
+			log.ID.String(),
+			log.CreatedAt.Format(time.RFC3339),
+			log.UserID.String(),
+			log.Username,
+			log.Action,
+			log.EntityType,
+			log.EntityID.String(),
+			string(changes),
+			log.Reason,
+			log.IPAddress,
+		})
+	}
+	writer.Flush()
+}
+
+// ExportData godoc
+// @Summary Export system data (Admin only)
+// @Description Exports events, games, teams, or users in CSV or JSON format
+// @Tags admin
+// @Param type path string true "Data type (events, games, teams, users)"
+// @Param format query string false "Export format (csv, json)" default(csv)
+// @Success 200 {string} string "Export data"
+// @Router /admin/export/{type} [get]
+// @Security BearerAuth
+func (h *AdminUsersHandler) ExportData(w http.ResponseWriter, r *http.Request) {
+	dataType := chi.URLParam(r, "type")
+	format := r.URL.Query().Get("format")
+	if format == "" {
+		format = "csv"
+	}
+
+	ctx := r.Context()
+
+	switch dataType {
+	case "users":
+		users, _ := h.client.User.Query().All(ctx)
+		if format == "json" {
+			respondJSON(w, http.StatusOK, users)
+			return
+		}
+		w.Header().Set("Content-Type", "text/csv")
+		w.Header().Set("Content-Disposition", "attachment;filename=users.csv")
+		writer := csv.NewWriter(w)
+		writer.Write([]string{"ID", "Email", "Name", "Role", "IsActive", "CreatedAt"})
+		for _, u := range users {
+			writer.Write([]string{u.ID.String(), u.Email, u.Name, u.Role, strconv.FormatBool(u.IsActive), u.CreatedAt.Format(time.RFC3339)})
+		}
+		writer.Flush()
+
+	case "events":
+		events, _ := h.client.Event.Query().All(ctx)
+		if format == "json" {
+			respondJSON(w, http.StatusOK, events)
+			return
+		}
+		w.Header().Set("Content-Type", "text/csv")
+		w.Header().Set("Content-Disposition", "attachment;filename=events.csv")
+		writer := csv.NewWriter(w)
+		writer.Write([]string{"ID", "Name", "Location", "StartDate", "EndDate", "Status"})
+		for _, e := range events {
+			writer.Write([]string{e.ID.String(), e.Name, e.Location, e.StartDate.String(), e.EndDate.String(), e.Status})
+		}
+		writer.Flush()
+
+	case "games":
+		games, _ := h.client.Game.Query().All(ctx)
+		if format == "json" {
+			respondJSON(w, http.StatusOK, games)
+			return
+		}
+		w.Header().Set("Content-Type", "text/csv")
+		w.Header().Set("Content-Disposition", "attachment;filename=games.csv")
+		writer := csv.NewWriter(w)
+		writer.Write([]string{"ID", "Event ID", "Home Team ID", "Away Team ID", "Home Score", "Away Score", "Status", "ScheduledTime"})
+		for _, g := range games {
+			writer.Write([]string{
+				g.ID.String(),
+				g.EventID.String(),
+				g.HomeTeamID.String(),
+				g.AwayTeamID.String(),
+				strconv.Itoa(g.HomeTeamScore),
+				strconv.Itoa(g.AwayTeamScore),
+				g.Status,
+				g.ScheduledTime.Format(time.RFC3339),
+			})
+		}
+		writer.Flush()
+
+	case "teams":
+		teams, _ := h.client.Team.Query().All(ctx)
+		if format == "json" {
+			respondJSON(w, http.StatusOK, teams)
+			return
+		}
+		w.Header().Set("Content-Type", "text/csv")
+		w.Header().Set("Content-Disposition", "attachment;filename=teams.csv")
+		writer := csv.NewWriter(w)
+		writer.Write([]string{"ID", "Name", "Club Name", "Contact Email"})
+		for _, t := range teams {
+			contactEmail := ""
+			if t.ContactEmail != nil {
+				contactEmail = *t.ContactEmail
+			}
+			writer.Write([]string{t.ID.String(), t.Name, t.ClubName, contactEmail})
+		}
+		writer.Flush()
+
+	default:
+		respondError(w, http.StatusBadRequest, "Unsupported data type for export")
+	}
 }

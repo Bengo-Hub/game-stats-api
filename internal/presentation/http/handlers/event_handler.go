@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqljson"
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/ent/country"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/predicate"
@@ -25,36 +26,39 @@ import (
 // ============================================
 
 type CreateEventRequest struct {
-	Name        string         `json:"name" validate:"required"`
-	Slug        string         `json:"slug" validate:"required"`
-	Year        int            `json:"year"`
-	StartDate   types.JSONTime `json:"startDate"`
-	EndDate     types.JSONTime `json:"endDate"`
-	Status      string         `json:"status"`
-	Description *string        `json:"description,omitempty"`
-	Categories  []string       `json:"categories,omitempty"`
-	LogoUrl     *string        `json:"logoUrl,omitempty"`
-	BannerUrl   *string        `json:"bannerUrl,omitempty"`
-	LocationID  *uuid.UUID     `json:"locationId,omitempty"`
+	Name         string                 `json:"name" validate:"required"`
+	Slug         string                 `json:"slug" validate:"required"`
+	Year         int                    `json:"year"`
+	StartDate    types.JSONTime         `json:"startDate"`
+	EndDate      types.JSONTime         `json:"endDate"`
+	Status       string                 `json:"status"`
+	Description  *string                `json:"description,omitempty"`
+	Categories   []string               `json:"categories,omitempty"`
+	LogoUrl      *string                `json:"logoUrl,omitempty"`
+	BannerUrl    *string                `json:"bannerUrl,omitempty"`
+	LocationID   *uuid.UUID             `json:"locationId,omitempty"`
+	DisciplineID *uuid.UUID             `json:"disciplineId,omitempty"`
+	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 }
 
 type CreateDivisionRequest struct {
 	Name         string `json:"name" validate:"required"`
-	DivisionType string `json:"divisionType" validate:"required,oneof=pool bracket"`
+	DivisionType string `json:"divisionType" validate:"required,oneof=pool bracket mixed"`
 }
 
 type UpdateEventRequest struct {
-	Name         *string         `json:"name"`
-	Slug         *string         `json:"slug"`
-	Description  *string         `json:"description"`
-	StartDate    *types.JSONTime `json:"startDate"`
-	EndDate      *types.JSONTime `json:"endDate"`
-	DisciplineID *uuid.UUID      `json:"disciplineId"`
-	LocationID   *uuid.UUID      `json:"locationId"`
-	Categories   []string        `json:"categories"`
-	LogoUrl      *string         `json:"logoUrl"`
-	BannerUrl    *string         `json:"bannerUrl"`
-	Status       *string         `json:"status"`
+	Name         *string                `json:"name"`
+	Slug         *string                `json:"slug"`
+	Description  *string                `json:"description"`
+	StartDate    *types.JSONTime        `json:"startDate"`
+	EndDate      *types.JSONTime        `json:"endDate"`
+	DisciplineID *uuid.UUID             `json:"disciplineId"`
+	LocationID   *uuid.UUID             `json:"locationId"`
+	Categories   []string               `json:"categories"`
+	LogoUrl      *string                `json:"logoUrl"`
+	BannerUrl    *string                `json:"bannerUrl"`
+	Status       *string                `json:"status"`
+	Metadata     map[string]interface{} `json:"metadata"`
 }
 
 type EventHandler struct {
@@ -273,6 +277,12 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	if req.LocationID != nil {
 		builder.SetLocationID(*req.LocationID)
 	}
+	if req.DisciplineID != nil {
+		builder.SetDisciplineID(*req.DisciplineID)
+	}
+	if req.Metadata != nil {
+		builder.SetSettings(req.Metadata)
+	}
 
 	e, err := builder.Save(ctx)
 	if err != nil {
@@ -375,6 +385,10 @@ func (h *EventHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	// Handle location
 	if req.LocationID != nil {
 		updater.SetLocationID(*req.LocationID)
+	}
+
+	if req.Metadata != nil {
+		updater.SetSettings(req.Metadata)
 	}
 
 	// Execute update
@@ -646,7 +660,7 @@ func (h *EventHandler) GetEvent(w http.ResponseWriter, r *http.Request) {
 				lq.WithCountry()
 			}).
 			WithDivisionPools(func(dpq *ent.DivisionPoolQuery) {
-				dpq.WithTeams()
+				dpq.WithTeams().WithGames()
 			})
 	}
 
@@ -769,4 +783,41 @@ func (h *EventHandler) GetEventCrew(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondJSON(w, http.StatusOK, response)
+}
+
+// ListDivisionsByEvent returns all divisions for an event
+func (h *EventHandler) ListDivisionsByEvent(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	idStr := chi.URLParam(r, "id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid event ID")
+		return
+	}
+
+	divisions, err := h.client.DivisionPool.Query().
+		Where(divisionpool.HasEventWith(event.ID(id))).
+		WithTeams().
+		All(ctx)
+
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to list divisions")
+		return
+	}
+
+	result := make([]DivisionDTO, len(divisions))
+	for i, dp := range divisions {
+		teamsCount := 0
+		if dp.Edges.Teams != nil {
+			teamsCount = len(dp.Edges.Teams)
+		}
+		result[i] = DivisionDTO{
+			ID:           dp.ID.String(),
+			Name:         dp.Name,
+			DivisionType: dp.DivisionType,
+			TeamsCount:   teamsCount,
+		}
+	}
+
+	respondJSON(w, http.StatusOK, result)
 }

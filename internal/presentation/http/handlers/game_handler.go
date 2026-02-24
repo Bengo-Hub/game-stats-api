@@ -129,6 +129,15 @@ func (h *GameHandler) ListGames(w http.ResponseWriter, r *http.Request) {
 		filter.DivisionPoolID = &divisionID
 	}
 
+	if roundStr := r.URL.Query().Get("game_round_id"); roundStr != "" {
+		roundID, err := uuid.Parse(roundStr)
+		if err != nil {
+			http.Error(w, "invalid game_round_id", http.StatusBadRequest)
+			return
+		}
+		filter.GameRoundID = &roundID
+	}
+
 	if status := r.URL.Query().Get("status"); status != "" {
 		filter.Status = &status
 	}
@@ -292,52 +301,9 @@ func (h *GameHandler) StartGame(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(game)
 }
 
-// FinishGame marks a game as finished (time expired).
-// @Summary Finish Game
-// @Description Mark game timer as finished (scores can still be edited)
-// @Tags games
-// @Produce json
-// @Param id path string true "Game ID"
-// @Success 200 {object} gamemanagement.GameDTO
-// @Failure 400 {string} string "bad request"
-// @Failure 401 {string} string "unauthorized"
-// @Failure 404 {string} string "not found"
-// @Security BearerAuth
-// @Router /games/{id}/finish [post]
-func (h *GameHandler) FinishGame(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := uuid.Parse(idStr)
-	if err != nil {
-		http.Error(w, "invalid game ID", http.StatusBadRequest)
-		return
-	}
-
-	userID := getUserIDFromContext(r)
-
-	game, err := h.service.FinishGame(r.Context(), id, userID)
-	if err != nil {
-		if err == gamemanagement.ErrGameNotFound {
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
-		if err == gamemanagement.ErrUnauthorized {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// Broadcast SSE event
-	h.sseBroker.Broadcast(id, sse.EventGameFinished, game)
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(game)
-}
-
-// EndGame finalizes a game (no more edits allowed).
+// EndGame marks a game as ended (time expired).
 // @Summary End Game
-// @Description Finalize game submission by scorekeeper
+// @Description Mark game timer as ended (scores can still be edited)
 // @Tags games
 // @Produce json
 // @Param id path string true "Game ID"
@@ -373,6 +339,49 @@ func (h *GameHandler) EndGame(w http.ResponseWriter, r *http.Request) {
 
 	// Broadcast SSE event
 	h.sseBroker.Broadcast(id, sse.EventGameEnded, game)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(game)
+}
+
+// EndGame finalizes a game (no more edits allowed).
+// @Summary End Game
+// @Description Finalize game completion by scorekeeper
+// @Tags games
+// @Produce json
+// @Param id path string true "Game ID"
+// @Success 200 {object} gamemanagement.GameDTO
+// @Failure 400 {string} string "bad request"
+// @Failure 401 {string} string "unauthorized"
+// @Failure 404 {string} string "not found"
+// @Security BearerAuth
+// @Router /games/{id}/complete [post]
+func (h *GameHandler) CompleteGame(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		http.Error(w, "invalid game ID", http.StatusBadRequest)
+		return
+	}
+
+	userID := getUserIDFromContext(r)
+
+	game, err := h.service.CompleteGame(r.Context(), id, userID)
+	if err != nil {
+		if err == gamemanagement.ErrGameNotFound {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		if err == gamemanagement.ErrUnauthorized {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Broadcast SSE event
+	h.sseBroker.Broadcast(id, sse.EventGameCompleted, game)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(game)

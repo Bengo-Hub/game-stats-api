@@ -9,15 +9,15 @@ import (
 // Game DTOs
 type CreateGameRequest struct {
 	Name                 string                 `json:"name" validate:"required,max=100"`
-	ScheduledTime        time.Time              `json:"scheduled_time" validate:"required"`
-	AllocatedTimeMinutes int                    `json:"allocated_time_minutes" validate:"required,min=1"`
-	HomeTeamID           uuid.UUID              `json:"home_team_id" validate:"required"`
-	AwayTeamID           uuid.UUID              `json:"away_team_id" validate:"required"`
-	DivisionPoolID       uuid.UUID              `json:"division_pool_id" validate:"required"`
-	FieldLocationID      uuid.UUID              `json:"field_location_id" validate:"required"`
-	GameRoundID          *uuid.UUID             `json:"game_round_id,omitempty"`
-	ScorekeeperID        *uuid.UUID             `json:"scorekeeper_id,omitempty"`
-	FirstPullBy          *string                `json:"first_pull_by,omitempty"`
+	ScheduledTime        time.Time              `json:"scheduledTime" validate:"required"`
+	AllocatedTimeMinutes int                    `json:"allocatedTimeMinutes" validate:"required,min=1"`
+	HomeTeamID           uuid.UUID              `json:"homeTeamId" validate:"required"`
+	AwayTeamID           uuid.UUID              `json:"awayTeamId" validate:"required"`
+	DivisionPoolID       uuid.UUID              `json:"divisionPoolId" validate:"required"`
+	FieldLocationID      uuid.UUID              `json:"fieldLocationId" validate:"required"`
+	GameRoundID          *uuid.UUID             `json:"gameRoundId,omitempty"`
+	ScorekeeperID        *uuid.UUID             `json:"scorekeeperId,omitempty"`
+	FirstPullBy          *string                `json:"firstPullBy,omitempty"`
 	Metadata             map[string]interface{} `json:"metadata,omitempty"`
 }
 
@@ -33,32 +33,32 @@ type UpdateGameRequest struct {
 type GameDTO struct {
 	ID                   uuid.UUID              `json:"id"`
 	Name                 string                 `json:"name"`
-	ScheduledTime        time.Time              `json:"scheduled_time"`
-	ActualStartTime      *time.Time             `json:"actual_start_time,omitempty"`
-	ActualEndTime        *time.Time             `json:"actual_end_time,omitempty"`
-	AllocatedTimeMinutes int                    `json:"allocated_time_minutes"`
-	StoppageTimeSeconds  int                    `json:"stoppage_time_seconds"`
+	ScheduledTime        time.Time              `json:"scheduledTime"`
+	ActualStartTime      *time.Time             `json:"actualStartTime,omitempty"`
+	ActualEndTime        *time.Time             `json:"actualEndTime,omitempty"`
+	AllocatedTimeMinutes int                    `json:"allocatedTimeMinutes"`
+	StoppageTimeSeconds  int                    `json:"stoppageTimeSeconds"`
 	Status               string                 `json:"status"`
-	HomeTeamScore        int                    `json:"home_team_score"`
-	AwayTeamScore        int                    `json:"away_team_score"`
-	FirstPullBy          *string                `json:"first_pull_by,omitempty"`
+	HomeTeamScore        int                    `json:"homeTeamScore"`
+	AwayTeamScore        int                    `json:"awayTeamScore"`
+	FirstPullBy          *string                `json:"firstPullBy,omitempty"`
 	Version              int                    `json:"version"`
 	Metadata             map[string]interface{} `json:"metadata,omitempty"`
-	HomeTeam             *TeamSummaryDTO        `json:"home_team,omitempty"`
-	AwayTeam             *TeamSummaryDTO        `json:"away_team,omitempty"`
-	FieldLocation        *FieldSummaryDTO       `json:"field_location,omitempty"`
-	GameRound            *GameRoundSummaryDTO   `json:"game_round,omitempty"`
+	HomeTeam             *TeamSummaryDTO        `json:"homeTeam,omitempty"`
+	AwayTeam             *TeamSummaryDTO        `json:"awayTeam,omitempty"`
+	FieldLocation        *FieldSummaryDTO       `json:"fieldLocation,omitempty"`
+	GameRound            *GameRoundSummaryDTO   `json:"gameRound,omitempty"`
 	Scorekeeper          *UserSummaryDTO        `json:"scorekeeper,omitempty"`
-	CreatedAt            time.Time              `json:"created_at"`
-	UpdatedAt            time.Time              `json:"updated_at"`
+	CreatedAt            time.Time              `json:"createdAt"`
+	UpdatedAt            time.Time              `json:"updatedAt"`
 }
 
 type TeamSummaryDTO struct {
 	ID             uuid.UUID `json:"id"`
 	Name           string    `json:"name"`
-	LogoURL        *string   `json:"logo_url,omitempty"`
-	PrimaryColor   *string   `json:"primary_color,omitempty"`
-	SecondaryColor *string   `json:"secondary_color,omitempty"`
+	LogoURL        *string   `json:"logoUrl,omitempty"`
+	PrimaryColor   *string   `json:"primaryColor,omitempty"`
+	SecondaryColor *string   `json:"secondaryColor,omitempty"`
 }
 
 type FieldSummaryDTO struct {
@@ -69,7 +69,7 @@ type FieldSummaryDTO struct {
 type GameRoundSummaryDTO struct {
 	ID        uuid.UUID `json:"id"`
 	Name      string    `json:"name"`
-	RoundType string    `json:"round_type"`
+	RoundType string    `json:"roundType"`
 }
 
 type UserSummaryDTO struct {
@@ -100,23 +100,23 @@ type CreateGameRoundRequest struct {
 
 type UpdateGameRoundRequest struct {
 	Name        *string    `json:"name,omitempty" validate:"omitempty,max=100"`
-	RoundType   *string    `json:"round_type,omitempty" validate:"omitempty,oneof=pool bracket semifinal final"`
-	RoundNumber *int       `json:"round_number,omitempty"`
-	StartDate   *time.Time `json:"start_date,omitempty"`
-	EndDate     *time.Time `json:"end_date,omitempty"`
+	RoundType   *string    `json:"roundType,omitempty" validate:"omitempty,oneof=pool bracket semifinal final"`
+	RoundNumber *int       `json:"roundNumber,omitempty"`
+	StartDate   *time.Time `json:"startDate,omitempty"`
+	EndDate     *time.Time `json:"endDate,omitempty"`
 }
 
 type GameRoundDTO struct {
 	ID          uuid.UUID  `json:"id"`
 	Name        string     `json:"name"`
-	RoundType   string     `json:"round_type"`
-	RoundNumber *int       `json:"round_number,omitempty"`
-	StartDate   *time.Time `json:"start_date,omitempty"`
-	EndDate     *time.Time `json:"end_date,omitempty"`
-	EventID     uuid.UUID  `json:"event_id"`
-	GamesCount  int        `json:"games_count,omitempty"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
+	RoundType   string     `json:"roundType"`
+	RoundNumber *int       `json:"roundNumber,omitempty"`
+	StartDate   *time.Time `json:"startDate,omitempty"`
+	EndDate     *time.Time `json:"endDate,omitempty"`
+	EventID     uuid.UUID  `json:"eventId"`
+	GamesCount  int        `json:"gamesCount,omitempty"`
+	CreatedAt   time.Time  `json:"createdAt"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
 }
 
 // Timeline DTOs
@@ -126,17 +126,17 @@ type GameTimelineDTO struct {
 
 type GameEventDTO struct {
 	ID          uuid.UUID              `json:"id"`
-	EventType   string                 `json:"event_type"`
+	EventType   string                 `json:"eventType"`
 	Minute      int                    `json:"minute"`
 	Second      int                    `json:"second"`
 	Description string                 `json:"description"`
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt   time.Time              `json:"created_at"`
+	CreatedAt   time.Time              `json:"createdAt"`
 }
 
 // Scoring DTOs
 type RecordScoreRequest struct {
-	PlayerID uuid.UUID `json:"player_id" validate:"required"`
+	PlayerID uuid.UUID `json:"playerId" validate:"required"`
 	Goals    int       `json:"goals" validate:"min=0"`
 	Assists  int       `json:"assists" validate:"min=0"`
 	Blocks   int       `json:"blocks" validate:"min=0"`
@@ -147,66 +147,67 @@ type RecordScoreRequest struct {
 
 type ScoringDTO struct {
 	ID           uuid.UUID  `json:"id"`
-	PlayerID     uuid.UUID  `json:"player_id"`
-	PlayerName   string     `json:"player_name,omitempty"`
-	PlayerNumber *int       `json:"player_number,omitempty"`
-	TeamID       *uuid.UUID `json:"team_id,omitempty"`
-	TeamName     string     `json:"team_name,omitempty"`
+	PlayerID     uuid.UUID  `json:"playerId"`
+	PlayerName   string     `json:"playerName,omitempty"`
+	PlayerNumber *int       `json:"playerNumber,omitempty"`
+	TeamID       *uuid.UUID `json:"teamId,omitempty"`
+	TeamName     string     `json:"teamName,omitempty"`
 	Goals        int        `json:"goals"`
 	Assists      int        `json:"assists"`
 	Blocks       int        `json:"blocks"`
 	Turns        int        `json:"turns"`
-	CreatedAt    time.Time  `json:"created_at"`
-	UpdatedAt    time.Time  `json:"updated_at"`
+	CreatedAt    time.Time  `json:"createdAt"`
+	UpdatedAt    time.Time  `json:"updatedAt"`
 }
 
 // Spirit Score DTOs
 type SubmitSpiritScoreRequest struct {
-	ScoredByTeamID   uuid.UUID  `json:"scored_by_team_id" validate:"required"`
-	TeamID           uuid.UUID  `json:"team_id" validate:"required"`
-	RulesKnowledge   int        `json:"rules_knowledge" validate:"required,min=0,max=4"`
-	FoulsBodyContact int        `json:"fouls_body_contact" validate:"required,min=0,max=4"`
-	FairMindedness   int        `json:"fair_mindedness" validate:"required,min=0,max=4"`
+	ScoredByTeamID   uuid.UUID  `json:"scoredByTeamId" validate:"required"`
+	TeamID           uuid.UUID  `json:"teamId" validate:"required"`
+	RulesKnowledge   int        `json:"rulesKnowledge" validate:"required,min=0,max=4"`
+	FoulsBodyContact int        `json:"foulsBodyContact" validate:"required,min=0,max=4"`
+	FairMindedness   int        `json:"fairMindedness" validate:"required,min=0,max=4"`
 	Attitude         int        `json:"attitude" validate:"required,min=0,max=4"`
 	Communication    int        `json:"communication" validate:"required,min=0,max=4"`
 	Comments         *string    `json:"comments,omitempty"`
-	MVPNomination    *uuid.UUID `json:"mvp_nomination,omitempty"`
-	SpiritNomination *uuid.UUID `json:"spirit_nomination,omitempty"`
+	MVPNomination    *uuid.UUID `json:"mvpNomination,omitempty"`
+	SpiritNomination *uuid.UUID `json:"spiritNomination,omitempty"`
 }
 
 type SpiritScoreDTO struct {
 	ID               uuid.UUID       `json:"id"`
-	GameID           uuid.UUID       `json:"game_id"`
-	ScoredByTeam     *TeamSummaryDTO `json:"scored_by_team,omitempty"`
+	GameID           uuid.UUID       `json:"gameId"`
+	ScoredByTeam     *TeamSummaryDTO `json:"scoredByTeam,omitempty"`
 	Team             *TeamSummaryDTO `json:"team,omitempty"`
-	SubmittedBy      *UserSummaryDTO `json:"submitted_by,omitempty"`
-	RulesKnowledge   int             `json:"rules_knowledge"`
-	FoulsBodyContact int             `json:"fouls_body_contact"`
-	FairMindedness   int             `json:"fair_mindedness"`
+	SubmittedBy      *UserSummaryDTO `json:"submittedBy,omitempty"`
+	RulesKnowledge   int             `json:"rulesKnowledge"`
+	FoulsBodyContact int             `json:"foulsBodyContact"`
+	FairMindedness   int             `json:"fairMindedness"`
 	Attitude         int             `json:"attitude"`
 	Communication    int             `json:"communication"`
 	TotalScore       int             `json:"totalScore"`
 	Comments         *string         `json:"comments,omitempty"`
-	CreatedAt        time.Time       `json:"created_at"`
-	UpdatedAt        time.Time       `json:"updated_at"`
+	CreatedAt        time.Time       `json:"createdAt"`
+	UpdatedAt        time.Time       `json:"updatedAt"`
 }
 
 type TeamSpiritAverageDTO struct {
-	TeamID           uuid.UUID `json:"team_id"`
-	TeamName         string    `json:"team_name"`
-	GamesPlayed      int       `json:"games_played"`
-	RulesKnowledge   float64   `json:"rules_knowledge"`
-	FoulsBodyContact float64   `json:"fouls_body_contact"`
-	FairMindedness   float64   `json:"fair_mindedness"`
+	TeamID           uuid.UUID `json:"teamId"`
+	TeamName         string    `json:"teamName"`
+	GamesPlayed      int       `json:"gamesPlayed"`
+	RulesKnowledge   float64   `json:"rulesKnowledge"`
+	FoulsBodyContact float64   `json:"foulsBodyContact"`
+	FairMindedness   float64   `json:"fairMindedness"`
 	Attitude         float64   `json:"attitude"`
 	Communication    float64   `json:"communication"`
-	AverageTotal     float64   `json:"average_total"`
+	AverageTotal     float64   `json:"averageTotal"`
 }
 
 // List filters
 type ListGamesFilter struct {
 	EventID        *uuid.UUID
 	DivisionPoolID *uuid.UUID
+	GameRoundID    *uuid.UUID
 	Status         *string
 	FieldID        *uuid.UUID
 	StartDate      *time.Time
@@ -222,9 +223,9 @@ type BulkTransferRequest struct {
 }
 
 type PlayerTransfer struct {
-	PlayerID   uuid.UUID `json:"player_id" validate:"required"`
-	ToTeamID   uuid.UUID `json:"to_team_id" validate:"required"`
-	FromTeamID uuid.UUID `json:"from_team_id" validate:"required"`
+	PlayerID   uuid.UUID `json:"playerId" validate:"required"`
+	ToTeamID   uuid.UUID `json:"toTeamId" validate:"required"`
+	FromTeamID uuid.UUID `json:"fromTeamId" validate:"required"`
 	Role       *string   `json:"role,omitempty"`
 	Status     *string   `json:"status,omitempty"`
 }
@@ -239,5 +240,5 @@ type ImportPlayer struct {
 	Name         string  `json:"name" validate:"required"`
 	Email        *string `json:"email,omitempty"`
 	Gender       string  `json:"gender" validate:"required,oneof=M F X"`
-	JerseyNumber *int    `json:"jersey_number,omitempty"`
+	JerseyNumber *int    `json:"jerseyNumber,omitempty"`
 }

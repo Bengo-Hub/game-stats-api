@@ -133,3 +133,35 @@ func (h *SpiritScoreHandler) GetTeamSpiritAverage(w http.ResponseWriter, r *http
 
 	respondJSON(w, http.StatusOK, average)
 }
+
+// GetEventSpiritScores godoc
+// @Summary Get spirit scores for an event
+// @Description Get all spirit scores submitted for all games in an event
+// @Tags Spirit Scores
+// @Produce json
+// @Param id path string true "Event ID" format(uuid)
+// @Success 200 {array} gamemanagement.SpiritScoreDTO
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /events/{id}/spirit [get]
+func (h *SpiritScoreHandler) GetEventSpiritScores(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	eventIDStr := chi.URLParam(r, "id")
+	eventID, err := uuid.Parse(eventIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid event ID")
+		return
+	}
+
+	// This assumes the service has a GetEventSpiritScores method.
+	// If not, we might need to add it or fetch games first.
+	// Let's implement it in the handler directly for now using the service's existing methods if possible,
+	// or assume the service will be updated.
+	scores, err := h.service.GetEventSpiritScores(ctx, eventID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to retrieve spirit scores")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, scores)
+}

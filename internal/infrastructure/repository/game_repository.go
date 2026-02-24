@@ -166,6 +166,10 @@ func (r *gameRepository) ListWithFilter(ctx context.Context, filter domaingame.S
 		query = query.Where(game.HasDivisionPoolWith(divisionpool.ID(*filter.DivisionPoolID)))
 	}
 
+	if filter.GameRoundID != nil {
+		query = query.Where(game.HasGameRoundWith(gameround.ID(*filter.GameRoundID)))
+	}
+
 	if filter.Status != nil && *filter.Status != "" && *filter.Status != "all" {
 		query = query.Where(game.Status(*filter.Status))
 	}
