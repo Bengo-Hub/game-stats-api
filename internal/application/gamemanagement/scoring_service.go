@@ -60,10 +60,17 @@ func (s *Service) RecordScore(ctx context.Context, gameID uuid.UUID, userID uuid
 					RequestedByID:     userID,
 					PreviousHomeScore: game.HomeTeamScore,
 					PreviousAwayScore: game.AwayTeamScore,
-					NewHomeScore:      newHomeScore, // This is a bit tricky for incremental updates
+					NewHomeScore:      newHomeScore,
 					NewAwayScore:      newAwayScore,
-					Reason:            fmt.Sprintf("Post-game score adjustment: Player %s goals set to %d", player.Name, req.Goals),
-					Status:            "pending",
+					PlayerScores: []map[string]interface{}{
+						{
+							"player_id":   req.PlayerID.String(),
+							"player_name": player.Name,
+							"goals":       req.Goals,
+						},
+					},
+					Reason: fmt.Sprintf("Post-game score adjustment: Player %s goals set to %d", player.Name, req.Goals),
+					Status: "pending",
 				})
 				if err != nil {
 					return nil, err

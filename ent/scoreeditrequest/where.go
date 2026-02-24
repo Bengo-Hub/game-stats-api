@@ -686,6 +686,16 @@ func UpdatedAtLTE(v time.Time) predicate.ScoreEditRequest {
 	return predicate.ScoreEditRequest(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
+// PlayerScoresIsNil applies the IsNil predicate on the "player_scores" field.
+func PlayerScoresIsNil() predicate.ScoreEditRequest {
+	return predicate.ScoreEditRequest(sql.FieldIsNull(FieldPlayerScores))
+}
+
+// PlayerScoresNotNil applies the NotNil predicate on the "player_scores" field.
+func PlayerScoresNotNil() predicate.ScoreEditRequest {
+	return predicate.ScoreEditRequest(sql.FieldNotNull(FieldPlayerScores))
+}
+
 // HasGame applies the HasEdge predicate on the "game" edge.
 func HasGame() predicate.ScoreEditRequest {
 	return predicate.ScoreEditRequest(func(s *sql.Selector) {

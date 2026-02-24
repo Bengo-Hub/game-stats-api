@@ -82,17 +82,21 @@ func (m *Migrator) migrateUsers(ctx context.Context, fixturesDir string) error {
 
 		// Get role (map Django roles to new system)
 		role := parseString(fix.Fields["role"])
-		if role == "" {
-			// Derive role from is_superuser/is_staff
-			isSuperuser := parseBool(fix.Fields["is_superuser"])
-			isStaff := parseBool(fix.Fields["is_staff"])
-			if isSuperuser {
-				role = "admin"
-			} else if isStaff {
-				role = "staff"
-			} else {
-				role = "user"
-			}
+		isSuperuser := parseBool(fix.Fields["is_superuser"])
+		isStaff := parseBool(fix.Fields["is_staff"])
+
+		if isSuperuser {
+			role = "admin"
+		} else if role == "event_manager" || (isStaff && role == "") {
+			role = "event_manager"
+		} else if role == "scorekeeper" {
+			role = "scorekeeper"
+		} else if role == "team_manager" {
+			role = "team_manager"
+		} else if role == "spectator" || role == "user" {
+			role = "spectator"
+		} else {
+			role = "spectator" // Default to spectator
 		}
 
 		// Get is_active status

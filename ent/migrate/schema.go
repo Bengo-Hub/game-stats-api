@@ -596,6 +596,7 @@ var (
 		{Name: "reviewed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "player_scores", Type: field.TypeJSON, Nullable: true},
 		{Name: "game_id", Type: field.TypeUUID},
 		{Name: "reviewed_by_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "requested_by_id", Type: field.TypeUUID},
@@ -608,19 +609,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "score_edit_requests_games_score_edit_requests",
-				Columns:    []*schema.Column{ScoreEditRequestsColumns[11]},
+				Columns:    []*schema.Column{ScoreEditRequestsColumns[12]},
 				RefColumns: []*schema.Column{GamesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "score_edit_requests_users_reviewed_by",
-				Columns:    []*schema.Column{ScoreEditRequestsColumns[12]},
+				Columns:    []*schema.Column{ScoreEditRequestsColumns[13]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "score_edit_requests_users_score_edit_requests",
-				Columns:    []*schema.Column{ScoreEditRequestsColumns[13]},
+				Columns:    []*schema.Column{ScoreEditRequestsColumns[14]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

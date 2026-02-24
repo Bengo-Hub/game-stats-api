@@ -131,6 +131,12 @@ func (h *AdminHandler) GetGameAuditHistory(w http.ResponseWriter, r *http.Reques
 // @Security BearerAuth
 func (h *AdminHandler) GetScoreEdits(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	status := r.URL.Query().Get("status")
+
+	if status == "pending" {
+		h.ListScoreEditRequests(w, r)
+		return
+	}
 
 	logs, err := h.scoreAdminService.GetScoreEdits(ctx)
 	if err != nil {

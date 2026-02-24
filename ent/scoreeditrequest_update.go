@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/predicate"
@@ -237,6 +238,24 @@ func (_u *ScoreEditRequestUpdate) SetUpdatedAt(v time.Time) *ScoreEditRequestUpd
 	return _u
 }
 
+// SetPlayerScores sets the "player_scores" field.
+func (_u *ScoreEditRequestUpdate) SetPlayerScores(v []map[string]interface{}) *ScoreEditRequestUpdate {
+	_u.mutation.SetPlayerScores(v)
+	return _u
+}
+
+// AppendPlayerScores appends value to the "player_scores" field.
+func (_u *ScoreEditRequestUpdate) AppendPlayerScores(v []map[string]interface{}) *ScoreEditRequestUpdate {
+	_u.mutation.AppendPlayerScores(v)
+	return _u
+}
+
+// ClearPlayerScores clears the value of the "player_scores" field.
+func (_u *ScoreEditRequestUpdate) ClearPlayerScores() *ScoreEditRequestUpdate {
+	_u.mutation.ClearPlayerScores()
+	return _u
+}
+
 // SetGame sets the "game" edge to the Game entity.
 func (_u *ScoreEditRequestUpdate) SetGame(v *Game) *ScoreEditRequestUpdate {
 	return _u.SetGameID(v.ID)
@@ -383,6 +402,17 @@ func (_u *ScoreEditRequestUpdate) sqlSave(ctx context.Context) (_node int, err e
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(scoreeditrequest.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.PlayerScores(); ok {
+		_spec.SetField(scoreeditrequest.FieldPlayerScores, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedPlayerScores(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, scoreeditrequest.FieldPlayerScores, value)
+		})
+	}
+	if _u.mutation.PlayerScoresCleared() {
+		_spec.ClearField(scoreeditrequest.FieldPlayerScores, field.TypeJSON)
 	}
 	if _u.mutation.GameCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -697,6 +727,24 @@ func (_u *ScoreEditRequestUpdateOne) SetUpdatedAt(v time.Time) *ScoreEditRequest
 	return _u
 }
 
+// SetPlayerScores sets the "player_scores" field.
+func (_u *ScoreEditRequestUpdateOne) SetPlayerScores(v []map[string]interface{}) *ScoreEditRequestUpdateOne {
+	_u.mutation.SetPlayerScores(v)
+	return _u
+}
+
+// AppendPlayerScores appends value to the "player_scores" field.
+func (_u *ScoreEditRequestUpdateOne) AppendPlayerScores(v []map[string]interface{}) *ScoreEditRequestUpdateOne {
+	_u.mutation.AppendPlayerScores(v)
+	return _u
+}
+
+// ClearPlayerScores clears the value of the "player_scores" field.
+func (_u *ScoreEditRequestUpdateOne) ClearPlayerScores() *ScoreEditRequestUpdateOne {
+	_u.mutation.ClearPlayerScores()
+	return _u
+}
+
 // SetGame sets the "game" edge to the Game entity.
 func (_u *ScoreEditRequestUpdateOne) SetGame(v *Game) *ScoreEditRequestUpdateOne {
 	return _u.SetGameID(v.ID)
@@ -873,6 +921,17 @@ func (_u *ScoreEditRequestUpdateOne) sqlSave(ctx context.Context) (_node *ScoreE
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(scoreeditrequest.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.PlayerScores(); ok {
+		_spec.SetField(scoreeditrequest.FieldPlayerScores, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedPlayerScores(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, scoreeditrequest.FieldPlayerScores, value)
+		})
+	}
+	if _u.mutation.PlayerScoresCleared() {
+		_spec.ClearField(scoreeditrequest.FieldPlayerScores, field.TypeJSON)
 	}
 	if _u.mutation.GameCleared() {
 		edge := &sqlgraph.EdgeSpec{

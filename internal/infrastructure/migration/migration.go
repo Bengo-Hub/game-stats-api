@@ -78,6 +78,9 @@ func (m *Migrator) RunAll(ctx context.Context, fixturesDir string) error {
 
 		// Spirit scores (with MVP/Spirit nominations)
 		{"spirit_scores", m.migrateSpiritScores},
+
+		// Activity/Audit logs
+		{"activity_logs", m.migrateActivityLogs},
 	}
 
 	startTime := time.Now()

@@ -149,6 +149,12 @@ func (_c *ScoreEditRequestCreate) SetNillableUpdatedAt(v *time.Time) *ScoreEditR
 	return _c
 }
 
+// SetPlayerScores sets the "player_scores" field.
+func (_c *ScoreEditRequestCreate) SetPlayerScores(v []map[string]interface{}) *ScoreEditRequestCreate {
+	_c.mutation.SetPlayerScores(v)
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *ScoreEditRequestCreate) SetID(v uuid.UUID) *ScoreEditRequestCreate {
 	_c.mutation.SetID(v)
@@ -348,6 +354,10 @@ func (_c *ScoreEditRequestCreate) createSpec() (*ScoreEditRequest, *sqlgraph.Cre
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(scoreeditrequest.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.PlayerScores(); ok {
+		_spec.SetField(scoreeditrequest.FieldPlayerScores, field.TypeJSON, value)
+		_node.PlayerScores = value
 	}
 	if nodes := _c.mutation.GameIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

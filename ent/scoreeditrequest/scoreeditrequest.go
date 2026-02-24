@@ -41,6 +41,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
+	// FieldPlayerScores holds the string denoting the player_scores field in the database.
+	FieldPlayerScores = "player_scores"
 	// EdgeGame holds the string denoting the game edge name in mutations.
 	EdgeGame = "game"
 	// EdgeRequestedBy holds the string denoting the requested_by edge name in mutations.
@@ -88,6 +90,7 @@ var Columns = []string{
 	FieldReviewedAt,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldPlayerScores,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

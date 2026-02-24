@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -46,6 +47,8 @@ type ScoreEditRequest struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// PlayerScores holds the value of the "player_scores" field.
+	PlayerScores []map[string]interface{} `json:"player_scores,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ScoreEditRequestQuery when eager-loading is set.
 	Edges        ScoreEditRequestEdges `json:"edges"`
@@ -103,6 +106,8 @@ func (*ScoreEditRequest) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case scoreeditrequest.FieldPlayerScores:
+			values[i] = new([]byte)
 		case scoreeditrequest.FieldPreviousHomeScore, scoreeditrequest.FieldPreviousAwayScore, scoreeditrequest.FieldNewHomeScore, scoreeditrequest.FieldNewAwayScore:
 			values[i] = new(sql.NullInt64)
 		case scoreeditrequest.FieldReason, scoreeditrequest.FieldStatus, scoreeditrequest.FieldRejectionReason:
@@ -210,6 +215,14 @@ func (_m *ScoreEditRequest) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
 			}
+		case scoreeditrequest.FieldPlayerScores:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field player_scores", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.PlayerScores); err != nil {
+					return fmt.Errorf("unmarshal field player_scores: %w", err)
+				}
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -299,6 +312,9 @@ func (_m *ScoreEditRequest) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("player_scores=")
+	builder.WriteString(fmt.Sprintf("%v", _m.PlayerScores))
 	builder.WriteByte(')')
 	return builder.String()
 }

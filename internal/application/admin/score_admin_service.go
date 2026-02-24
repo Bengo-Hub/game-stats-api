@@ -3,6 +3,7 @@ package admin
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/bengobox/game-stats-api/ent"
@@ -274,14 +275,25 @@ func (s *ScoreAdminService) ReviewScoreEdit(
 	}
 
 	if approve {
-		// Apply the score change using existing UpdateGameScore logic
+		// Extract player scores if present
+		var playerScores []PlayerScore
+		for _, ps := range req.PlayerScores {
+			pID, _ := uuid.Parse(fmt.Sprint(ps["player_id"]))
+			gVal, _ := strconv.Atoi(fmt.Sprint(ps["goals"]))
+			playerScores = append(playerScores, PlayerScore{
+				PlayerID: pID,
+				Goals:    gVal,
+			})
+		}
+
 		updateReq := UpdateGameScoreRequest{
-			GameID:      req.GameID,
-			HomeScore:   req.NewHomeScore,
-			AwayScore:   req.NewAwayScore,
-			Reason:      fmt.Sprintf("Approved score edit request: %s", req.Reason),
-			AdminUserID: reviewerID,
-			AdminName:   "System Reviewer", // Should fetch reviewer name
+			GameID:       req.GameID,
+			HomeScore:    req.NewHomeScore,
+			AwayScore:    req.NewAwayScore,
+			Reason:       fmt.Sprintf("Approved score edit request: %s", req.Reason),
+			AdminUserID:  reviewerID,
+			AdminName:    "System Reviewer", // Should fetch reviewer name
+			PlayerScores: playerScores,
 		}
 
 		_, err = s.UpdateGameScore(ctx, updateReq)

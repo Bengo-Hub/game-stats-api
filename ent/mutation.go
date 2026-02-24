@@ -19885,6 +19885,8 @@ type ScoreEditRequestMutation struct {
 	reviewed_at            *time.Time
 	created_at             *time.Time
 	updated_at             *time.Time
+	player_scores          *[]map[string]interface{}
+	appendplayer_scores    []map[string]interface{}
 	clearedFields          map[string]struct{}
 	game                   *uuid.UUID
 	clearedgame            bool
@@ -20588,6 +20590,71 @@ func (m *ScoreEditRequestMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
+// SetPlayerScores sets the "player_scores" field.
+func (m *ScoreEditRequestMutation) SetPlayerScores(value []map[string]interface{}) {
+	m.player_scores = &value
+	m.appendplayer_scores = nil
+}
+
+// PlayerScores returns the value of the "player_scores" field in the mutation.
+func (m *ScoreEditRequestMutation) PlayerScores() (r []map[string]interface{}, exists bool) {
+	v := m.player_scores
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPlayerScores returns the old "player_scores" field's value of the ScoreEditRequest entity.
+// If the ScoreEditRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ScoreEditRequestMutation) OldPlayerScores(ctx context.Context) (v []map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPlayerScores is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPlayerScores requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPlayerScores: %w", err)
+	}
+	return oldValue.PlayerScores, nil
+}
+
+// AppendPlayerScores adds value to the "player_scores" field.
+func (m *ScoreEditRequestMutation) AppendPlayerScores(value []map[string]interface{}) {
+	m.appendplayer_scores = append(m.appendplayer_scores, value...)
+}
+
+// AppendedPlayerScores returns the list of values that were appended to the "player_scores" field in this mutation.
+func (m *ScoreEditRequestMutation) AppendedPlayerScores() ([]map[string]interface{}, bool) {
+	if len(m.appendplayer_scores) == 0 {
+		return nil, false
+	}
+	return m.appendplayer_scores, true
+}
+
+// ClearPlayerScores clears the value of the "player_scores" field.
+func (m *ScoreEditRequestMutation) ClearPlayerScores() {
+	m.player_scores = nil
+	m.appendplayer_scores = nil
+	m.clearedFields[scoreeditrequest.FieldPlayerScores] = struct{}{}
+}
+
+// PlayerScoresCleared returns if the "player_scores" field was cleared in this mutation.
+func (m *ScoreEditRequestMutation) PlayerScoresCleared() bool {
+	_, ok := m.clearedFields[scoreeditrequest.FieldPlayerScores]
+	return ok
+}
+
+// ResetPlayerScores resets all changes to the "player_scores" field.
+func (m *ScoreEditRequestMutation) ResetPlayerScores() {
+	m.player_scores = nil
+	m.appendplayer_scores = nil
+	delete(m.clearedFields, scoreeditrequest.FieldPlayerScores)
+}
+
 // ClearGame clears the "game" edge to the Game entity.
 func (m *ScoreEditRequestMutation) ClearGame() {
 	m.clearedgame = true
@@ -20703,7 +20770,7 @@ func (m *ScoreEditRequestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ScoreEditRequestMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 14)
 	if m.game != nil {
 		fields = append(fields, scoreeditrequest.FieldGameID)
 	}
@@ -20743,6 +20810,9 @@ func (m *ScoreEditRequestMutation) Fields() []string {
 	if m.updated_at != nil {
 		fields = append(fields, scoreeditrequest.FieldUpdatedAt)
 	}
+	if m.player_scores != nil {
+		fields = append(fields, scoreeditrequest.FieldPlayerScores)
+	}
 	return fields
 }
 
@@ -20777,6 +20847,8 @@ func (m *ScoreEditRequestMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case scoreeditrequest.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case scoreeditrequest.FieldPlayerScores:
+		return m.PlayerScores()
 	}
 	return nil, false
 }
@@ -20812,6 +20884,8 @@ func (m *ScoreEditRequestMutation) OldField(ctx context.Context, name string) (e
 		return m.OldCreatedAt(ctx)
 	case scoreeditrequest.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case scoreeditrequest.FieldPlayerScores:
+		return m.OldPlayerScores(ctx)
 	}
 	return nil, fmt.Errorf("unknown ScoreEditRequest field %s", name)
 }
@@ -20912,6 +20986,13 @@ func (m *ScoreEditRequestMutation) SetField(name string, value ent.Value) error 
 		}
 		m.SetUpdatedAt(v)
 		return nil
+	case scoreeditrequest.FieldPlayerScores:
+		v, ok := value.([]map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPlayerScores(v)
+		return nil
 	}
 	return fmt.Errorf("unknown ScoreEditRequest field %s", name)
 }
@@ -21002,6 +21083,9 @@ func (m *ScoreEditRequestMutation) ClearedFields() []string {
 	if m.FieldCleared(scoreeditrequest.FieldReviewedAt) {
 		fields = append(fields, scoreeditrequest.FieldReviewedAt)
 	}
+	if m.FieldCleared(scoreeditrequest.FieldPlayerScores) {
+		fields = append(fields, scoreeditrequest.FieldPlayerScores)
+	}
 	return fields
 }
 
@@ -21024,6 +21108,9 @@ func (m *ScoreEditRequestMutation) ClearField(name string) error {
 		return nil
 	case scoreeditrequest.FieldReviewedAt:
 		m.ClearReviewedAt()
+		return nil
+	case scoreeditrequest.FieldPlayerScores:
+		m.ClearPlayerScores()
 		return nil
 	}
 	return fmt.Errorf("unknown ScoreEditRequest nullable field %s", name)
@@ -21071,6 +21158,9 @@ func (m *ScoreEditRequestMutation) ResetField(name string) error {
 		return nil
 	case scoreeditrequest.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case scoreeditrequest.FieldPlayerScores:
+		m.ResetPlayerScores()
 		return nil
 	}
 	return fmt.Errorf("unknown ScoreEditRequest field %s", name)

@@ -43,6 +43,8 @@ func (ScoreEditRequest) Fields() []ent.Field {
 		field.Time("updated_at").
 			Default(time.Now).
 			UpdateDefault(time.Now),
+		field.JSON("player_scores", []map[string]interface{}{}).
+			Optional(),
 	}
 }
 

@@ -644,9 +644,9 @@ func (h *AdminUsersHandler) ExportData(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/csv")
 		w.Header().Set("Content-Disposition", "attachment;filename=events.csv")
 		writer := csv.NewWriter(w)
-		writer.Write([]string{"ID", "Name", "Location", "StartDate", "EndDate", "Status"})
+		writer.Write([]string{"ID", "Name", "StartDate", "EndDate", "Status"})
 		for _, e := range events {
-			writer.Write([]string{e.ID.String(), e.Name, e.Location, e.StartDate.String(), e.EndDate.String(), e.Status})
+			writer.Write([]string{e.ID.String(), e.Name, e.StartDate.String(), e.EndDate.String(), e.Status})
 		}
 		writer.Flush()
 
@@ -659,13 +659,10 @@ func (h *AdminUsersHandler) ExportData(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/csv")
 		w.Header().Set("Content-Disposition", "attachment;filename=games.csv")
 		writer := csv.NewWriter(w)
-		writer.Write([]string{"ID", "Event ID", "Home Team ID", "Away Team ID", "Home Score", "Away Score", "Status", "ScheduledTime"})
+		writer.Write([]string{"ID", "Home Score", "Away Score", "Status", "ScheduledTime"})
 		for _, g := range games {
 			writer.Write([]string{
 				g.ID.String(),
-				g.EventID.String(),
-				g.HomeTeamID.String(),
-				g.AwayTeamID.String(),
 				strconv.Itoa(g.HomeTeamScore),
 				strconv.Itoa(g.AwayTeamScore),
 				g.Status,
@@ -689,7 +686,7 @@ func (h *AdminUsersHandler) ExportData(w http.ResponseWriter, r *http.Request) {
 			if t.ContactEmail != nil {
 				contactEmail = *t.ContactEmail
 			}
-			writer.Write([]string{t.ID.String(), t.Name, t.ClubName, contactEmail})
+			writer.Write([]string{t.ID.String(), t.Name, "", contactEmail})
 		}
 		writer.Flush()
 
