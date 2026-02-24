@@ -251,6 +251,61 @@ func (s *ScoreAdminService) GetScoreEdits(ctx context.Context) ([]*audit.AuditLo
 	return logs, nil
 }
 
+// ListPendingScoreEdits retrieves all pending score edit requests
+func (s *ScoreAdminService) ListPendingScoreEdits(ctx context.Context) ([]*ent.ScoreEditRequest, error) {
+	return s.scoringRepo.ListScoreEditRequests(ctx, "pending")
+}
+
+// ReviewScoreEdit approves or rejects a score edit request
+func (s *ScoreAdminService) ReviewScoreEdit(
+	ctx context.Context,
+	requestID uuid.UUID,
+	approve bool,
+	reviewerID uuid.UUID,
+	rejectionReason string,
+) error {
+	req, err := s.scoringRepo.GetScoreEditRequestByID(ctx, requestID)
+	if err != nil {
+		return fmt.Errorf("failed to get score edit request: %w", err)
+	}
+
+	if req.Status != "pending" {
+		return fmt.Errorf("request is already %s", req.Status)
+	}
+
+	if approve {
+		// Apply the score change using existing UpdateGameScore logic
+		updateReq := UpdateGameScoreRequest{
+			GameID:      req.GameID,
+			HomeScore:   req.NewHomeScore,
+			AwayScore:   req.NewAwayScore,
+			Reason:      fmt.Sprintf("Approved score edit request: %s", req.Reason),
+			AdminUserID: reviewerID,
+			AdminName:   "System Reviewer", // Should fetch reviewer name
+		}
+
+		_, err = s.UpdateGameScore(ctx, updateReq)
+		if err != nil {
+			return fmt.Errorf("failed to apply approved score edit: %w", err)
+		}
+
+		req.Status = "approved"
+	} else {
+		req.Status = "rejected"
+		req.RejectionReason = rejectionReason
+	}
+
+	req.ReviewedByID = reviewerID
+	req.ReviewedAt = time.Now()
+
+	_, err = s.scoringRepo.UpdateScoreEditRequest(ctx, req)
+	if err != nil {
+		return fmt.Errorf("failed to update score edit request status: %w", err)
+	}
+
+	return nil
+}
+
 // SyncGameScores delegates to repository
 func (s *ScoreAdminService) SyncGameScores(ctx context.Context, gameID uuid.UUID) (*UpdateGameScoreResponse, error) {
 	g, err := s.gameRepo.SyncGameScores(ctx, gameID)

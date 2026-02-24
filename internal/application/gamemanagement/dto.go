@@ -54,9 +54,11 @@ type GameDTO struct {
 }
 
 type TeamSummaryDTO struct {
-	ID      uuid.UUID `json:"id"`
-	Name    string    `json:"name"`
-	LogoURL *string   `json:"logo_url,omitempty"`
+	ID             uuid.UUID `json:"id"`
+	Name           string    `json:"name"`
+	LogoURL        *string   `json:"logo_url,omitempty"`
+	PrimaryColor   *string   `json:"primary_color,omitempty"`
+	SecondaryColor *string   `json:"secondary_color,omitempty"`
 }
 
 type FieldSummaryDTO struct {

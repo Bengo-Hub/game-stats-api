@@ -244,17 +244,21 @@ func mapSpiritScoreToDTO(s *ent.SpiritScore) *SpiritScoreDTO {
 
 	if s.Edges.ScoredByTeam != nil {
 		dto.ScoredByTeam = &TeamSummaryDTO{
-			ID:      s.Edges.ScoredByTeam.ID,
-			Name:    s.Edges.ScoredByTeam.Name,
-			LogoURL: s.Edges.ScoredByTeam.LogoURL,
+			ID:             s.Edges.ScoredByTeam.ID,
+			Name:           s.Edges.ScoredByTeam.Name,
+			LogoURL:        s.Edges.ScoredByTeam.LogoURL,
+			PrimaryColor:   s.Edges.ScoredByTeam.PrimaryColor,
+			SecondaryColor: s.Edges.ScoredByTeam.SecondaryColor,
 		}
 	}
 
 	if s.Edges.Team != nil {
 		dto.Team = &TeamSummaryDTO{
-			ID:      s.Edges.Team.ID,
-			Name:    s.Edges.Team.Name,
-			LogoURL: s.Edges.Team.LogoURL,
+			ID:             s.Edges.Team.ID,
+			Name:           s.Edges.Team.Name,
+			LogoURL:        s.Edges.Team.LogoURL,
+			PrimaryColor:   s.Edges.Team.PrimaryColor,
+			SecondaryColor: s.Edges.Team.SecondaryColor,
 		}
 	}
 

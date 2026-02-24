@@ -587,17 +587,21 @@ func mapGameToDTO(g *ent.Game) *GameDTO {
 
 	if g.Edges.HomeTeam != nil {
 		dto.HomeTeam = &TeamSummaryDTO{
-			ID:      g.Edges.HomeTeam.ID,
-			Name:    g.Edges.HomeTeam.Name,
-			LogoURL: g.Edges.HomeTeam.LogoURL,
+			ID:             g.Edges.HomeTeam.ID,
+			Name:           g.Edges.HomeTeam.Name,
+			LogoURL:        g.Edges.HomeTeam.LogoURL,
+			PrimaryColor:   g.Edges.HomeTeam.PrimaryColor,
+			SecondaryColor: g.Edges.HomeTeam.SecondaryColor,
 		}
 	}
 
 	if g.Edges.AwayTeam != nil {
 		dto.AwayTeam = &TeamSummaryDTO{
-			ID:      g.Edges.AwayTeam.ID,
-			Name:    g.Edges.AwayTeam.Name,
-			LogoURL: g.Edges.AwayTeam.LogoURL,
+			ID:             g.Edges.AwayTeam.ID,
+			Name:           g.Edges.AwayTeam.Name,
+			LogoURL:        g.Edges.AwayTeam.LogoURL,
+			PrimaryColor:   g.Edges.AwayTeam.PrimaryColor,
+			SecondaryColor: g.Edges.AwayTeam.SecondaryColor,
 		}
 	}
 

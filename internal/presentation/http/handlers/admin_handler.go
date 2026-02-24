@@ -142,6 +142,65 @@ func (h *AdminHandler) GetScoreEdits(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(logs)
 }
 
+// ListScoreEditRequests godoc
+// @Summary List pending score edit requests (Admin only)
+// @Description Retrieves all pending score edit requests for approval
+// @Tags admin
+// @Produce json
+// @Success 200 {array} ent.ScoreEditRequest
+// @Failure 500 {object} ErrorResponse
+// @Router /admin/score-edits/pending [get]
+// @Security BearerAuth
+func (h *AdminHandler) ListScoreEditRequests(w http.ResponseWriter, r *http.Request) {
+	requests, err := h.scoreAdminService.ListPendingScoreEdits(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to list score edit requests: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(requests)
+}
+
+// ReviewScoreEdit godoc
+// @Summary Review a score edit request (Admin only)
+// @Description Approves or rejects a pending score edit request
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param id path string true "Request ID" format(uuid)
+// @Param body body ReviewScoreEditRequestDTO true "Review request"
+// @Success 200 {object} SuccessResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /admin/score-edits/{id}/review [post]
+// @Security BearerAuth
+func (h *AdminHandler) ReviewScoreEdit(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		http.Error(w, "Invalid request ID", http.StatusBadRequest)
+		return
+	}
+
+	var dto ReviewScoreEditRequestDTO
+	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	userID, _ := r.Context().Value("user_id").(uuid.UUID)
+
+	err = h.scoreAdminService.ReviewScoreEdit(r.Context(), id, dto.Approve, userID, dto.RejectionReason)
+	if err != nil {
+		http.Error(w, "Failed to review score edit: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+}
+
 // SyncGameScores godoc
 // @Summary Sync game scores from player goals (Admin only)
 // @Description Re-calculates game scores by summing individual player goals
@@ -257,6 +316,12 @@ type UpdateSpiritScoreRequestDTO struct {
 	Attitude       int    `json:"attitude" validate:"min=0,max=4"`
 	Communication  int    `json:"communication" validate:"min=0,max=4"`
 	Reason         string `json:"reason" validate:"required,min=10"`
+}
+
+// ReviewScoreEditRequestDTO for reviewing pending edits
+type ReviewScoreEditRequestDTO struct {
+	Approve         bool   `json:"approve"`
+	RejectionReason string `json:"rejection_reason,omitempty"`
 }
 
 // AuditLogDTO represents an audit log entry for swagger documentation

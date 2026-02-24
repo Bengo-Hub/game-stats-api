@@ -294,7 +294,11 @@ func NewRouter(opts RouterOptions) chi.Router {
 						r.Get("/{id}/audit", opts.AdminHandler.GetGameAuditHistory)
 					})
 
-					r.Get("/score-edits", opts.AdminHandler.GetScoreEdits)
+					r.Route("/score-edits", func(r chi.Router) {
+						r.Get("/", opts.AdminHandler.GetScoreEdits)
+						r.Get("/pending", opts.AdminHandler.ListScoreEditRequests)
+						r.Post("/{id}/review", opts.AdminHandler.ReviewScoreEdit)
+					})
 
 					r.Route("/users", func(r chi.Router) {
 						r.Get("/", opts.AdminUsersHandler.ListUsers)
@@ -312,7 +316,6 @@ func NewRouter(opts RouterOptions) chi.Router {
 					})
 
 					// Score corrections
-					r.Get("/score-edits", opts.AdminHandler.GetScoreEdits)
 					r.Route("/games/{id}", func(r chi.Router) {
 						r.Put("/score", opts.AdminHandler.UpdateGameScore)
 						r.Get("/audit", opts.AdminHandler.GetGameAuditHistory)
