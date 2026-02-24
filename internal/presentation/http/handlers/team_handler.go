@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
@@ -26,6 +27,7 @@ type CreateTeamRequest struct {
 	EventID        uuid.UUID              `json:"eventId" validate:"required"`
 	DivisionPoolID uuid.UUID              `json:"divisionPoolId" validate:"required"`
 	HomeLocationID *uuid.UUID             `json:"homeLocationId,omitempty"`
+	LocationName   *string                `json:"locationName,omitempty"`
 	LogoURL        *string                `json:"logoUrl,omitempty"`
 	PrimaryColor   *string                `json:"primaryColor,omitempty"`
 	SecondaryColor *string                `json:"secondaryColor,omitempty"`
@@ -39,6 +41,7 @@ type UpdateTeamRequest struct {
 	Name           *string                `json:"name,omitempty"`
 	DivisionPoolID *uuid.UUID             `json:"divisionPoolId,omitempty"`
 	HomeLocationID *uuid.UUID             `json:"homeLocationId,omitempty"`
+	LocationName   *string                `json:"locationName,omitempty"`
 	LogoURL        *string                `json:"logoUrl,omitempty"`
 	PrimaryColor   *string                `json:"primaryColor,omitempty"`
 	SecondaryColor *string                `json:"secondaryColor,omitempty"`
@@ -576,6 +579,59 @@ func (h *TeamHandler) UpdatePlayer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondJSON(w, http.StatusOK, toPlayerResponse(p))
+}
+
+// DeletePlayer removes a player
+func (h *TeamHandler) DeletePlayer(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	playerIDStr := chi.URLParam(r, "playerId")
+	if playerIDStr == "" {
+		playerIDStr = chi.URLParam(r, "id")
+	}
+	playerID, err := uuid.Parse(playerIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid player ID")
+		return
+	}
+
+	err = h.client.Player.UpdateOneID(playerID).
+		SetDeletedAt(time.Now()).
+		Exec(ctx)
+
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to delete player")
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// GetTeamPlayers returns all players in a team
+func (h *TeamHandler) GetTeamPlayers(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	teamIDStr := chi.URLParam(r, "id")
+	teamID, err := uuid.Parse(teamIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid team ID")
+		return
+	}
+
+	players, err := h.client.Player.Query().
+		Where(player.HasTeamWith(team.ID(teamID))).
+		Where(player.DeletedAtIsNil()).
+		All(ctx)
+
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to get team players")
+		return
+	}
+
+	response := make([]PlayerResponse, len(players))
+	for i, p := range players {
+		response[i] = toPlayerResponse(p)
+	}
+
+	respondJSON(w, http.StatusOK, response)
 }
 
 // GetPlayer godoc

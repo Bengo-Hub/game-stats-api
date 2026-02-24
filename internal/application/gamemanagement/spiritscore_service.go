@@ -168,10 +168,10 @@ func (s *Service) GetGameSpiritScores(ctx context.Context, gameID uuid.UUID) ([]
 	return result, nil
 }
 
-func (s *Service) GetEventSpiritScores(ctx context.Context, eventID uuid.UUID) ([]*SpiritScoreDTO, error) {
-	scores, err := s.spiritScoreRepo.ListByEvent(ctx, eventID)
+func (s *Service) GetEventSpiritScores(ctx context.Context, eventID uuid.UUID, limit, offset int) ([]*SpiritScoreDTO, int, error) {
+	scores, total, err := s.spiritScoreRepo.ListByEvent(ctx, eventID, limit, offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	result := make([]*SpiritScoreDTO, len(scores))
@@ -179,7 +179,7 @@ func (s *Service) GetEventSpiritScores(ctx context.Context, eventID uuid.UUID) (
 		result[i] = mapSpiritScoreToDTO(score)
 	}
 
-	return result, nil
+	return result, total, nil
 }
 
 func (s *Service) GetTeamSpiritAverage(ctx context.Context, teamID uuid.UUID) (*TeamSpiritAverageDTO, error) {

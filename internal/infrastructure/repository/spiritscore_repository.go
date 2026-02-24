@@ -65,18 +65,29 @@ func (r *spiritScoreRepository) ListByTeam(ctx context.Context, teamID uuid.UUID
 		All(ctx)
 }
 
-func (r *spiritScoreRepository) ListByEvent(ctx context.Context, eventID uuid.UUID) ([]*ent.SpiritScore, error) {
-	return r.client.SpiritScore.Query().
+func (r *spiritScoreRepository) ListByEvent(ctx context.Context, eventID uuid.UUID, limit, offset int) ([]*ent.SpiritScore, int, error) {
+	query := r.client.SpiritScore.Query().
 		Where(spiritscore.HasGameWith(
 			game.HasDivisionPoolWith(
 				divisionpool.HasEventWith(event.ID(eventID)),
 			),
 		)).
-		Where(spiritscore.DeletedAtIsNil()).
+		Where(spiritscore.DeletedAtIsNil())
+
+	total, err := query.Count(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	scores, err := query.
 		WithGame().
 		WithScoredByTeam().
 		WithTeam().
+		Limit(limit).
+		Offset(offset).
 		All(ctx)
+
+	return scores, total, err
 }
 
 func (r *spiritScoreRepository) Update(ctx context.Context, s *ent.SpiritScore) (*ent.SpiritScore, error) {

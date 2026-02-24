@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/bengobox/game-stats-api/internal/application/gamemanagement"
 	"github.com/go-chi/chi/v5"
@@ -153,15 +154,14 @@ func (h *SpiritScoreHandler) GetEventSpiritScores(w http.ResponseWriter, r *http
 		return
 	}
 
-	// This assumes the service has a GetEventSpiritScores method.
-	// If not, we might need to add it or fetch games first.
-	// Let's implement it in the handler directly for now using the service's existing methods if possible,
-	// or assume the service will be updated.
-	scores, err := h.service.GetEventSpiritScores(ctx, eventID)
+	pagination := ParsePagination(r)
+
+	scores, total, err := h.service.GetEventSpiritScores(ctx, eventID, pagination.Limit, pagination.Offset)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to retrieve spirit scores")
 		return
 	}
 
+	w.Header().Set("X-Total-Count", strconv.Itoa(total))
 	respondJSON(w, http.StatusOK, scores)
 }

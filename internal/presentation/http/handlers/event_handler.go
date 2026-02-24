@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqljson"
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/ent/country"
+	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/location"
@@ -36,8 +37,8 @@ type CreateEventRequest struct {
 	Categories   []string               `json:"categories,omitempty"`
 	LogoUrl      *string                `json:"logoUrl,omitempty"`
 	BannerUrl    *string                `json:"bannerUrl,omitempty"`
-	LocationID   *uuid.UUID             `json:"locationId,omitempty"`
-	DisciplineID *uuid.UUID             `json:"disciplineId,omitempty"`
+	LocationID   *string                `json:"locationId,omitempty"`
+	DisciplineID *string                `json:"disciplineId,omitempty"`
 	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 }
 
@@ -46,14 +47,18 @@ type CreateDivisionRequest struct {
 	DivisionType string `json:"divisionType" validate:"required,oneof=pool bracket mixed"`
 }
 
+type AddCrewMemberRequest struct {
+	UserID uuid.UUID `json:"userId" validate:"required"`
+}
+
 type UpdateEventRequest struct {
 	Name         *string                `json:"name"`
 	Slug         *string                `json:"slug"`
 	Description  *string                `json:"description"`
 	StartDate    *types.JSONTime        `json:"startDate"`
 	EndDate      *types.JSONTime        `json:"endDate"`
-	DisciplineID *uuid.UUID             `json:"disciplineId"`
-	LocationID   *uuid.UUID             `json:"locationId"`
+	DisciplineID *string                `json:"disciplineId"`
+	LocationID   *string                `json:"locationId"`
 	Categories   []string               `json:"categories"`
 	LogoUrl      *string                `json:"logoUrl"`
 	BannerUrl    *string                `json:"bannerUrl"`
@@ -274,11 +279,27 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	if req.BannerUrl != nil {
 		builder.SetBannerURL(*req.BannerUrl)
 	}
-	if req.LocationID != nil {
-		builder.SetLocationID(*req.LocationID)
+	if req.LocationID != nil && *req.LocationID != "" {
+		if locID, err := uuid.Parse(*req.LocationID); err == nil {
+			builder.SetLocationID(locID)
+		} else {
+			// Try lookup by name/slug if supported by schema
+			l, _ := h.client.Location.Query().Where(location.NameEQ(*req.LocationID)).Only(ctx)
+			if l != nil {
+				builder.SetLocation(l)
+			}
+		}
 	}
-	if req.DisciplineID != nil {
-		builder.SetDisciplineID(*req.DisciplineID)
+	if req.DisciplineID != nil && *req.DisciplineID != "" {
+		if discID, err := uuid.Parse(*req.DisciplineID); err == nil {
+			builder.SetDisciplineID(discID)
+		} else {
+			// Find discipline by name/slug
+			d, _ := h.client.Discipline.Query().Where(discipline.SlugEQ(*req.DisciplineID)).Only(ctx)
+			if d != nil {
+				builder.SetDiscipline(d)
+			}
+		}
 	}
 	if req.Metadata != nil {
 		builder.SetSettings(req.Metadata)
@@ -378,13 +399,27 @@ func (h *EventHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Handle discipline
-	if req.DisciplineID != nil {
-		updater.SetDisciplineID(*req.DisciplineID)
+	if req.DisciplineID != nil && *req.DisciplineID != "" {
+		if discID, err := uuid.Parse(*req.DisciplineID); err == nil {
+			updater.SetDisciplineID(discID)
+		} else {
+			d, _ := h.client.Discipline.Query().Where(discipline.SlugEQ(*req.DisciplineID)).Only(ctx)
+			if d != nil {
+				updater.SetDiscipline(d)
+			}
+		}
 	}
 
 	// Handle location
-	if req.LocationID != nil {
-		updater.SetLocationID(*req.LocationID)
+	if req.LocationID != nil && *req.LocationID != "" {
+		if locID, err := uuid.Parse(*req.LocationID); err == nil {
+			updater.SetLocationID(locID)
+		} else {
+			l, _ := h.client.Location.Query().Where(location.NameEQ(*req.LocationID)).Only(ctx)
+			if l != nil {
+				updater.SetLocation(l)
+			}
+		}
 	}
 
 	if req.Metadata != nil {
@@ -611,6 +646,14 @@ func (h *EventHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 	// Pagination
 	pagination := ParsePagination(r)
 
+	total, err := query.Count(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to count events")
+		return
+	}
+
+	w.Header().Set("X-Total-Count", strconv.Itoa(total))
+
 	events, err := query.
 		Limit(pagination.Limit).
 		Offset(pagination.Offset).
@@ -783,6 +826,63 @@ func (h *EventHandler) GetEventCrew(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondJSON(w, http.StatusOK, response)
+}
+
+// AddEventCrewMember adds a user to the event staff
+func (h *EventHandler) AddEventCrewMember(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	eventIDStr := chi.URLParam(r, "id")
+	eventID, err := uuid.Parse(eventIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid event ID")
+		return
+	}
+
+	var req AddCrewMemberRequest
+	if err := parseJSONBody(r, &req); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = h.client.Event.UpdateOneID(eventID).
+		AddManagedByIDs(req.UserID).
+		Exec(ctx)
+
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to add crew member")
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// RemoveEventCrewMember removes a user from the event staff
+func (h *EventHandler) RemoveEventCrewMember(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	eventIDStr := chi.URLParam(r, "id")
+	eventID, err := uuid.Parse(eventIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid event ID")
+		return
+	}
+
+	userIDStr := chi.URLParam(r, "userId")
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid user ID")
+		return
+	}
+
+	err = h.client.Event.UpdateOneID(eventID).
+		RemoveManagedByIDs(userID).
+		Exec(ctx)
+
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to remove crew member")
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // ListDivisionsByEvent returns all divisions for an event

@@ -66,7 +66,7 @@ func (h *MediaHandler) Upload(w http.ResponseWriter, r *http.Request) {
 
 	// Create sub-directory based on date to keep it organized
 	dateDir := time.Now().Format("2006/01/02")
-	fullDir := filepath.Join(h.uploadsDir, dateDir)
+	fullDir := filepath.Join(h.uploadsDir, filepath.FromSlash(dateDir))
 	if _, err := os.Stat(fullDir); os.IsNotExist(err) {
 		os.MkdirAll(fullDir, 0755)
 	}

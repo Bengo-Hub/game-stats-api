@@ -218,6 +218,11 @@ func NewRouter(opts RouterOptions) chi.Router {
 					r.Put("/{id}", opts.EventHandler.UpdateEvent)
 					r.Post("/{id}/divisions", opts.EventHandler.CreateDivisionPool)
 					r.Post("/{id}/generate-bracket", opts.BracketHandler.GenerateBracket)
+
+					// Crew management
+					r.Get("/{id}/crew", opts.EventHandler.GetEventCrew)
+					r.Post("/{id}/crew", opts.EventHandler.AddEventCrewMember)
+					r.Delete("/{id}/crew/{userId}", opts.EventHandler.RemoveEventCrewMember)
 				})
 			})
 
@@ -230,8 +235,10 @@ func NewRouter(opts RouterOptions) chi.Router {
 				r.With(middleware.RequirePermission(middleware.PermViewTeams)).Get("/{id}/spirit-average", opts.SpiritScoreHandler.GetTeamSpiritAverage)
 
 				r.Route("/{id}/players", func(r chi.Router) {
+					r.With(middleware.RequirePermission(middleware.PermViewTeams)).Get("/", opts.TeamHandler.GetTeamPlayers)
 					r.With(middleware.RequirePermission(middleware.PermManageTeams)).Post("/", opts.TeamHandler.CreatePlayer)
 					r.With(middleware.RequirePermission(middleware.PermManageTeams)).Put("/{playerId}", opts.TeamHandler.UpdatePlayer)
+					r.With(middleware.RequirePermission(middleware.PermManageTeams)).Delete("/{playerId}", opts.TeamHandler.DeletePlayer)
 					r.With(middleware.RequirePermission(middleware.PermManageTeams)).Post("/upload", opts.TeamHandler.BulkImportPlayers)
 				})
 			})
