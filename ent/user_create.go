@@ -15,6 +15,8 @@ import (
 	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/scopedrole"
+	"github.com/bengobox/game-stats-api/ent/scoreeditrequest"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
 	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/bengobox/game-stats-api/ent/user"
@@ -150,99 +152,79 @@ func (_c *UserCreate) SetNillableID(v *uuid.UUID) *UserCreate {
 	return _c
 }
 
-// SetManagedContinentID sets the "managed_continent" edge to the Continent entity by ID.
-func (_c *UserCreate) SetManagedContinentID(id uuid.UUID) *UserCreate {
-	_c.mutation.SetManagedContinentID(id)
+// AddManagedContinentIDs adds the "managed_continent" edge to the Continent entity by IDs.
+func (_c *UserCreate) AddManagedContinentIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddManagedContinentIDs(ids...)
 	return _c
 }
 
-// SetNillableManagedContinentID sets the "managed_continent" edge to the Continent entity by ID if the given value is not nil.
-func (_c *UserCreate) SetNillableManagedContinentID(id *uuid.UUID) *UserCreate {
-	if id != nil {
-		_c = _c.SetManagedContinentID(*id)
+// AddManagedContinent adds the "managed_continent" edges to the Continent entity.
+func (_c *UserCreate) AddManagedContinent(v ...*Continent) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
+	return _c.AddManagedContinentIDs(ids...)
+}
+
+// AddManagedCountryIDs adds the "managed_country" edge to the Country entity by IDs.
+func (_c *UserCreate) AddManagedCountryIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddManagedCountryIDs(ids...)
 	return _c
 }
 
-// SetManagedContinent sets the "managed_continent" edge to the Continent entity.
-func (_c *UserCreate) SetManagedContinent(v *Continent) *UserCreate {
-	return _c.SetManagedContinentID(v.ID)
-}
-
-// SetManagedCountryID sets the "managed_country" edge to the Country entity by ID.
-func (_c *UserCreate) SetManagedCountryID(id uuid.UUID) *UserCreate {
-	_c.mutation.SetManagedCountryID(id)
-	return _c
-}
-
-// SetNillableManagedCountryID sets the "managed_country" edge to the Country entity by ID if the given value is not nil.
-func (_c *UserCreate) SetNillableManagedCountryID(id *uuid.UUID) *UserCreate {
-	if id != nil {
-		_c = _c.SetManagedCountryID(*id)
+// AddManagedCountry adds the "managed_country" edges to the Country entity.
+func (_c *UserCreate) AddManagedCountry(v ...*Country) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
+	return _c.AddManagedCountryIDs(ids...)
+}
+
+// AddManagedDisciplineIDs adds the "managed_discipline" edge to the Discipline entity by IDs.
+func (_c *UserCreate) AddManagedDisciplineIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddManagedDisciplineIDs(ids...)
 	return _c
 }
 
-// SetManagedCountry sets the "managed_country" edge to the Country entity.
-func (_c *UserCreate) SetManagedCountry(v *Country) *UserCreate {
-	return _c.SetManagedCountryID(v.ID)
-}
-
-// SetManagedDisciplineID sets the "managed_discipline" edge to the Discipline entity by ID.
-func (_c *UserCreate) SetManagedDisciplineID(id uuid.UUID) *UserCreate {
-	_c.mutation.SetManagedDisciplineID(id)
-	return _c
-}
-
-// SetNillableManagedDisciplineID sets the "managed_discipline" edge to the Discipline entity by ID if the given value is not nil.
-func (_c *UserCreate) SetNillableManagedDisciplineID(id *uuid.UUID) *UserCreate {
-	if id != nil {
-		_c = _c.SetManagedDisciplineID(*id)
+// AddManagedDiscipline adds the "managed_discipline" edges to the Discipline entity.
+func (_c *UserCreate) AddManagedDiscipline(v ...*Discipline) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
+	return _c.AddManagedDisciplineIDs(ids...)
+}
+
+// AddManagedEventIDs adds the "managed_event" edge to the Event entity by IDs.
+func (_c *UserCreate) AddManagedEventIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddManagedEventIDs(ids...)
 	return _c
 }
 
-// SetManagedDiscipline sets the "managed_discipline" edge to the Discipline entity.
-func (_c *UserCreate) SetManagedDiscipline(v *Discipline) *UserCreate {
-	return _c.SetManagedDisciplineID(v.ID)
-}
-
-// SetManagedEventID sets the "managed_event" edge to the Event entity by ID.
-func (_c *UserCreate) SetManagedEventID(id uuid.UUID) *UserCreate {
-	_c.mutation.SetManagedEventID(id)
-	return _c
-}
-
-// SetNillableManagedEventID sets the "managed_event" edge to the Event entity by ID if the given value is not nil.
-func (_c *UserCreate) SetNillableManagedEventID(id *uuid.UUID) *UserCreate {
-	if id != nil {
-		_c = _c.SetManagedEventID(*id)
+// AddManagedEvent adds the "managed_event" edges to the Event entity.
+func (_c *UserCreate) AddManagedEvent(v ...*Event) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
+	return _c.AddManagedEventIDs(ids...)
+}
+
+// AddManagedTeamIDs adds the "managed_team" edge to the Team entity by IDs.
+func (_c *UserCreate) AddManagedTeamIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddManagedTeamIDs(ids...)
 	return _c
 }
 
-// SetManagedEvent sets the "managed_event" edge to the Event entity.
-func (_c *UserCreate) SetManagedEvent(v *Event) *UserCreate {
-	return _c.SetManagedEventID(v.ID)
-}
-
-// SetManagedTeamID sets the "managed_team" edge to the Team entity by ID.
-func (_c *UserCreate) SetManagedTeamID(id uuid.UUID) *UserCreate {
-	_c.mutation.SetManagedTeamID(id)
-	return _c
-}
-
-// SetNillableManagedTeamID sets the "managed_team" edge to the Team entity by ID if the given value is not nil.
-func (_c *UserCreate) SetNillableManagedTeamID(id *uuid.UUID) *UserCreate {
-	if id != nil {
-		_c = _c.SetManagedTeamID(*id)
+// AddManagedTeam adds the "managed_team" edges to the Team entity.
+func (_c *UserCreate) AddManagedTeam(v ...*Team) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return _c
-}
-
-// SetManagedTeam sets the "managed_team" edge to the Team entity.
-func (_c *UserCreate) SetManagedTeam(v *Team) *UserCreate {
-	return _c.SetManagedTeamID(v.ID)
+	return _c.AddManagedTeamIDs(ids...)
 }
 
 // AddOfficiatedGameIDs adds the "officiated_games" edge to the Game entity by IDs.
@@ -260,6 +242,21 @@ func (_c *UserCreate) AddOfficiatedGames(v ...*Game) *UserCreate {
 	return _c.AddOfficiatedGameIDs(ids...)
 }
 
+// AddScopedRoleIDs adds the "scoped_roles" edge to the ScopedRole entity by IDs.
+func (_c *UserCreate) AddScopedRoleIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddScopedRoleIDs(ids...)
+	return _c
+}
+
+// AddScopedRoles adds the "scoped_roles" edges to the ScopedRole entity.
+func (_c *UserCreate) AddScopedRoles(v ...*ScopedRole) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddScopedRoleIDs(ids...)
+}
+
 // AddSubmittedSpiritScoreIDs adds the "submitted_spirit_scores" edge to the SpiritScore entity by IDs.
 func (_c *UserCreate) AddSubmittedSpiritScoreIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddSubmittedSpiritScoreIDs(ids...)
@@ -273,6 +270,21 @@ func (_c *UserCreate) AddSubmittedSpiritScores(v ...*SpiritScore) *UserCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddSubmittedSpiritScoreIDs(ids...)
+}
+
+// AddScoreEditRequestIDs adds the "score_edit_requests" edge to the ScoreEditRequest entity by IDs.
+func (_c *UserCreate) AddScoreEditRequestIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddScoreEditRequestIDs(ids...)
+	return _c
+}
+
+// AddScoreEditRequests adds the "score_edit_requests" edges to the ScoreEditRequest entity.
+func (_c *UserCreate) AddScoreEditRequests(v ...*ScoreEditRequest) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddScoreEditRequestIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -448,10 +460,10 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	}
 	if nodes := _c.mutation.ManagedContinentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
 			Table:   user.ManagedContinentTable,
-			Columns: []string{user.ManagedContinentColumn},
+			Columns: user.ManagedContinentPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(continent.FieldID, field.TypeUUID),
@@ -460,15 +472,14 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.continent_managed_by = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.ManagedCountryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
 			Table:   user.ManagedCountryTable,
-			Columns: []string{user.ManagedCountryColumn},
+			Columns: user.ManagedCountryPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(country.FieldID, field.TypeUUID),
@@ -477,15 +488,14 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.country_managed_by = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.ManagedDisciplineIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
 			Table:   user.ManagedDisciplineTable,
-			Columns: []string{user.ManagedDisciplineColumn},
+			Columns: user.ManagedDisciplinePrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(discipline.FieldID, field.TypeUUID),
@@ -494,15 +504,14 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.discipline_managed_by = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.ManagedEventIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
 			Table:   user.ManagedEventTable,
-			Columns: []string{user.ManagedEventColumn},
+			Columns: user.ManagedEventPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
@@ -511,15 +520,14 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.event_managed_by = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.ManagedTeamIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
 			Table:   user.ManagedTeamTable,
-			Columns: []string{user.ManagedTeamColumn},
+			Columns: user.ManagedTeamPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
@@ -528,7 +536,6 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.team_managed_by = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.OfficiatedGamesIDs(); len(nodes) > 0 {
@@ -547,6 +554,22 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := _c.mutation.ScopedRolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ScopedRolesTable,
+			Columns: []string{user.ScopedRolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scopedrole.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	if nodes := _c.mutation.SubmittedSpiritScoresIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -556,6 +579,22 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ScoreEditRequestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ScoreEditRequestsTable,
+			Columns: []string{user.ScoreEditRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoreeditrequest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

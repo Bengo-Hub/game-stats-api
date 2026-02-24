@@ -37,6 +37,18 @@ func (Team) Fields() []ent.Field {
 		field.String("logo_url").
 			Optional().
 			Nillable(),
+		field.String("primary_color").
+			Optional().
+			Nillable(),
+		field.String("secondary_color").
+			Optional().
+			Nillable(),
+		field.String("contact_email").
+			Optional().
+			Nillable(),
+		field.String("contact_phone").
+			Optional().
+			Nillable(),
 		field.JSON("metadata", map[string]interface{}{}).
 			Optional(),
 	}

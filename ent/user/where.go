@@ -636,7 +636,7 @@ func HasManagedContinent() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ManagedContinentTable, ManagedContinentColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, ManagedContinentTable, ManagedContinentPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -659,7 +659,7 @@ func HasManagedCountry() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ManagedCountryTable, ManagedCountryColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, ManagedCountryTable, ManagedCountryPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -682,7 +682,7 @@ func HasManagedDiscipline() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ManagedDisciplineTable, ManagedDisciplineColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, ManagedDisciplineTable, ManagedDisciplinePrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -705,7 +705,7 @@ func HasManagedEvent() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ManagedEventTable, ManagedEventColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, ManagedEventTable, ManagedEventPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -728,7 +728,7 @@ func HasManagedTeam() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ManagedTeamTable, ManagedTeamColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, ManagedTeamTable, ManagedTeamPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -769,6 +769,29 @@ func HasOfficiatedGamesWith(preds ...predicate.Game) predicate.User {
 	})
 }
 
+// HasScopedRoles applies the HasEdge predicate on the "scoped_roles" edge.
+func HasScopedRoles() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ScopedRolesTable, ScopedRolesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasScopedRolesWith applies the HasEdge predicate on the "scoped_roles" edge with a given conditions (other predicates).
+func HasScopedRolesWith(preds ...predicate.ScopedRole) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newScopedRolesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasSubmittedSpiritScores applies the HasEdge predicate on the "submitted_spirit_scores" edge.
 func HasSubmittedSpiritScores() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -784,6 +807,29 @@ func HasSubmittedSpiritScores() predicate.User {
 func HasSubmittedSpiritScoresWith(preds ...predicate.SpiritScore) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := newSubmittedSpiritScoresStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasScoreEditRequests applies the HasEdge predicate on the "score_edit_requests" edge.
+func HasScoreEditRequests() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ScoreEditRequestsTable, ScoreEditRequestsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasScoreEditRequestsWith applies the HasEdge predicate on the "score_edit_requests" edge with a given conditions (other predicates).
+func HasScoreEditRequestsWith(preds ...predicate.ScoreEditRequest) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newScoreEditRequestsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

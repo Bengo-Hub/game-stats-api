@@ -50,21 +50,18 @@ func (User) Fields() []ent.Field {
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("managed_continent", Continent.Type).
-			Ref("managed_by").
-			Unique(),
+			Ref("managed_by"),
 		edge.From("managed_country", Country.Type).
-			Ref("managed_by").
-			Unique(),
+			Ref("managed_by"),
 		edge.From("managed_discipline", Discipline.Type).
-			Ref("managed_by").
-			Unique(),
+			Ref("managed_by"),
 		edge.From("managed_event", Event.Type).
-			Ref("managed_by").
-			Unique(),
+			Ref("managed_by"),
 		edge.From("managed_team", Team.Type).
-			Ref("managed_by").
-			Unique(),
+			Ref("managed_by"),
 		edge.To("officiated_games", Game.Type),
+		edge.To("scoped_roles", ScopedRole.Type),
 		edge.To("submitted_spirit_scores", SpiritScore.Type),
+		edge.To("score_edit_requests", ScoreEditRequest.Type),
 	}
 }

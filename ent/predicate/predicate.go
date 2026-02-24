@@ -57,6 +57,12 @@ type MVP_Nomination func(*sql.Selector)
 // Player is the predicate function for player builders.
 type Player func(*sql.Selector)
 
+// ScopedRole is the predicate function for scopedrole builders.
+type ScopedRole func(*sql.Selector)
+
+// ScoreEditRequest is the predicate function for scoreeditrequest builders.
+type ScoreEditRequest func(*sql.Selector)
+
 // Scoring is the predicate function for scoring builders.
 type Scoring func(*sql.Selector)
 

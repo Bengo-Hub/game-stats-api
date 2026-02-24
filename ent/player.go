@@ -42,6 +42,10 @@ type Player struct {
 	IsCaptain bool `json:"is_captain,omitempty"`
 	// Whether this player is the spirit captain
 	IsSpiritCaptain bool `json:"is_spirit_captain,omitempty"`
+	// Phone holds the value of the "phone" field.
+	Phone *string `json:"phone,omitempty"`
+	// Position holds the value of the "position" field.
+	Position *string `json:"position,omitempty"`
 	// Metadata holds the value of the "metadata" field.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -137,7 +141,7 @@ func (*Player) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case player.FieldJerseyNumber:
 			values[i] = new(sql.NullInt64)
-		case player.FieldName, player.FieldEmail, player.FieldGender, player.FieldProfileImageURL:
+		case player.FieldName, player.FieldEmail, player.FieldGender, player.FieldProfileImageURL, player.FieldPhone, player.FieldPosition:
 			values[i] = new(sql.NullString)
 		case player.FieldCreatedAt, player.FieldUpdatedAt, player.FieldDeletedAt, player.FieldDateOfBirth:
 			values[i] = new(sql.NullTime)
@@ -236,6 +240,20 @@ func (_m *Player) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field is_spirit_captain", values[i])
 			} else if value.Valid {
 				_m.IsSpiritCaptain = value.Bool
+			}
+		case player.FieldPhone:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field phone", values[i])
+			} else if value.Valid {
+				_m.Phone = new(string)
+				*_m.Phone = value.String
+			}
+		case player.FieldPosition:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field position", values[i])
+			} else if value.Valid {
+				_m.Position = new(string)
+				*_m.Position = value.String
 			}
 		case player.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -360,6 +378,16 @@ func (_m *Player) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_spirit_captain=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsSpiritCaptain))
+	builder.WriteString(", ")
+	if v := _m.Phone; v != nil {
+		builder.WriteString("phone=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.Position; v != nil {
+		builder.WriteString("position=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))

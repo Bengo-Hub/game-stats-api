@@ -165,6 +165,34 @@ func (_c *PlayerCreate) SetNillableIsSpiritCaptain(v *bool) *PlayerCreate {
 	return _c
 }
 
+// SetPhone sets the "phone" field.
+func (_c *PlayerCreate) SetPhone(v string) *PlayerCreate {
+	_c.mutation.SetPhone(v)
+	return _c
+}
+
+// SetNillablePhone sets the "phone" field if the given value is not nil.
+func (_c *PlayerCreate) SetNillablePhone(v *string) *PlayerCreate {
+	if v != nil {
+		_c.SetPhone(*v)
+	}
+	return _c
+}
+
+// SetPosition sets the "position" field.
+func (_c *PlayerCreate) SetPosition(v string) *PlayerCreate {
+	_c.mutation.SetPosition(v)
+	return _c
+}
+
+// SetNillablePosition sets the "position" field if the given value is not nil.
+func (_c *PlayerCreate) SetNillablePosition(v *string) *PlayerCreate {
+	if v != nil {
+		_c.SetPosition(*v)
+	}
+	return _c
+}
+
 // SetMetadata sets the "metadata" field.
 func (_c *PlayerCreate) SetMetadata(v map[string]interface{}) *PlayerCreate {
 	_c.mutation.SetMetadata(v)
@@ -439,6 +467,14 @@ func (_c *PlayerCreate) createSpec() (*Player, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.IsSpiritCaptain(); ok {
 		_spec.SetField(player.FieldIsSpiritCaptain, field.TypeBool, value)
 		_node.IsSpiritCaptain = value
+	}
+	if value, ok := _c.mutation.Phone(); ok {
+		_spec.SetField(player.FieldPhone, field.TypeString, value)
+		_node.Phone = &value
+	}
+	if value, ok := _c.mutation.Position(); ok {
+		_spec.SetField(player.FieldPosition, field.TypeString, value)
+		_node.Position = &value
 	}
 	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(player.FieldMetadata, field.TypeJSON, value)

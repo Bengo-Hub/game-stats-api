@@ -91,6 +91,26 @@ func LogoURL(v string) predicate.Team {
 	return predicate.Team(sql.FieldEQ(FieldLogoURL, v))
 }
 
+// PrimaryColor applies equality check predicate on the "primary_color" field. It's identical to PrimaryColorEQ.
+func PrimaryColor(v string) predicate.Team {
+	return predicate.Team(sql.FieldEQ(FieldPrimaryColor, v))
+}
+
+// SecondaryColor applies equality check predicate on the "secondary_color" field. It's identical to SecondaryColorEQ.
+func SecondaryColor(v string) predicate.Team {
+	return predicate.Team(sql.FieldEQ(FieldSecondaryColor, v))
+}
+
+// ContactEmail applies equality check predicate on the "contact_email" field. It's identical to ContactEmailEQ.
+func ContactEmail(v string) predicate.Team {
+	return predicate.Team(sql.FieldEQ(FieldContactEmail, v))
+}
+
+// ContactPhone applies equality check predicate on the "contact_phone" field. It's identical to ContactPhoneEQ.
+func ContactPhone(v string) predicate.Team {
+	return predicate.Team(sql.FieldEQ(FieldContactPhone, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Team {
 	return predicate.Team(sql.FieldEQ(FieldCreatedAt, v))
@@ -461,6 +481,306 @@ func LogoURLContainsFold(v string) predicate.Team {
 	return predicate.Team(sql.FieldContainsFold(FieldLogoURL, v))
 }
 
+// PrimaryColorEQ applies the EQ predicate on the "primary_color" field.
+func PrimaryColorEQ(v string) predicate.Team {
+	return predicate.Team(sql.FieldEQ(FieldPrimaryColor, v))
+}
+
+// PrimaryColorNEQ applies the NEQ predicate on the "primary_color" field.
+func PrimaryColorNEQ(v string) predicate.Team {
+	return predicate.Team(sql.FieldNEQ(FieldPrimaryColor, v))
+}
+
+// PrimaryColorIn applies the In predicate on the "primary_color" field.
+func PrimaryColorIn(vs ...string) predicate.Team {
+	return predicate.Team(sql.FieldIn(FieldPrimaryColor, vs...))
+}
+
+// PrimaryColorNotIn applies the NotIn predicate on the "primary_color" field.
+func PrimaryColorNotIn(vs ...string) predicate.Team {
+	return predicate.Team(sql.FieldNotIn(FieldPrimaryColor, vs...))
+}
+
+// PrimaryColorGT applies the GT predicate on the "primary_color" field.
+func PrimaryColorGT(v string) predicate.Team {
+	return predicate.Team(sql.FieldGT(FieldPrimaryColor, v))
+}
+
+// PrimaryColorGTE applies the GTE predicate on the "primary_color" field.
+func PrimaryColorGTE(v string) predicate.Team {
+	return predicate.Team(sql.FieldGTE(FieldPrimaryColor, v))
+}
+
+// PrimaryColorLT applies the LT predicate on the "primary_color" field.
+func PrimaryColorLT(v string) predicate.Team {
+	return predicate.Team(sql.FieldLT(FieldPrimaryColor, v))
+}
+
+// PrimaryColorLTE applies the LTE predicate on the "primary_color" field.
+func PrimaryColorLTE(v string) predicate.Team {
+	return predicate.Team(sql.FieldLTE(FieldPrimaryColor, v))
+}
+
+// PrimaryColorContains applies the Contains predicate on the "primary_color" field.
+func PrimaryColorContains(v string) predicate.Team {
+	return predicate.Team(sql.FieldContains(FieldPrimaryColor, v))
+}
+
+// PrimaryColorHasPrefix applies the HasPrefix predicate on the "primary_color" field.
+func PrimaryColorHasPrefix(v string) predicate.Team {
+	return predicate.Team(sql.FieldHasPrefix(FieldPrimaryColor, v))
+}
+
+// PrimaryColorHasSuffix applies the HasSuffix predicate on the "primary_color" field.
+func PrimaryColorHasSuffix(v string) predicate.Team {
+	return predicate.Team(sql.FieldHasSuffix(FieldPrimaryColor, v))
+}
+
+// PrimaryColorIsNil applies the IsNil predicate on the "primary_color" field.
+func PrimaryColorIsNil() predicate.Team {
+	return predicate.Team(sql.FieldIsNull(FieldPrimaryColor))
+}
+
+// PrimaryColorNotNil applies the NotNil predicate on the "primary_color" field.
+func PrimaryColorNotNil() predicate.Team {
+	return predicate.Team(sql.FieldNotNull(FieldPrimaryColor))
+}
+
+// PrimaryColorEqualFold applies the EqualFold predicate on the "primary_color" field.
+func PrimaryColorEqualFold(v string) predicate.Team {
+	return predicate.Team(sql.FieldEqualFold(FieldPrimaryColor, v))
+}
+
+// PrimaryColorContainsFold applies the ContainsFold predicate on the "primary_color" field.
+func PrimaryColorContainsFold(v string) predicate.Team {
+	return predicate.Team(sql.FieldContainsFold(FieldPrimaryColor, v))
+}
+
+// SecondaryColorEQ applies the EQ predicate on the "secondary_color" field.
+func SecondaryColorEQ(v string) predicate.Team {
+	return predicate.Team(sql.FieldEQ(FieldSecondaryColor, v))
+}
+
+// SecondaryColorNEQ applies the NEQ predicate on the "secondary_color" field.
+func SecondaryColorNEQ(v string) predicate.Team {
+	return predicate.Team(sql.FieldNEQ(FieldSecondaryColor, v))
+}
+
+// SecondaryColorIn applies the In predicate on the "secondary_color" field.
+func SecondaryColorIn(vs ...string) predicate.Team {
+	return predicate.Team(sql.FieldIn(FieldSecondaryColor, vs...))
+}
+
+// SecondaryColorNotIn applies the NotIn predicate on the "secondary_color" field.
+func SecondaryColorNotIn(vs ...string) predicate.Team {
+	return predicate.Team(sql.FieldNotIn(FieldSecondaryColor, vs...))
+}
+
+// SecondaryColorGT applies the GT predicate on the "secondary_color" field.
+func SecondaryColorGT(v string) predicate.Team {
+	return predicate.Team(sql.FieldGT(FieldSecondaryColor, v))
+}
+
+// SecondaryColorGTE applies the GTE predicate on the "secondary_color" field.
+func SecondaryColorGTE(v string) predicate.Team {
+	return predicate.Team(sql.FieldGTE(FieldSecondaryColor, v))
+}
+
+// SecondaryColorLT applies the LT predicate on the "secondary_color" field.
+func SecondaryColorLT(v string) predicate.Team {
+	return predicate.Team(sql.FieldLT(FieldSecondaryColor, v))
+}
+
+// SecondaryColorLTE applies the LTE predicate on the "secondary_color" field.
+func SecondaryColorLTE(v string) predicate.Team {
+	return predicate.Team(sql.FieldLTE(FieldSecondaryColor, v))
+}
+
+// SecondaryColorContains applies the Contains predicate on the "secondary_color" field.
+func SecondaryColorContains(v string) predicate.Team {
+	return predicate.Team(sql.FieldContains(FieldSecondaryColor, v))
+}
+
+// SecondaryColorHasPrefix applies the HasPrefix predicate on the "secondary_color" field.
+func SecondaryColorHasPrefix(v string) predicate.Team {
+	return predicate.Team(sql.FieldHasPrefix(FieldSecondaryColor, v))
+}
+
+// SecondaryColorHasSuffix applies the HasSuffix predicate on the "secondary_color" field.
+func SecondaryColorHasSuffix(v string) predicate.Team {
+	return predicate.Team(sql.FieldHasSuffix(FieldSecondaryColor, v))
+}
+
+// SecondaryColorIsNil applies the IsNil predicate on the "secondary_color" field.
+func SecondaryColorIsNil() predicate.Team {
+	return predicate.Team(sql.FieldIsNull(FieldSecondaryColor))
+}
+
+// SecondaryColorNotNil applies the NotNil predicate on the "secondary_color" field.
+func SecondaryColorNotNil() predicate.Team {
+	return predicate.Team(sql.FieldNotNull(FieldSecondaryColor))
+}
+
+// SecondaryColorEqualFold applies the EqualFold predicate on the "secondary_color" field.
+func SecondaryColorEqualFold(v string) predicate.Team {
+	return predicate.Team(sql.FieldEqualFold(FieldSecondaryColor, v))
+}
+
+// SecondaryColorContainsFold applies the ContainsFold predicate on the "secondary_color" field.
+func SecondaryColorContainsFold(v string) predicate.Team {
+	return predicate.Team(sql.FieldContainsFold(FieldSecondaryColor, v))
+}
+
+// ContactEmailEQ applies the EQ predicate on the "contact_email" field.
+func ContactEmailEQ(v string) predicate.Team {
+	return predicate.Team(sql.FieldEQ(FieldContactEmail, v))
+}
+
+// ContactEmailNEQ applies the NEQ predicate on the "contact_email" field.
+func ContactEmailNEQ(v string) predicate.Team {
+	return predicate.Team(sql.FieldNEQ(FieldContactEmail, v))
+}
+
+// ContactEmailIn applies the In predicate on the "contact_email" field.
+func ContactEmailIn(vs ...string) predicate.Team {
+	return predicate.Team(sql.FieldIn(FieldContactEmail, vs...))
+}
+
+// ContactEmailNotIn applies the NotIn predicate on the "contact_email" field.
+func ContactEmailNotIn(vs ...string) predicate.Team {
+	return predicate.Team(sql.FieldNotIn(FieldContactEmail, vs...))
+}
+
+// ContactEmailGT applies the GT predicate on the "contact_email" field.
+func ContactEmailGT(v string) predicate.Team {
+	return predicate.Team(sql.FieldGT(FieldContactEmail, v))
+}
+
+// ContactEmailGTE applies the GTE predicate on the "contact_email" field.
+func ContactEmailGTE(v string) predicate.Team {
+	return predicate.Team(sql.FieldGTE(FieldContactEmail, v))
+}
+
+// ContactEmailLT applies the LT predicate on the "contact_email" field.
+func ContactEmailLT(v string) predicate.Team {
+	return predicate.Team(sql.FieldLT(FieldContactEmail, v))
+}
+
+// ContactEmailLTE applies the LTE predicate on the "contact_email" field.
+func ContactEmailLTE(v string) predicate.Team {
+	return predicate.Team(sql.FieldLTE(FieldContactEmail, v))
+}
+
+// ContactEmailContains applies the Contains predicate on the "contact_email" field.
+func ContactEmailContains(v string) predicate.Team {
+	return predicate.Team(sql.FieldContains(FieldContactEmail, v))
+}
+
+// ContactEmailHasPrefix applies the HasPrefix predicate on the "contact_email" field.
+func ContactEmailHasPrefix(v string) predicate.Team {
+	return predicate.Team(sql.FieldHasPrefix(FieldContactEmail, v))
+}
+
+// ContactEmailHasSuffix applies the HasSuffix predicate on the "contact_email" field.
+func ContactEmailHasSuffix(v string) predicate.Team {
+	return predicate.Team(sql.FieldHasSuffix(FieldContactEmail, v))
+}
+
+// ContactEmailIsNil applies the IsNil predicate on the "contact_email" field.
+func ContactEmailIsNil() predicate.Team {
+	return predicate.Team(sql.FieldIsNull(FieldContactEmail))
+}
+
+// ContactEmailNotNil applies the NotNil predicate on the "contact_email" field.
+func ContactEmailNotNil() predicate.Team {
+	return predicate.Team(sql.FieldNotNull(FieldContactEmail))
+}
+
+// ContactEmailEqualFold applies the EqualFold predicate on the "contact_email" field.
+func ContactEmailEqualFold(v string) predicate.Team {
+	return predicate.Team(sql.FieldEqualFold(FieldContactEmail, v))
+}
+
+// ContactEmailContainsFold applies the ContainsFold predicate on the "contact_email" field.
+func ContactEmailContainsFold(v string) predicate.Team {
+	return predicate.Team(sql.FieldContainsFold(FieldContactEmail, v))
+}
+
+// ContactPhoneEQ applies the EQ predicate on the "contact_phone" field.
+func ContactPhoneEQ(v string) predicate.Team {
+	return predicate.Team(sql.FieldEQ(FieldContactPhone, v))
+}
+
+// ContactPhoneNEQ applies the NEQ predicate on the "contact_phone" field.
+func ContactPhoneNEQ(v string) predicate.Team {
+	return predicate.Team(sql.FieldNEQ(FieldContactPhone, v))
+}
+
+// ContactPhoneIn applies the In predicate on the "contact_phone" field.
+func ContactPhoneIn(vs ...string) predicate.Team {
+	return predicate.Team(sql.FieldIn(FieldContactPhone, vs...))
+}
+
+// ContactPhoneNotIn applies the NotIn predicate on the "contact_phone" field.
+func ContactPhoneNotIn(vs ...string) predicate.Team {
+	return predicate.Team(sql.FieldNotIn(FieldContactPhone, vs...))
+}
+
+// ContactPhoneGT applies the GT predicate on the "contact_phone" field.
+func ContactPhoneGT(v string) predicate.Team {
+	return predicate.Team(sql.FieldGT(FieldContactPhone, v))
+}
+
+// ContactPhoneGTE applies the GTE predicate on the "contact_phone" field.
+func ContactPhoneGTE(v string) predicate.Team {
+	return predicate.Team(sql.FieldGTE(FieldContactPhone, v))
+}
+
+// ContactPhoneLT applies the LT predicate on the "contact_phone" field.
+func ContactPhoneLT(v string) predicate.Team {
+	return predicate.Team(sql.FieldLT(FieldContactPhone, v))
+}
+
+// ContactPhoneLTE applies the LTE predicate on the "contact_phone" field.
+func ContactPhoneLTE(v string) predicate.Team {
+	return predicate.Team(sql.FieldLTE(FieldContactPhone, v))
+}
+
+// ContactPhoneContains applies the Contains predicate on the "contact_phone" field.
+func ContactPhoneContains(v string) predicate.Team {
+	return predicate.Team(sql.FieldContains(FieldContactPhone, v))
+}
+
+// ContactPhoneHasPrefix applies the HasPrefix predicate on the "contact_phone" field.
+func ContactPhoneHasPrefix(v string) predicate.Team {
+	return predicate.Team(sql.FieldHasPrefix(FieldContactPhone, v))
+}
+
+// ContactPhoneHasSuffix applies the HasSuffix predicate on the "contact_phone" field.
+func ContactPhoneHasSuffix(v string) predicate.Team {
+	return predicate.Team(sql.FieldHasSuffix(FieldContactPhone, v))
+}
+
+// ContactPhoneIsNil applies the IsNil predicate on the "contact_phone" field.
+func ContactPhoneIsNil() predicate.Team {
+	return predicate.Team(sql.FieldIsNull(FieldContactPhone))
+}
+
+// ContactPhoneNotNil applies the NotNil predicate on the "contact_phone" field.
+func ContactPhoneNotNil() predicate.Team {
+	return predicate.Team(sql.FieldNotNull(FieldContactPhone))
+}
+
+// ContactPhoneEqualFold applies the EqualFold predicate on the "contact_phone" field.
+func ContactPhoneEqualFold(v string) predicate.Team {
+	return predicate.Team(sql.FieldEqualFold(FieldContactPhone, v))
+}
+
+// ContactPhoneContainsFold applies the ContainsFold predicate on the "contact_phone" field.
+func ContactPhoneContainsFold(v string) predicate.Team {
+	return predicate.Team(sql.FieldContainsFold(FieldContactPhone, v))
+}
+
 // MetadataIsNil applies the IsNil predicate on the "metadata" field.
 func MetadataIsNil() predicate.Team {
 	return predicate.Team(sql.FieldIsNull(FieldMetadata))
@@ -545,7 +865,7 @@ func HasManagedBy() predicate.Team {
 	return predicate.Team(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ManagedByTable, ManagedByColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, ManagedByTable, ManagedByPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

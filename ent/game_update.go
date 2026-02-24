@@ -17,6 +17,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/gameevent"
 	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/ent/scoreeditrequest"
 	"github.com/bengobox/game-stats-api/ent/scoring"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
 	"github.com/bengobox/game-stats-api/ent/team"
@@ -409,6 +410,21 @@ func (_u *GameUpdate) AddSpiritScores(v ...*SpiritScore) *GameUpdate {
 	return _u.AddSpiritScoreIDs(ids...)
 }
 
+// AddScoreEditRequestIDs adds the "score_edit_requests" edge to the ScoreEditRequest entity by IDs.
+func (_u *GameUpdate) AddScoreEditRequestIDs(ids ...uuid.UUID) *GameUpdate {
+	_u.mutation.AddScoreEditRequestIDs(ids...)
+	return _u
+}
+
+// AddScoreEditRequests adds the "score_edit_requests" edges to the ScoreEditRequest entity.
+func (_u *GameUpdate) AddScoreEditRequests(v ...*ScoreEditRequest) *GameUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddScoreEditRequestIDs(ids...)
+}
+
 // Mutation returns the GameMutation object of the builder.
 func (_u *GameUpdate) Mutation() *GameMutation {
 	return _u.mutation
@@ -511,6 +527,27 @@ func (_u *GameUpdate) RemoveSpiritScores(v ...*SpiritScore) *GameUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveSpiritScoreIDs(ids...)
+}
+
+// ClearScoreEditRequests clears all "score_edit_requests" edges to the ScoreEditRequest entity.
+func (_u *GameUpdate) ClearScoreEditRequests() *GameUpdate {
+	_u.mutation.ClearScoreEditRequests()
+	return _u
+}
+
+// RemoveScoreEditRequestIDs removes the "score_edit_requests" edge to ScoreEditRequest entities by IDs.
+func (_u *GameUpdate) RemoveScoreEditRequestIDs(ids ...uuid.UUID) *GameUpdate {
+	_u.mutation.RemoveScoreEditRequestIDs(ids...)
+	return _u
+}
+
+// RemoveScoreEditRequests removes "score_edit_requests" edges to ScoreEditRequest entities.
+func (_u *GameUpdate) RemoveScoreEditRequests(v ...*ScoreEditRequest) *GameUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveScoreEditRequestIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -969,6 +1006,51 @@ func (_u *GameUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.ScoreEditRequestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.ScoreEditRequestsTable,
+			Columns: []string{game.ScoreEditRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoreeditrequest.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedScoreEditRequestsIDs(); len(nodes) > 0 && !_u.mutation.ScoreEditRequestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.ScoreEditRequestsTable,
+			Columns: []string{game.ScoreEditRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoreeditrequest.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ScoreEditRequestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.ScoreEditRequestsTable,
+			Columns: []string{game.ScoreEditRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoreeditrequest.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{game.Label}
@@ -1361,6 +1443,21 @@ func (_u *GameUpdateOne) AddSpiritScores(v ...*SpiritScore) *GameUpdateOne {
 	return _u.AddSpiritScoreIDs(ids...)
 }
 
+// AddScoreEditRequestIDs adds the "score_edit_requests" edge to the ScoreEditRequest entity by IDs.
+func (_u *GameUpdateOne) AddScoreEditRequestIDs(ids ...uuid.UUID) *GameUpdateOne {
+	_u.mutation.AddScoreEditRequestIDs(ids...)
+	return _u
+}
+
+// AddScoreEditRequests adds the "score_edit_requests" edges to the ScoreEditRequest entity.
+func (_u *GameUpdateOne) AddScoreEditRequests(v ...*ScoreEditRequest) *GameUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddScoreEditRequestIDs(ids...)
+}
+
 // Mutation returns the GameMutation object of the builder.
 func (_u *GameUpdateOne) Mutation() *GameMutation {
 	return _u.mutation
@@ -1463,6 +1560,27 @@ func (_u *GameUpdateOne) RemoveSpiritScores(v ...*SpiritScore) *GameUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveSpiritScoreIDs(ids...)
+}
+
+// ClearScoreEditRequests clears all "score_edit_requests" edges to the ScoreEditRequest entity.
+func (_u *GameUpdateOne) ClearScoreEditRequests() *GameUpdateOne {
+	_u.mutation.ClearScoreEditRequests()
+	return _u
+}
+
+// RemoveScoreEditRequestIDs removes the "score_edit_requests" edge to ScoreEditRequest entities by IDs.
+func (_u *GameUpdateOne) RemoveScoreEditRequestIDs(ids ...uuid.UUID) *GameUpdateOne {
+	_u.mutation.RemoveScoreEditRequestIDs(ids...)
+	return _u
+}
+
+// RemoveScoreEditRequests removes "score_edit_requests" edges to ScoreEditRequest entities.
+func (_u *GameUpdateOne) RemoveScoreEditRequests(v ...*ScoreEditRequest) *GameUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveScoreEditRequestIDs(ids...)
 }
 
 // Where appends a list predicates to the GameUpdate builder.
@@ -1944,6 +2062,51 @@ func (_u *GameUpdateOne) sqlSave(ctx context.Context) (_node *Game, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ScoreEditRequestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.ScoreEditRequestsTable,
+			Columns: []string{game.ScoreEditRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoreeditrequest.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedScoreEditRequestsIDs(); len(nodes) > 0 && !_u.mutation.ScoreEditRequestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.ScoreEditRequestsTable,
+			Columns: []string{game.ScoreEditRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoreeditrequest.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ScoreEditRequestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.ScoreEditRequestsTable,
+			Columns: []string{game.ScoreEditRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoreeditrequest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

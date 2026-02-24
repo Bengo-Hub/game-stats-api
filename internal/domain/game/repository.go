@@ -34,4 +34,5 @@ type Repository interface {
 	UpdateWithVersion(ctx context.Context, id uuid.UUID, version int, updateFn func(*ent.GameUpdateOne) *ent.GameUpdateOne) (*ent.Game, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 	CheckFieldConflict(ctx context.Context, fieldID uuid.UUID, scheduledTime time.Time, duration int) (bool, error)
+	SyncGameScores(ctx context.Context, id uuid.UUID) (*ent.Game, error)
 }

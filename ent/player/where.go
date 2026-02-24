@@ -111,6 +111,16 @@ func IsSpiritCaptain(v bool) predicate.Player {
 	return predicate.Player(sql.FieldEQ(FieldIsSpiritCaptain, v))
 }
 
+// Phone applies equality check predicate on the "phone" field. It's identical to PhoneEQ.
+func Phone(v string) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldPhone, v))
+}
+
+// Position applies equality check predicate on the "position" field. It's identical to PositionEQ.
+func Position(v string) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldPosition, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Player {
 	return predicate.Player(sql.FieldEQ(FieldCreatedAt, v))
@@ -639,6 +649,156 @@ func IsSpiritCaptainEQ(v bool) predicate.Player {
 // IsSpiritCaptainNEQ applies the NEQ predicate on the "is_spirit_captain" field.
 func IsSpiritCaptainNEQ(v bool) predicate.Player {
 	return predicate.Player(sql.FieldNEQ(FieldIsSpiritCaptain, v))
+}
+
+// PhoneEQ applies the EQ predicate on the "phone" field.
+func PhoneEQ(v string) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldPhone, v))
+}
+
+// PhoneNEQ applies the NEQ predicate on the "phone" field.
+func PhoneNEQ(v string) predicate.Player {
+	return predicate.Player(sql.FieldNEQ(FieldPhone, v))
+}
+
+// PhoneIn applies the In predicate on the "phone" field.
+func PhoneIn(vs ...string) predicate.Player {
+	return predicate.Player(sql.FieldIn(FieldPhone, vs...))
+}
+
+// PhoneNotIn applies the NotIn predicate on the "phone" field.
+func PhoneNotIn(vs ...string) predicate.Player {
+	return predicate.Player(sql.FieldNotIn(FieldPhone, vs...))
+}
+
+// PhoneGT applies the GT predicate on the "phone" field.
+func PhoneGT(v string) predicate.Player {
+	return predicate.Player(sql.FieldGT(FieldPhone, v))
+}
+
+// PhoneGTE applies the GTE predicate on the "phone" field.
+func PhoneGTE(v string) predicate.Player {
+	return predicate.Player(sql.FieldGTE(FieldPhone, v))
+}
+
+// PhoneLT applies the LT predicate on the "phone" field.
+func PhoneLT(v string) predicate.Player {
+	return predicate.Player(sql.FieldLT(FieldPhone, v))
+}
+
+// PhoneLTE applies the LTE predicate on the "phone" field.
+func PhoneLTE(v string) predicate.Player {
+	return predicate.Player(sql.FieldLTE(FieldPhone, v))
+}
+
+// PhoneContains applies the Contains predicate on the "phone" field.
+func PhoneContains(v string) predicate.Player {
+	return predicate.Player(sql.FieldContains(FieldPhone, v))
+}
+
+// PhoneHasPrefix applies the HasPrefix predicate on the "phone" field.
+func PhoneHasPrefix(v string) predicate.Player {
+	return predicate.Player(sql.FieldHasPrefix(FieldPhone, v))
+}
+
+// PhoneHasSuffix applies the HasSuffix predicate on the "phone" field.
+func PhoneHasSuffix(v string) predicate.Player {
+	return predicate.Player(sql.FieldHasSuffix(FieldPhone, v))
+}
+
+// PhoneIsNil applies the IsNil predicate on the "phone" field.
+func PhoneIsNil() predicate.Player {
+	return predicate.Player(sql.FieldIsNull(FieldPhone))
+}
+
+// PhoneNotNil applies the NotNil predicate on the "phone" field.
+func PhoneNotNil() predicate.Player {
+	return predicate.Player(sql.FieldNotNull(FieldPhone))
+}
+
+// PhoneEqualFold applies the EqualFold predicate on the "phone" field.
+func PhoneEqualFold(v string) predicate.Player {
+	return predicate.Player(sql.FieldEqualFold(FieldPhone, v))
+}
+
+// PhoneContainsFold applies the ContainsFold predicate on the "phone" field.
+func PhoneContainsFold(v string) predicate.Player {
+	return predicate.Player(sql.FieldContainsFold(FieldPhone, v))
+}
+
+// PositionEQ applies the EQ predicate on the "position" field.
+func PositionEQ(v string) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldPosition, v))
+}
+
+// PositionNEQ applies the NEQ predicate on the "position" field.
+func PositionNEQ(v string) predicate.Player {
+	return predicate.Player(sql.FieldNEQ(FieldPosition, v))
+}
+
+// PositionIn applies the In predicate on the "position" field.
+func PositionIn(vs ...string) predicate.Player {
+	return predicate.Player(sql.FieldIn(FieldPosition, vs...))
+}
+
+// PositionNotIn applies the NotIn predicate on the "position" field.
+func PositionNotIn(vs ...string) predicate.Player {
+	return predicate.Player(sql.FieldNotIn(FieldPosition, vs...))
+}
+
+// PositionGT applies the GT predicate on the "position" field.
+func PositionGT(v string) predicate.Player {
+	return predicate.Player(sql.FieldGT(FieldPosition, v))
+}
+
+// PositionGTE applies the GTE predicate on the "position" field.
+func PositionGTE(v string) predicate.Player {
+	return predicate.Player(sql.FieldGTE(FieldPosition, v))
+}
+
+// PositionLT applies the LT predicate on the "position" field.
+func PositionLT(v string) predicate.Player {
+	return predicate.Player(sql.FieldLT(FieldPosition, v))
+}
+
+// PositionLTE applies the LTE predicate on the "position" field.
+func PositionLTE(v string) predicate.Player {
+	return predicate.Player(sql.FieldLTE(FieldPosition, v))
+}
+
+// PositionContains applies the Contains predicate on the "position" field.
+func PositionContains(v string) predicate.Player {
+	return predicate.Player(sql.FieldContains(FieldPosition, v))
+}
+
+// PositionHasPrefix applies the HasPrefix predicate on the "position" field.
+func PositionHasPrefix(v string) predicate.Player {
+	return predicate.Player(sql.FieldHasPrefix(FieldPosition, v))
+}
+
+// PositionHasSuffix applies the HasSuffix predicate on the "position" field.
+func PositionHasSuffix(v string) predicate.Player {
+	return predicate.Player(sql.FieldHasSuffix(FieldPosition, v))
+}
+
+// PositionIsNil applies the IsNil predicate on the "position" field.
+func PositionIsNil() predicate.Player {
+	return predicate.Player(sql.FieldIsNull(FieldPosition))
+}
+
+// PositionNotNil applies the NotNil predicate on the "position" field.
+func PositionNotNil() predicate.Player {
+	return predicate.Player(sql.FieldNotNull(FieldPosition))
+}
+
+// PositionEqualFold applies the EqualFold predicate on the "position" field.
+func PositionEqualFold(v string) predicate.Player {
+	return predicate.Player(sql.FieldEqualFold(FieldPosition, v))
+}
+
+// PositionContainsFold applies the ContainsFold predicate on the "position" field.
+func PositionContainsFold(v string) predicate.Player {
+	return predicate.Player(sql.FieldContainsFold(FieldPosition, v))
 }
 
 // MetadataIsNil applies the IsNil predicate on the "metadata" field.

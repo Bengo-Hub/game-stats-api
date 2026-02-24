@@ -46,6 +46,10 @@ type Tx struct {
 	MVP_Nomination *MVPNominationClient
 	// Player is the client for interacting with the Player builders.
 	Player *PlayerClient
+	// ScopedRole is the client for interacting with the ScopedRole builders.
+	ScopedRole *ScopedRoleClient
+	// ScoreEditRequest is the client for interacting with the ScoreEditRequest builders.
+	ScoreEditRequest *ScoreEditRequestClient
 	// Scoring is the client for interacting with the Scoring builders.
 	Scoring *ScoringClient
 	// SpiritNomination is the client for interacting with the SpiritNomination builders.
@@ -206,6 +210,8 @@ func (tx *Tx) init() {
 	tx.Location = NewLocationClient(tx.config)
 	tx.MVP_Nomination = NewMVPNominationClient(tx.config)
 	tx.Player = NewPlayerClient(tx.config)
+	tx.ScopedRole = NewScopedRoleClient(tx.config)
+	tx.ScoreEditRequest = NewScoreEditRequestClient(tx.config)
 	tx.Scoring = NewScoringClient(tx.config)
 	tx.SpiritNomination = NewSpiritNominationClient(tx.config)
 	tx.SpiritScore = NewSpiritScoreClient(tx.config)

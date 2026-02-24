@@ -23,6 +23,8 @@ import (
 	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
 	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/schema"
+	"github.com/bengobox/game-stats-api/ent/scopedrole"
+	"github.com/bengobox/game-stats-api/ent/scoreeditrequest"
 	"github.com/bengobox/game-stats-api/ent/scoring"
 	"github.com/bengobox/game-stats-api/ent/spiritnomination"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
@@ -423,6 +425,12 @@ func init() {
 	eventDescGamesCount := eventFields[13].Descriptor()
 	// event.DefaultGamesCount holds the default value on creation for the games_count field.
 	event.DefaultGamesCount = eventDescGamesCount.Default.(int)
+	// eventDescScoreEditApprovalRole is the schema descriptor for score_edit_approval_role field.
+	eventDescScoreEditApprovalRole := eventFields[14].Descriptor()
+	// event.DefaultScoreEditApprovalRole holds the default value on creation for the score_edit_approval_role field.
+	event.DefaultScoreEditApprovalRole = eventDescScoreEditApprovalRole.Default.(string)
+	// event.ScoreEditApprovalRoleValidator is a validator for the "score_edit_approval_role" field. It is called by the builders before save.
+	event.ScoreEditApprovalRoleValidator = eventDescScoreEditApprovalRole.Validators[0].(func(string) error)
 	// eventDescID is the schema descriptor for id field.
 	eventDescID := eventFields[0].Descriptor()
 	// event.DefaultID holds the default value on creation for the id field.
@@ -837,6 +845,57 @@ func init() {
 	playerDescID := playerFields[0].Descriptor()
 	// player.DefaultID holds the default value on creation for the id field.
 	player.DefaultID = playerDescID.Default.(func() uuid.UUID)
+	scopedroleMixin := schema.ScopedRole{}.Mixin()
+	scopedroleMixinFields0 := scopedroleMixin[0].Fields()
+	_ = scopedroleMixinFields0
+	scopedroleFields := schema.ScopedRole{}.Fields()
+	_ = scopedroleFields
+	// scopedroleDescCreatedAt is the schema descriptor for created_at field.
+	scopedroleDescCreatedAt := scopedroleMixinFields0[0].Descriptor()
+	// scopedrole.DefaultCreatedAt holds the default value on creation for the created_at field.
+	scopedrole.DefaultCreatedAt = scopedroleDescCreatedAt.Default.(func() time.Time)
+	// scopedroleDescUpdatedAt is the schema descriptor for updated_at field.
+	scopedroleDescUpdatedAt := scopedroleMixinFields0[1].Descriptor()
+	// scopedrole.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	scopedrole.DefaultUpdatedAt = scopedroleDescUpdatedAt.Default.(func() time.Time)
+	// scopedrole.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	scopedrole.UpdateDefaultUpdatedAt = scopedroleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// scopedroleDescRole is the schema descriptor for role field.
+	scopedroleDescRole := scopedroleFields[2].Descriptor()
+	// scopedrole.RoleValidator is a validator for the "role" field. It is called by the builders before save.
+	scopedrole.RoleValidator = scopedroleDescRole.Validators[0].(func(string) error)
+	// scopedroleDescScopeType is the schema descriptor for scope_type field.
+	scopedroleDescScopeType := scopedroleFields[3].Descriptor()
+	// scopedrole.ScopeTypeValidator is a validator for the "scope_type" field. It is called by the builders before save.
+	scopedrole.ScopeTypeValidator = scopedroleDescScopeType.Validators[0].(func(string) error)
+	// scopedroleDescID is the schema descriptor for id field.
+	scopedroleDescID := scopedroleFields[0].Descriptor()
+	// scopedrole.DefaultID holds the default value on creation for the id field.
+	scopedrole.DefaultID = scopedroleDescID.Default.(func() uuid.UUID)
+	scoreeditrequestFields := schema.ScoreEditRequest{}.Fields()
+	_ = scoreeditrequestFields
+	// scoreeditrequestDescReason is the schema descriptor for reason field.
+	scoreeditrequestDescReason := scoreeditrequestFields[7].Descriptor()
+	// scoreeditrequest.ReasonValidator is a validator for the "reason" field. It is called by the builders before save.
+	scoreeditrequest.ReasonValidator = scoreeditrequestDescReason.Validators[0].(func(string) error)
+	// scoreeditrequestDescStatus is the schema descriptor for status field.
+	scoreeditrequestDescStatus := scoreeditrequestFields[8].Descriptor()
+	// scoreeditrequest.DefaultStatus holds the default value on creation for the status field.
+	scoreeditrequest.DefaultStatus = scoreeditrequestDescStatus.Default.(string)
+	// scoreeditrequestDescCreatedAt is the schema descriptor for created_at field.
+	scoreeditrequestDescCreatedAt := scoreeditrequestFields[12].Descriptor()
+	// scoreeditrequest.DefaultCreatedAt holds the default value on creation for the created_at field.
+	scoreeditrequest.DefaultCreatedAt = scoreeditrequestDescCreatedAt.Default.(func() time.Time)
+	// scoreeditrequestDescUpdatedAt is the schema descriptor for updated_at field.
+	scoreeditrequestDescUpdatedAt := scoreeditrequestFields[13].Descriptor()
+	// scoreeditrequest.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	scoreeditrequest.DefaultUpdatedAt = scoreeditrequestDescUpdatedAt.Default.(func() time.Time)
+	// scoreeditrequest.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	scoreeditrequest.UpdateDefaultUpdatedAt = scoreeditrequestDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// scoreeditrequestDescID is the schema descriptor for id field.
+	scoreeditrequestDescID := scoreeditrequestFields[0].Descriptor()
+	// scoreeditrequest.DefaultID holds the default value on creation for the id field.
+	scoreeditrequest.DefaultID = scoreeditrequestDescID.Default.(func() uuid.UUID)
 	scoringMixin := schema.Scoring{}.Mixin()
 	scoringMixinFields0 := scoringMixin[0].Fields()
 	_ = scoringMixinFields0

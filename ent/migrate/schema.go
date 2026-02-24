@@ -212,6 +212,7 @@ var (
 		{Name: "banner_url", Type: field.TypeString, Nullable: true, Size: 500},
 		{Name: "teams_count", Type: field.TypeInt, Default: 0},
 		{Name: "games_count", Type: field.TypeInt, Default: 0},
+		{Name: "score_edit_approval_role", Type: field.TypeString, Default: "event_manager"},
 		{Name: "discipline_events", Type: field.TypeUUID},
 		{Name: "location_events", Type: field.TypeUUID},
 	}
@@ -223,13 +224,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "events_disciplines_events",
-				Columns:    []*schema.Column{EventsColumns[17]},
+				Columns:    []*schema.Column{EventsColumns[18]},
 				RefColumns: []*schema.Column{DisciplinesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "events_locations_events",
-				Columns:    []*schema.Column{EventsColumns[18]},
+				Columns:    []*schema.Column{EventsColumns[19]},
 				RefColumns: []*schema.Column{LocationsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -537,6 +538,8 @@ var (
 		{Name: "profile_image_url", Type: field.TypeString, Nullable: true},
 		{Name: "is_captain", Type: field.TypeBool, Default: false},
 		{Name: "is_spirit_captain", Type: field.TypeBool, Default: false},
+		{Name: "phone", Type: field.TypeString, Nullable: true},
+		{Name: "position", Type: field.TypeString, Nullable: true},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 		{Name: "team_players", Type: field.TypeUUID},
 	}
@@ -548,8 +551,77 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "players_teams_players",
-				Columns:    []*schema.Column{PlayersColumns[13]},
+				Columns:    []*schema.Column{PlayersColumns[15]},
 				RefColumns: []*schema.Column{TeamsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// ScopedRolesColumns holds the columns for the "scoped_roles" table.
+	ScopedRolesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "role", Type: field.TypeString},
+		{Name: "scope_type", Type: field.TypeString},
+		{Name: "scope_id", Type: field.TypeUUID},
+		{Name: "permissions", Type: field.TypeJSON, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// ScopedRolesTable holds the schema information for the "scoped_roles" table.
+	ScopedRolesTable = &schema.Table{
+		Name:       "scoped_roles",
+		Columns:    ScopedRolesColumns,
+		PrimaryKey: []*schema.Column{ScopedRolesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "scoped_roles_users_scoped_roles",
+				Columns:    []*schema.Column{ScopedRolesColumns[8]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// ScoreEditRequestsColumns holds the columns for the "score_edit_requests" table.
+	ScoreEditRequestsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "previous_home_score", Type: field.TypeInt},
+		{Name: "previous_away_score", Type: field.TypeInt},
+		{Name: "new_home_score", Type: field.TypeInt},
+		{Name: "new_away_score", Type: field.TypeInt},
+		{Name: "reason", Type: field.TypeString},
+		{Name: "status", Type: field.TypeString, Default: "pending"},
+		{Name: "rejection_reason", Type: field.TypeString, Nullable: true},
+		{Name: "reviewed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "game_id", Type: field.TypeUUID},
+		{Name: "reviewed_by_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "requested_by_id", Type: field.TypeUUID},
+	}
+	// ScoreEditRequestsTable holds the schema information for the "score_edit_requests" table.
+	ScoreEditRequestsTable = &schema.Table{
+		Name:       "score_edit_requests",
+		Columns:    ScoreEditRequestsColumns,
+		PrimaryKey: []*schema.Column{ScoreEditRequestsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "score_edit_requests_games_score_edit_requests",
+				Columns:    []*schema.Column{ScoreEditRequestsColumns[11]},
+				RefColumns: []*schema.Column{GamesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "score_edit_requests_users_reviewed_by",
+				Columns:    []*schema.Column{ScoreEditRequestsColumns[12]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "score_edit_requests_users_score_edit_requests",
+				Columns:    []*schema.Column{ScoreEditRequestsColumns[13]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
@@ -675,6 +747,10 @@ var (
 		{Name: "initial_seed", Type: field.TypeInt, Nullable: true},
 		{Name: "final_placement", Type: field.TypeInt, Nullable: true},
 		{Name: "logo_url", Type: field.TypeString, Nullable: true},
+		{Name: "primary_color", Type: field.TypeString, Nullable: true},
+		{Name: "secondary_color", Type: field.TypeString, Nullable: true},
+		{Name: "contact_email", Type: field.TypeString, Nullable: true},
+		{Name: "contact_phone", Type: field.TypeString, Nullable: true},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 		{Name: "division_pool_teams", Type: field.TypeUUID},
 		{Name: "location_teams", Type: field.TypeUUID, Nullable: true},
@@ -687,13 +763,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "teams_division_pools_teams",
-				Columns:    []*schema.Column{TeamsColumns[9]},
+				Columns:    []*schema.Column{TeamsColumns[13]},
 				RefColumns: []*schema.Column{DivisionPoolsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "teams_locations_teams",
-				Columns:    []*schema.Column{TeamsColumns[10]},
+				Columns:    []*schema.Column{TeamsColumns[14]},
 				RefColumns: []*schema.Column{LocationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -712,49 +788,12 @@ var (
 		{Name: "role", Type: field.TypeString},
 		{Name: "is_active", Type: field.TypeBool, Default: true},
 		{Name: "last_login_at", Type: field.TypeTime, Nullable: true},
-		{Name: "continent_managed_by", Type: field.TypeUUID, Nullable: true},
-		{Name: "country_managed_by", Type: field.TypeUUID, Nullable: true},
-		{Name: "discipline_managed_by", Type: field.TypeUUID, Nullable: true},
-		{Name: "event_managed_by", Type: field.TypeUUID, Nullable: true},
-		{Name: "team_managed_by", Type: field.TypeUUID, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "users_continents_managed_by",
-				Columns:    []*schema.Column{UsersColumns[11]},
-				RefColumns: []*schema.Column{ContinentsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "users_countries_managed_by",
-				Columns:    []*schema.Column{UsersColumns[12]},
-				RefColumns: []*schema.Column{CountriesColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "users_disciplines_managed_by",
-				Columns:    []*schema.Column{UsersColumns[13]},
-				RefColumns: []*schema.Column{DisciplinesColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "users_events_managed_by",
-				Columns:    []*schema.Column{UsersColumns[14]},
-				RefColumns: []*schema.Column{EventsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "users_teams_managed_by",
-				Columns:    []*schema.Column{UsersColumns[15]},
-				RefColumns: []*schema.Column{TeamsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
 	}
 	// WorldsColumns holds the columns for the "worlds" table.
 	WorldsColumns = []*schema.Column{
@@ -771,6 +810,131 @@ var (
 		Name:       "worlds",
 		Columns:    WorldsColumns,
 		PrimaryKey: []*schema.Column{WorldsColumns[0]},
+	}
+	// ContinentManagedByColumns holds the columns for the "continent_managed_by" table.
+	ContinentManagedByColumns = []*schema.Column{
+		{Name: "continent_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// ContinentManagedByTable holds the schema information for the "continent_managed_by" table.
+	ContinentManagedByTable = &schema.Table{
+		Name:       "continent_managed_by",
+		Columns:    ContinentManagedByColumns,
+		PrimaryKey: []*schema.Column{ContinentManagedByColumns[0], ContinentManagedByColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "continent_managed_by_continent_id",
+				Columns:    []*schema.Column{ContinentManagedByColumns[0]},
+				RefColumns: []*schema.Column{ContinentsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "continent_managed_by_user_id",
+				Columns:    []*schema.Column{ContinentManagedByColumns[1]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// CountryManagedByColumns holds the columns for the "country_managed_by" table.
+	CountryManagedByColumns = []*schema.Column{
+		{Name: "country_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// CountryManagedByTable holds the schema information for the "country_managed_by" table.
+	CountryManagedByTable = &schema.Table{
+		Name:       "country_managed_by",
+		Columns:    CountryManagedByColumns,
+		PrimaryKey: []*schema.Column{CountryManagedByColumns[0], CountryManagedByColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "country_managed_by_country_id",
+				Columns:    []*schema.Column{CountryManagedByColumns[0]},
+				RefColumns: []*schema.Column{CountriesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "country_managed_by_user_id",
+				Columns:    []*schema.Column{CountryManagedByColumns[1]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// DisciplineManagedByColumns holds the columns for the "discipline_managed_by" table.
+	DisciplineManagedByColumns = []*schema.Column{
+		{Name: "discipline_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// DisciplineManagedByTable holds the schema information for the "discipline_managed_by" table.
+	DisciplineManagedByTable = &schema.Table{
+		Name:       "discipline_managed_by",
+		Columns:    DisciplineManagedByColumns,
+		PrimaryKey: []*schema.Column{DisciplineManagedByColumns[0], DisciplineManagedByColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "discipline_managed_by_discipline_id",
+				Columns:    []*schema.Column{DisciplineManagedByColumns[0]},
+				RefColumns: []*schema.Column{DisciplinesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "discipline_managed_by_user_id",
+				Columns:    []*schema.Column{DisciplineManagedByColumns[1]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// EventManagedByColumns holds the columns for the "event_managed_by" table.
+	EventManagedByColumns = []*schema.Column{
+		{Name: "event_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// EventManagedByTable holds the schema information for the "event_managed_by" table.
+	EventManagedByTable = &schema.Table{
+		Name:       "event_managed_by",
+		Columns:    EventManagedByColumns,
+		PrimaryKey: []*schema.Column{EventManagedByColumns[0], EventManagedByColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "event_managed_by_event_id",
+				Columns:    []*schema.Column{EventManagedByColumns[0]},
+				RefColumns: []*schema.Column{EventsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "event_managed_by_user_id",
+				Columns:    []*schema.Column{EventManagedByColumns[1]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// TeamManagedByColumns holds the columns for the "team_managed_by" table.
+	TeamManagedByColumns = []*schema.Column{
+		{Name: "team_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// TeamManagedByTable holds the schema information for the "team_managed_by" table.
+	TeamManagedByTable = &schema.Table{
+		Name:       "team_managed_by",
+		Columns:    TeamManagedByColumns,
+		PrimaryKey: []*schema.Column{TeamManagedByColumns[0], TeamManagedByColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "team_managed_by_team_id",
+				Columns:    []*schema.Column{TeamManagedByColumns[0]},
+				RefColumns: []*schema.Column{TeamsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "team_managed_by_user_id",
+				Columns:    []*schema.Column{TeamManagedByColumns[1]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
@@ -791,12 +955,19 @@ var (
 		LocationsTable,
 		MvpNominationsTable,
 		PlayersTable,
+		ScopedRolesTable,
+		ScoreEditRequestsTable,
 		ScoringsTable,
 		SpiritNominationsTable,
 		SpiritScoresTable,
 		TeamsTable,
 		UsersTable,
 		WorldsTable,
+		ContinentManagedByTable,
+		CountryManagedByTable,
+		DisciplineManagedByTable,
+		EventManagedByTable,
+		TeamManagedByTable,
 	}
 )
 
@@ -827,6 +998,10 @@ func init() {
 	MvpNominationsTable.ForeignKeys[0].RefTable = PlayersTable
 	MvpNominationsTable.ForeignKeys[1].RefTable = SpiritScoresTable
 	PlayersTable.ForeignKeys[0].RefTable = TeamsTable
+	ScopedRolesTable.ForeignKeys[0].RefTable = UsersTable
+	ScoreEditRequestsTable.ForeignKeys[0].RefTable = GamesTable
+	ScoreEditRequestsTable.ForeignKeys[1].RefTable = UsersTable
+	ScoreEditRequestsTable.ForeignKeys[2].RefTable = UsersTable
 	ScoringsTable.ForeignKeys[0].RefTable = GamesTable
 	ScoringsTable.ForeignKeys[1].RefTable = PlayersTable
 	SpiritNominationsTable.ForeignKeys[0].RefTable = PlayersTable
@@ -837,9 +1012,14 @@ func init() {
 	SpiritScoresTable.ForeignKeys[3].RefTable = UsersTable
 	TeamsTable.ForeignKeys[0].RefTable = DivisionPoolsTable
 	TeamsTable.ForeignKeys[1].RefTable = LocationsTable
-	UsersTable.ForeignKeys[0].RefTable = ContinentsTable
-	UsersTable.ForeignKeys[1].RefTable = CountriesTable
-	UsersTable.ForeignKeys[2].RefTable = DisciplinesTable
-	UsersTable.ForeignKeys[3].RefTable = EventsTable
-	UsersTable.ForeignKeys[4].RefTable = TeamsTable
+	ContinentManagedByTable.ForeignKeys[0].RefTable = ContinentsTable
+	ContinentManagedByTable.ForeignKeys[1].RefTable = UsersTable
+	CountryManagedByTable.ForeignKeys[0].RefTable = CountriesTable
+	CountryManagedByTable.ForeignKeys[1].RefTable = UsersTable
+	DisciplineManagedByTable.ForeignKeys[0].RefTable = DisciplinesTable
+	DisciplineManagedByTable.ForeignKeys[1].RefTable = UsersTable
+	EventManagedByTable.ForeignKeys[0].RefTable = EventsTable
+	EventManagedByTable.ForeignKeys[1].RefTable = UsersTable
+	TeamManagedByTable.ForeignKeys[0].RefTable = TeamsTable
+	TeamManagedByTable.ForeignKeys[1].RefTable = UsersTable
 }

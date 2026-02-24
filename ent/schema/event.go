@@ -63,6 +63,10 @@ func (Event) Fields() []ent.Field {
 		field.Int("games_count").
 			Default(0).
 			Comment("Denormalized count of games for efficient queries"),
+		field.String("score_edit_approval_role").
+			Default("event_manager").
+			NotEmpty().
+			Comment("Role required to approve score edits after game time elapses: event_manager, game_admin"),
 	}
 }
 

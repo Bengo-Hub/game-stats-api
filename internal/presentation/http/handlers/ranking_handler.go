@@ -48,6 +48,35 @@ func (h *RankingHandler) GetDivisionStandings(w http.ResponseWriter, r *http.Req
 	respondJSON(w, http.StatusOK, standings)
 }
 
+// GetEventStandings godoc
+// @Summary Get event-wide standings
+// @Description Get current standings for all divisions in an event
+// @Tags rankings
+// @Produce json
+// @Param id path string true "Event ID" format(uuid)
+// @Success 200 {object} ranking.EventStandingsResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Security BearerAuth
+// @Router /events/{id}/standings [get]
+func (h *RankingHandler) GetEventStandings(w http.ResponseWriter, r *http.Request) {
+	eventIDStr := chi.URLParam(r, "id")
+	eventID, err := uuid.Parse(eventIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid event ID")
+		return
+	}
+
+	standings, err := h.service.CalculateEventStandings(r.Context(), eventID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to calculate event standings")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, standings)
+}
+
 // UpdateRankingCriteria godoc
 // @Summary Update division ranking criteria
 // @Description Update the ranking rules for a division

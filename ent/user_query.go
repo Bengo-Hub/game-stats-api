@@ -18,6 +18,8 @@ import (
 	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/ent/scopedrole"
+	"github.com/bengobox/game-stats-api/ent/scoreeditrequest"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
 	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/bengobox/game-stats-api/ent/user"
@@ -37,8 +39,9 @@ type UserQuery struct {
 	withManagedEvent          *EventQuery
 	withManagedTeam           *TeamQuery
 	withOfficiatedGames       *GameQuery
+	withScopedRoles           *ScopedRoleQuery
 	withSubmittedSpiritScores *SpiritScoreQuery
-	withFKs                   bool
+	withScoreEditRequests     *ScoreEditRequestQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -89,7 +92,7 @@ func (_q *UserQuery) QueryManagedContinent() *ContinentQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(continent.Table, continent.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedContinentTable, user.ManagedContinentColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, user.ManagedContinentTable, user.ManagedContinentPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -111,7 +114,7 @@ func (_q *UserQuery) QueryManagedCountry() *CountryQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(country.Table, country.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedCountryTable, user.ManagedCountryColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, user.ManagedCountryTable, user.ManagedCountryPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -133,7 +136,7 @@ func (_q *UserQuery) QueryManagedDiscipline() *DisciplineQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(discipline.Table, discipline.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedDisciplineTable, user.ManagedDisciplineColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, user.ManagedDisciplineTable, user.ManagedDisciplinePrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -155,7 +158,7 @@ func (_q *UserQuery) QueryManagedEvent() *EventQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(event.Table, event.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedEventTable, user.ManagedEventColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, user.ManagedEventTable, user.ManagedEventPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -177,7 +180,7 @@ func (_q *UserQuery) QueryManagedTeam() *TeamQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedTeamTable, user.ManagedTeamColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, user.ManagedTeamTable, user.ManagedTeamPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -207,6 +210,28 @@ func (_q *UserQuery) QueryOfficiatedGames() *GameQuery {
 	return query
 }
 
+// QueryScopedRoles chains the current query on the "scoped_roles" edge.
+func (_q *UserQuery) QueryScopedRoles() *ScopedRoleQuery {
+	query := (&ScopedRoleClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(scopedrole.Table, scopedrole.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ScopedRolesTable, user.ScopedRolesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // QuerySubmittedSpiritScores chains the current query on the "submitted_spirit_scores" edge.
 func (_q *UserQuery) QuerySubmittedSpiritScores() *SpiritScoreQuery {
 	query := (&SpiritScoreClient{config: _q.config}).Query()
@@ -222,6 +247,28 @@ func (_q *UserQuery) QuerySubmittedSpiritScores() *SpiritScoreQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(spiritscore.Table, spiritscore.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.SubmittedSpiritScoresTable, user.SubmittedSpiritScoresColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryScoreEditRequests chains the current query on the "score_edit_requests" edge.
+func (_q *UserQuery) QueryScoreEditRequests() *ScoreEditRequestQuery {
+	query := (&ScoreEditRequestClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(scoreeditrequest.Table, scoreeditrequest.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ScoreEditRequestsTable, user.ScoreEditRequestsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -427,7 +474,9 @@ func (_q *UserQuery) Clone() *UserQuery {
 		withManagedEvent:          _q.withManagedEvent.Clone(),
 		withManagedTeam:           _q.withManagedTeam.Clone(),
 		withOfficiatedGames:       _q.withOfficiatedGames.Clone(),
+		withScopedRoles:           _q.withScopedRoles.Clone(),
 		withSubmittedSpiritScores: _q.withSubmittedSpiritScores.Clone(),
+		withScoreEditRequests:     _q.withScoreEditRequests.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -500,6 +549,17 @@ func (_q *UserQuery) WithOfficiatedGames(opts ...func(*GameQuery)) *UserQuery {
 	return _q
 }
 
+// WithScopedRoles tells the query-builder to eager-load the nodes that are connected to
+// the "scoped_roles" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithScopedRoles(opts ...func(*ScopedRoleQuery)) *UserQuery {
+	query := (&ScopedRoleClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withScopedRoles = query
+	return _q
+}
+
 // WithSubmittedSpiritScores tells the query-builder to eager-load the nodes that are connected to
 // the "submitted_spirit_scores" edge. The optional arguments are used to configure the query builder of the edge.
 func (_q *UserQuery) WithSubmittedSpiritScores(opts ...func(*SpiritScoreQuery)) *UserQuery {
@@ -508,6 +568,17 @@ func (_q *UserQuery) WithSubmittedSpiritScores(opts ...func(*SpiritScoreQuery)) 
 		opt(query)
 	}
 	_q.withSubmittedSpiritScores = query
+	return _q
+}
+
+// WithScoreEditRequests tells the query-builder to eager-load the nodes that are connected to
+// the "score_edit_requests" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithScoreEditRequests(opts ...func(*ScoreEditRequestQuery)) *UserQuery {
+	query := (&ScoreEditRequestClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withScoreEditRequests = query
 	return _q
 }
 
@@ -588,24 +659,19 @@ func (_q *UserQuery) prepareQuery(ctx context.Context) error {
 func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, error) {
 	var (
 		nodes       = []*User{}
-		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [7]bool{
+		loadedTypes = [9]bool{
 			_q.withManagedContinent != nil,
 			_q.withManagedCountry != nil,
 			_q.withManagedDiscipline != nil,
 			_q.withManagedEvent != nil,
 			_q.withManagedTeam != nil,
 			_q.withOfficiatedGames != nil,
+			_q.withScopedRoles != nil,
 			_q.withSubmittedSpiritScores != nil,
+			_q.withScoreEditRequests != nil,
 		}
 	)
-	if _q.withManagedContinent != nil || _q.withManagedCountry != nil || _q.withManagedDiscipline != nil || _q.withManagedEvent != nil || _q.withManagedTeam != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, user.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*User).scanValues(nil, columns)
 	}
@@ -625,32 +691,37 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		return nodes, nil
 	}
 	if query := _q.withManagedContinent; query != nil {
-		if err := _q.loadManagedContinent(ctx, query, nodes, nil,
-			func(n *User, e *Continent) { n.Edges.ManagedContinent = e }); err != nil {
+		if err := _q.loadManagedContinent(ctx, query, nodes,
+			func(n *User) { n.Edges.ManagedContinent = []*Continent{} },
+			func(n *User, e *Continent) { n.Edges.ManagedContinent = append(n.Edges.ManagedContinent, e) }); err != nil {
 			return nil, err
 		}
 	}
 	if query := _q.withManagedCountry; query != nil {
-		if err := _q.loadManagedCountry(ctx, query, nodes, nil,
-			func(n *User, e *Country) { n.Edges.ManagedCountry = e }); err != nil {
+		if err := _q.loadManagedCountry(ctx, query, nodes,
+			func(n *User) { n.Edges.ManagedCountry = []*Country{} },
+			func(n *User, e *Country) { n.Edges.ManagedCountry = append(n.Edges.ManagedCountry, e) }); err != nil {
 			return nil, err
 		}
 	}
 	if query := _q.withManagedDiscipline; query != nil {
-		if err := _q.loadManagedDiscipline(ctx, query, nodes, nil,
-			func(n *User, e *Discipline) { n.Edges.ManagedDiscipline = e }); err != nil {
+		if err := _q.loadManagedDiscipline(ctx, query, nodes,
+			func(n *User) { n.Edges.ManagedDiscipline = []*Discipline{} },
+			func(n *User, e *Discipline) { n.Edges.ManagedDiscipline = append(n.Edges.ManagedDiscipline, e) }); err != nil {
 			return nil, err
 		}
 	}
 	if query := _q.withManagedEvent; query != nil {
-		if err := _q.loadManagedEvent(ctx, query, nodes, nil,
-			func(n *User, e *Event) { n.Edges.ManagedEvent = e }); err != nil {
+		if err := _q.loadManagedEvent(ctx, query, nodes,
+			func(n *User) { n.Edges.ManagedEvent = []*Event{} },
+			func(n *User, e *Event) { n.Edges.ManagedEvent = append(n.Edges.ManagedEvent, e) }); err != nil {
 			return nil, err
 		}
 	}
 	if query := _q.withManagedTeam; query != nil {
-		if err := _q.loadManagedTeam(ctx, query, nodes, nil,
-			func(n *User, e *Team) { n.Edges.ManagedTeam = e }); err != nil {
+		if err := _q.loadManagedTeam(ctx, query, nodes,
+			func(n *User) { n.Edges.ManagedTeam = []*Team{} },
+			func(n *User, e *Team) { n.Edges.ManagedTeam = append(n.Edges.ManagedTeam, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -658,6 +729,13 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := _q.loadOfficiatedGames(ctx, query, nodes,
 			func(n *User) { n.Edges.OfficiatedGames = []*Game{} },
 			func(n *User, e *Game) { n.Edges.OfficiatedGames = append(n.Edges.OfficiatedGames, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withScopedRoles; query != nil {
+		if err := _q.loadScopedRoles(ctx, query, nodes,
+			func(n *User) { n.Edges.ScopedRoles = []*ScopedRole{} },
+			func(n *User, e *ScopedRole) { n.Edges.ScopedRoles = append(n.Edges.ScopedRoles, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -670,165 +748,317 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
+	if query := _q.withScoreEditRequests; query != nil {
+		if err := _q.loadScoreEditRequests(ctx, query, nodes,
+			func(n *User) { n.Edges.ScoreEditRequests = []*ScoreEditRequest{} },
+			func(n *User, e *ScoreEditRequest) { n.Edges.ScoreEditRequests = append(n.Edges.ScoreEditRequests, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (_q *UserQuery) loadManagedContinent(ctx context.Context, query *ContinentQuery, nodes []*User, init func(*User), assign func(*User, *Continent)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*User)
-	for i := range nodes {
-		if nodes[i].continent_managed_by == nil {
-			continue
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*User)
+	nids := make(map[uuid.UUID]map[*User]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
 		}
-		fk := *nodes[i].continent_managed_by
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(user.ManagedContinentTable)
+		s.Join(joinT).On(s.C(continent.FieldID), joinT.C(user.ManagedContinentPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(user.ManagedContinentPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(user.ManagedContinentPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
 	}
-	query.Where(continent.IDIn(ids...))
-	neighbors, err := query.All(ctx)
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*User]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Continent](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "continent_managed_by" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "managed_continent" node returned %v`, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
+		for kn := range nodes {
+			assign(kn, n)
 		}
 	}
 	return nil
 }
 func (_q *UserQuery) loadManagedCountry(ctx context.Context, query *CountryQuery, nodes []*User, init func(*User), assign func(*User, *Country)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*User)
-	for i := range nodes {
-		if nodes[i].country_managed_by == nil {
-			continue
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*User)
+	nids := make(map[uuid.UUID]map[*User]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
 		}
-		fk := *nodes[i].country_managed_by
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(user.ManagedCountryTable)
+		s.Join(joinT).On(s.C(country.FieldID), joinT.C(user.ManagedCountryPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(user.ManagedCountryPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(user.ManagedCountryPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
 	}
-	query.Where(country.IDIn(ids...))
-	neighbors, err := query.All(ctx)
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*User]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Country](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "country_managed_by" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "managed_country" node returned %v`, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
+		for kn := range nodes {
+			assign(kn, n)
 		}
 	}
 	return nil
 }
 func (_q *UserQuery) loadManagedDiscipline(ctx context.Context, query *DisciplineQuery, nodes []*User, init func(*User), assign func(*User, *Discipline)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*User)
-	for i := range nodes {
-		if nodes[i].discipline_managed_by == nil {
-			continue
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*User)
+	nids := make(map[uuid.UUID]map[*User]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
 		}
-		fk := *nodes[i].discipline_managed_by
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(user.ManagedDisciplineTable)
+		s.Join(joinT).On(s.C(discipline.FieldID), joinT.C(user.ManagedDisciplinePrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(user.ManagedDisciplinePrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(user.ManagedDisciplinePrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
 	}
-	query.Where(discipline.IDIn(ids...))
-	neighbors, err := query.All(ctx)
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*User]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Discipline](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "discipline_managed_by" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "managed_discipline" node returned %v`, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
+		for kn := range nodes {
+			assign(kn, n)
 		}
 	}
 	return nil
 }
 func (_q *UserQuery) loadManagedEvent(ctx context.Context, query *EventQuery, nodes []*User, init func(*User), assign func(*User, *Event)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*User)
-	for i := range nodes {
-		if nodes[i].event_managed_by == nil {
-			continue
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*User)
+	nids := make(map[uuid.UUID]map[*User]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
 		}
-		fk := *nodes[i].event_managed_by
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(user.ManagedEventTable)
+		s.Join(joinT).On(s.C(event.FieldID), joinT.C(user.ManagedEventPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(user.ManagedEventPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(user.ManagedEventPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
 	}
-	query.Where(event.IDIn(ids...))
-	neighbors, err := query.All(ctx)
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*User]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Event](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "event_managed_by" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "managed_event" node returned %v`, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
+		for kn := range nodes {
+			assign(kn, n)
 		}
 	}
 	return nil
 }
 func (_q *UserQuery) loadManagedTeam(ctx context.Context, query *TeamQuery, nodes []*User, init func(*User), assign func(*User, *Team)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*User)
-	for i := range nodes {
-		if nodes[i].team_managed_by == nil {
-			continue
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*User)
+	nids := make(map[uuid.UUID]map[*User]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
 		}
-		fk := *nodes[i].team_managed_by
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(user.ManagedTeamTable)
+		s.Join(joinT).On(s.C(team.FieldID), joinT.C(user.ManagedTeamPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(user.ManagedTeamPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(user.ManagedTeamPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
 	}
-	query.Where(team.IDIn(ids...))
-	neighbors, err := query.All(ctx)
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*User]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Team](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "team_managed_by" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "managed_team" node returned %v`, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
+		for kn := range nodes {
+			assign(kn, n)
 		}
 	}
 	return nil
@@ -864,6 +1094,36 @@ func (_q *UserQuery) loadOfficiatedGames(ctx context.Context, query *GameQuery, 
 	}
 	return nil
 }
+func (_q *UserQuery) loadScopedRoles(ctx context.Context, query *ScopedRoleQuery, nodes []*User, init func(*User), assign func(*User, *ScopedRole)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(scopedrole.FieldUserID)
+	}
+	query.Where(predicate.ScopedRole(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.ScopedRolesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (_q *UserQuery) loadSubmittedSpiritScores(ctx context.Context, query *SpiritScoreQuery, nodes []*User, init func(*User), assign func(*User, *SpiritScore)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*User)
@@ -890,6 +1150,36 @@ func (_q *UserQuery) loadSubmittedSpiritScores(ctx context.Context, query *Spiri
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "user_submitted_spirit_scores" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadScoreEditRequests(ctx context.Context, query *ScoreEditRequestQuery, nodes []*User, init func(*User), assign func(*User, *ScoreEditRequest)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(scoreeditrequest.FieldRequestedByID)
+	}
+	query.Where(predicate.ScoreEditRequest(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.ScoreEditRequestsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.RequestedByID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "requested_by_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

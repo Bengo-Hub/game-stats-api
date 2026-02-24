@@ -49,6 +49,12 @@ func (Player) Fields() []ent.Field {
 		field.Bool("is_spirit_captain").
 			Default(false).
 			Comment("Whether this player is the spirit captain"),
+		field.String("phone").
+			Optional().
+			Nillable(),
+		field.String("position").
+			Optional().
+			Nillable(),
 		field.JSON("metadata", map[string]interface{}{}).
 			Optional(),
 	}

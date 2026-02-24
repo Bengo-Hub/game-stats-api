@@ -213,6 +213,30 @@ func (f PlayerFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, erro
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PlayerMutation", m)
 }
 
+// The ScopedRoleFunc type is an adapter to allow the use of ordinary
+// function as ScopedRole mutator.
+type ScopedRoleFunc func(context.Context, *ent.ScopedRoleMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ScopedRoleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ScopedRoleMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ScopedRoleMutation", m)
+}
+
+// The ScoreEditRequestFunc type is an adapter to allow the use of ordinary
+// function as ScoreEditRequest mutator.
+type ScoreEditRequestFunc func(context.Context, *ent.ScoreEditRequestMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ScoreEditRequestFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ScoreEditRequestMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ScoreEditRequestMutation", m)
+}
+
 // The ScoringFunc type is an adapter to allow the use of ordinary
 // function as Scoring mutator.
 type ScoringFunc func(context.Context, *ent.ScoringMutation) (ent.Value, error)

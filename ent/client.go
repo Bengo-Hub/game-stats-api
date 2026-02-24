@@ -33,6 +33,8 @@ import (
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
 	"github.com/bengobox/game-stats-api/ent/player"
+	"github.com/bengobox/game-stats-api/ent/scopedrole"
+	"github.com/bengobox/game-stats-api/ent/scoreeditrequest"
 	"github.com/bengobox/game-stats-api/ent/scoring"
 	"github.com/bengobox/game-stats-api/ent/spiritnomination"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
@@ -80,6 +82,10 @@ type Client struct {
 	MVP_Nomination *MVPNominationClient
 	// Player is the client for interacting with the Player builders.
 	Player *PlayerClient
+	// ScopedRole is the client for interacting with the ScopedRole builders.
+	ScopedRole *ScopedRoleClient
+	// ScoreEditRequest is the client for interacting with the ScoreEditRequest builders.
+	ScoreEditRequest *ScoreEditRequestClient
 	// Scoring is the client for interacting with the Scoring builders.
 	Scoring *ScoringClient
 	// SpiritNomination is the client for interacting with the SpiritNomination builders.
@@ -120,6 +126,8 @@ func (c *Client) init() {
 	c.Location = NewLocationClient(c.config)
 	c.MVP_Nomination = NewMVPNominationClient(c.config)
 	c.Player = NewPlayerClient(c.config)
+	c.ScopedRole = NewScopedRoleClient(c.config)
+	c.ScoreEditRequest = NewScoreEditRequestClient(c.config)
 	c.Scoring = NewScoringClient(c.config)
 	c.SpiritNomination = NewSpiritNominationClient(c.config)
 	c.SpiritScore = NewSpiritScoreClient(c.config)
@@ -235,6 +243,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Location:            NewLocationClient(cfg),
 		MVP_Nomination:      NewMVPNominationClient(cfg),
 		Player:              NewPlayerClient(cfg),
+		ScopedRole:          NewScopedRoleClient(cfg),
+		ScoreEditRequest:    NewScoreEditRequestClient(cfg),
 		Scoring:             NewScoringClient(cfg),
 		SpiritNomination:    NewSpiritNominationClient(cfg),
 		SpiritScore:         NewSpiritScoreClient(cfg),
@@ -277,6 +287,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Location:            NewLocationClient(cfg),
 		MVP_Nomination:      NewMVPNominationClient(cfg),
 		Player:              NewPlayerClient(cfg),
+		ScopedRole:          NewScopedRoleClient(cfg),
+		ScoreEditRequest:    NewScoreEditRequestClient(cfg),
 		Scoring:             NewScoringClient(cfg),
 		SpiritNomination:    NewSpiritNominationClient(cfg),
 		SpiritScore:         NewSpiritScoreClient(cfg),
@@ -315,8 +327,8 @@ func (c *Client) Use(hooks ...Hook) {
 		c.AnalyticSearch, c.AnalyticsEmbedding, c.AuditLog, c.Continent, c.Country,
 		c.Discipline, c.DivisionPool, c.Event, c.EventParticipation,
 		c.EventReconciliation, c.Field, c.Game, c.GameEvent, c.GameRound, c.Location,
-		c.MVP_Nomination, c.Player, c.Scoring, c.SpiritNomination, c.SpiritScore,
-		c.Team, c.User, c.World,
+		c.MVP_Nomination, c.Player, c.ScopedRole, c.ScoreEditRequest, c.Scoring,
+		c.SpiritNomination, c.SpiritScore, c.Team, c.User, c.World,
 	} {
 		n.Use(hooks...)
 	}
@@ -329,8 +341,8 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.AnalyticSearch, c.AnalyticsEmbedding, c.AuditLog, c.Continent, c.Country,
 		c.Discipline, c.DivisionPool, c.Event, c.EventParticipation,
 		c.EventReconciliation, c.Field, c.Game, c.GameEvent, c.GameRound, c.Location,
-		c.MVP_Nomination, c.Player, c.Scoring, c.SpiritNomination, c.SpiritScore,
-		c.Team, c.User, c.World,
+		c.MVP_Nomination, c.Player, c.ScopedRole, c.ScoreEditRequest, c.Scoring,
+		c.SpiritNomination, c.SpiritScore, c.Team, c.User, c.World,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -373,6 +385,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.MVP_Nomination.mutate(ctx, m)
 	case *PlayerMutation:
 		return c.Player.mutate(ctx, m)
+	case *ScopedRoleMutation:
+		return c.ScopedRole.mutate(ctx, m)
+	case *ScoreEditRequestMutation:
+		return c.ScoreEditRequest.mutate(ctx, m)
 	case *ScoringMutation:
 		return c.Scoring.mutate(ctx, m)
 	case *SpiritNominationMutation:
@@ -937,7 +953,7 @@ func (c *ContinentClient) QueryManagedBy(_m *Continent) *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(continent.Table, continent.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, continent.ManagedByTable, continent.ManagedByColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, continent.ManagedByTable, continent.ManagedByPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1134,7 +1150,7 @@ func (c *CountryClient) QueryManagedBy(_m *Country) *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(country.Table, country.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, country.ManagedByTable, country.ManagedByColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, country.ManagedByTable, country.ManagedByPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1315,7 +1331,7 @@ func (c *DisciplineClient) QueryManagedBy(_m *Discipline) *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discipline.Table, discipline.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, discipline.ManagedByTable, discipline.ManagedByColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, discipline.ManagedByTable, discipline.ManagedByPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1741,7 +1757,7 @@ func (c *EventClient) QueryManagedBy(_m *Event) *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(event.Table, event.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, event.ManagedByTable, event.ManagedByColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, event.ManagedByTable, event.ManagedByPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -2530,6 +2546,22 @@ func (c *GameClient) QuerySpiritScores(_m *Game) *SpiritScoreQuery {
 			sqlgraph.From(game.Table, game.FieldID, id),
 			sqlgraph.To(spiritscore.Table, spiritscore.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, game.SpiritScoresTable, game.SpiritScoresColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryScoreEditRequests queries the score_edit_requests edge of a Game.
+func (c *GameClient) QueryScoreEditRequests(_m *Game) *ScoreEditRequestQuery {
+	query := (&ScoreEditRequestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(scoreeditrequest.Table, scoreeditrequest.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, game.ScoreEditRequestsTable, game.ScoreEditRequestsColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -3499,6 +3531,336 @@ func (c *PlayerClient) mutate(ctx context.Context, m *PlayerMutation) (Value, er
 	}
 }
 
+// ScopedRoleClient is a client for the ScopedRole schema.
+type ScopedRoleClient struct {
+	config
+}
+
+// NewScopedRoleClient returns a client for the ScopedRole from the given config.
+func NewScopedRoleClient(c config) *ScopedRoleClient {
+	return &ScopedRoleClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `scopedrole.Hooks(f(g(h())))`.
+func (c *ScopedRoleClient) Use(hooks ...Hook) {
+	c.hooks.ScopedRole = append(c.hooks.ScopedRole, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `scopedrole.Intercept(f(g(h())))`.
+func (c *ScopedRoleClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ScopedRole = append(c.inters.ScopedRole, interceptors...)
+}
+
+// Create returns a builder for creating a ScopedRole entity.
+func (c *ScopedRoleClient) Create() *ScopedRoleCreate {
+	mutation := newScopedRoleMutation(c.config, OpCreate)
+	return &ScopedRoleCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ScopedRole entities.
+func (c *ScopedRoleClient) CreateBulk(builders ...*ScopedRoleCreate) *ScopedRoleCreateBulk {
+	return &ScopedRoleCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ScopedRoleClient) MapCreateBulk(slice any, setFunc func(*ScopedRoleCreate, int)) *ScopedRoleCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ScopedRoleCreateBulk{err: fmt.Errorf("calling to ScopedRoleClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ScopedRoleCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ScopedRoleCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ScopedRole.
+func (c *ScopedRoleClient) Update() *ScopedRoleUpdate {
+	mutation := newScopedRoleMutation(c.config, OpUpdate)
+	return &ScopedRoleUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ScopedRoleClient) UpdateOne(_m *ScopedRole) *ScopedRoleUpdateOne {
+	mutation := newScopedRoleMutation(c.config, OpUpdateOne, withScopedRole(_m))
+	return &ScopedRoleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ScopedRoleClient) UpdateOneID(id uuid.UUID) *ScopedRoleUpdateOne {
+	mutation := newScopedRoleMutation(c.config, OpUpdateOne, withScopedRoleID(id))
+	return &ScopedRoleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ScopedRole.
+func (c *ScopedRoleClient) Delete() *ScopedRoleDelete {
+	mutation := newScopedRoleMutation(c.config, OpDelete)
+	return &ScopedRoleDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ScopedRoleClient) DeleteOne(_m *ScopedRole) *ScopedRoleDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ScopedRoleClient) DeleteOneID(id uuid.UUID) *ScopedRoleDeleteOne {
+	builder := c.Delete().Where(scopedrole.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ScopedRoleDeleteOne{builder}
+}
+
+// Query returns a query builder for ScopedRole.
+func (c *ScopedRoleClient) Query() *ScopedRoleQuery {
+	return &ScopedRoleQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeScopedRole},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ScopedRole entity by its id.
+func (c *ScopedRoleClient) Get(ctx context.Context, id uuid.UUID) (*ScopedRole, error) {
+	return c.Query().Where(scopedrole.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ScopedRoleClient) GetX(ctx context.Context, id uuid.UUID) *ScopedRole {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a ScopedRole.
+func (c *ScopedRoleClient) QueryUser(_m *ScopedRole) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(scopedrole.Table, scopedrole.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, scopedrole.UserTable, scopedrole.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ScopedRoleClient) Hooks() []Hook {
+	return c.hooks.ScopedRole
+}
+
+// Interceptors returns the client interceptors.
+func (c *ScopedRoleClient) Interceptors() []Interceptor {
+	return c.inters.ScopedRole
+}
+
+func (c *ScopedRoleClient) mutate(ctx context.Context, m *ScopedRoleMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ScopedRoleCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ScopedRoleUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ScopedRoleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ScopedRoleDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ScopedRole mutation op: %q", m.Op())
+	}
+}
+
+// ScoreEditRequestClient is a client for the ScoreEditRequest schema.
+type ScoreEditRequestClient struct {
+	config
+}
+
+// NewScoreEditRequestClient returns a client for the ScoreEditRequest from the given config.
+func NewScoreEditRequestClient(c config) *ScoreEditRequestClient {
+	return &ScoreEditRequestClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `scoreeditrequest.Hooks(f(g(h())))`.
+func (c *ScoreEditRequestClient) Use(hooks ...Hook) {
+	c.hooks.ScoreEditRequest = append(c.hooks.ScoreEditRequest, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `scoreeditrequest.Intercept(f(g(h())))`.
+func (c *ScoreEditRequestClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ScoreEditRequest = append(c.inters.ScoreEditRequest, interceptors...)
+}
+
+// Create returns a builder for creating a ScoreEditRequest entity.
+func (c *ScoreEditRequestClient) Create() *ScoreEditRequestCreate {
+	mutation := newScoreEditRequestMutation(c.config, OpCreate)
+	return &ScoreEditRequestCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ScoreEditRequest entities.
+func (c *ScoreEditRequestClient) CreateBulk(builders ...*ScoreEditRequestCreate) *ScoreEditRequestCreateBulk {
+	return &ScoreEditRequestCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ScoreEditRequestClient) MapCreateBulk(slice any, setFunc func(*ScoreEditRequestCreate, int)) *ScoreEditRequestCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ScoreEditRequestCreateBulk{err: fmt.Errorf("calling to ScoreEditRequestClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ScoreEditRequestCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ScoreEditRequestCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ScoreEditRequest.
+func (c *ScoreEditRequestClient) Update() *ScoreEditRequestUpdate {
+	mutation := newScoreEditRequestMutation(c.config, OpUpdate)
+	return &ScoreEditRequestUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ScoreEditRequestClient) UpdateOne(_m *ScoreEditRequest) *ScoreEditRequestUpdateOne {
+	mutation := newScoreEditRequestMutation(c.config, OpUpdateOne, withScoreEditRequest(_m))
+	return &ScoreEditRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ScoreEditRequestClient) UpdateOneID(id uuid.UUID) *ScoreEditRequestUpdateOne {
+	mutation := newScoreEditRequestMutation(c.config, OpUpdateOne, withScoreEditRequestID(id))
+	return &ScoreEditRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ScoreEditRequest.
+func (c *ScoreEditRequestClient) Delete() *ScoreEditRequestDelete {
+	mutation := newScoreEditRequestMutation(c.config, OpDelete)
+	return &ScoreEditRequestDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ScoreEditRequestClient) DeleteOne(_m *ScoreEditRequest) *ScoreEditRequestDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ScoreEditRequestClient) DeleteOneID(id uuid.UUID) *ScoreEditRequestDeleteOne {
+	builder := c.Delete().Where(scoreeditrequest.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ScoreEditRequestDeleteOne{builder}
+}
+
+// Query returns a query builder for ScoreEditRequest.
+func (c *ScoreEditRequestClient) Query() *ScoreEditRequestQuery {
+	return &ScoreEditRequestQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeScoreEditRequest},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ScoreEditRequest entity by its id.
+func (c *ScoreEditRequestClient) Get(ctx context.Context, id uuid.UUID) (*ScoreEditRequest, error) {
+	return c.Query().Where(scoreeditrequest.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ScoreEditRequestClient) GetX(ctx context.Context, id uuid.UUID) *ScoreEditRequest {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryGame queries the game edge of a ScoreEditRequest.
+func (c *ScoreEditRequestClient) QueryGame(_m *ScoreEditRequest) *GameQuery {
+	query := (&GameClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(scoreeditrequest.Table, scoreeditrequest.FieldID, id),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, scoreeditrequest.GameTable, scoreeditrequest.GameColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryRequestedBy queries the requested_by edge of a ScoreEditRequest.
+func (c *ScoreEditRequestClient) QueryRequestedBy(_m *ScoreEditRequest) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(scoreeditrequest.Table, scoreeditrequest.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, scoreeditrequest.RequestedByTable, scoreeditrequest.RequestedByColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryReviewedBy queries the reviewed_by edge of a ScoreEditRequest.
+func (c *ScoreEditRequestClient) QueryReviewedBy(_m *ScoreEditRequest) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(scoreeditrequest.Table, scoreeditrequest.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, scoreeditrequest.ReviewedByTable, scoreeditrequest.ReviewedByColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ScoreEditRequestClient) Hooks() []Hook {
+	return c.hooks.ScoreEditRequest
+}
+
+// Interceptors returns the client interceptors.
+func (c *ScoreEditRequestClient) Interceptors() []Interceptor {
+	return c.inters.ScoreEditRequest
+}
+
+func (c *ScoreEditRequestClient) mutate(ctx context.Context, m *ScoreEditRequestMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ScoreEditRequestCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ScoreEditRequestUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ScoreEditRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ScoreEditRequestDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ScoreEditRequest mutation op: %q", m.Op())
+	}
+}
+
 // ScoringClient is a client for the Scoring schema.
 type ScoringClient struct {
 	config
@@ -4222,7 +4584,7 @@ func (c *TeamClient) QueryManagedBy(_m *Team) *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(team.Table, team.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, team.ManagedByTable, team.ManagedByColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, team.ManagedByTable, team.ManagedByPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -4451,7 +4813,7 @@ func (c *UserClient) QueryManagedContinent(_m *User) *ContinentQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(continent.Table, continent.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedContinentTable, user.ManagedContinentColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, user.ManagedContinentTable, user.ManagedContinentPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -4467,7 +4829,7 @@ func (c *UserClient) QueryManagedCountry(_m *User) *CountryQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(country.Table, country.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedCountryTable, user.ManagedCountryColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, user.ManagedCountryTable, user.ManagedCountryPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -4483,7 +4845,7 @@ func (c *UserClient) QueryManagedDiscipline(_m *User) *DisciplineQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(discipline.Table, discipline.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedDisciplineTable, user.ManagedDisciplineColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, user.ManagedDisciplineTable, user.ManagedDisciplinePrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -4499,7 +4861,7 @@ func (c *UserClient) QueryManagedEvent(_m *User) *EventQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(event.Table, event.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedEventTable, user.ManagedEventColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, user.ManagedEventTable, user.ManagedEventPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -4515,7 +4877,7 @@ func (c *UserClient) QueryManagedTeam(_m *User) *TeamQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.ManagedTeamTable, user.ManagedTeamColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, user.ManagedTeamTable, user.ManagedTeamPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -4539,6 +4901,22 @@ func (c *UserClient) QueryOfficiatedGames(_m *User) *GameQuery {
 	return query
 }
 
+// QueryScopedRoles queries the scoped_roles edge of a User.
+func (c *UserClient) QueryScopedRoles(_m *User) *ScopedRoleQuery {
+	query := (&ScopedRoleClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(scopedrole.Table, scopedrole.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ScopedRolesTable, user.ScopedRolesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QuerySubmittedSpiritScores queries the submitted_spirit_scores edge of a User.
 func (c *UserClient) QuerySubmittedSpiritScores(_m *User) *SpiritScoreQuery {
 	query := (&SpiritScoreClient{config: c.config}).Query()
@@ -4548,6 +4926,22 @@ func (c *UserClient) QuerySubmittedSpiritScores(_m *User) *SpiritScoreQuery {
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(spiritscore.Table, spiritscore.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.SubmittedSpiritScoresTable, user.SubmittedSpiritScoresColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryScoreEditRequests queries the score_edit_requests edge of a User.
+func (c *UserClient) QueryScoreEditRequests(_m *User) *ScoreEditRequestQuery {
+	query := (&ScoreEditRequestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(scoreeditrequest.Table, scoreeditrequest.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ScoreEditRequestsTable, user.ScoreEditRequestsColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -4734,13 +5128,15 @@ type (
 	hooks struct {
 		AnalyticSearch, AnalyticsEmbedding, AuditLog, Continent, Country, Discipline,
 		DivisionPool, Event, EventParticipation, EventReconciliation, Field, Game,
-		GameEvent, GameRound, Location, MVP_Nomination, Player, Scoring,
-		SpiritNomination, SpiritScore, Team, User, World []ent.Hook
+		GameEvent, GameRound, Location, MVP_Nomination, Player, ScopedRole,
+		ScoreEditRequest, Scoring, SpiritNomination, SpiritScore, Team, User,
+		World []ent.Hook
 	}
 	inters struct {
 		AnalyticSearch, AnalyticsEmbedding, AuditLog, Continent, Country, Discipline,
 		DivisionPool, Event, EventParticipation, EventReconciliation, Field, Game,
-		GameEvent, GameRound, Location, MVP_Nomination, Player, Scoring,
-		SpiritNomination, SpiritScore, Team, User, World []ent.Interceptor
+		GameEvent, GameRound, Location, MVP_Nomination, Player, ScopedRole,
+		ScoreEditRequest, Scoring, SpiritNomination, SpiritScore, Team, User,
+		World []ent.Interceptor
 	}
 )

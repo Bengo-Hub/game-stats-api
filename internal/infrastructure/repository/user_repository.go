@@ -50,6 +50,7 @@ func (r *userRepository) Update(ctx context.Context, u *ent.User) (*ent.User, er
 		SetPasswordHash(u.PasswordHash).
 		SetName(u.Name).
 		SetRole(u.Role).
+		SetIsActive(u.IsActive).
 		SetNillableAvatarURL(u.AvatarURL).
 		SetUpdatedAt(time.Now()).
 		Save(ctx)

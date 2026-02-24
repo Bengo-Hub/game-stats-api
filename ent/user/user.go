@@ -47,45 +47,39 @@ const (
 	EdgeManagedTeam = "managed_team"
 	// EdgeOfficiatedGames holds the string denoting the officiated_games edge name in mutations.
 	EdgeOfficiatedGames = "officiated_games"
+	// EdgeScopedRoles holds the string denoting the scoped_roles edge name in mutations.
+	EdgeScopedRoles = "scoped_roles"
 	// EdgeSubmittedSpiritScores holds the string denoting the submitted_spirit_scores edge name in mutations.
 	EdgeSubmittedSpiritScores = "submitted_spirit_scores"
+	// EdgeScoreEditRequests holds the string denoting the score_edit_requests edge name in mutations.
+	EdgeScoreEditRequests = "score_edit_requests"
 	// Table holds the table name of the user in the database.
 	Table = "users"
-	// ManagedContinentTable is the table that holds the managed_continent relation/edge.
-	ManagedContinentTable = "users"
+	// ManagedContinentTable is the table that holds the managed_continent relation/edge. The primary key declared below.
+	ManagedContinentTable = "continent_managed_by"
 	// ManagedContinentInverseTable is the table name for the Continent entity.
 	// It exists in this package in order to avoid circular dependency with the "continent" package.
 	ManagedContinentInverseTable = "continents"
-	// ManagedContinentColumn is the table column denoting the managed_continent relation/edge.
-	ManagedContinentColumn = "continent_managed_by"
-	// ManagedCountryTable is the table that holds the managed_country relation/edge.
-	ManagedCountryTable = "users"
+	// ManagedCountryTable is the table that holds the managed_country relation/edge. The primary key declared below.
+	ManagedCountryTable = "country_managed_by"
 	// ManagedCountryInverseTable is the table name for the Country entity.
 	// It exists in this package in order to avoid circular dependency with the "country" package.
 	ManagedCountryInverseTable = "countries"
-	// ManagedCountryColumn is the table column denoting the managed_country relation/edge.
-	ManagedCountryColumn = "country_managed_by"
-	// ManagedDisciplineTable is the table that holds the managed_discipline relation/edge.
-	ManagedDisciplineTable = "users"
+	// ManagedDisciplineTable is the table that holds the managed_discipline relation/edge. The primary key declared below.
+	ManagedDisciplineTable = "discipline_managed_by"
 	// ManagedDisciplineInverseTable is the table name for the Discipline entity.
 	// It exists in this package in order to avoid circular dependency with the "discipline" package.
 	ManagedDisciplineInverseTable = "disciplines"
-	// ManagedDisciplineColumn is the table column denoting the managed_discipline relation/edge.
-	ManagedDisciplineColumn = "discipline_managed_by"
-	// ManagedEventTable is the table that holds the managed_event relation/edge.
-	ManagedEventTable = "users"
+	// ManagedEventTable is the table that holds the managed_event relation/edge. The primary key declared below.
+	ManagedEventTable = "event_managed_by"
 	// ManagedEventInverseTable is the table name for the Event entity.
 	// It exists in this package in order to avoid circular dependency with the "event" package.
 	ManagedEventInverseTable = "events"
-	// ManagedEventColumn is the table column denoting the managed_event relation/edge.
-	ManagedEventColumn = "event_managed_by"
-	// ManagedTeamTable is the table that holds the managed_team relation/edge.
-	ManagedTeamTable = "users"
+	// ManagedTeamTable is the table that holds the managed_team relation/edge. The primary key declared below.
+	ManagedTeamTable = "team_managed_by"
 	// ManagedTeamInverseTable is the table name for the Team entity.
 	// It exists in this package in order to avoid circular dependency with the "team" package.
 	ManagedTeamInverseTable = "teams"
-	// ManagedTeamColumn is the table column denoting the managed_team relation/edge.
-	ManagedTeamColumn = "team_managed_by"
 	// OfficiatedGamesTable is the table that holds the officiated_games relation/edge.
 	OfficiatedGamesTable = "games"
 	// OfficiatedGamesInverseTable is the table name for the Game entity.
@@ -93,6 +87,13 @@ const (
 	OfficiatedGamesInverseTable = "games"
 	// OfficiatedGamesColumn is the table column denoting the officiated_games relation/edge.
 	OfficiatedGamesColumn = "user_officiated_games"
+	// ScopedRolesTable is the table that holds the scoped_roles relation/edge.
+	ScopedRolesTable = "scoped_roles"
+	// ScopedRolesInverseTable is the table name for the ScopedRole entity.
+	// It exists in this package in order to avoid circular dependency with the "scopedrole" package.
+	ScopedRolesInverseTable = "scoped_roles"
+	// ScopedRolesColumn is the table column denoting the scoped_roles relation/edge.
+	ScopedRolesColumn = "user_id"
 	// SubmittedSpiritScoresTable is the table that holds the submitted_spirit_scores relation/edge.
 	SubmittedSpiritScoresTable = "spirit_scores"
 	// SubmittedSpiritScoresInverseTable is the table name for the SpiritScore entity.
@@ -100,6 +101,13 @@ const (
 	SubmittedSpiritScoresInverseTable = "spirit_scores"
 	// SubmittedSpiritScoresColumn is the table column denoting the submitted_spirit_scores relation/edge.
 	SubmittedSpiritScoresColumn = "user_submitted_spirit_scores"
+	// ScoreEditRequestsTable is the table that holds the score_edit_requests relation/edge.
+	ScoreEditRequestsTable = "score_edit_requests"
+	// ScoreEditRequestsInverseTable is the table name for the ScoreEditRequest entity.
+	// It exists in this package in order to avoid circular dependency with the "scoreeditrequest" package.
+	ScoreEditRequestsInverseTable = "score_edit_requests"
+	// ScoreEditRequestsColumn is the table column denoting the score_edit_requests relation/edge.
+	ScoreEditRequestsColumn = "requested_by_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -117,25 +125,28 @@ var Columns = []string{
 	FieldLastLoginAt,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "users"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"continent_managed_by",
-	"country_managed_by",
-	"discipline_managed_by",
-	"event_managed_by",
-	"team_managed_by",
-}
+var (
+	// ManagedContinentPrimaryKey and ManagedContinentColumn2 are the table columns denoting the
+	// primary key for the managed_continent relation (M2M).
+	ManagedContinentPrimaryKey = []string{"continent_id", "user_id"}
+	// ManagedCountryPrimaryKey and ManagedCountryColumn2 are the table columns denoting the
+	// primary key for the managed_country relation (M2M).
+	ManagedCountryPrimaryKey = []string{"country_id", "user_id"}
+	// ManagedDisciplinePrimaryKey and ManagedDisciplineColumn2 are the table columns denoting the
+	// primary key for the managed_discipline relation (M2M).
+	ManagedDisciplinePrimaryKey = []string{"discipline_id", "user_id"}
+	// ManagedEventPrimaryKey and ManagedEventColumn2 are the table columns denoting the
+	// primary key for the managed_event relation (M2M).
+	ManagedEventPrimaryKey = []string{"event_id", "user_id"}
+	// ManagedTeamPrimaryKey and ManagedTeamColumn2 are the table columns denoting the
+	// primary key for the managed_team relation (M2M).
+	ManagedTeamPrimaryKey = []string{"team_id", "user_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -221,38 +232,73 @@ func ByLastLoginAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLastLoginAt, opts...).ToFunc()
 }
 
-// ByManagedContinentField orders the results by managed_continent field.
-func ByManagedContinentField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByManagedContinentCount orders the results by managed_continent count.
+func ByManagedContinentCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newManagedContinentStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newManagedContinentStep(), opts...)
 	}
 }
 
-// ByManagedCountryField orders the results by managed_country field.
-func ByManagedCountryField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByManagedContinent orders the results by managed_continent terms.
+func ByManagedContinent(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newManagedCountryStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newManagedContinentStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
-// ByManagedDisciplineField orders the results by managed_discipline field.
-func ByManagedDisciplineField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByManagedCountryCount orders the results by managed_country count.
+func ByManagedCountryCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newManagedDisciplineStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newManagedCountryStep(), opts...)
 	}
 }
 
-// ByManagedEventField orders the results by managed_event field.
-func ByManagedEventField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByManagedCountry orders the results by managed_country terms.
+func ByManagedCountry(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newManagedEventStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newManagedCountryStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
-// ByManagedTeamField orders the results by managed_team field.
-func ByManagedTeamField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByManagedDisciplineCount orders the results by managed_discipline count.
+func ByManagedDisciplineCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newManagedTeamStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newManagedDisciplineStep(), opts...)
+	}
+}
+
+// ByManagedDiscipline orders the results by managed_discipline terms.
+func ByManagedDiscipline(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newManagedDisciplineStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByManagedEventCount orders the results by managed_event count.
+func ByManagedEventCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newManagedEventStep(), opts...)
+	}
+}
+
+// ByManagedEvent orders the results by managed_event terms.
+func ByManagedEvent(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newManagedEventStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByManagedTeamCount orders the results by managed_team count.
+func ByManagedTeamCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newManagedTeamStep(), opts...)
+	}
+}
+
+// ByManagedTeam orders the results by managed_team terms.
+func ByManagedTeam(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newManagedTeamStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -270,6 +316,20 @@ func ByOfficiatedGames(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByScopedRolesCount orders the results by scoped_roles count.
+func ByScopedRolesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newScopedRolesStep(), opts...)
+	}
+}
+
+// ByScopedRoles orders the results by scoped_roles terms.
+func ByScopedRoles(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newScopedRolesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // BySubmittedSpiritScoresCount orders the results by submitted_spirit_scores count.
 func BySubmittedSpiritScoresCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -283,39 +343,53 @@ func BySubmittedSpiritScores(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOp
 		sqlgraph.OrderByNeighborTerms(s, newSubmittedSpiritScoresStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByScoreEditRequestsCount orders the results by score_edit_requests count.
+func ByScoreEditRequestsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newScoreEditRequestsStep(), opts...)
+	}
+}
+
+// ByScoreEditRequests orders the results by score_edit_requests terms.
+func ByScoreEditRequests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newScoreEditRequestsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newManagedContinentStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ManagedContinentInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ManagedContinentTable, ManagedContinentColumn),
+		sqlgraph.Edge(sqlgraph.M2M, true, ManagedContinentTable, ManagedContinentPrimaryKey...),
 	)
 }
 func newManagedCountryStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ManagedCountryInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ManagedCountryTable, ManagedCountryColumn),
+		sqlgraph.Edge(sqlgraph.M2M, true, ManagedCountryTable, ManagedCountryPrimaryKey...),
 	)
 }
 func newManagedDisciplineStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ManagedDisciplineInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ManagedDisciplineTable, ManagedDisciplineColumn),
+		sqlgraph.Edge(sqlgraph.M2M, true, ManagedDisciplineTable, ManagedDisciplinePrimaryKey...),
 	)
 }
 func newManagedEventStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ManagedEventInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ManagedEventTable, ManagedEventColumn),
+		sqlgraph.Edge(sqlgraph.M2M, true, ManagedEventTable, ManagedEventPrimaryKey...),
 	)
 }
 func newManagedTeamStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ManagedTeamInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ManagedTeamTable, ManagedTeamColumn),
+		sqlgraph.Edge(sqlgraph.M2M, true, ManagedTeamTable, ManagedTeamPrimaryKey...),
 	)
 }
 func newOfficiatedGamesStep() *sqlgraph.Step {
@@ -325,10 +399,24 @@ func newOfficiatedGamesStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, OfficiatedGamesTable, OfficiatedGamesColumn),
 	)
 }
+func newScopedRolesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ScopedRolesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ScopedRolesTable, ScopedRolesColumn),
+	)
+}
 func newSubmittedSpiritScoresStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SubmittedSpiritScoresInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, SubmittedSpiritScoresTable, SubmittedSpiritScoresColumn),
+	)
+}
+func newScoreEditRequestsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ScoreEditRequestsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ScoreEditRequestsTable, ScoreEditRequestsColumn),
 	)
 }

@@ -9,11 +9,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/bengobox/game-stats-api/ent/continent"
-	"github.com/bengobox/game-stats-api/ent/country"
-	"github.com/bengobox/game-stats-api/ent/discipline"
-	"github.com/bengobox/game-stats-api/ent/event"
-	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/bengobox/game-stats-api/ent/user"
 	"github.com/google/uuid"
 )
@@ -45,87 +40,76 @@ type User struct {
 	LastLoginAt *time.Time `json:"last_login_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
-	Edges                 UserEdges `json:"edges"`
-	continent_managed_by  *uuid.UUID
-	country_managed_by    *uuid.UUID
-	discipline_managed_by *uuid.UUID
-	event_managed_by      *uuid.UUID
-	team_managed_by       *uuid.UUID
-	selectValues          sql.SelectValues
+	Edges        UserEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
 	// ManagedContinent holds the value of the managed_continent edge.
-	ManagedContinent *Continent `json:"managed_continent,omitempty"`
+	ManagedContinent []*Continent `json:"managed_continent,omitempty"`
 	// ManagedCountry holds the value of the managed_country edge.
-	ManagedCountry *Country `json:"managed_country,omitempty"`
+	ManagedCountry []*Country `json:"managed_country,omitempty"`
 	// ManagedDiscipline holds the value of the managed_discipline edge.
-	ManagedDiscipline *Discipline `json:"managed_discipline,omitempty"`
+	ManagedDiscipline []*Discipline `json:"managed_discipline,omitempty"`
 	// ManagedEvent holds the value of the managed_event edge.
-	ManagedEvent *Event `json:"managed_event,omitempty"`
+	ManagedEvent []*Event `json:"managed_event,omitempty"`
 	// ManagedTeam holds the value of the managed_team edge.
-	ManagedTeam *Team `json:"managed_team,omitempty"`
+	ManagedTeam []*Team `json:"managed_team,omitempty"`
 	// OfficiatedGames holds the value of the officiated_games edge.
 	OfficiatedGames []*Game `json:"officiated_games,omitempty"`
+	// ScopedRoles holds the value of the scoped_roles edge.
+	ScopedRoles []*ScopedRole `json:"scoped_roles,omitempty"`
 	// SubmittedSpiritScores holds the value of the submitted_spirit_scores edge.
 	SubmittedSpiritScores []*SpiritScore `json:"submitted_spirit_scores,omitempty"`
+	// ScoreEditRequests holds the value of the score_edit_requests edge.
+	ScoreEditRequests []*ScoreEditRequest `json:"score_edit_requests,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [7]bool
+	loadedTypes [9]bool
 }
 
 // ManagedContinentOrErr returns the ManagedContinent value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e UserEdges) ManagedContinentOrErr() (*Continent, error) {
-	if e.ManagedContinent != nil {
+// was not loaded in eager-loading.
+func (e UserEdges) ManagedContinentOrErr() ([]*Continent, error) {
+	if e.loadedTypes[0] {
 		return e.ManagedContinent, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: continent.Label}
 	}
 	return nil, &NotLoadedError{edge: "managed_continent"}
 }
 
 // ManagedCountryOrErr returns the ManagedCountry value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e UserEdges) ManagedCountryOrErr() (*Country, error) {
-	if e.ManagedCountry != nil {
+// was not loaded in eager-loading.
+func (e UserEdges) ManagedCountryOrErr() ([]*Country, error) {
+	if e.loadedTypes[1] {
 		return e.ManagedCountry, nil
-	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: country.Label}
 	}
 	return nil, &NotLoadedError{edge: "managed_country"}
 }
 
 // ManagedDisciplineOrErr returns the ManagedDiscipline value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e UserEdges) ManagedDisciplineOrErr() (*Discipline, error) {
-	if e.ManagedDiscipline != nil {
+// was not loaded in eager-loading.
+func (e UserEdges) ManagedDisciplineOrErr() ([]*Discipline, error) {
+	if e.loadedTypes[2] {
 		return e.ManagedDiscipline, nil
-	} else if e.loadedTypes[2] {
-		return nil, &NotFoundError{label: discipline.Label}
 	}
 	return nil, &NotLoadedError{edge: "managed_discipline"}
 }
 
 // ManagedEventOrErr returns the ManagedEvent value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e UserEdges) ManagedEventOrErr() (*Event, error) {
-	if e.ManagedEvent != nil {
+// was not loaded in eager-loading.
+func (e UserEdges) ManagedEventOrErr() ([]*Event, error) {
+	if e.loadedTypes[3] {
 		return e.ManagedEvent, nil
-	} else if e.loadedTypes[3] {
-		return nil, &NotFoundError{label: event.Label}
 	}
 	return nil, &NotLoadedError{edge: "managed_event"}
 }
 
 // ManagedTeamOrErr returns the ManagedTeam value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e UserEdges) ManagedTeamOrErr() (*Team, error) {
-	if e.ManagedTeam != nil {
+// was not loaded in eager-loading.
+func (e UserEdges) ManagedTeamOrErr() ([]*Team, error) {
+	if e.loadedTypes[4] {
 		return e.ManagedTeam, nil
-	} else if e.loadedTypes[4] {
-		return nil, &NotFoundError{label: team.Label}
 	}
 	return nil, &NotLoadedError{edge: "managed_team"}
 }
@@ -139,13 +123,31 @@ func (e UserEdges) OfficiatedGamesOrErr() ([]*Game, error) {
 	return nil, &NotLoadedError{edge: "officiated_games"}
 }
 
+// ScopedRolesOrErr returns the ScopedRoles value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ScopedRolesOrErr() ([]*ScopedRole, error) {
+	if e.loadedTypes[6] {
+		return e.ScopedRoles, nil
+	}
+	return nil, &NotLoadedError{edge: "scoped_roles"}
+}
+
 // SubmittedSpiritScoresOrErr returns the SubmittedSpiritScores value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) SubmittedSpiritScoresOrErr() ([]*SpiritScore, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[7] {
 		return e.SubmittedSpiritScores, nil
 	}
 	return nil, &NotLoadedError{edge: "submitted_spirit_scores"}
+}
+
+// ScoreEditRequestsOrErr returns the ScoreEditRequests value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ScoreEditRequestsOrErr() ([]*ScoreEditRequest, error) {
+	if e.loadedTypes[8] {
+		return e.ScoreEditRequests, nil
+	}
+	return nil, &NotLoadedError{edge: "score_edit_requests"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -161,16 +163,6 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case user.FieldID:
 			values[i] = new(uuid.UUID)
-		case user.ForeignKeys[0]: // continent_managed_by
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case user.ForeignKeys[1]: // country_managed_by
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case user.ForeignKeys[2]: // discipline_managed_by
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case user.ForeignKeys[3]: // event_managed_by
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case user.ForeignKeys[4]: // team_managed_by
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -255,41 +247,6 @@ func (_m *User) assignValues(columns []string, values []any) error {
 				_m.LastLoginAt = new(time.Time)
 				*_m.LastLoginAt = value.Time
 			}
-		case user.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field continent_managed_by", values[i])
-			} else if value.Valid {
-				_m.continent_managed_by = new(uuid.UUID)
-				*_m.continent_managed_by = *value.S.(*uuid.UUID)
-			}
-		case user.ForeignKeys[1]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field country_managed_by", values[i])
-			} else if value.Valid {
-				_m.country_managed_by = new(uuid.UUID)
-				*_m.country_managed_by = *value.S.(*uuid.UUID)
-			}
-		case user.ForeignKeys[2]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field discipline_managed_by", values[i])
-			} else if value.Valid {
-				_m.discipline_managed_by = new(uuid.UUID)
-				*_m.discipline_managed_by = *value.S.(*uuid.UUID)
-			}
-		case user.ForeignKeys[3]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field event_managed_by", values[i])
-			} else if value.Valid {
-				_m.event_managed_by = new(uuid.UUID)
-				*_m.event_managed_by = *value.S.(*uuid.UUID)
-			}
-		case user.ForeignKeys[4]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field team_managed_by", values[i])
-			} else if value.Valid {
-				_m.team_managed_by = new(uuid.UUID)
-				*_m.team_managed_by = *value.S.(*uuid.UUID)
-			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -333,9 +290,19 @@ func (_m *User) QueryOfficiatedGames() *GameQuery {
 	return NewUserClient(_m.config).QueryOfficiatedGames(_m)
 }
 
+// QueryScopedRoles queries the "scoped_roles" edge of the User entity.
+func (_m *User) QueryScopedRoles() *ScopedRoleQuery {
+	return NewUserClient(_m.config).QueryScopedRoles(_m)
+}
+
 // QuerySubmittedSpiritScores queries the "submitted_spirit_scores" edge of the User entity.
 func (_m *User) QuerySubmittedSpiritScores() *SpiritScoreQuery {
 	return NewUserClient(_m.config).QuerySubmittedSpiritScores(_m)
+}
+
+// QueryScoreEditRequests queries the "score_edit_requests" edge of the User entity.
+func (_m *User) QueryScoreEditRequests() *ScoreEditRequestQuery {
+	return NewUserClient(_m.config).QueryScoreEditRequests(_m)
 }
 
 // Update returns a builder for updating this User.

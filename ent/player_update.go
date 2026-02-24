@@ -204,6 +204,46 @@ func (_u *PlayerUpdate) SetNillableIsSpiritCaptain(v *bool) *PlayerUpdate {
 	return _u
 }
 
+// SetPhone sets the "phone" field.
+func (_u *PlayerUpdate) SetPhone(v string) *PlayerUpdate {
+	_u.mutation.SetPhone(v)
+	return _u
+}
+
+// SetNillablePhone sets the "phone" field if the given value is not nil.
+func (_u *PlayerUpdate) SetNillablePhone(v *string) *PlayerUpdate {
+	if v != nil {
+		_u.SetPhone(*v)
+	}
+	return _u
+}
+
+// ClearPhone clears the value of the "phone" field.
+func (_u *PlayerUpdate) ClearPhone() *PlayerUpdate {
+	_u.mutation.ClearPhone()
+	return _u
+}
+
+// SetPosition sets the "position" field.
+func (_u *PlayerUpdate) SetPosition(v string) *PlayerUpdate {
+	_u.mutation.SetPosition(v)
+	return _u
+}
+
+// SetNillablePosition sets the "position" field if the given value is not nil.
+func (_u *PlayerUpdate) SetNillablePosition(v *string) *PlayerUpdate {
+	if v != nil {
+		_u.SetPosition(*v)
+	}
+	return _u
+}
+
+// ClearPosition clears the value of the "position" field.
+func (_u *PlayerUpdate) ClearPosition() *PlayerUpdate {
+	_u.mutation.ClearPosition()
+	return _u
+}
+
 // SetMetadata sets the "metadata" field.
 func (_u *PlayerUpdate) SetMetadata(v map[string]interface{}) *PlayerUpdate {
 	_u.mutation.SetMetadata(v)
@@ -531,6 +571,18 @@ func (_u *PlayerUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.IsSpiritCaptain(); ok {
 		_spec.SetField(player.FieldIsSpiritCaptain, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.Phone(); ok {
+		_spec.SetField(player.FieldPhone, field.TypeString, value)
+	}
+	if _u.mutation.PhoneCleared() {
+		_spec.ClearField(player.FieldPhone, field.TypeString)
+	}
+	if value, ok := _u.mutation.Position(); ok {
+		_spec.SetField(player.FieldPosition, field.TypeString, value)
+	}
+	if _u.mutation.PositionCleared() {
+		_spec.ClearField(player.FieldPosition, field.TypeString)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(player.FieldMetadata, field.TypeJSON, value)
@@ -981,6 +1033,46 @@ func (_u *PlayerUpdateOne) SetNillableIsSpiritCaptain(v *bool) *PlayerUpdateOne 
 	return _u
 }
 
+// SetPhone sets the "phone" field.
+func (_u *PlayerUpdateOne) SetPhone(v string) *PlayerUpdateOne {
+	_u.mutation.SetPhone(v)
+	return _u
+}
+
+// SetNillablePhone sets the "phone" field if the given value is not nil.
+func (_u *PlayerUpdateOne) SetNillablePhone(v *string) *PlayerUpdateOne {
+	if v != nil {
+		_u.SetPhone(*v)
+	}
+	return _u
+}
+
+// ClearPhone clears the value of the "phone" field.
+func (_u *PlayerUpdateOne) ClearPhone() *PlayerUpdateOne {
+	_u.mutation.ClearPhone()
+	return _u
+}
+
+// SetPosition sets the "position" field.
+func (_u *PlayerUpdateOne) SetPosition(v string) *PlayerUpdateOne {
+	_u.mutation.SetPosition(v)
+	return _u
+}
+
+// SetNillablePosition sets the "position" field if the given value is not nil.
+func (_u *PlayerUpdateOne) SetNillablePosition(v *string) *PlayerUpdateOne {
+	if v != nil {
+		_u.SetPosition(*v)
+	}
+	return _u
+}
+
+// ClearPosition clears the value of the "position" field.
+func (_u *PlayerUpdateOne) ClearPosition() *PlayerUpdateOne {
+	_u.mutation.ClearPosition()
+	return _u
+}
+
 // SetMetadata sets the "metadata" field.
 func (_u *PlayerUpdateOne) SetMetadata(v map[string]interface{}) *PlayerUpdateOne {
 	_u.mutation.SetMetadata(v)
@@ -1338,6 +1430,18 @@ func (_u *PlayerUpdateOne) sqlSave(ctx context.Context) (_node *Player, err erro
 	}
 	if value, ok := _u.mutation.IsSpiritCaptain(); ok {
 		_spec.SetField(player.FieldIsSpiritCaptain, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.Phone(); ok {
+		_spec.SetField(player.FieldPhone, field.TypeString, value)
+	}
+	if _u.mutation.PhoneCleared() {
+		_spec.ClearField(player.FieldPhone, field.TypeString)
+	}
+	if value, ok := _u.mutation.Position(); ok {
+		_spec.SetField(player.FieldPosition, field.TypeString, value)
+	}
+	if _u.mutation.PositionCleared() {
+		_spec.ClearField(player.FieldPosition, field.TypeString)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(player.FieldMetadata, field.TypeJSON, value)

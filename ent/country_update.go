@@ -475,10 +475,10 @@ func (_u *CountryUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.ManagedByCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   country.ManagedByTable,
-			Columns: []string{country.ManagedByColumn},
+			Columns: country.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -488,10 +488,10 @@ func (_u *CountryUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.RemovedManagedByIDs(); len(nodes) > 0 && !_u.mutation.ManagedByCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   country.ManagedByTable,
-			Columns: []string{country.ManagedByColumn},
+			Columns: country.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -504,10 +504,10 @@ func (_u *CountryUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.ManagedByIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   country.ManagedByTable,
-			Columns: []string{country.ManagedByColumn},
+			Columns: country.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -1010,10 +1010,10 @@ func (_u *CountryUpdateOne) sqlSave(ctx context.Context) (_node *Country, err er
 	}
 	if _u.mutation.ManagedByCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   country.ManagedByTable,
-			Columns: []string{country.ManagedByColumn},
+			Columns: country.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -1023,10 +1023,10 @@ func (_u *CountryUpdateOne) sqlSave(ctx context.Context) (_node *Country, err er
 	}
 	if nodes := _u.mutation.RemovedManagedByIDs(); len(nodes) > 0 && !_u.mutation.ManagedByCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   country.ManagedByTable,
-			Columns: []string{country.ManagedByColumn},
+			Columns: country.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -1039,10 +1039,10 @@ func (_u *CountryUpdateOne) sqlSave(ctx context.Context) (_node *Country, err er
 	}
 	if nodes := _u.mutation.ManagedByIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   country.ManagedByTable,
-			Columns: []string{country.ManagedByColumn},
+			Columns: country.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),

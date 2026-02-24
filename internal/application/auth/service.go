@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/internal/config"
@@ -45,7 +44,7 @@ func (s *Service) Login(ctx context.Context, req LoginRequest) (*LoginResponse, 
 	accessToken, err := auth.GenerateToken(s.cfg.JWTSecret, auth.TokenPayload{
 		UserID: u.ID,
 		Role:   u.Role,
-	}, 15*time.Minute)
+	}, s.cfg.JWTAccessTokenExpiry)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +52,7 @@ func (s *Service) Login(ctx context.Context, req LoginRequest) (*LoginResponse, 
 	refreshToken, err := auth.GenerateToken(s.cfg.JWTSecret, auth.TokenPayload{
 		UserID: u.ID,
 		Role:   u.Role,
-	}, 7*24*time.Hour)
+	}, s.cfg.JWTRefreshTokenExpiry)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +78,7 @@ func (s *Service) Refresh(ctx context.Context, req RefreshRequest) (*TokenRespon
 	accessToken, err := auth.GenerateToken(s.cfg.JWTSecret, auth.TokenPayload{
 		UserID: claims.UserID,
 		Role:   claims.Role,
-	}, 15*time.Minute)
+	}, s.cfg.JWTAccessTokenExpiry)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +86,7 @@ func (s *Service) Refresh(ctx context.Context, req RefreshRequest) (*TokenRespon
 	refreshToken, err := auth.GenerateToken(s.cfg.JWTSecret, auth.TokenPayload{
 		UserID: claims.UserID,
 		Role:   claims.Role,
-	}, 7*24*time.Hour)
+	}, s.cfg.JWTRefreshTokenExpiry)
 	if err != nil {
 		return nil, err
 	}

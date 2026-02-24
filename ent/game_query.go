@@ -18,6 +18,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/gameevent"
 	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/ent/scoreeditrequest"
 	"github.com/bengobox/game-stats-api/ent/scoring"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
 	"github.com/bengobox/game-stats-api/ent/team"
@@ -28,20 +29,21 @@ import (
 // GameQuery is the builder for querying Game entities.
 type GameQuery struct {
 	config
-	ctx               *QueryContext
-	order             []game.OrderOption
-	inters            []Interceptor
-	predicates        []predicate.Game
-	withGameRound     *GameRoundQuery
-	withHomeTeam      *TeamQuery
-	withAwayTeam      *TeamQuery
-	withDivisionPool  *DivisionPoolQuery
-	withFieldLocation *FieldQuery
-	withScorekeeper   *UserQuery
-	withScores        *ScoringQuery
-	withGameEvents    *GameEventQuery
-	withSpiritScores  *SpiritScoreQuery
-	withFKs           bool
+	ctx                   *QueryContext
+	order                 []game.OrderOption
+	inters                []Interceptor
+	predicates            []predicate.Game
+	withGameRound         *GameRoundQuery
+	withHomeTeam          *TeamQuery
+	withAwayTeam          *TeamQuery
+	withDivisionPool      *DivisionPoolQuery
+	withFieldLocation     *FieldQuery
+	withScorekeeper       *UserQuery
+	withScores            *ScoringQuery
+	withGameEvents        *GameEventQuery
+	withSpiritScores      *SpiritScoreQuery
+	withScoreEditRequests *ScoreEditRequestQuery
+	withFKs               bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -276,6 +278,28 @@ func (_q *GameQuery) QuerySpiritScores() *SpiritScoreQuery {
 	return query
 }
 
+// QueryScoreEditRequests chains the current query on the "score_edit_requests" edge.
+func (_q *GameQuery) QueryScoreEditRequests() *ScoreEditRequestQuery {
+	query := (&ScoreEditRequestClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, selector),
+			sqlgraph.To(scoreeditrequest.Table, scoreeditrequest.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, game.ScoreEditRequestsTable, game.ScoreEditRequestsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Game entity from the query.
 // Returns a *NotFoundError when no Game was found.
 func (_q *GameQuery) First(ctx context.Context) (*Game, error) {
@@ -463,20 +487,21 @@ func (_q *GameQuery) Clone() *GameQuery {
 		return nil
 	}
 	return &GameQuery{
-		config:            _q.config,
-		ctx:               _q.ctx.Clone(),
-		order:             append([]game.OrderOption{}, _q.order...),
-		inters:            append([]Interceptor{}, _q.inters...),
-		predicates:        append([]predicate.Game{}, _q.predicates...),
-		withGameRound:     _q.withGameRound.Clone(),
-		withHomeTeam:      _q.withHomeTeam.Clone(),
-		withAwayTeam:      _q.withAwayTeam.Clone(),
-		withDivisionPool:  _q.withDivisionPool.Clone(),
-		withFieldLocation: _q.withFieldLocation.Clone(),
-		withScorekeeper:   _q.withScorekeeper.Clone(),
-		withScores:        _q.withScores.Clone(),
-		withGameEvents:    _q.withGameEvents.Clone(),
-		withSpiritScores:  _q.withSpiritScores.Clone(),
+		config:                _q.config,
+		ctx:                   _q.ctx.Clone(),
+		order:                 append([]game.OrderOption{}, _q.order...),
+		inters:                append([]Interceptor{}, _q.inters...),
+		predicates:            append([]predicate.Game{}, _q.predicates...),
+		withGameRound:         _q.withGameRound.Clone(),
+		withHomeTeam:          _q.withHomeTeam.Clone(),
+		withAwayTeam:          _q.withAwayTeam.Clone(),
+		withDivisionPool:      _q.withDivisionPool.Clone(),
+		withFieldLocation:     _q.withFieldLocation.Clone(),
+		withScorekeeper:       _q.withScorekeeper.Clone(),
+		withScores:            _q.withScores.Clone(),
+		withGameEvents:        _q.withGameEvents.Clone(),
+		withSpiritScores:      _q.withSpiritScores.Clone(),
+		withScoreEditRequests: _q.withScoreEditRequests.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -582,6 +607,17 @@ func (_q *GameQuery) WithSpiritScores(opts ...func(*SpiritScoreQuery)) *GameQuer
 	return _q
 }
 
+// WithScoreEditRequests tells the query-builder to eager-load the nodes that are connected to
+// the "score_edit_requests" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *GameQuery) WithScoreEditRequests(opts ...func(*ScoreEditRequestQuery)) *GameQuery {
+	query := (&ScoreEditRequestClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withScoreEditRequests = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -661,7 +697,7 @@ func (_q *GameQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Game, e
 		nodes       = []*Game{}
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [9]bool{
+		loadedTypes = [10]bool{
 			_q.withGameRound != nil,
 			_q.withHomeTeam != nil,
 			_q.withAwayTeam != nil,
@@ -671,6 +707,7 @@ func (_q *GameQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Game, e
 			_q.withScores != nil,
 			_q.withGameEvents != nil,
 			_q.withSpiritScores != nil,
+			_q.withScoreEditRequests != nil,
 		}
 	)
 	if _q.withGameRound != nil || _q.withHomeTeam != nil || _q.withAwayTeam != nil || _q.withDivisionPool != nil || _q.withFieldLocation != nil || _q.withScorekeeper != nil {
@@ -751,6 +788,13 @@ func (_q *GameQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Game, e
 		if err := _q.loadSpiritScores(ctx, query, nodes,
 			func(n *Game) { n.Edges.SpiritScores = []*SpiritScore{} },
 			func(n *Game, e *SpiritScore) { n.Edges.SpiritScores = append(n.Edges.SpiritScores, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withScoreEditRequests; query != nil {
+		if err := _q.loadScoreEditRequests(ctx, query, nodes,
+			func(n *Game) { n.Edges.ScoreEditRequests = []*ScoreEditRequest{} },
+			func(n *Game, e *ScoreEditRequest) { n.Edges.ScoreEditRequests = append(n.Edges.ScoreEditRequests, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1037,6 +1081,36 @@ func (_q *GameQuery) loadSpiritScores(ctx context.Context, query *SpiritScoreQue
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "game_spirit_scores" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *GameQuery) loadScoreEditRequests(ctx context.Context, query *ScoreEditRequestQuery, nodes []*Game, init func(*Game), assign func(*Game, *ScoreEditRequest)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Game)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(scoreeditrequest.FieldGameID)
+	}
+	query.Where(predicate.ScoreEditRequest(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(game.ScoreEditRequestsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.GameID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "game_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

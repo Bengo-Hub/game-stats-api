@@ -30,6 +30,8 @@ import (
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
 	"github.com/bengobox/game-stats-api/ent/player"
+	"github.com/bengobox/game-stats-api/ent/scopedrole"
+	"github.com/bengobox/game-stats-api/ent/scoreeditrequest"
 	"github.com/bengobox/game-stats-api/ent/scoring"
 	"github.com/bengobox/game-stats-api/ent/spiritnomination"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
@@ -113,6 +115,8 @@ func checkColumn(t, c string) error {
 			location.Table:            location.ValidColumn,
 			mvp_nomination.Table:      mvp_nomination.ValidColumn,
 			player.Table:              player.ValidColumn,
+			scopedrole.Table:          scopedrole.ValidColumn,
+			scoreeditrequest.Table:    scoreeditrequest.ValidColumn,
 			scoring.Table:             scoring.ValidColumn,
 			spiritnomination.Table:    spiritnomination.ValidColumn,
 			spiritscore.Table:         spiritscore.ValidColumn,

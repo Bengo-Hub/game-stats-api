@@ -196,6 +196,20 @@ func (_c *EventCreate) SetNillableGamesCount(v *int) *EventCreate {
 	return _c
 }
 
+// SetScoreEditApprovalRole sets the "score_edit_approval_role" field.
+func (_c *EventCreate) SetScoreEditApprovalRole(v string) *EventCreate {
+	_c.mutation.SetScoreEditApprovalRole(v)
+	return _c
+}
+
+// SetNillableScoreEditApprovalRole sets the "score_edit_approval_role" field if the given value is not nil.
+func (_c *EventCreate) SetNillableScoreEditApprovalRole(v *string) *EventCreate {
+	if v != nil {
+		_c.SetScoreEditApprovalRole(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *EventCreate) SetID(v uuid.UUID) *EventCreate {
 	_c.mutation.SetID(v)
@@ -362,6 +376,10 @@ func (_c *EventCreate) defaults() {
 		v := event.DefaultGamesCount
 		_c.mutation.SetGamesCount(v)
 	}
+	if _, ok := _c.mutation.ScoreEditApprovalRole(); !ok {
+		v := event.DefaultScoreEditApprovalRole
+		_c.mutation.SetScoreEditApprovalRole(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := event.DefaultID()
 		_c.mutation.SetID(v)
@@ -424,6 +442,14 @@ func (_c *EventCreate) check() error {
 	}
 	if _, ok := _c.mutation.GamesCount(); !ok {
 		return &ValidationError{Name: "games_count", err: errors.New(`ent: missing required field "Event.games_count"`)}
+	}
+	if _, ok := _c.mutation.ScoreEditApprovalRole(); !ok {
+		return &ValidationError{Name: "score_edit_approval_role", err: errors.New(`ent: missing required field "Event.score_edit_approval_role"`)}
+	}
+	if v, ok := _c.mutation.ScoreEditApprovalRole(); ok {
+		if err := event.ScoreEditApprovalRoleValidator(v); err != nil {
+			return &ValidationError{Name: "score_edit_approval_role", err: fmt.Errorf(`ent: validator failed for field "Event.score_edit_approval_role": %w`, err)}
+		}
 	}
 	if len(_c.mutation.DisciplineIDs()) == 0 {
 		return &ValidationError{Name: "discipline", err: errors.New(`ent: missing required edge "Event.discipline"`)}
@@ -530,6 +556,10 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 		_spec.SetField(event.FieldGamesCount, field.TypeInt, value)
 		_node.GamesCount = value
 	}
+	if value, ok := _c.mutation.ScoreEditApprovalRole(); ok {
+		_spec.SetField(event.FieldScoreEditApprovalRole, field.TypeString, value)
+		_node.ScoreEditApprovalRole = value
+	}
 	if nodes := _c.mutation.DisciplineIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -614,10 +644,10 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 	}
 	if nodes := _c.mutation.ManagedByIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.ManagedByTable,
-			Columns: []string{event.ManagedByColumn},
+			Columns: event.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),

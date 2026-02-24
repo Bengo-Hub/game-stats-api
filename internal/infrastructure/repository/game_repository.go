@@ -314,3 +314,35 @@ func (r *gameRepository) CheckFieldConflict(ctx context.Context, fieldID uuid.UU
 
 	return count > 0, nil
 }
+func (r *gameRepository) SyncGameScores(ctx context.Context, id uuid.UUID) (*ent.Game, error) {
+	g, err := r.client.Game.Query().
+		Where(game.ID(id)).
+		WithHomeTeam().
+		WithAwayTeam().
+		WithScores(func(q *ent.ScoringQuery) {
+			q.WithPlayer(func(pq *ent.PlayerQuery) {
+				pq.WithTeam()
+			})
+		}).
+		Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	homeScore := 0
+	awayScore := 0
+	for _, s := range g.Edges.Scores {
+		if s.Edges.Player != nil && s.Edges.Player.Edges.Team != nil {
+			if s.Edges.Player.Edges.Team.ID == g.Edges.HomeTeam.ID {
+				homeScore += s.Goals
+			} else if s.Edges.Player.Edges.Team.ID == g.Edges.AwayTeam.ID {
+				awayScore += s.Goals
+			}
+		}
+	}
+
+	return r.client.Game.UpdateOneID(id).
+		SetHomeTeamScore(homeScore).
+		SetAwayTeamScore(awayScore).
+		Save(ctx)
+}

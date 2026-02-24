@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bengobox/game-stats-api/ent"
+	"github.com/bengobox/game-stats-api/internal/domain/auth"
 	"github.com/bengobox/game-stats-api/internal/domain/divisionpool"
 	"github.com/bengobox/game-stats-api/internal/domain/event"
 	"github.com/bengobox/game-stats-api/internal/domain/eventparticipation"
@@ -53,6 +54,8 @@ type Service struct {
 	userRepo             user.Repository
 	eventRepo            event.Repository
 	participationRepo    eventparticipation.Repository
+	scoreDomainService   *scoring.ScoreService
+	permissionService    *auth.PermissionService
 	advancementService   AdvancementService
 }
 
@@ -71,6 +74,7 @@ func NewService(
 	userRepo user.Repository,
 	eventRepo event.Repository,
 	participationRepo eventparticipation.Repository,
+	permissionService *auth.PermissionService,
 	advancementService AdvancementService,
 ) *Service {
 	return &Service{
@@ -88,6 +92,8 @@ func NewService(
 		userRepo:             userRepo,
 		eventRepo:            eventRepo,
 		participationRepo:    participationRepo,
+		scoreDomainService:   scoring.NewScoreService(scoringRepo),
+		permissionService:    permissionService,
 		advancementService:   advancementService,
 	}
 }

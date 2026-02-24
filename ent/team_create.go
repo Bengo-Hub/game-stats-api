@@ -118,6 +118,62 @@ func (_c *TeamCreate) SetNillableLogoURL(v *string) *TeamCreate {
 	return _c
 }
 
+// SetPrimaryColor sets the "primary_color" field.
+func (_c *TeamCreate) SetPrimaryColor(v string) *TeamCreate {
+	_c.mutation.SetPrimaryColor(v)
+	return _c
+}
+
+// SetNillablePrimaryColor sets the "primary_color" field if the given value is not nil.
+func (_c *TeamCreate) SetNillablePrimaryColor(v *string) *TeamCreate {
+	if v != nil {
+		_c.SetPrimaryColor(*v)
+	}
+	return _c
+}
+
+// SetSecondaryColor sets the "secondary_color" field.
+func (_c *TeamCreate) SetSecondaryColor(v string) *TeamCreate {
+	_c.mutation.SetSecondaryColor(v)
+	return _c
+}
+
+// SetNillableSecondaryColor sets the "secondary_color" field if the given value is not nil.
+func (_c *TeamCreate) SetNillableSecondaryColor(v *string) *TeamCreate {
+	if v != nil {
+		_c.SetSecondaryColor(*v)
+	}
+	return _c
+}
+
+// SetContactEmail sets the "contact_email" field.
+func (_c *TeamCreate) SetContactEmail(v string) *TeamCreate {
+	_c.mutation.SetContactEmail(v)
+	return _c
+}
+
+// SetNillableContactEmail sets the "contact_email" field if the given value is not nil.
+func (_c *TeamCreate) SetNillableContactEmail(v *string) *TeamCreate {
+	if v != nil {
+		_c.SetContactEmail(*v)
+	}
+	return _c
+}
+
+// SetContactPhone sets the "contact_phone" field.
+func (_c *TeamCreate) SetContactPhone(v string) *TeamCreate {
+	_c.mutation.SetContactPhone(v)
+	return _c
+}
+
+// SetNillableContactPhone sets the "contact_phone" field if the given value is not nil.
+func (_c *TeamCreate) SetNillableContactPhone(v *string) *TeamCreate {
+	if v != nil {
+		_c.SetContactPhone(*v)
+	}
+	return _c
+}
+
 // SetMetadata sets the "metadata" field.
 func (_c *TeamCreate) SetMetadata(v map[string]interface{}) *TeamCreate {
 	_c.mutation.SetMetadata(v)
@@ -404,6 +460,22 @@ func (_c *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 		_spec.SetField(team.FieldLogoURL, field.TypeString, value)
 		_node.LogoURL = &value
 	}
+	if value, ok := _c.mutation.PrimaryColor(); ok {
+		_spec.SetField(team.FieldPrimaryColor, field.TypeString, value)
+		_node.PrimaryColor = &value
+	}
+	if value, ok := _c.mutation.SecondaryColor(); ok {
+		_spec.SetField(team.FieldSecondaryColor, field.TypeString, value)
+		_node.SecondaryColor = &value
+	}
+	if value, ok := _c.mutation.ContactEmail(); ok {
+		_spec.SetField(team.FieldContactEmail, field.TypeString, value)
+		_node.ContactEmail = &value
+	}
+	if value, ok := _c.mutation.ContactPhone(); ok {
+		_spec.SetField(team.FieldContactPhone, field.TypeString, value)
+		_node.ContactPhone = &value
+	}
 	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(team.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
@@ -460,10 +532,10 @@ func (_c *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 	}
 	if nodes := _c.mutation.ManagedByIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.ManagedByTable,
-			Columns: []string{team.ManagedByColumn},
+			Columns: team.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),

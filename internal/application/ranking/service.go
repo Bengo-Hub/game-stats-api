@@ -10,6 +10,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/internal/application/bracket"
 	"github.com/bengobox/game-stats-api/internal/domain/divisionpool"
+	"github.com/bengobox/game-stats-api/internal/domain/event"
 	"github.com/bengobox/game-stats-api/internal/domain/game"
 	"github.com/bengobox/game-stats-api/internal/domain/gameround"
 	"github.com/bengobox/game-stats-api/internal/domain/team"
@@ -21,6 +22,7 @@ type Service struct {
 	divisionRepo   divisionpool.Repository
 	gameRepo       game.Repository
 	teamRepo       team.Repository
+	eventRepo      event.Repository
 	gameRoundRepo  gameround.Repository
 	bracketService BracketService // Optional: can be nil
 	cache          *cache.RedisClient
@@ -35,6 +37,7 @@ func NewService(
 	divisionRepo divisionpool.Repository,
 	gameRepo game.Repository,
 	teamRepo team.Repository,
+	eventRepo event.Repository,
 	gameRoundRepo gameround.Repository,
 	cache *cache.RedisClient,
 ) *Service {
@@ -42,6 +45,7 @@ func NewService(
 		divisionRepo:   divisionRepo,
 		gameRepo:       gameRepo,
 		teamRepo:       teamRepo,
+		eventRepo:      eventRepo,
 		gameRoundRepo:  gameRoundRepo,
 		bracketService: nil, // Set via SetBracketService if needed
 		cache:          cache,
@@ -136,6 +140,37 @@ func (s *Service) CalculateStandings(ctx context.Context, divisionID uuid.UUID) 
 	}
 
 	return response, nil
+}
+
+// CalculateEventStandings computes standings for all divisions in an event
+func (s *Service) CalculateEventStandings(ctx context.Context, eventID uuid.UUID) (*EventStandingsResponse, error) {
+	ev, err := s.eventRepo.GetByID(ctx, eventID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get event: %w", err)
+	}
+
+	divisions, err := s.divisionRepo.ListByEvent(ctx, eventID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list divisions: %w", err)
+	}
+
+	divisionStandings := make([]DivisionStandingsResponse, 0, len(divisions))
+	for _, div := range divisions {
+		standings, err := s.CalculateStandings(ctx, div.ID)
+		if err != nil {
+			// Log error but continue with other divisions
+			fmt.Printf("Failed to calculate standings for division %s: %v\n", div.ID, err)
+			continue
+		}
+		divisionStandings = append(divisionStandings, *standings)
+	}
+
+	return &EventStandingsResponse{
+		EventID:     eventID,
+		EventName:   ev.Name,
+		Divisions:   divisionStandings,
+		LastUpdated: time.Now(),
+	}, nil
 }
 
 // calculateTeamStanding computes statistics for a single team

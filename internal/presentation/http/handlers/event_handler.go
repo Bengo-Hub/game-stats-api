@@ -13,6 +13,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/internal/pkg/types"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
@@ -24,17 +25,17 @@ import (
 // ============================================
 
 type CreateEventRequest struct {
-	Name        string     `json:"name" validate:"required"`
-	Slug        string     `json:"slug" validate:"required"`
-	Year        int        `json:"year"`
-	StartDate   time.Time  `json:"startDate"`
-	EndDate     time.Time  `json:"endDate"`
-	Status      string     `json:"status"`
-	Description *string    `json:"description,omitempty"`
-	Categories  []string   `json:"categories,omitempty"`
-	LogoUrl     *string    `json:"logoUrl,omitempty"`
-	BannerUrl   *string    `json:"bannerUrl,omitempty"`
-	LocationID  *uuid.UUID `json:"locationId,omitempty"`
+	Name        string         `json:"name" validate:"required"`
+	Slug        string         `json:"slug" validate:"required"`
+	Year        int            `json:"year"`
+	StartDate   types.JSONTime `json:"startDate"`
+	EndDate     types.JSONTime `json:"endDate"`
+	Status      string         `json:"status"`
+	Description *string        `json:"description,omitempty"`
+	Categories  []string       `json:"categories,omitempty"`
+	LogoUrl     *string        `json:"logoUrl,omitempty"`
+	BannerUrl   *string        `json:"bannerUrl,omitempty"`
+	LocationID  *uuid.UUID     `json:"locationId,omitempty"`
 }
 
 type CreateDivisionRequest struct {
@@ -43,17 +44,17 @@ type CreateDivisionRequest struct {
 }
 
 type UpdateEventRequest struct {
-	Name         *string    `json:"name"`
-	Slug         *string    `json:"slug"`
-	Description  *string    `json:"description"`
-	StartDate    *time.Time `json:"startDate"`
-	EndDate      *time.Time `json:"endDate"`
-	DisciplineID *uuid.UUID `json:"disciplineId"`
-	LocationID   *uuid.UUID `json:"locationId"`
-	Categories   []string   `json:"categories"`
-	LogoUrl      *string    `json:"logoUrl"`
-	BannerUrl    *string    `json:"bannerUrl"`
-	Status       *string    `json:"status"`
+	Name         *string         `json:"name"`
+	Slug         *string         `json:"slug"`
+	Description  *string         `json:"description"`
+	StartDate    *types.JSONTime `json:"startDate"`
+	EndDate      *types.JSONTime `json:"endDate"`
+	DisciplineID *uuid.UUID      `json:"disciplineId"`
+	LocationID   *uuid.UUID      `json:"locationId"`
+	Categories   []string        `json:"categories"`
+	LogoUrl      *string         `json:"logoUrl"`
+	BannerUrl    *string         `json:"bannerUrl"`
+	Status       *string         `json:"status"`
 }
 
 type EventHandler struct {
@@ -253,8 +254,8 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		SetName(req.Name).
 		SetSlug(req.Slug).
 		SetYear(req.Year).
-		SetStartDate(req.StartDate).
-		SetEndDate(req.EndDate).
+		SetStartDate(req.StartDate.Time).
+		SetEndDate(req.EndDate.Time).
 		SetStatus(req.Status)
 
 	if req.Description != nil {
@@ -340,10 +341,10 @@ func (h *EventHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if req.StartDate != nil {
-		updater.SetStartDate(*req.StartDate)
+		updater.SetStartDate(req.StartDate.Time)
 	}
 	if req.EndDate != nil {
-		updater.SetEndDate(*req.EndDate)
+		updater.SetEndDate(req.EndDate.Time)
 	}
 	if req.Status != nil {
 		updater.SetStatus(*req.Status)

@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/bengobox/game-stats-api/ent"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/scoring"
 	"github.com/bengobox/game-stats-api/ent/world"
 	"github.com/bengobox/game-stats-api/internal/pkg/logger"
 	"github.com/google/uuid"
@@ -119,6 +121,73 @@ func (m *Migrator) RunAll(ctx context.Context, fixturesDir string) error {
 			logger.String("failed", strings.Join(failedMigrations, ", ")))
 	}
 
+	// Finalize: Sync scores
+	if err := m.finalizeMigration(ctx); err != nil {
+		logger.Error("Finalization failed", logger.Err(err))
+		return err
+	}
+
+	return nil
+}
+
+// finalizeMigration synchronizes all game scores after migration
+func (m *Migrator) finalizeMigration(ctx context.Context) error {
+	logger.Info("Finalizing migration: synchronizing all game scores...")
+
+	games, err := m.client.Game.Query().All(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, g := range games {
+		// Calculate scores from Scoring records
+		scores, err := m.client.Scoring.Query().
+			Where(scoring.HasGameWith(game.ID(g.ID))).
+			WithPlayer(func(q *ent.PlayerQuery) {
+				q.WithTeam()
+			}).
+			All(ctx)
+
+		if err != nil {
+			logger.Warn("Failed to fetch scores for game", logger.String("game_id", g.ID.String()))
+			continue
+		}
+
+		homeScore := 0
+		awayScore := 0
+
+		// We need to know which team is which. Fetch game with teams.
+		gWithTeams, err := m.client.Game.Query().
+			Where(game.ID(g.ID)).
+			WithHomeTeam().
+			WithAwayTeam().
+			Only(ctx)
+
+		if err != nil {
+			continue
+		}
+
+		for _, s := range scores {
+			if s.Edges.Player != nil && s.Edges.Player.Edges.Team != nil {
+				if s.Edges.Player.Edges.Team.ID == gWithTeams.Edges.HomeTeam.ID {
+					homeScore += s.Goals
+				} else if s.Edges.Player.Edges.Team.ID == gWithTeams.Edges.AwayTeam.ID {
+					awayScore += s.Goals
+				}
+			}
+		}
+
+		_, err = m.client.Game.UpdateOneID(g.ID).
+			SetHomeTeamScore(homeScore).
+			SetAwayTeamScore(awayScore).
+			Save(ctx)
+
+		if err != nil {
+			logger.Warn("Failed to update score for game", logger.String("game_id", g.ID.String()))
+		}
+	}
+
+	logger.Info("✓ Migration finalized: All games synchronized")
 	return nil
 }
 

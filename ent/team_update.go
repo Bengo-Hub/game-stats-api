@@ -150,6 +150,86 @@ func (_u *TeamUpdate) ClearLogoURL() *TeamUpdate {
 	return _u
 }
 
+// SetPrimaryColor sets the "primary_color" field.
+func (_u *TeamUpdate) SetPrimaryColor(v string) *TeamUpdate {
+	_u.mutation.SetPrimaryColor(v)
+	return _u
+}
+
+// SetNillablePrimaryColor sets the "primary_color" field if the given value is not nil.
+func (_u *TeamUpdate) SetNillablePrimaryColor(v *string) *TeamUpdate {
+	if v != nil {
+		_u.SetPrimaryColor(*v)
+	}
+	return _u
+}
+
+// ClearPrimaryColor clears the value of the "primary_color" field.
+func (_u *TeamUpdate) ClearPrimaryColor() *TeamUpdate {
+	_u.mutation.ClearPrimaryColor()
+	return _u
+}
+
+// SetSecondaryColor sets the "secondary_color" field.
+func (_u *TeamUpdate) SetSecondaryColor(v string) *TeamUpdate {
+	_u.mutation.SetSecondaryColor(v)
+	return _u
+}
+
+// SetNillableSecondaryColor sets the "secondary_color" field if the given value is not nil.
+func (_u *TeamUpdate) SetNillableSecondaryColor(v *string) *TeamUpdate {
+	if v != nil {
+		_u.SetSecondaryColor(*v)
+	}
+	return _u
+}
+
+// ClearSecondaryColor clears the value of the "secondary_color" field.
+func (_u *TeamUpdate) ClearSecondaryColor() *TeamUpdate {
+	_u.mutation.ClearSecondaryColor()
+	return _u
+}
+
+// SetContactEmail sets the "contact_email" field.
+func (_u *TeamUpdate) SetContactEmail(v string) *TeamUpdate {
+	_u.mutation.SetContactEmail(v)
+	return _u
+}
+
+// SetNillableContactEmail sets the "contact_email" field if the given value is not nil.
+func (_u *TeamUpdate) SetNillableContactEmail(v *string) *TeamUpdate {
+	if v != nil {
+		_u.SetContactEmail(*v)
+	}
+	return _u
+}
+
+// ClearContactEmail clears the value of the "contact_email" field.
+func (_u *TeamUpdate) ClearContactEmail() *TeamUpdate {
+	_u.mutation.ClearContactEmail()
+	return _u
+}
+
+// SetContactPhone sets the "contact_phone" field.
+func (_u *TeamUpdate) SetContactPhone(v string) *TeamUpdate {
+	_u.mutation.SetContactPhone(v)
+	return _u
+}
+
+// SetNillableContactPhone sets the "contact_phone" field if the given value is not nil.
+func (_u *TeamUpdate) SetNillableContactPhone(v *string) *TeamUpdate {
+	if v != nil {
+		_u.SetContactPhone(*v)
+	}
+	return _u
+}
+
+// ClearContactPhone clears the value of the "contact_phone" field.
+func (_u *TeamUpdate) ClearContactPhone() *TeamUpdate {
+	_u.mutation.ClearContactPhone()
+	return _u
+}
+
 // SetMetadata sets the "metadata" field.
 func (_u *TeamUpdate) SetMetadata(v map[string]interface{}) *TeamUpdate {
 	_u.mutation.SetMetadata(v)
@@ -558,6 +638,30 @@ func (_u *TeamUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.LogoURLCleared() {
 		_spec.ClearField(team.FieldLogoURL, field.TypeString)
 	}
+	if value, ok := _u.mutation.PrimaryColor(); ok {
+		_spec.SetField(team.FieldPrimaryColor, field.TypeString, value)
+	}
+	if _u.mutation.PrimaryColorCleared() {
+		_spec.ClearField(team.FieldPrimaryColor, field.TypeString)
+	}
+	if value, ok := _u.mutation.SecondaryColor(); ok {
+		_spec.SetField(team.FieldSecondaryColor, field.TypeString, value)
+	}
+	if _u.mutation.SecondaryColorCleared() {
+		_spec.ClearField(team.FieldSecondaryColor, field.TypeString)
+	}
+	if value, ok := _u.mutation.ContactEmail(); ok {
+		_spec.SetField(team.FieldContactEmail, field.TypeString, value)
+	}
+	if _u.mutation.ContactEmailCleared() {
+		_spec.ClearField(team.FieldContactEmail, field.TypeString)
+	}
+	if value, ok := _u.mutation.ContactPhone(); ok {
+		_spec.SetField(team.FieldContactPhone, field.TypeString, value)
+	}
+	if _u.mutation.ContactPhoneCleared() {
+		_spec.ClearField(team.FieldContactPhone, field.TypeString)
+	}
 	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(team.FieldMetadata, field.TypeJSON, value)
 	}
@@ -669,10 +773,10 @@ func (_u *TeamUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.ManagedByCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.ManagedByTable,
-			Columns: []string{team.ManagedByColumn},
+			Columns: team.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -682,10 +786,10 @@ func (_u *TeamUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.RemovedManagedByIDs(); len(nodes) > 0 && !_u.mutation.ManagedByCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.ManagedByTable,
-			Columns: []string{team.ManagedByColumn},
+			Columns: team.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -698,10 +802,10 @@ func (_u *TeamUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.ManagedByIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.ManagedByTable,
-			Columns: []string{team.ManagedByColumn},
+			Columns: team.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -1068,6 +1172,86 @@ func (_u *TeamUpdateOne) SetNillableLogoURL(v *string) *TeamUpdateOne {
 // ClearLogoURL clears the value of the "logo_url" field.
 func (_u *TeamUpdateOne) ClearLogoURL() *TeamUpdateOne {
 	_u.mutation.ClearLogoURL()
+	return _u
+}
+
+// SetPrimaryColor sets the "primary_color" field.
+func (_u *TeamUpdateOne) SetPrimaryColor(v string) *TeamUpdateOne {
+	_u.mutation.SetPrimaryColor(v)
+	return _u
+}
+
+// SetNillablePrimaryColor sets the "primary_color" field if the given value is not nil.
+func (_u *TeamUpdateOne) SetNillablePrimaryColor(v *string) *TeamUpdateOne {
+	if v != nil {
+		_u.SetPrimaryColor(*v)
+	}
+	return _u
+}
+
+// ClearPrimaryColor clears the value of the "primary_color" field.
+func (_u *TeamUpdateOne) ClearPrimaryColor() *TeamUpdateOne {
+	_u.mutation.ClearPrimaryColor()
+	return _u
+}
+
+// SetSecondaryColor sets the "secondary_color" field.
+func (_u *TeamUpdateOne) SetSecondaryColor(v string) *TeamUpdateOne {
+	_u.mutation.SetSecondaryColor(v)
+	return _u
+}
+
+// SetNillableSecondaryColor sets the "secondary_color" field if the given value is not nil.
+func (_u *TeamUpdateOne) SetNillableSecondaryColor(v *string) *TeamUpdateOne {
+	if v != nil {
+		_u.SetSecondaryColor(*v)
+	}
+	return _u
+}
+
+// ClearSecondaryColor clears the value of the "secondary_color" field.
+func (_u *TeamUpdateOne) ClearSecondaryColor() *TeamUpdateOne {
+	_u.mutation.ClearSecondaryColor()
+	return _u
+}
+
+// SetContactEmail sets the "contact_email" field.
+func (_u *TeamUpdateOne) SetContactEmail(v string) *TeamUpdateOne {
+	_u.mutation.SetContactEmail(v)
+	return _u
+}
+
+// SetNillableContactEmail sets the "contact_email" field if the given value is not nil.
+func (_u *TeamUpdateOne) SetNillableContactEmail(v *string) *TeamUpdateOne {
+	if v != nil {
+		_u.SetContactEmail(*v)
+	}
+	return _u
+}
+
+// ClearContactEmail clears the value of the "contact_email" field.
+func (_u *TeamUpdateOne) ClearContactEmail() *TeamUpdateOne {
+	_u.mutation.ClearContactEmail()
+	return _u
+}
+
+// SetContactPhone sets the "contact_phone" field.
+func (_u *TeamUpdateOne) SetContactPhone(v string) *TeamUpdateOne {
+	_u.mutation.SetContactPhone(v)
+	return _u
+}
+
+// SetNillableContactPhone sets the "contact_phone" field if the given value is not nil.
+func (_u *TeamUpdateOne) SetNillableContactPhone(v *string) *TeamUpdateOne {
+	if v != nil {
+		_u.SetContactPhone(*v)
+	}
+	return _u
+}
+
+// ClearContactPhone clears the value of the "contact_phone" field.
+func (_u *TeamUpdateOne) ClearContactPhone() *TeamUpdateOne {
+	_u.mutation.ClearContactPhone()
 	return _u
 }
 
@@ -1509,6 +1693,30 @@ func (_u *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) {
 	if _u.mutation.LogoURLCleared() {
 		_spec.ClearField(team.FieldLogoURL, field.TypeString)
 	}
+	if value, ok := _u.mutation.PrimaryColor(); ok {
+		_spec.SetField(team.FieldPrimaryColor, field.TypeString, value)
+	}
+	if _u.mutation.PrimaryColorCleared() {
+		_spec.ClearField(team.FieldPrimaryColor, field.TypeString)
+	}
+	if value, ok := _u.mutation.SecondaryColor(); ok {
+		_spec.SetField(team.FieldSecondaryColor, field.TypeString, value)
+	}
+	if _u.mutation.SecondaryColorCleared() {
+		_spec.ClearField(team.FieldSecondaryColor, field.TypeString)
+	}
+	if value, ok := _u.mutation.ContactEmail(); ok {
+		_spec.SetField(team.FieldContactEmail, field.TypeString, value)
+	}
+	if _u.mutation.ContactEmailCleared() {
+		_spec.ClearField(team.FieldContactEmail, field.TypeString)
+	}
+	if value, ok := _u.mutation.ContactPhone(); ok {
+		_spec.SetField(team.FieldContactPhone, field.TypeString, value)
+	}
+	if _u.mutation.ContactPhoneCleared() {
+		_spec.ClearField(team.FieldContactPhone, field.TypeString)
+	}
 	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(team.FieldMetadata, field.TypeJSON, value)
 	}
@@ -1620,10 +1828,10 @@ func (_u *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) {
 	}
 	if _u.mutation.ManagedByCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.ManagedByTable,
-			Columns: []string{team.ManagedByColumn},
+			Columns: team.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -1633,10 +1841,10 @@ func (_u *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) {
 	}
 	if nodes := _u.mutation.RemovedManagedByIDs(); len(nodes) > 0 && !_u.mutation.ManagedByCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.ManagedByTable,
-			Columns: []string{team.ManagedByColumn},
+			Columns: team.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -1649,10 +1857,10 @@ func (_u *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) {
 	}
 	if nodes := _u.mutation.ManagedByIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.ManagedByTable,
-			Columns: []string{team.ManagedByColumn},
+			Columns: team.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),

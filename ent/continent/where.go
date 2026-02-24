@@ -497,7 +497,7 @@ func HasManagedBy() predicate.Continent {
 	return predicate.Continent(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ManagedByTable, ManagedByColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, ManagedByTable, ManagedByPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

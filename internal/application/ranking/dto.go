@@ -35,13 +35,13 @@ type TeamStanding struct {
 	Wins           int       `json:"wins"`
 	Draws          int       `json:"draws"`
 	Losses         int       `json:"losses"`
-	GoalsFor       int       `json:"goals_for"`
-	GoalsAgainst   int       `json:"goals_against"`
-	GoalDifference int       `json:"goal_difference"`
+	GoalsFor       int       `json:"points_for"`
+	GoalsAgainst   int       `json:"points_against"`
+	GoalDifference int       `json:"point_differential"`
 	Points         int       `json:"points"`
 	WinPercentage  float64   `json:"win_percentage"`
-	SpiritAverage  *float64  `json:"spirit_average,omitempty"`
-	LastUpdated    time.Time `json:"last_updated"`
+	SpiritAverage  *float64  `json:"spirit_average"`
+	LastUpdated    time.Time `json:"updated_at"`
 }
 
 // DivisionStandingsResponse contains all teams' standings
@@ -50,7 +50,15 @@ type DivisionStandingsResponse struct {
 	DivisionName    string           `json:"division_name"`
 	Standings       []TeamStanding   `json:"standings"`
 	RankingCriteria *RankingCriteria `json:"ranking_criteria,omitempty"`
-	LastUpdated     time.Time        `json:"last_updated"`
+	LastUpdated     time.Time        `json:"updated_at"`
+}
+
+// EventStandingsResponse contains standings for all divisions in an event
+type EventStandingsResponse struct {
+	EventID     uuid.UUID                   `json:"event_id"`
+	EventName   string                      `json:"event_name"`
+	Divisions   []DivisionStandingsResponse `json:"divisions"`
+	LastUpdated time.Time                   `json:"last_updated"`
 }
 
 // UpdateRankingCriteriaRequest updates division ranking rules

@@ -37,6 +37,10 @@ const (
 	FieldIsCaptain = "is_captain"
 	// FieldIsSpiritCaptain holds the string denoting the is_spirit_captain field in the database.
 	FieldIsSpiritCaptain = "is_spirit_captain"
+	// FieldPhone holds the string denoting the phone field in the database.
+	FieldPhone = "phone"
+	// FieldPosition holds the string denoting the position field in the database.
+	FieldPosition = "position"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
 	// EdgeTeam holds the string denoting the team edge name in mutations.
@@ -111,6 +115,8 @@ var Columns = []string{
 	FieldProfileImageURL,
 	FieldIsCaptain,
 	FieldIsSpiritCaptain,
+	FieldPhone,
+	FieldPosition,
 	FieldMetadata,
 }
 
@@ -215,6 +221,16 @@ func ByIsCaptain(opts ...sql.OrderTermOption) OrderOption {
 // ByIsSpiritCaptain orders the results by the is_spirit_captain field.
 func ByIsSpiritCaptain(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsSpiritCaptain, opts...).ToFunc()
+}
+
+// ByPhone orders the results by the phone field.
+func ByPhone(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPhone, opts...).ToFunc()
+}
+
+// ByPosition orders the results by the position field.
+func ByPosition(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPosition, opts...).ToFunc()
 }
 
 // ByTeamField orders the results by team field.

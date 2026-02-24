@@ -126,6 +126,11 @@ func GamesCount(v int) predicate.Event {
 	return predicate.Event(sql.FieldEQ(FieldGamesCount, v))
 }
 
+// ScoreEditApprovalRole applies equality check predicate on the "score_edit_approval_role" field. It's identical to ScoreEditApprovalRoleEQ.
+func ScoreEditApprovalRole(v string) predicate.Event {
+	return predicate.Event(sql.FieldEQ(FieldScoreEditApprovalRole, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Event {
 	return predicate.Event(sql.FieldEQ(FieldCreatedAt, v))
@@ -896,6 +901,71 @@ func GamesCountLTE(v int) predicate.Event {
 	return predicate.Event(sql.FieldLTE(FieldGamesCount, v))
 }
 
+// ScoreEditApprovalRoleEQ applies the EQ predicate on the "score_edit_approval_role" field.
+func ScoreEditApprovalRoleEQ(v string) predicate.Event {
+	return predicate.Event(sql.FieldEQ(FieldScoreEditApprovalRole, v))
+}
+
+// ScoreEditApprovalRoleNEQ applies the NEQ predicate on the "score_edit_approval_role" field.
+func ScoreEditApprovalRoleNEQ(v string) predicate.Event {
+	return predicate.Event(sql.FieldNEQ(FieldScoreEditApprovalRole, v))
+}
+
+// ScoreEditApprovalRoleIn applies the In predicate on the "score_edit_approval_role" field.
+func ScoreEditApprovalRoleIn(vs ...string) predicate.Event {
+	return predicate.Event(sql.FieldIn(FieldScoreEditApprovalRole, vs...))
+}
+
+// ScoreEditApprovalRoleNotIn applies the NotIn predicate on the "score_edit_approval_role" field.
+func ScoreEditApprovalRoleNotIn(vs ...string) predicate.Event {
+	return predicate.Event(sql.FieldNotIn(FieldScoreEditApprovalRole, vs...))
+}
+
+// ScoreEditApprovalRoleGT applies the GT predicate on the "score_edit_approval_role" field.
+func ScoreEditApprovalRoleGT(v string) predicate.Event {
+	return predicate.Event(sql.FieldGT(FieldScoreEditApprovalRole, v))
+}
+
+// ScoreEditApprovalRoleGTE applies the GTE predicate on the "score_edit_approval_role" field.
+func ScoreEditApprovalRoleGTE(v string) predicate.Event {
+	return predicate.Event(sql.FieldGTE(FieldScoreEditApprovalRole, v))
+}
+
+// ScoreEditApprovalRoleLT applies the LT predicate on the "score_edit_approval_role" field.
+func ScoreEditApprovalRoleLT(v string) predicate.Event {
+	return predicate.Event(sql.FieldLT(FieldScoreEditApprovalRole, v))
+}
+
+// ScoreEditApprovalRoleLTE applies the LTE predicate on the "score_edit_approval_role" field.
+func ScoreEditApprovalRoleLTE(v string) predicate.Event {
+	return predicate.Event(sql.FieldLTE(FieldScoreEditApprovalRole, v))
+}
+
+// ScoreEditApprovalRoleContains applies the Contains predicate on the "score_edit_approval_role" field.
+func ScoreEditApprovalRoleContains(v string) predicate.Event {
+	return predicate.Event(sql.FieldContains(FieldScoreEditApprovalRole, v))
+}
+
+// ScoreEditApprovalRoleHasPrefix applies the HasPrefix predicate on the "score_edit_approval_role" field.
+func ScoreEditApprovalRoleHasPrefix(v string) predicate.Event {
+	return predicate.Event(sql.FieldHasPrefix(FieldScoreEditApprovalRole, v))
+}
+
+// ScoreEditApprovalRoleHasSuffix applies the HasSuffix predicate on the "score_edit_approval_role" field.
+func ScoreEditApprovalRoleHasSuffix(v string) predicate.Event {
+	return predicate.Event(sql.FieldHasSuffix(FieldScoreEditApprovalRole, v))
+}
+
+// ScoreEditApprovalRoleEqualFold applies the EqualFold predicate on the "score_edit_approval_role" field.
+func ScoreEditApprovalRoleEqualFold(v string) predicate.Event {
+	return predicate.Event(sql.FieldEqualFold(FieldScoreEditApprovalRole, v))
+}
+
+// ScoreEditApprovalRoleContainsFold applies the ContainsFold predicate on the "score_edit_approval_role" field.
+func ScoreEditApprovalRoleContainsFold(v string) predicate.Event {
+	return predicate.Event(sql.FieldContainsFold(FieldScoreEditApprovalRole, v))
+}
+
 // HasDiscipline applies the HasEdge predicate on the "discipline" edge.
 func HasDiscipline() predicate.Event {
 	return predicate.Event(func(s *sql.Selector) {
@@ -1016,7 +1086,7 @@ func HasManagedBy() predicate.Event {
 	return predicate.Event(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ManagedByTable, ManagedByColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, ManagedByTable, ManagedByPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

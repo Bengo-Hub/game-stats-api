@@ -183,7 +183,7 @@ type SpiritScoreDTO struct {
 	FairMindedness   int             `json:"fair_mindedness"`
 	Attitude         int             `json:"attitude"`
 	Communication    int             `json:"communication"`
-	TotalScore       int             `json:"total_score"`
+	TotalScore       int             `json:"totalScore"`
 	Comments         *string         `json:"comments,omitempty"`
 	CreatedAt        time.Time       `json:"created_at"`
 	UpdatedAt        time.Time       `json:"updated_at"`

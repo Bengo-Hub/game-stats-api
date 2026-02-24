@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/internal/domain/audit"
 	"github.com/bengobox/game-stats-api/internal/domain/game"
+	"github.com/bengobox/game-stats-api/internal/domain/scoring"
 	"github.com/bengobox/game-stats-api/internal/domain/spiritscore"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/cache"
 	"github.com/google/uuid"
@@ -16,6 +18,8 @@ import (
 type ScoreAdminService struct {
 	gameRepo        game.Repository
 	spiritScoreRepo spiritscore.Repository
+	scoringRepo     scoring.Repository
+	scoreService    *scoring.ScoreService
 	auditRepo       audit.Repository
 	cache           *cache.RedisClient
 }
@@ -24,27 +28,37 @@ type ScoreAdminService struct {
 func NewScoreAdminService(
 	gameRepo game.Repository,
 	spiritScoreRepo spiritscore.Repository,
+	scoringRepo scoring.Repository,
 	auditRepo audit.Repository,
 	cacheClient *cache.RedisClient,
 ) *ScoreAdminService {
 	return &ScoreAdminService{
 		gameRepo:        gameRepo,
 		spiritScoreRepo: spiritScoreRepo,
+		scoringRepo:     scoringRepo,
+		scoreService:    scoring.NewScoreService(scoringRepo),
 		auditRepo:       auditRepo,
 		cache:           cacheClient,
 	}
 }
 
+// PlayerScore adjustment
+type PlayerScore struct {
+	PlayerID uuid.UUID `json:"player_id"`
+	Goals    int       `json:"goals"`
+}
+
 // UpdateGameScoreRequest contains score update parameters
 type UpdateGameScoreRequest struct {
-	GameID      uuid.UUID `json:"game_id" validate:"required"`
-	HomeScore   int       `json:"home_score" validate:"min=0"`
-	AwayScore   int       `json:"away_score" validate:"min=0"`
-	Reason      string    `json:"reason" validate:"required,min=10"`
-	AdminUserID uuid.UUID `json:"admin_user_id" validate:"required"`
-	AdminName   string    `json:"admin_name" validate:"required"`
-	IPAddress   string    `json:"ip_address,omitempty"`
-	UserAgent   string    `json:"user_agent,omitempty"`
+	GameID       uuid.UUID     `json:"game_id" validate:"required"`
+	HomeScore    int           `json:"home_score" validate:"min=0"`
+	AwayScore    int           `json:"away_score" validate:"min=0"`
+	Reason       string        `json:"reason" validate:"required,min=10"`
+	PlayerScores []PlayerScore `json:"player_scores,omitempty"`
+	AdminUserID  uuid.UUID     `json:"admin_user_id" validate:"required"`
+	AdminName    string        `json:"admin_name" validate:"required"`
+	IPAddress    string        `json:"ip_address,omitempty"`
+	UserAgent    string        `json:"user_agent,omitempty"`
 }
 
 // Validate validates the request
@@ -132,6 +146,66 @@ func (s *ScoreAdminService) UpdateGameScore(
 		return nil, fmt.Errorf("failed to create audit log: %w", err)
 	}
 
+	// Update individual player scores if provided
+	if len(req.PlayerScores) > 0 {
+		existingScores, err := s.scoringRepo.ListByGame(ctx, req.GameID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to list existing scores: %w", err)
+		}
+
+		scoreMap := make(map[uuid.UUID]*ent.Scoring)
+		for _, es := range existingScores {
+			if es.Edges.Player != nil {
+				scoreMap[es.Edges.Player.ID] = es
+			}
+		}
+
+		for _, ps := range req.PlayerScores {
+			if existing, ok := scoreMap[ps.PlayerID]; ok {
+				existing.Goals = ps.Goals
+				_, err = s.scoringRepo.Update(ctx, existing)
+			} else {
+				_, err = s.scoringRepo.Create(ctx, &ent.Scoring{
+					Goals: ps.Goals,
+					Edges: ent.ScoringEdges{
+						Game:   &ent.Game{ID: req.GameID},
+						Player: &ent.Player{ID: ps.PlayerID},
+					},
+				})
+			}
+			if err != nil {
+				return nil, fmt.Errorf("failed to update score for player %s: %w", ps.PlayerID, err)
+			}
+		}
+
+		// Recalculate totals after updating player scores
+		homeTotal, awayTotal, err := s.scoreService.RecalculateTotals(ctx, req.GameID, currentGame.Edges.HomeTeam.ID, currentGame.Edges.AwayTeam.ID)
+		if err == nil {
+			// If admin provided explicit scores that differ from calculated, we'll use calculated
+			req.HomeScore = homeTotal
+			req.AwayScore = awayTotal
+
+			// Re-check changes for audit
+			if currentGame.HomeTeamScore != req.HomeScore {
+				changes["home_score"] = audit.ChangeEntry{
+					OldValue: fmt.Sprintf("%d", currentGame.HomeTeamScore),
+					NewValue: fmt.Sprintf("%d", req.HomeScore),
+				}
+			} else {
+				delete(changes, "home_score")
+			}
+
+			if currentGame.AwayTeamScore != req.AwayScore {
+				changes["away_score"] = audit.ChangeEntry{
+					OldValue: fmt.Sprintf("%d", currentGame.AwayTeamScore),
+					NewValue: fmt.Sprintf("%d", req.AwayScore),
+				}
+			} else {
+				delete(changes, "away_score")
+			}
+		}
+	}
+
 	// Update the game scores
 	currentGame.HomeTeamScore = req.HomeScore
 	currentGame.AwayTeamScore = req.AwayScore
@@ -156,7 +230,6 @@ func (s *ScoreAdminService) UpdateGameScore(
 	}, nil
 }
 
-// GetAuditHistory retrieves audit logs for a game
 func (s *ScoreAdminService) GetAuditHistory(
 	ctx context.Context,
 	gameID uuid.UUID,
@@ -166,6 +239,31 @@ func (s *ScoreAdminService) GetAuditHistory(
 		return nil, fmt.Errorf("failed to get audit history: %w", err)
 	}
 	return logs, nil
+}
+
+// GetScoreEdits retrieves all game score edit logs
+func (s *ScoreAdminService) GetScoreEdits(ctx context.Context) ([]*audit.AuditLog, error) {
+	logs, err := s.auditRepo.GetByEntity(ctx, "game", uuid.Nil) // uuid.Nil meaning global or all for that entity type
+	if err != nil {
+		// Fallback: list recent if GetByEntity doesn't support Nil
+		return s.auditRepo.GetRecent(ctx, 100)
+	}
+	return logs, nil
+}
+
+// SyncGameScores delegates to repository
+func (s *ScoreAdminService) SyncGameScores(ctx context.Context, gameID uuid.UUID) (*UpdateGameScoreResponse, error) {
+	g, err := s.gameRepo.SyncGameScores(ctx, gameID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UpdateGameScoreResponse{
+		GameID:    g.ID,
+		HomeScore: g.HomeTeamScore,
+		AwayScore: g.AwayTeamScore,
+		UpdatedAt: g.UpdatedAt,
+	}, nil
 }
 
 // UpdateSpiritScoreRequest contains spirit score update parameters

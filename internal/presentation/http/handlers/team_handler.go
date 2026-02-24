@@ -27,6 +27,23 @@ type CreateTeamRequest struct {
 	DivisionPoolID uuid.UUID              `json:"divisionPoolId" validate:"required"`
 	HomeLocationID *uuid.UUID             `json:"homeLocationId,omitempty"`
 	LogoURL        *string                `json:"logoUrl,omitempty"`
+	PrimaryColor   *string                `json:"primaryColor,omitempty"`
+	SecondaryColor *string                `json:"secondaryColor,omitempty"`
+	ContactEmail   *string                `json:"contactEmail,omitempty"`
+	ContactPhone   *string                `json:"contactPhone,omitempty"`
+	InitialSeed    *int                   `json:"initialSeed,omitempty"`
+	Metadata       map[string]interface{} `json:"metadata,omitempty"`
+}
+
+type UpdateTeamRequest struct {
+	Name           *string                `json:"name,omitempty"`
+	DivisionPoolID *uuid.UUID             `json:"divisionPoolId,omitempty"`
+	HomeLocationID *uuid.UUID             `json:"homeLocationId,omitempty"`
+	LogoURL        *string                `json:"logoUrl,omitempty"`
+	PrimaryColor   *string                `json:"primaryColor,omitempty"`
+	SecondaryColor *string                `json:"secondaryColor,omitempty"`
+	ContactEmail   *string                `json:"contactEmail,omitempty"`
+	ContactPhone   *string                `json:"contactPhone,omitempty"`
 	InitialSeed    *int                   `json:"initialSeed,omitempty"`
 	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 }
@@ -37,9 +54,24 @@ type CreatePlayerRequest struct {
 	TeamID          uuid.UUID `json:"teamId" validate:"required"`
 	Gender          string    `json:"gender" validate:"required,oneof=M F X"`
 	JerseyNumber    *int      `json:"jerseyNumber,omitempty"`
+	Email           *string   `json:"email,omitempty"`
+	Phone           *string   `json:"phone,omitempty"`
+	Position        *string   `json:"position,omitempty"`
 	ProfileImageURL *string   `json:"profileImageUrl,omitempty"`
 	IsCaptain       bool      `json:"isCaptain"`
 	IsSpiritCaptain bool      `json:"isSpiritCaptain"`
+}
+
+type UpdatePlayerRequest struct {
+	Name            *string `json:"name,omitempty"`
+	Gender          *string `json:"gender,omitempty"`
+	JerseyNumber    *int    `json:"jerseyNumber,omitempty"`
+	Email           *string `json:"email,omitempty"`
+	Phone           *string `json:"phone,omitempty"`
+	Position        *string `json:"position,omitempty"`
+	ProfileImageURL *string `json:"profileImageUrl,omitempty"`
+	IsCaptain       *bool   `json:"isCaptain,omitempty"`
+	IsSpiritCaptain *bool   `json:"isSpiritCaptain,omitempty"`
 }
 
 type TeamHandler struct {
@@ -56,6 +88,9 @@ type PlayerResponse struct {
 	Name            string  `json:"name"`
 	Gender          string  `json:"gender"`
 	JerseyNumber    *int    `json:"jerseyNumber,omitempty"`
+	Email           *string `json:"email,omitempty"`
+	Phone           *string `json:"phone,omitempty"`
+	Position        *string `json:"position,omitempty"`
 	ProfileImageURL *string `json:"profileImageUrl,omitempty"`
 	IsCaptain       bool    `json:"isCaptain"`
 	IsSpiritCaptain bool    `json:"isSpiritCaptain"`
@@ -70,6 +105,10 @@ type TeamResponse struct {
 	InitialSeed    *int                   `json:"initialSeed,omitempty"`
 	FinalPlacement *int                   `json:"finalPlacement,omitempty"`
 	LogoURL        *string                `json:"logoUrl,omitempty"`
+	PrimaryColor   *string                `json:"primaryColor,omitempty"`
+	SecondaryColor *string                `json:"secondaryColor,omitempty"`
+	ContactEmail   *string                `json:"contactEmail,omitempty"`
+	ContactPhone   *string                `json:"contactPhone,omitempty"`
 	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 	DivisionPoolID *string                `json:"divisionPoolId,omitempty"`
 	EventID        *string                `json:"eventId,omitempty"`
@@ -89,6 +128,9 @@ func toPlayerResponse(p *ent.Player) PlayerResponse {
 		Gender:          p.Gender,
 		IsCaptain:       p.IsCaptain,
 		IsSpiritCaptain: p.IsSpiritCaptain,
+		Email:           p.Email,
+		Phone:           p.Phone,
+		Position:        p.Position,
 	}
 	if p.JerseyNumber != nil {
 		resp.JerseyNumber = p.JerseyNumber
@@ -106,9 +148,13 @@ func toPlayerResponse(p *ent.Player) PlayerResponse {
 
 func toTeamResponse(t *ent.Team) TeamResponse {
 	resp := TeamResponse{
-		ID:       t.ID.String(),
-		Name:     t.Name,
-		Metadata: t.Metadata,
+		ID:             t.ID.String(),
+		Name:           t.Name,
+		Metadata:       t.Metadata,
+		PrimaryColor:   t.PrimaryColor,
+		SecondaryColor: t.SecondaryColor,
+		ContactEmail:   t.ContactEmail,
+		ContactPhone:   t.ContactPhone,
 	}
 
 	if t.InitialSeed != nil {
@@ -315,6 +361,18 @@ func (h *TeamHandler) CreateTeam(w http.ResponseWriter, r *http.Request) {
 	if req.Metadata != nil {
 		builder.SetMetadata(req.Metadata)
 	}
+	if req.PrimaryColor != nil {
+		builder.SetNillablePrimaryColor(req.PrimaryColor)
+	}
+	if req.SecondaryColor != nil {
+		builder.SetNillableSecondaryColor(req.SecondaryColor)
+	}
+	if req.ContactEmail != nil {
+		builder.SetNillableContactEmail(req.ContactEmail)
+	}
+	if req.ContactPhone != nil {
+		builder.SetNillableContactPhone(req.ContactPhone)
+	}
 
 	t, err := builder.Save(ctx)
 	if err != nil {
@@ -337,6 +395,58 @@ func (h *TeamHandler) CreateTeam(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondJSON(w, http.StatusCreated, toTeamResponse(tFull))
+}
+
+// UpdateTeam godoc
+func (h *TeamHandler) UpdateTeam(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	teamID, _ := uuid.Parse(chi.URLParam(r, "id"))
+
+	var req UpdateTeamRequest
+	if err := parseJSONBody(r, &req); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	updater := h.client.Team.UpdateOneID(teamID)
+	if req.Name != nil {
+		updater.SetName(*req.Name)
+	}
+	if req.DivisionPoolID != nil {
+		updater.SetDivisionPoolID(*req.DivisionPoolID)
+	}
+	if req.HomeLocationID != nil {
+		updater.SetHomeLocationID(*req.HomeLocationID)
+	}
+	if req.LogoURL != nil {
+		updater.SetLogoURL(*req.LogoURL)
+	}
+	if req.PrimaryColor != nil {
+		updater.SetNillablePrimaryColor(req.PrimaryColor)
+	}
+	if req.SecondaryColor != nil {
+		updater.SetNillableSecondaryColor(req.SecondaryColor)
+	}
+	if req.ContactEmail != nil {
+		updater.SetNillableContactEmail(req.ContactEmail)
+	}
+	if req.ContactPhone != nil {
+		updater.SetNillableContactPhone(req.ContactPhone)
+	}
+	if req.InitialSeed != nil {
+		updater.SetInitialSeed(*req.InitialSeed)
+	}
+	if req.Metadata != nil {
+		updater.SetMetadata(req.Metadata)
+	}
+
+	t, err := updater.Save(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to update team")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, toTeamResponse(t))
 }
 
 // ============================================
@@ -392,6 +502,15 @@ func (h *TeamHandler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 	if req.ProfileImageURL != nil {
 		builder.SetProfileImageURL(*req.ProfileImageURL)
 	}
+	if req.Email != nil {
+		builder.SetNillableEmail(req.Email)
+	}
+	if req.Phone != nil {
+		builder.SetNillablePhone(req.Phone)
+	}
+	if req.Position != nil {
+		builder.SetNillablePosition(req.Position)
+	}
 
 	p, err := builder.Save(ctx)
 	if err != nil {
@@ -400,6 +519,63 @@ func (h *TeamHandler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondJSON(w, http.StatusCreated, toPlayerResponse(p))
+}
+
+// UpdatePlayer godoc
+func (h *TeamHandler) UpdatePlayer(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	playerIDStr := chi.URLParam(r, "playerId")
+	if playerIDStr == "" {
+		playerIDStr = chi.URLParam(r, "id") // Fallback if misrouted
+	}
+	playerID, err := uuid.Parse(playerIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid player ID")
+		return
+	}
+
+	var req UpdatePlayerRequest
+	if err := parseJSONBody(r, &req); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	updater := h.client.Player.UpdateOneID(playerID)
+	if req.Name != nil {
+		updater.SetName(*req.Name)
+	}
+	if req.Gender != nil {
+		updater.SetGender(*req.Gender)
+	}
+	if req.JerseyNumber != nil {
+		updater.SetJerseyNumber(*req.JerseyNumber)
+	}
+	if req.Email != nil {
+		updater.SetNillableEmail(req.Email)
+	}
+	if req.Phone != nil {
+		updater.SetNillablePhone(req.Phone)
+	}
+	if req.Position != nil {
+		updater.SetNillablePosition(req.Position)
+	}
+	if req.ProfileImageURL != nil {
+		updater.SetProfileImageURL(*req.ProfileImageURL)
+	}
+	if req.IsCaptain != nil {
+		updater.SetIsCaptain(*req.IsCaptain)
+	}
+	if req.IsSpiritCaptain != nil {
+		updater.SetIsSpiritCaptain(*req.IsSpiritCaptain)
+	}
+
+	p, err := updater.Save(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to update player")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, toPlayerResponse(p))
 }
 
 // GetPlayer godoc

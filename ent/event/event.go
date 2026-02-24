@@ -47,6 +47,8 @@ const (
 	FieldTeamsCount = "teams_count"
 	// FieldGamesCount holds the string denoting the games_count field in the database.
 	FieldGamesCount = "games_count"
+	// FieldScoreEditApprovalRole holds the string denoting the score_edit_approval_role field in the database.
+	FieldScoreEditApprovalRole = "score_edit_approval_role"
 	// EdgeDiscipline holds the string denoting the discipline edge name in mutations.
 	EdgeDiscipline = "discipline"
 	// EdgeLocation holds the string denoting the location edge name in mutations.
@@ -98,13 +100,11 @@ const (
 	GameRoundsInverseTable = "game_rounds"
 	// GameRoundsColumn is the table column denoting the game_rounds relation/edge.
 	GameRoundsColumn = "event_game_rounds"
-	// ManagedByTable is the table that holds the managed_by relation/edge.
-	ManagedByTable = "users"
+	// ManagedByTable is the table that holds the managed_by relation/edge. The primary key declared below.
+	ManagedByTable = "event_managed_by"
 	// ManagedByInverseTable is the table name for the User entity.
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	ManagedByInverseTable = "users"
-	// ManagedByColumn is the table column denoting the managed_by relation/edge.
-	ManagedByColumn = "event_managed_by"
 	// ParticipationsTable is the table that holds the participations relation/edge.
 	ParticipationsTable = "event_participations"
 	// ParticipationsInverseTable is the table name for the EventParticipation entity.
@@ -133,6 +133,7 @@ var Columns = []string{
 	FieldBannerURL,
 	FieldTeamsCount,
 	FieldGamesCount,
+	FieldScoreEditApprovalRole,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "events"
@@ -141,6 +142,12 @@ var ForeignKeys = []string{
 	"discipline_events",
 	"location_events",
 }
+
+var (
+	// ManagedByPrimaryKey and ManagedByColumn2 are the table columns denoting the
+	// primary key for the managed_by relation (M2M).
+	ManagedByPrimaryKey = []string{"event_id", "user_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -180,6 +187,10 @@ var (
 	DefaultTeamsCount int
 	// DefaultGamesCount holds the default value on creation for the "games_count" field.
 	DefaultGamesCount int
+	// DefaultScoreEditApprovalRole holds the default value on creation for the "score_edit_approval_role" field.
+	DefaultScoreEditApprovalRole string
+	// ScoreEditApprovalRoleValidator is a validator for the "score_edit_approval_role" field. It is called by the builders before save.
+	ScoreEditApprovalRoleValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -260,6 +271,11 @@ func ByTeamsCount(opts ...sql.OrderTermOption) OrderOption {
 // ByGamesCount orders the results by the games_count field.
 func ByGamesCount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldGamesCount, opts...).ToFunc()
+}
+
+// ByScoreEditApprovalRole orders the results by the score_edit_approval_role field.
+func ByScoreEditApprovalRole(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldScoreEditApprovalRole, opts...).ToFunc()
 }
 
 // ByDisciplineField orders the results by discipline field.
@@ -384,7 +400,7 @@ func newManagedByStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ManagedByInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, ManagedByTable, ManagedByColumn),
+		sqlgraph.Edge(sqlgraph.M2M, false, ManagedByTable, ManagedByPrimaryKey...),
 	)
 }
 func newParticipationsStep() *sqlgraph.Step {

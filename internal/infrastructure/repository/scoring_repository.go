@@ -7,6 +7,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/player"
+	"github.com/bengobox/game-stats-api/ent/scoreeditrequest"
 	"github.com/bengobox/game-stats-api/ent/scoring"
 	"github.com/google/uuid"
 )
@@ -75,4 +76,54 @@ func (r *scoringRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return r.client.Scoring.UpdateOneID(id).
 		SetDeletedAt(time.Now()).
 		Exec(ctx)
+}
+
+func (r *scoringRepository) CreateScoreEditRequest(ctx context.Context, req *ent.ScoreEditRequest) (*ent.ScoreEditRequest, error) {
+	return r.client.ScoreEditRequest.Create().
+		SetGameID(req.GameID).
+		SetRequestedByID(req.RequestedByID).
+		SetPreviousHomeScore(req.PreviousHomeScore).
+		SetPreviousAwayScore(req.PreviousAwayScore).
+		SetNewHomeScore(req.NewHomeScore).
+		SetNewAwayScore(req.NewAwayScore).
+		SetReason(req.Reason).
+		SetStatus(req.Status).
+		Save(ctx)
+}
+
+func (r *scoringRepository) GetScoreEditRequestByID(ctx context.Context, id uuid.UUID) (*ent.ScoreEditRequest, error) {
+	return r.client.ScoreEditRequest.Query().
+		Where(scoreeditrequest.ID(id)).
+		WithGame().
+		WithRequestedBy().
+		Only(ctx)
+}
+
+func (r *scoringRepository) ListScoreEditRequests(ctx context.Context, status string) ([]*ent.ScoreEditRequest, error) {
+	query := r.client.ScoreEditRequest.Query().
+		WithGame().
+		WithRequestedBy().
+		Order(ent.Desc(scoreeditrequest.FieldCreatedAt))
+
+	if status != "" {
+		query = query.Where(scoreeditrequest.StatusEQ(status))
+	}
+
+	return query.All(ctx)
+}
+
+func (r *scoringRepository) UpdateScoreEditRequest(ctx context.Context, req *ent.ScoreEditRequest) (*ent.ScoreEditRequest, error) {
+	update := r.client.ScoreEditRequest.UpdateOneID(req.ID).
+		SetStatus(req.Status).
+		SetUpdatedAt(time.Now())
+
+	if req.RejectionReason != "" {
+		update.SetRejectionReason(req.RejectionReason)
+	}
+	if req.ReviewedByID != uuid.Nil {
+		update.SetReviewedByID(req.ReviewedByID)
+		update.SetReviewedAt(time.Now())
+	}
+
+	return update.Save(ctx)
 }

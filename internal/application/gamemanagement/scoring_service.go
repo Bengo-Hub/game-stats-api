@@ -2,6 +2,9 @@ package gamemanagement
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"time"
 
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/google/uuid"
@@ -17,20 +20,57 @@ func (s *Service) RecordScore(ctx context.Context, gameID uuid.UUID, userID uuid
 		return nil, err
 	}
 
-	// Verify scorekeeper
-	if game.Edges.Scorekeeper == nil || game.Edges.Scorekeeper.ID != userID {
-		return nil, ErrUnauthorized
+	// Verify authorization
+	isAuthorized, err := s.permissionService.IsScorekeeperForGame(ctx, userID, gameID)
+	if err != nil {
+		return nil, err
 	}
-
-	// Can only record scores during in-progress or finished games
-	if game.Status != "in_progress" && game.Status != "finished" {
-		return nil, ErrInvalidGameStatus
+	if !isAuthorized {
+		return nil, ErrUnauthorized
 	}
 
 	// Verify player exists
 	player, err := s.playerRepo.GetByID(ctx, req.PlayerID)
 	if err != nil {
 		return nil, err
+	}
+
+	// Check for Score Approval requirement
+	// If game time has elapsed, scorekeeping might need approval
+	gameEndTime := game.ScheduledTime.Add(time.Duration(game.AllocatedTimeMinutes) * time.Minute)
+	if game.ActualEndTime != nil {
+		gameEndTime = *game.ActualEndTime
+	}
+
+	if time.Now().After(gameEndTime) && game.Status != "ended" {
+		// Fetch event to check approval configuration
+		event, err := s.eventRepo.GetByID(ctx, game.Edges.DivisionPool.Edges.Event.ID)
+		if err == nil {
+			// If approval is required, but user is NOT an admin/manager, we should handle this
+			// For now, we allow admins/managers to bypass, and others might be restricted
+			isManager, _ := s.permissionService.CheckPermission(ctx, userID, event.ScoreEditApprovalRole, "event", event.ID)
+			if !isManager {
+				// Calculate proposed new scores based on the request
+				newHomeScore := game.HomeTeamScore
+				newAwayScore := game.AwayTeamScore
+
+				// Create ScoreEditRequest
+				_, err := s.scoringRepo.CreateScoreEditRequest(ctx, &ent.ScoreEditRequest{
+					GameID:            gameID,
+					RequestedByID:     userID,
+					PreviousHomeScore: game.HomeTeamScore,
+					PreviousAwayScore: game.AwayTeamScore,
+					NewHomeScore:      newHomeScore, // This is a bit tricky for incremental updates
+					NewAwayScore:      newAwayScore,
+					Reason:            fmt.Sprintf("Post-game score adjustment: Player %s goals set to %d", player.Name, req.Goals),
+					Status:            "pending",
+				})
+				if err != nil {
+					return nil, err
+				}
+				return nil, errors.New("score edit requires approval after game time has elapsed")
+			}
+		}
 	}
 
 	// Check if scoring record exists for this player in this game
@@ -77,25 +117,10 @@ func (s *Service) RecordScore(ctx context.Context, gameID uuid.UUID, userID uuid
 		}
 	}
 
-	// Recalculate game totals
-	updatedScores, err := s.scoringRepo.ListByGame(ctx, gameID)
+	// Recalculate game totals using shared domain service
+	homeScore, awayScore, err := s.scoreDomainService.RecalculateTotals(ctx, gameID, game.Edges.HomeTeam.ID, game.Edges.AwayTeam.ID)
 	if err != nil {
 		return nil, err
-	}
-
-	homeScore := 0
-	awayScore := 0
-
-	for _, score := range updatedScores {
-		// Determine team from player's team association
-		if score.Edges.Player != nil && score.Edges.Player.Edges.Team != nil {
-			playerTeamID := score.Edges.Player.Edges.Team.ID
-			if game.Edges.HomeTeam != nil && playerTeamID == game.Edges.HomeTeam.ID {
-				homeScore += score.Goals
-			} else if game.Edges.AwayTeam != nil && playerTeamID == game.Edges.AwayTeam.ID {
-				awayScore += score.Goals
-			}
-		}
 	}
 
 	// Update game scores with optimistic locking

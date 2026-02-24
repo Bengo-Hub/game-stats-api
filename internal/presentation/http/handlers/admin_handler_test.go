@@ -87,6 +87,14 @@ func (m *MockGameRepository) CheckFieldConflict(ctx context.Context, fieldID uui
 	return false, nil
 }
 
+func (m *MockGameRepository) SyncGameScores(ctx context.Context, id uuid.UUID) (*ent.Game, error) {
+	args := m.Called(ctx, id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*ent.Game), args.Error(1)
+}
+
 func (m *MockGameRepository) List(ctx context.Context, limit, offset int) ([]*ent.Game, error) {
 	return nil, nil
 }

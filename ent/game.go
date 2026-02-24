@@ -86,9 +86,11 @@ type GameEdges struct {
 	GameEvents []*GameEvent `json:"game_events,omitempty"`
 	// SpiritScores holds the value of the spirit_scores edge.
 	SpiritScores []*SpiritScore `json:"spirit_scores,omitempty"`
+	// ScoreEditRequests holds the value of the score_edit_requests edge.
+	ScoreEditRequests []*ScoreEditRequest `json:"score_edit_requests,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [9]bool
+	loadedTypes [10]bool
 }
 
 // GameRoundOrErr returns the GameRound value or an error if the edge
@@ -182,6 +184,15 @@ func (e GameEdges) SpiritScoresOrErr() ([]*SpiritScore, error) {
 		return e.SpiritScores, nil
 	}
 	return nil, &NotLoadedError{edge: "spirit_scores"}
+}
+
+// ScoreEditRequestsOrErr returns the ScoreEditRequests value or an error if the edge
+// was not loaded in eager-loading.
+func (e GameEdges) ScoreEditRequestsOrErr() ([]*ScoreEditRequest, error) {
+	if e.loadedTypes[9] {
+		return e.ScoreEditRequests, nil
+	}
+	return nil, &NotLoadedError{edge: "score_edit_requests"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -426,6 +437,11 @@ func (_m *Game) QueryGameEvents() *GameEventQuery {
 // QuerySpiritScores queries the "spirit_scores" edge of the Game entity.
 func (_m *Game) QuerySpiritScores() *SpiritScoreQuery {
 	return NewGameClient(_m.config).QuerySpiritScores(_m)
+}
+
+// QueryScoreEditRequests queries the "score_edit_requests" edge of the Game entity.
+func (_m *Game) QueryScoreEditRequests() *ScoreEditRequestQuery {
+	return NewGameClient(_m.config).QueryScoreEditRequests(_m)
 }
 
 // Update returns a builder for updating this Game.

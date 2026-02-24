@@ -286,6 +286,20 @@ func (_u *EventUpdate) AddGamesCount(v int) *EventUpdate {
 	return _u
 }
 
+// SetScoreEditApprovalRole sets the "score_edit_approval_role" field.
+func (_u *EventUpdate) SetScoreEditApprovalRole(v string) *EventUpdate {
+	_u.mutation.SetScoreEditApprovalRole(v)
+	return _u
+}
+
+// SetNillableScoreEditApprovalRole sets the "score_edit_approval_role" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableScoreEditApprovalRole(v *string) *EventUpdate {
+	if v != nil {
+		_u.SetScoreEditApprovalRole(*v)
+	}
+	return _u
+}
+
 // SetDisciplineID sets the "discipline" edge to the Discipline entity by ID.
 func (_u *EventUpdate) SetDisciplineID(id uuid.UUID) *EventUpdate {
 	_u.mutation.SetDisciplineID(id)
@@ -568,6 +582,11 @@ func (_u *EventUpdate) check() error {
 			return &ValidationError{Name: "banner_url", err: fmt.Errorf(`ent: validator failed for field "Event.banner_url": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.ScoreEditApprovalRole(); ok {
+		if err := event.ScoreEditApprovalRoleValidator(v); err != nil {
+			return &ValidationError{Name: "score_edit_approval_role", err: fmt.Errorf(`ent: validator failed for field "Event.score_edit_approval_role": %w`, err)}
+		}
+	}
 	if _u.mutation.DisciplineCleared() && len(_u.mutation.DisciplineIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Event.discipline"`)
 	}
@@ -665,6 +684,9 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AddedGamesCount(); ok {
 		_spec.AddField(event.FieldGamesCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.ScoreEditApprovalRole(); ok {
+		_spec.SetField(event.FieldScoreEditApprovalRole, field.TypeString, value)
 	}
 	if _u.mutation.DisciplineCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -861,10 +883,10 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.ManagedByCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.ManagedByTable,
-			Columns: []string{event.ManagedByColumn},
+			Columns: event.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -874,10 +896,10 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.RemovedManagedByIDs(); len(nodes) > 0 && !_u.mutation.ManagedByCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.ManagedByTable,
-			Columns: []string{event.ManagedByColumn},
+			Columns: event.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -890,10 +912,10 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.ManagedByIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.ManagedByTable,
-			Columns: []string{event.ManagedByColumn},
+			Columns: event.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -1218,6 +1240,20 @@ func (_u *EventUpdateOne) AddGamesCount(v int) *EventUpdateOne {
 	return _u
 }
 
+// SetScoreEditApprovalRole sets the "score_edit_approval_role" field.
+func (_u *EventUpdateOne) SetScoreEditApprovalRole(v string) *EventUpdateOne {
+	_u.mutation.SetScoreEditApprovalRole(v)
+	return _u
+}
+
+// SetNillableScoreEditApprovalRole sets the "score_edit_approval_role" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableScoreEditApprovalRole(v *string) *EventUpdateOne {
+	if v != nil {
+		_u.SetScoreEditApprovalRole(*v)
+	}
+	return _u
+}
+
 // SetDisciplineID sets the "discipline" edge to the Discipline entity by ID.
 func (_u *EventUpdateOne) SetDisciplineID(id uuid.UUID) *EventUpdateOne {
 	_u.mutation.SetDisciplineID(id)
@@ -1513,6 +1549,11 @@ func (_u *EventUpdateOne) check() error {
 			return &ValidationError{Name: "banner_url", err: fmt.Errorf(`ent: validator failed for field "Event.banner_url": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.ScoreEditApprovalRole(); ok {
+		if err := event.ScoreEditApprovalRoleValidator(v); err != nil {
+			return &ValidationError{Name: "score_edit_approval_role", err: fmt.Errorf(`ent: validator failed for field "Event.score_edit_approval_role": %w`, err)}
+		}
+	}
 	if _u.mutation.DisciplineCleared() && len(_u.mutation.DisciplineIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Event.discipline"`)
 	}
@@ -1627,6 +1668,9 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if value, ok := _u.mutation.AddedGamesCount(); ok {
 		_spec.AddField(event.FieldGamesCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.ScoreEditApprovalRole(); ok {
+		_spec.SetField(event.FieldScoreEditApprovalRole, field.TypeString, value)
 	}
 	if _u.mutation.DisciplineCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1823,10 +1867,10 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if _u.mutation.ManagedByCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.ManagedByTable,
-			Columns: []string{event.ManagedByColumn},
+			Columns: event.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -1836,10 +1880,10 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if nodes := _u.mutation.RemovedManagedByIDs(); len(nodes) > 0 && !_u.mutation.ManagedByCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.ManagedByTable,
-			Columns: []string{event.ManagedByColumn},
+			Columns: event.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -1852,10 +1896,10 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if nodes := _u.mutation.ManagedByIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.ManagedByTable,
-			Columns: []string{event.ManagedByColumn},
+			Columns: event.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),

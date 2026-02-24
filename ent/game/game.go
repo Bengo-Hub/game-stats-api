@@ -63,6 +63,8 @@ const (
 	EdgeGameEvents = "game_events"
 	// EdgeSpiritScores holds the string denoting the spirit_scores edge name in mutations.
 	EdgeSpiritScores = "spirit_scores"
+	// EdgeScoreEditRequests holds the string denoting the score_edit_requests edge name in mutations.
+	EdgeScoreEditRequests = "score_edit_requests"
 	// Table holds the table name of the game in the database.
 	Table = "games"
 	// GameRoundTable is the table that holds the game_round relation/edge.
@@ -128,6 +130,13 @@ const (
 	SpiritScoresInverseTable = "spirit_scores"
 	// SpiritScoresColumn is the table column denoting the spirit_scores relation/edge.
 	SpiritScoresColumn = "game_spirit_scores"
+	// ScoreEditRequestsTable is the table that holds the score_edit_requests relation/edge.
+	ScoreEditRequestsTable = "score_edit_requests"
+	// ScoreEditRequestsInverseTable is the table name for the ScoreEditRequest entity.
+	// It exists in this package in order to avoid circular dependency with the "scoreeditrequest" package.
+	ScoreEditRequestsInverseTable = "score_edit_requests"
+	// ScoreEditRequestsColumn is the table column denoting the score_edit_requests relation/edge.
+	ScoreEditRequestsColumn = "game_id"
 )
 
 // Columns holds all SQL columns for game fields.
@@ -362,6 +371,20 @@ func BySpiritScores(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newSpiritScoresStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByScoreEditRequestsCount orders the results by score_edit_requests count.
+func ByScoreEditRequestsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newScoreEditRequestsStep(), opts...)
+	}
+}
+
+// ByScoreEditRequests orders the results by score_edit_requests terms.
+func ByScoreEditRequests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newScoreEditRequestsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newGameRoundStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -423,5 +446,12 @@ func newSpiritScoresStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SpiritScoresInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, SpiritScoresTable, SpiritScoresColumn),
+	)
+}
+func newScoreEditRequestsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ScoreEditRequestsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ScoreEditRequestsTable, ScoreEditRequestsColumn),
 	)
 }

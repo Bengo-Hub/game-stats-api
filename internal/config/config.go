@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"strings"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -31,6 +32,10 @@ type Config struct {
 	// Media
 	UploadsDir string
 	ApiBaseURL string
+
+	// JWT Expiry
+	JWTAccessTokenExpiry  time.Duration
+	JWTRefreshTokenExpiry time.Duration
 }
 
 func Load() *Config {
@@ -50,6 +55,8 @@ func Load() *Config {
 	viper.SetDefault("SWAGGER_HOST", "localhost:4000")
 	viper.SetDefault("UPLOADS_DIR", "./uploads")
 	viper.SetDefault("API_BASE_URL", "http://localhost:4000")
+	viper.SetDefault("JWT_ACCESS_TOKEN_EXPIRY", "24h")
+	viper.SetDefault("JWT_REFRESH_TOKEN_EXPIRY", "168h")
 
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
@@ -79,6 +86,9 @@ func Load() *Config {
 
 		UploadsDir: viper.GetString("UPLOADS_DIR"),
 		ApiBaseURL: viper.GetString("API_BASE_URL"),
+
+		JWTAccessTokenExpiry:  viper.GetDuration("JWT_ACCESS_TOKEN_EXPIRY"),
+		JWTRefreshTokenExpiry: viper.GetDuration("JWT_REFRESH_TOKEN_EXPIRY"),
 	}
 }
 

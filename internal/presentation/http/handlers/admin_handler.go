@@ -56,16 +56,25 @@ func (h *AdminHandler) UpdateGameScore(w http.ResponseWriter, r *http.Request) {
 	userID, _ := ctx.Value("user_id").(uuid.UUID)
 	username, _ := ctx.Value("username").(string)
 
+	playerScores := make([]admin.PlayerScore, len(dto.PlayerScores))
+	for i, ps := range dto.PlayerScores {
+		playerScores[i] = admin.PlayerScore{
+			PlayerID: ps.PlayerID,
+			Goals:    ps.Goals,
+		}
+	}
+
 	// Build service request
 	request := admin.UpdateGameScoreRequest{
-		GameID:      gameID,
-		HomeScore:   dto.HomeScore,
-		AwayScore:   dto.AwayScore,
-		Reason:      dto.Reason,
-		AdminUserID: userID,
-		AdminName:   username,
-		IPAddress:   r.RemoteAddr,
-		UserAgent:   r.UserAgent(),
+		GameID:       gameID,
+		HomeScore:    dto.HomeScore,
+		AwayScore:    dto.AwayScore,
+		Reason:       dto.Reason,
+		PlayerScores: playerScores,
+		AdminUserID:  userID,
+		AdminName:    username,
+		IPAddress:    r.RemoteAddr,
+		UserAgent:    r.UserAgent(),
 	}
 
 	response, err := h.scoreAdminService.UpdateGameScore(ctx, request)
@@ -109,6 +118,59 @@ func (h *AdminHandler) GetGameAuditHistory(w http.ResponseWriter, r *http.Reques
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(logs)
+}
+
+// GetScoreEdits godoc
+// @Summary Get all score edits (Admin only)
+// @Description Retrieves all historical score edits across all games
+// @Tags admin
+// @Produce json
+// @Success 200 {array} AuditLogDTO
+// @Failure 500 {object} ErrorResponse
+// @Router /admin/score-edits [get]
+// @Security BearerAuth
+func (h *AdminHandler) GetScoreEdits(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	logs, err := h.scoreAdminService.GetScoreEdits(ctx)
+	if err != nil {
+		http.Error(w, "Failed to get score edits: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(logs)
+}
+
+// SyncGameScores godoc
+// @Summary Sync game scores from player goals (Admin only)
+// @Description Re-calculates game scores by summing individual player goals
+// @Tags admin
+// @Produce json
+// @Param id path string true "Game ID" format(uuid)
+// @Success 200 {object} admin.UpdateGameScoreResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /admin/games/{id}/sync [post]
+// @Security BearerAuth
+func (h *AdminHandler) SyncGameScores(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	gameIDStr := chi.URLParam(r, "id")
+	gameID, err := uuid.Parse(gameIDStr)
+	if err != nil {
+		http.Error(w, "Invalid game ID", http.StatusBadRequest)
+		return
+	}
+
+	response, err := h.scoreAdminService.SyncGameScores(ctx, gameID)
+	if err != nil {
+		http.Error(w, "Failed to sync game scores: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
 
 // UpdateSpiritScore godoc
@@ -173,11 +235,18 @@ func (h *AdminHandler) UpdateSpiritScore(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(response)
 }
 
+// PlayerScoreDTO is the DTO for individual player score adjustments
+type PlayerScoreDTO struct {
+	PlayerID uuid.UUID `json:"player_id"`
+	Goals    int       `json:"goals"`
+}
+
 // UpdateGameScoreRequestDTO is the DTO for game score updates
 type UpdateGameScoreRequestDTO struct {
-	HomeScore int    `json:"home_score" validate:"min=0"`
-	AwayScore int    `json:"away_score" validate:"min=0"`
-	Reason    string `json:"reason" validate:"required,min=10"`
+	HomeScore    int              `json:"home_score" validate:"min=0"`
+	AwayScore    int              `json:"away_score" validate:"min=0"`
+	Reason       string           `json:"reason" validate:"required,min=10"`
+	PlayerScores []PlayerScoreDTO `json:"player_scores,omitempty"`
 }
 
 // UpdateSpiritScoreRequestDTO is the DTO for spirit score updates

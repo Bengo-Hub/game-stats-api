@@ -53,6 +53,8 @@ type Event struct {
 	TeamsCount int `json:"teams_count,omitempty"`
 	// Denormalized count of games for efficient queries
 	GamesCount int `json:"games_count,omitempty"`
+	// Role required to approve score edits after game time elapses: event_manager, game_admin
+	ScoreEditApprovalRole string `json:"score_edit_approval_role,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the EventQuery when eager-loading is set.
 	Edges             EventEdges `json:"edges"`
@@ -158,7 +160,7 @@ func (*Event) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case event.FieldYear, event.FieldTeamsCount, event.FieldGamesCount:
 			values[i] = new(sql.NullInt64)
-		case event.FieldName, event.FieldSlug, event.FieldStatus, event.FieldDescription, event.FieldLogoURL, event.FieldBannerURL:
+		case event.FieldName, event.FieldSlug, event.FieldStatus, event.FieldDescription, event.FieldLogoURL, event.FieldBannerURL, event.FieldScoreEditApprovalRole:
 			values[i] = new(sql.NullString)
 		case event.FieldCreatedAt, event.FieldUpdatedAt, event.FieldDeletedAt, event.FieldStartDate, event.FieldEndDate:
 			values[i] = new(sql.NullTime)
@@ -292,6 +294,12 @@ func (_m *Event) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field games_count", values[i])
 			} else if value.Valid {
 				_m.GamesCount = int(value.Int64)
+			}
+		case event.FieldScoreEditApprovalRole:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field score_edit_approval_role", values[i])
+			} else if value.Valid {
+				_m.ScoreEditApprovalRole = value.String
 			}
 		case event.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -433,6 +441,9 @@ func (_m *Event) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("games_count=")
 	builder.WriteString(fmt.Sprintf("%v", _m.GamesCount))
+	builder.WriteString(", ")
+	builder.WriteString("score_edit_approval_role=")
+	builder.WriteString(_m.ScoreEditApprovalRole)
 	builder.WriteByte(')')
 	return builder.String()
 }

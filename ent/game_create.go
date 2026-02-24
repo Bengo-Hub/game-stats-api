@@ -15,6 +15,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/gameevent"
 	"github.com/bengobox/game-stats-api/ent/gameround"
+	"github.com/bengobox/game-stats-api/ent/scoreeditrequest"
 	"github.com/bengobox/game-stats-api/ent/scoring"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
 	"github.com/bengobox/game-stats-api/ent/team"
@@ -346,6 +347,21 @@ func (_c *GameCreate) AddSpiritScores(v ...*SpiritScore) *GameCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddSpiritScoreIDs(ids...)
+}
+
+// AddScoreEditRequestIDs adds the "score_edit_requests" edge to the ScoreEditRequest entity by IDs.
+func (_c *GameCreate) AddScoreEditRequestIDs(ids ...uuid.UUID) *GameCreate {
+	_c.mutation.AddScoreEditRequestIDs(ids...)
+	return _c
+}
+
+// AddScoreEditRequests adds the "score_edit_requests" edges to the ScoreEditRequest entity.
+func (_c *GameCreate) AddScoreEditRequests(v ...*ScoreEditRequest) *GameCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddScoreEditRequestIDs(ids...)
 }
 
 // Mutation returns the GameMutation object of the builder.
@@ -709,6 +725,22 @@ func (_c *GameCreate) createSpec() (*Game, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(spiritscore.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ScoreEditRequestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   game.ScoreEditRequestsTable,
+			Columns: []string{game.ScoreEditRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scoreeditrequest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

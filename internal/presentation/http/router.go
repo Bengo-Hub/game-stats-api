@@ -104,7 +104,7 @@ func NewRouter(opts RouterOptions) chi.Router {
 				r.Get("/events/{id}", opts.EventHandler.GetEvent)
 				r.Get("/events/{event_id}/rounds", opts.GameRoundHandler.ListGameRounds)
 				r.Get("/events/{id}/bracket", opts.BracketHandler.GetEventBracket)
-				r.Get("/events/{id}/standings", opts.RankingHandler.GetDivisionStandings)
+				r.Get("/events/{id}/standings", opts.RankingHandler.GetEventStandings)
 				r.Get("/events/{id}/crew", opts.EventHandler.GetEventCrew)
 
 				// Live games - view games in progress
@@ -220,20 +220,19 @@ func NewRouter(opts RouterOptions) chi.Router {
 			})
 
 			r.Route("/teams", func(r chi.Router) {
-				// Read operations
-				r.Group(func(r chi.Router) {
-					r.Use(middleware.RequirePermission(middleware.PermViewTeams))
-					r.Get("/", opts.TeamHandler.ListTeams)
-					r.Get("/{id}", opts.TeamHandler.GetTeam)
-					r.Get("/{id}/spirit-average", opts.SpiritScoreHandler.GetTeamSpiritAverage)
-				})
+				r.With(middleware.RequirePermission(middleware.PermViewTeams)).Get("/", opts.TeamHandler.ListTeams)
+				r.With(middleware.RequirePermission(middleware.PermManageTeams)).Post("/", opts.TeamHandler.CreateTeam)
 
-				// Manage operations
-				r.Group(func(r chi.Router) {
-					r.Use(middleware.RequirePermission(middleware.PermManageTeams)) // Assuming this permission exists, falling back to AdminOnly if not configured correctly in middleware
-					r.Post("/", opts.TeamHandler.CreateTeam)
-					r.Post("/{id}/players", opts.TeamHandler.CreatePlayer)
-					r.Post("/{id}/players/upload", opts.TeamHandler.BulkImportPlayers)
+				r.Route("/{id}", func(r chi.Router) {
+					r.With(middleware.RequirePermission(middleware.PermViewTeams)).Get("/", opts.TeamHandler.GetTeam)
+					r.With(middleware.RequirePermission(middleware.PermManageTeams)).Put("/", opts.TeamHandler.UpdateTeam)
+					r.With(middleware.RequirePermission(middleware.PermViewTeams)).Get("/spirit-average", opts.SpiritScoreHandler.GetTeamSpiritAverage)
+
+					r.Route("/players", func(r chi.Router) {
+						r.With(middleware.RequirePermission(middleware.PermManageTeams)).Post("/", opts.TeamHandler.CreatePlayer)
+						r.With(middleware.RequirePermission(middleware.PermManageTeams)).Put("/{playerId}", opts.TeamHandler.UpdatePlayer)
+						r.With(middleware.RequirePermission(middleware.PermManageTeams)).Post("/upload", opts.TeamHandler.BulkImportPlayers)
+					})
 				})
 			})
 
@@ -285,21 +284,40 @@ func NewRouter(opts RouterOptions) chi.Router {
 			r.Group(func(r chi.Router) {
 				r.Use(middleware.AdminOnly)
 
-				// Admin game management
+				// Admin-only operations
 				r.Route("/admin", func(r chi.Router) {
-					// Game score updates
-					r.Put("/games/{id}/score", opts.AdminHandler.UpdateGameScore)
-					r.Get("/games/{id}/audit", opts.AdminHandler.GetGameAuditHistory)
+					r.Use(middleware.AdminOnly)
 
-					// Spirit score updates
-					r.Put("/spirit-scores/{id}", opts.AdminHandler.UpdateSpiritScore)
+					r.Route("/games", func(r chi.Router) {
+						r.Put("/{id}/score", opts.AdminHandler.UpdateGameScore)
+						r.Post("/{id}/sync", opts.AdminHandler.SyncGameScores)
+						r.Get("/{id}/audit", opts.AdminHandler.GetGameAuditHistory)
+					})
 
-					// User management
-					r.Get("/users", opts.AdminUsersHandler.ListUsers)
-					r.Post("/users", opts.AdminUsersHandler.CreateUser)
-					r.Get("/users/{id}", opts.AdminUsersHandler.GetUser)
-					r.Put("/users/{id}", opts.AdminUsersHandler.UpdateUser)
-					r.Delete("/users/{id}", opts.AdminUsersHandler.DeleteUser)
+					r.Get("/score-edits", opts.AdminHandler.GetScoreEdits)
+
+					r.Route("/users", func(r chi.Router) {
+						r.Get("/", opts.AdminUsersHandler.ListUsers)
+						r.Post("/", opts.AdminUsersHandler.CreateUser)
+						r.Get("/{id}", opts.AdminUsersHandler.GetUser)
+						r.Put("/{id}", opts.AdminUsersHandler.UpdateUser)
+						r.Delete("/{id}", opts.AdminUsersHandler.DeleteUser)
+						r.Put("/{id}/role", opts.AdminUsersHandler.UpdateUserRole)
+						r.Post("/roles/scoped", opts.AdminUsersHandler.AssignScopedRole)
+						r.Get("/{id}/roles/scoped", opts.AdminUsersHandler.ListUserScopedRoles)
+					})
+
+					r.Route("/spirit-scores", func(r chi.Router) {
+						r.Put("/{id}", opts.AdminHandler.UpdateSpiritScore)
+					})
+
+					// Score corrections
+					r.Get("/score-edits", opts.AdminHandler.GetScoreEdits)
+					r.Route("/games/{id}", func(r chi.Router) {
+						r.Put("/score", opts.AdminHandler.UpdateGameScore)
+						r.Get("/audit", opts.AdminHandler.GetGameAuditHistory)
+						r.Post("/sync", opts.AdminHandler.SyncGameScores)
+					})
 
 					// Audit logs
 					r.Get("/audit-logs", opts.AdminUsersHandler.GetAuditLogs)

@@ -83,5 +83,6 @@ func (Game) Edges() []ent.Edge {
 		edge.To("scores", Scoring.Type),
 		edge.To("game_events", GameEvent.Type),
 		edge.To("spirit_scores", SpiritScore.Type),
+		edge.To("score_edit_requests", ScoreEditRequest.Type),
 	}
 }

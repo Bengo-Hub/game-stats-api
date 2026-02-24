@@ -35,6 +35,14 @@ type Team struct {
 	FinalPlacement *int `json:"final_placement,omitempty"`
 	// LogoURL holds the value of the "logo_url" field.
 	LogoURL *string `json:"logo_url,omitempty"`
+	// PrimaryColor holds the value of the "primary_color" field.
+	PrimaryColor *string `json:"primary_color,omitempty"`
+	// SecondaryColor holds the value of the "secondary_color" field.
+	SecondaryColor *string `json:"secondary_color,omitempty"`
+	// ContactEmail holds the value of the "contact_email" field.
+	ContactEmail *string `json:"contact_email,omitempty"`
+	// ContactPhone holds the value of the "contact_phone" field.
+	ContactPhone *string `json:"contact_phone,omitempty"`
 	// Metadata holds the value of the "metadata" field.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -164,7 +172,7 @@ func (*Team) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case team.FieldInitialSeed, team.FieldFinalPlacement:
 			values[i] = new(sql.NullInt64)
-		case team.FieldName, team.FieldLogoURL:
+		case team.FieldName, team.FieldLogoURL, team.FieldPrimaryColor, team.FieldSecondaryColor, team.FieldContactEmail, team.FieldContactPhone:
 			values[i] = new(sql.NullString)
 		case team.FieldCreatedAt, team.FieldUpdatedAt, team.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -240,6 +248,34 @@ func (_m *Team) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.LogoURL = new(string)
 				*_m.LogoURL = value.String
+			}
+		case team.FieldPrimaryColor:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field primary_color", values[i])
+			} else if value.Valid {
+				_m.PrimaryColor = new(string)
+				*_m.PrimaryColor = value.String
+			}
+		case team.FieldSecondaryColor:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field secondary_color", values[i])
+			} else if value.Valid {
+				_m.SecondaryColor = new(string)
+				*_m.SecondaryColor = value.String
+			}
+		case team.FieldContactEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field contact_email", values[i])
+			} else if value.Valid {
+				_m.ContactEmail = new(string)
+				*_m.ContactEmail = value.String
+			}
+		case team.FieldContactPhone:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field contact_phone", values[i])
+			} else if value.Valid {
+				_m.ContactPhone = new(string)
+				*_m.ContactPhone = value.String
 			}
 		case team.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -370,6 +406,26 @@ func (_m *Team) String() string {
 	builder.WriteString(", ")
 	if v := _m.LogoURL; v != nil {
 		builder.WriteString("logo_url=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.PrimaryColor; v != nil {
+		builder.WriteString("primary_color=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.SecondaryColor; v != nil {
+		builder.WriteString("secondary_color=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.ContactEmail; v != nil {
+		builder.WriteString("contact_email=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.ContactPhone; v != nil {
+		builder.WriteString("contact_phone=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")

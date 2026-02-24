@@ -29,6 +29,14 @@ const (
 	FieldFinalPlacement = "final_placement"
 	// FieldLogoURL holds the string denoting the logo_url field in the database.
 	FieldLogoURL = "logo_url"
+	// FieldPrimaryColor holds the string denoting the primary_color field in the database.
+	FieldPrimaryColor = "primary_color"
+	// FieldSecondaryColor holds the string denoting the secondary_color field in the database.
+	FieldSecondaryColor = "secondary_color"
+	// FieldContactEmail holds the string denoting the contact_email field in the database.
+	FieldContactEmail = "contact_email"
+	// FieldContactPhone holds the string denoting the contact_phone field in the database.
+	FieldContactPhone = "contact_phone"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
 	// EdgeDivisionPool holds the string denoting the division_pool edge name in mutations.
@@ -72,13 +80,11 @@ const (
 	PlayersInverseTable = "players"
 	// PlayersColumn is the table column denoting the players relation/edge.
 	PlayersColumn = "team_players"
-	// ManagedByTable is the table that holds the managed_by relation/edge.
-	ManagedByTable = "users"
+	// ManagedByTable is the table that holds the managed_by relation/edge. The primary key declared below.
+	ManagedByTable = "team_managed_by"
 	// ManagedByInverseTable is the table name for the User entity.
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	ManagedByInverseTable = "users"
-	// ManagedByColumn is the table column denoting the managed_by relation/edge.
-	ManagedByColumn = "team_managed_by"
 	// HomeGamesTable is the table that holds the home_games relation/edge.
 	HomeGamesTable = "games"
 	// HomeGamesInverseTable is the table name for the Game entity.
@@ -126,6 +132,10 @@ var Columns = []string{
 	FieldInitialSeed,
 	FieldFinalPlacement,
 	FieldLogoURL,
+	FieldPrimaryColor,
+	FieldSecondaryColor,
+	FieldContactEmail,
+	FieldContactPhone,
 	FieldMetadata,
 }
 
@@ -135,6 +145,12 @@ var ForeignKeys = []string{
 	"division_pool_teams",
 	"location_teams",
 }
+
+var (
+	// ManagedByPrimaryKey and ManagedByColumn2 are the table columns denoting the
+	// primary key for the managed_by relation (M2M).
+	ManagedByPrimaryKey = []string{"team_id", "user_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -205,6 +221,26 @@ func ByFinalPlacement(opts ...sql.OrderTermOption) OrderOption {
 // ByLogoURL orders the results by the logo_url field.
 func ByLogoURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLogoURL, opts...).ToFunc()
+}
+
+// ByPrimaryColor orders the results by the primary_color field.
+func ByPrimaryColor(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPrimaryColor, opts...).ToFunc()
+}
+
+// BySecondaryColor orders the results by the secondary_color field.
+func BySecondaryColor(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSecondaryColor, opts...).ToFunc()
+}
+
+// ByContactEmail orders the results by the contact_email field.
+func ByContactEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldContactEmail, opts...).ToFunc()
+}
+
+// ByContactPhone orders the results by the contact_phone field.
+func ByContactPhone(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldContactPhone, opts...).ToFunc()
 }
 
 // ByDivisionPoolField orders the results by division_pool field.
@@ -343,7 +379,7 @@ func newManagedByStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ManagedByInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, ManagedByTable, ManagedByColumn),
+		sqlgraph.Edge(sqlgraph.M2M, false, ManagedByTable, ManagedByPrimaryKey...),
 	)
 }
 func newHomeGamesStep() *sqlgraph.Step {

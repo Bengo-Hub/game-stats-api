@@ -20,6 +20,7 @@ import (
 	"github.com/bengobox/game-stats-api/internal/application/ranking"
 	"github.com/bengobox/game-stats-api/internal/application/sse"
 	"github.com/bengobox/game-stats-api/internal/config"
+	authDomain "github.com/bengobox/game-stats-api/internal/domain/auth"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/cache"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/database"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/migration"
@@ -144,6 +145,7 @@ func main() {
 		divisionRepo,
 		gameRepo,
 		teamRepo,
+		eventRepo,
 		gameRoundRepo,
 		redisClient,
 	)
@@ -159,6 +161,9 @@ func main() {
 
 	// Cross-link services if needed
 	rankingService.SetBracketService(bracketService)
+
+	// Initialize permission service for scoped RBAC
+	permissionService := authDomain.NewPermissionService(client)
 
 	// 5. Initialize application services
 	authService := auth.NewService(userRepo, cfg)
@@ -178,6 +183,7 @@ func main() {
 		userRepo,
 		eventRepo,
 		participationRepo,
+		permissionService,
 		rankingService,
 	)
 
@@ -204,7 +210,7 @@ func main() {
 	auditRepo := repository.NewInMemoryAuditRepository()
 
 	// Initialize admin service
-	adminService := admin.NewScoreAdminService(gameRepo, spiritScoreRepo, auditRepo, redisClient)
+	adminService := admin.NewScoreAdminService(gameRepo, spiritScoreRepo, scoringRepo, auditRepo, redisClient)
 
 	// 6. Initialize HTTP handlers
 	authHandler := handlers.NewAuthHandler(authService, cfg.JWTSecret)

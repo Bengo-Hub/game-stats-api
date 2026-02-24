@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bengobox/game-stats-api/ent"
+	"github.com/bengobox/game-stats-api/ent/scopedrole"
 	"github.com/bengobox/game-stats-api/internal/domain/user"
 	"github.com/bengobox/game-stats-api/internal/pkg/auth"
 	"github.com/bengobox/game-stats-api/internal/presentation/http/middleware"
@@ -286,6 +287,50 @@ func (h *AdminUsersHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// UpdateUserRole godoc
+func (h *AdminUsersHandler) UpdateUserRole(w http.ResponseWriter, r *http.Request) {
+	userID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid user ID")
+		return
+	}
+
+	var dto struct {
+		Role string `json:"role"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	// Validate role
+	validRoles := map[string]bool{"admin": true, "scorekeeper": true, "viewer": true, "event_manager": true}
+	if !validRoles[dto.Role] {
+		respondError(w, http.StatusBadRequest, "Invalid role")
+		return
+	}
+
+	// Fetch existing user
+	u, err := h.userRepo.GetByID(r.Context(), userID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			respondError(w, http.StatusNotFound, "User not found")
+			return
+		}
+		respondError(w, http.StatusInternalServerError, "Failed to fetch user")
+		return
+	}
+
+	u.Role = dto.Role
+	updated, err := h.userRepo.Update(r.Context(), u)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to update user role")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, mapEntUserToAdminDTO(updated))
+}
+
 // GetAuditLogs godoc
 // @Summary Get audit logs (Admin only)
 // @Description Get all audit log entries, newest first
@@ -363,4 +408,74 @@ func (h *AdminUsersHandler) GetSystemHealth(w http.ResponseWriter, r *http.Reque
 	}
 
 	respondJSON(w, http.StatusOK, health)
+}
+
+// AssignScopedRoleRequestDTO is the DTO for assigning a scoped role
+type AssignScopedRoleRequestDTO struct {
+	UserID    uuid.UUID `json:"userId"`
+	Role      string    `json:"role"`
+	ScopeType string    `json:"scopeType"`
+	ScopeID   uuid.UUID `json:"scopeId"`
+}
+
+// AssignScopedRole godoc
+// @Summary Assign a scoped role to a user (Admin only)
+// @Description Assigns a role (scorekeeper, manager, etc) tied to a specific scope (event, game)
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param body body AssignScopedRoleRequestDTO true "Role assignment request"
+// @Success 201 {object} ent.ScopedRole
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /admin/users/roles/scoped [post]
+// @Security BearerAuth
+func (h *AdminUsersHandler) AssignScopedRole(w http.ResponseWriter, r *http.Request) {
+	var dto AssignScopedRoleRequestDTO
+	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	created, err := h.client.ScopedRole.Create().
+		SetUserID(dto.UserID).
+		SetRole(dto.Role).
+		SetScopeType(dto.ScopeType).
+		SetScopeID(dto.ScopeID).
+		Save(r.Context())
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to assign scoped role: "+err.Error())
+		return
+	}
+
+	respondJSON(w, http.StatusCreated, created)
+}
+
+// ListUserScopedRoles godoc
+// @Summary List scoped roles for a user (Admin only)
+// @Description List all granular role assignments for a specific user
+// @Tags admin
+// @Produce json
+// @Param id path string true "User ID" format(uuid)
+// @Success 200 {array} ent.ScopedRole
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /admin/users/{id}/roles/scoped [get]
+// @Security BearerAuth
+func (h *AdminUsersHandler) ListUserScopedRoles(w http.ResponseWriter, r *http.Request) {
+	userID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid user ID")
+		return
+	}
+
+	roles, err := h.client.ScopedRole.Query().
+		Where(scopedrole.UserID(userID)).
+		All(r.Context())
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to fetch scoped roles")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, roles)
 }

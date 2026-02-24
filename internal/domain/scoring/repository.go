@@ -14,4 +14,10 @@ type Repository interface {
 	ListByPlayer(ctx context.Context, playerID uuid.UUID) ([]*ent.Scoring, error)
 	Update(ctx context.Context, s *ent.Scoring) (*ent.Scoring, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+
+	// ScoreEditRequest methods
+	CreateScoreEditRequest(ctx context.Context, req *ent.ScoreEditRequest) (*ent.ScoreEditRequest, error)
+	GetScoreEditRequestByID(ctx context.Context, id uuid.UUID) (*ent.ScoreEditRequest, error)
+	ListScoreEditRequests(ctx context.Context, status string) ([]*ent.ScoreEditRequest, error)
+	UpdateScoreEditRequest(ctx context.Context, req *ent.ScoreEditRequest) (*ent.ScoreEditRequest, error)
 }

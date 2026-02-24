@@ -335,10 +335,10 @@ func (_c *DisciplineCreate) createSpec() (*Discipline, *sqlgraph.CreateSpec) {
 	}
 	if nodes := _c.mutation.ManagedByIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   discipline.ManagedByTable,
-			Columns: []string{discipline.ManagedByColumn},
+			Columns: discipline.ManagedByPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
