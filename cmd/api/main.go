@@ -134,8 +134,8 @@ func main() {
 	eventRepo := repository.NewEventRepository(client)
 	participationRepo := repository.NewEventParticipationRepository(client)
 
-	// Instantiate other repositories to ensure they are valid and compiled
-	_ = repository.NewLocationRepository(client)
+	// Instantiate location repository
+	locationRepo := repository.NewLocationRepository(client)
 	disciplineRepo := repository.NewDisciplineRepository(client)
 	_ = repository.NewEventReconciliationRepository(client)
 	_ = repository.NewAnalyticsEmbeddingRepository(client)
@@ -176,7 +176,8 @@ func main() {
 
 	// 5. Initialize application services
 	authService := auth.NewService(userRepo, cfg)
-	metadataService := metadata.NewService(worldRepo, continentRepo, countryRepo)
+	metadataService := metadata.NewService(worldRepo, continentRepo, countryRepo, locationRepo)
+	locationHandler := handlers.NewLocationHandler(metadataService, client)
 	gameManagementService := gamemanagement.NewService(
 		gameRepo,
 		gameRoundRepo,
@@ -262,6 +263,7 @@ func main() {
 		MediaHandler:       mediaHandler,
 		BulkHandler:        bulkHandler,
 		CategoryHandler:    categoryHandler,
+		LocationHandler:    locationHandler,
 	})
 
 	// 8. Start server

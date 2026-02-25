@@ -15,6 +15,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/predicate"
 	"github.com/bengobox/game-stats-api/ent/scopedrole"
+	"github.com/bengobox/game-stats-api/internal/pkg/logger"
 	"github.com/bengobox/game-stats-api/internal/pkg/types"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -30,16 +31,16 @@ type CreateEventRequest struct {
 	Name        string         `json:"name" validate:"required"`
 	Slug        string         `json:"slug" validate:"required"`
 	Year        int            `json:"year"`
-	StartDate   types.JSONTime `json:"startDate"`
-	EndDate     types.JSONTime `json:"endDate"`
+	StartDate   types.JSONTime `json:"startDate" swaggertype:"string" example:"2026-02-25"`
+	EndDate     types.JSONTime `json:"endDate" swaggertype:"string" example:"2026-02-26"`
 	Status      string         `json:"status"`
 	Description *string        `json:"description,omitempty"`
 	// category IDs (uuid) that should be associated with the event
 	CategoryIDs  []string               `json:"categoryIds,omitempty"`
 	LogoUrl      *string                `json:"logoUrl,omitempty"`
 	BannerUrl    *string                `json:"bannerUrl,omitempty"`
-	LocationID   *string                `json:"locationId,omitempty"`
-	DisciplineID *string                `json:"disciplineId,omitempty"`
+	LocationID   *string                `json:"locationId" validate:"required"`
+	DisciplineID *string                `json:"disciplineId" validate:"required"`
 	RulesUrl     *string                `json:"rulesUrl,omitempty"`
 	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 }
@@ -374,7 +375,18 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 
 	e, err := builder.Save(ctx)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to create event")
+		logger.Error("Failed to create event",
+			logger.Err(err),
+			logger.String("name", req.Name),
+			logger.String("slug", req.Slug))
+
+		// Map common errors to appropriate responses
+		if strings.Contains(err.Error(), "duplicate key") {
+			respondError(w, http.StatusConflict, "Event with this slug already exists")
+			return
+		}
+
+		respondError(w, http.StatusInternalServerError, "Failed to create event: "+err.Error())
 		return
 	}
 

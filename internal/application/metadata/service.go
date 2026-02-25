@@ -3,8 +3,10 @@ package metadata
 import (
 	"context"
 
+	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/internal/domain/continent"
 	"github.com/bengobox/game-stats-api/internal/domain/country"
+	"github.com/bengobox/game-stats-api/internal/domain/location"
 	"github.com/bengobox/game-stats-api/internal/domain/world"
 	"github.com/google/uuid"
 )
@@ -13,13 +15,15 @@ type Service struct {
 	worldRepo     world.Repository
 	continentRepo continent.Repository
 	countryRepo   country.Repository
+	locationRepo  location.Repository
 }
 
-func NewService(w world.Repository, con continent.Repository, cou country.Repository) *Service {
+func NewService(w world.Repository, con continent.Repository, cou country.Repository, l location.Repository) *Service {
 	return &Service{
 		worldRepo:     w,
 		continentRepo: con,
 		countryRepo:   cou,
+		locationRepo:  l,
 	}
 }
 
@@ -100,4 +104,62 @@ func (s *Service) ListCountries(ctx context.Context, continentID *uuid.UUID) ([]
 		})
 	}
 	return dtos, nil
+}
+
+type LocationDTO struct {
+	ID        string   `json:"id"`
+	Name      string   `json:"name"`
+	Slug      string   `json:"slug"`
+	Address   *string  `json:"address,omitempty"`
+	City      *string  `json:"city,omitempty"`
+	Latitude  *float64 `json:"latitude,omitempty"`
+	Longitude *float64 `json:"longitude,omitempty"`
+	CountryID string   `json:"country_id"`
+}
+
+func (s *Service) ListLocations(ctx context.Context) ([]LocationDTO, error) {
+	locs, err := s.locationRepo.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	dtos := make([]LocationDTO, len(locs))
+	for i, l := range locs {
+		countryID := ""
+		if l.Edges.Country != nil {
+			countryID = l.Edges.Country.ID.String()
+		}
+
+		dtos[i] = LocationDTO{
+			ID:        l.ID.String(),
+			Name:      l.Name,
+			Slug:      l.Slug,
+			Address:   l.Address,
+			City:      l.City,
+			Latitude:  l.Latitude,
+			Longitude: l.Longitude,
+			CountryID: countryID,
+		}
+	}
+	return dtos, nil
+}
+
+func (s *Service) CreateWorld(ctx context.Context, w *ent.World) (*ent.World, error) {
+	return s.worldRepo.Create(ctx, w)
+}
+
+func (s *Service) CreateContinent(ctx context.Context, c *ent.Continent) (*ent.Continent, error) {
+	return s.continentRepo.Create(ctx, c)
+}
+
+func (s *Service) CreateCountry(ctx context.Context, c *ent.Country) (*ent.Country, error) {
+	return s.countryRepo.Create(ctx, c)
+}
+
+func (s *Service) CreateLocation(ctx context.Context, loc *ent.Location) (*ent.Location, error) {
+	return s.locationRepo.Create(ctx, loc)
+}
+
+func (s *Service) GetLocationByID(ctx context.Context, id uuid.UUID) (*ent.Location, error) {
+	return s.locationRepo.GetByID(ctx, id)
 }

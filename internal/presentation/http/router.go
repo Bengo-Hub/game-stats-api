@@ -36,6 +36,7 @@ type RouterOptions struct {
 	MediaHandler       *handlers.MediaHandler
 	BulkHandler        *handlers.BulkHandler
 	CategoryHandler    *handlers.CategoryHandler
+	LocationHandler    *handlers.LocationHandler
 }
 
 func NewRouter(opts RouterOptions) chi.Router {
@@ -137,6 +138,7 @@ func NewRouter(opts RouterOptions) chi.Router {
 				r.Get("/geographic/worlds", opts.GeographicHandler.ListWorlds)
 				r.Get("/geographic/continents", opts.GeographicHandler.ListContinents)
 				r.Get("/geographic/countries", opts.GeographicHandler.ListCountries)
+				r.Get("/geographic/locations", opts.LocationHandler.ListLocations)
 
 				// Discipline metadata (used when creating/editing events)
 				r.Get("/disciplines", opts.DisciplineHandler.ListDisciplines)
@@ -264,6 +266,23 @@ func NewRouter(opts RouterOptions) chi.Router {
 				r.With(middleware.RequirePermission(middleware.PermManageEvents)).Post("/", opts.CategoryHandler.CreateCategory)
 				r.With(middleware.RequirePermission(middleware.PermManageEvents)).Put("/{id}", opts.CategoryHandler.UpdateCategory)
 				r.With(middleware.RequirePermission(middleware.PermManageEvents)).Delete("/{id}", opts.CategoryHandler.DeleteCategory)
+			})
+			// Geographic management (including locations)
+			r.Route("/geographic", func(r chi.Router) {
+				// Creation routes (require manage_events permission for now as they are metadata)
+				r.Group(func(r chi.Router) {
+					r.Use(middleware.RequirePermission(middleware.PermManageEvents))
+					r.Post("/worlds", opts.GeographicHandler.CreateWorld)
+					r.Post("/continents", opts.GeographicHandler.CreateContinent)
+					r.Post("/countries", opts.GeographicHandler.CreateCountry)
+				})
+
+				r.Route("/locations", func(r chi.Router) {
+					// read allowed for viewers
+					r.With(middleware.RequirePermission(middleware.PermViewEvents)).Get("/", opts.LocationHandler.ListLocations)
+					// management
+					r.With(middleware.RequirePermission(middleware.PermManageEvents)).Post("/", opts.LocationHandler.CreateLocation)
+				})
 			})
 			// Game round management
 			r.Route("/rounds", func(r chi.Router) {

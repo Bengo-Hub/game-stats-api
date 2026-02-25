@@ -2471,7 +2471,8 @@ definitions:
       disciplineId:
         type: string
       endDate:
-        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime'
+        example: "2026-02-26"
+        type: string
       locationId:
         type: string
       logoUrl:
@@ -2486,12 +2487,15 @@ definitions:
       slug:
         type: string
       startDate:
-        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime'
+        example: "2026-02-25"
+        type: string
       status:
         type: string
       year:
         type: integer
     required:
+    - disciplineId
+    - locationId
     - name
     - slug
     type: object

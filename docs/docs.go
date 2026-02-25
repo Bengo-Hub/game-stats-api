@@ -7952,6 +7952,8 @@ const docTemplate = `{
         "internal_presentation_http_handlers.CreateEventRequest": {
             "type": "object",
             "required": [
+                "disciplineId",
+                "locationId",
                 "name",
                 "slug"
             ],
@@ -7973,7 +7975,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "endDate": {
-                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime"
+                    "type": "string",
+                    "example": "2026-02-26"
                 },
                 "locationId": {
                     "type": "string"
@@ -7995,7 +7998,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "startDate": {
-                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime"
+                    "type": "string",
+                    "example": "2026-02-25"
                 },
                 "status": {
                     "type": "string"
