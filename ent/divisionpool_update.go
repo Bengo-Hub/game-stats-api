@@ -451,10 +451,10 @@ func (_u *DivisionPoolUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if _u.mutation.TeamsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   divisionpool.TeamsTable,
-			Columns: []string{divisionpool.TeamsColumn},
+			Columns: divisionpool.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
@@ -464,10 +464,10 @@ func (_u *DivisionPoolUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if nodes := _u.mutation.RemovedTeamsIDs(); len(nodes) > 0 && !_u.mutation.TeamsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   divisionpool.TeamsTable,
-			Columns: []string{divisionpool.TeamsColumn},
+			Columns: divisionpool.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
@@ -480,10 +480,10 @@ func (_u *DivisionPoolUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if nodes := _u.mutation.TeamsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   divisionpool.TeamsTable,
-			Columns: []string{divisionpool.TeamsColumn},
+			Columns: divisionpool.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
@@ -1036,10 +1036,10 @@ func (_u *DivisionPoolUpdateOne) sqlSave(ctx context.Context) (_node *DivisionPo
 	}
 	if _u.mutation.TeamsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   divisionpool.TeamsTable,
-			Columns: []string{divisionpool.TeamsColumn},
+			Columns: divisionpool.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
@@ -1049,10 +1049,10 @@ func (_u *DivisionPoolUpdateOne) sqlSave(ctx context.Context) (_node *DivisionPo
 	}
 	if nodes := _u.mutation.RemovedTeamsIDs(); len(nodes) > 0 && !_u.mutation.TeamsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   divisionpool.TeamsTable,
-			Columns: []string{divisionpool.TeamsColumn},
+			Columns: divisionpool.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
@@ -1065,10 +1065,10 @@ func (_u *DivisionPoolUpdateOne) sqlSave(ctx context.Context) (_node *DivisionPo
 	}
 	if nodes := _u.mutation.TeamsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   divisionpool.TeamsTable,
-			Columns: []string{divisionpool.TeamsColumn},
+			Columns: divisionpool.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),

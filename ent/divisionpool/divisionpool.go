@@ -52,13 +52,11 @@ const (
 	EventInverseTable = "events"
 	// EventColumn is the table column denoting the event relation/edge.
 	EventColumn = "event_division_pools"
-	// TeamsTable is the table that holds the teams relation/edge.
-	TeamsTable = "teams"
+	// TeamsTable is the table that holds the teams relation/edge. The primary key declared below.
+	TeamsTable = "division_pool_teams"
 	// TeamsInverseTable is the table name for the Team entity.
 	// It exists in this package in order to avoid circular dependency with the "team" package.
 	TeamsInverseTable = "teams"
-	// TeamsColumn is the table column denoting the teams relation/edge.
-	TeamsColumn = "division_pool_id"
 	// GamesTable is the table that holds the games relation/edge.
 	GamesTable = "games"
 	// GamesInverseTable is the table name for the Game entity.
@@ -96,6 +94,12 @@ var ForeignKeys = []string{
 	"division_pool_target_round",
 	"event_division_pools",
 }
+
+var (
+	// TeamsPrimaryKey and TeamsColumn2 are the table columns denoting the
+	// primary key for the teams relation (M2M).
+	TeamsPrimaryKey = []string{"division_pool_id", "team_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -234,7 +238,7 @@ func newTeamsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TeamsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, TeamsTable, TeamsColumn),
+		sqlgraph.Edge(sqlgraph.M2M, false, TeamsTable, TeamsPrimaryKey...),
 	)
 }
 func newGamesStep() *sqlgraph.Step {

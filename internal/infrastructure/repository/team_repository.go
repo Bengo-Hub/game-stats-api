@@ -20,25 +20,30 @@ func NewTeamRepository(client *ent.Client) *teamRepository {
 }
 
 func (r *teamRepository) Create(ctx context.Context, t *ent.Team) (*ent.Team, error) {
-	query := r.client.Team.Create().
+	builder := r.client.Team.Create().
 		SetName(t.Name).
-		SetNillableInitialSeed(t.InitialSeed).
-		SetNillableFinalPlacement(t.FinalPlacement).
 		SetNillableLogoURL(t.LogoURL).
-		SetMetadata(t.Metadata).
-		SetDivisionPoolID(t.Edges.DivisionPool.ID)
+		SetMetadata(t.Metadata)
 
-	if t.Edges.HomeLocation != nil {
-		query.SetHomeLocationID(t.Edges.HomeLocation.ID)
+	if len(t.Edges.DivisionPools) > 0 {
+		ids := make([]uuid.UUID, len(t.Edges.DivisionPools))
+		for i, dp := range t.Edges.DivisionPools {
+			ids[i] = dp.ID
+		}
+		builder.AddDivisionPoolIDs(ids...)
 	}
 
-	return query.Save(ctx)
+	if t.Edges.HomeLocation != nil {
+		builder.SetHomeLocationID(t.Edges.HomeLocation.ID)
+	}
+
+	return builder.Save(ctx)
 }
 
 func (r *teamRepository) GetByID(ctx context.Context, id uuid.UUID) (*ent.Team, error) {
 	return r.client.Team.Query().
 		Where(team.ID(id)).
-		WithDivisionPool(func(query *ent.DivisionPoolQuery) {
+		WithDivisionPools(func(query *ent.DivisionPoolQuery) {
 			query.WithEvent()
 		}).
 		WithHomeLocation().
@@ -48,31 +53,30 @@ func (r *teamRepository) GetByID(ctx context.Context, id uuid.UUID) (*ent.Team, 
 
 func (r *teamRepository) ListByDivision(ctx context.Context, divisionID uuid.UUID) ([]*ent.Team, error) {
 	return r.client.Team.Query().
-		Where(team.HasDivisionPoolWith(divisionpool.ID(divisionID))).
+		Where(team.HasDivisionPoolsWith(divisionpool.ID(divisionID))).
 		Where(team.DeletedAtIsNil()).
-		WithDivisionPool(func(query *ent.DivisionPoolQuery) {
+		WithDivisionPools(func(query *ent.DivisionPoolQuery) {
 			query.WithEvent()
 		}).
 		All(ctx)
 }
 
 func (r *teamRepository) Update(ctx context.Context, t *ent.Team) (*ent.Team, error) {
-	query := r.client.Team.UpdateOneID(t.ID).
+	updater := r.client.Team.UpdateOneID(t.ID).
 		SetName(t.Name).
-		SetNillableInitialSeed(t.InitialSeed).
-		SetNillableFinalPlacement(t.FinalPlacement).
 		SetNillableLogoURL(t.LogoURL).
 		SetMetadata(t.Metadata).
-		SetDivisionPoolID(t.Edges.DivisionPool.ID).
 		SetUpdatedAt(time.Now())
 
-	if t.Edges.HomeLocation != nil {
-		query.SetHomeLocationID(t.Edges.HomeLocation.ID)
-	} else {
-		query.ClearHomeLocation()
+	if len(t.Edges.DivisionPools) > 0 {
+		ids := make([]uuid.UUID, len(t.Edges.DivisionPools))
+		for i, dp := range t.Edges.DivisionPools {
+			ids[i] = dp.ID
+		}
+		updater.AddDivisionPoolIDs(ids...)
 	}
 
-	return query.Save(ctx)
+	return updater.Save(ctx)
 }
 
 func (r *teamRepository) Delete(ctx context.Context, id uuid.UUID) error {

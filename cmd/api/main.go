@@ -235,7 +235,7 @@ func main() {
 	adminHandler := handlers.NewAdminHandler(adminService)
 	adminUsersHandler := handlers.NewAdminUsersHandler(userRepo, client)
 	settingsHandler := handlers.NewSettingsHandler(userRepo)
-	teamHandler := handlers.NewTeamHandler(client)
+	teamHandler := handlers.NewTeamHandler(client, rankingService)
 	leaderboardHandler := handlers.NewLeaderboardHandler(client)
 	eventHandler := handlers.NewEventHandler(client)
 	mediaHandler := handlers.NewMediaHandler(cfg.UploadsDir, cfg.ApiBaseURL)

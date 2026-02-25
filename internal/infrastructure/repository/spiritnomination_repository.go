@@ -6,6 +6,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/ent/spiritnomination"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
+	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/google/uuid"
 )
 
@@ -39,6 +40,12 @@ func (r *spiritNominationRepository) ListBySpiritScore(ctx context.Context, spir
 		Where(spiritnomination.HasSpiritScoreWith(spiritscore.ID(spiritScoreID))).
 		WithPlayer().
 		All(ctx)
+}
+
+func (r *spiritNominationRepository) CountByTeam(ctx context.Context, teamID uuid.UUID) (int, error) {
+	return r.client.SpiritNomination.Query().
+		Where(spiritnomination.HasSpiritScoreWith(spiritscore.HasTeamWith(team.ID(teamID)))).
+		Count(ctx)
 }
 
 func (r *spiritNominationRepository) Delete(ctx context.Context, id uuid.UUID) error {

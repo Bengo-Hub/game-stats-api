@@ -76,16 +76,6 @@ func Name(v string) predicate.Team {
 	return predicate.Team(sql.FieldEQ(FieldName, v))
 }
 
-// InitialSeed applies equality check predicate on the "initial_seed" field. It's identical to InitialSeedEQ.
-func InitialSeed(v int) predicate.Team {
-	return predicate.Team(sql.FieldEQ(FieldInitialSeed, v))
-}
-
-// FinalPlacement applies equality check predicate on the "final_placement" field. It's identical to FinalPlacementEQ.
-func FinalPlacement(v int) predicate.Team {
-	return predicate.Team(sql.FieldEQ(FieldFinalPlacement, v))
-}
-
 // LogoURL applies equality check predicate on the "logo_url" field. It's identical to LogoURLEQ.
 func LogoURL(v string) predicate.Team {
 	return predicate.Team(sql.FieldEQ(FieldLogoURL, v))
@@ -109,11 +99,6 @@ func ContactEmail(v string) predicate.Team {
 // ContactPhone applies equality check predicate on the "contact_phone" field. It's identical to ContactPhoneEQ.
 func ContactPhone(v string) predicate.Team {
 	return predicate.Team(sql.FieldEQ(FieldContactPhone, v))
-}
-
-// DivisionPoolID applies equality check predicate on the "division_pool_id" field. It's identical to DivisionPoolIDEQ.
-func DivisionPoolID(v uuid.UUID) predicate.Team {
-	return predicate.Team(sql.FieldEQ(FieldDivisionPoolID, v))
 }
 
 // HomeLocationID applies equality check predicate on the "home_location_id" field. It's identical to HomeLocationIDEQ.
@@ -314,106 +299,6 @@ func NameEqualFold(v string) predicate.Team {
 // NameContainsFold applies the ContainsFold predicate on the "name" field.
 func NameContainsFold(v string) predicate.Team {
 	return predicate.Team(sql.FieldContainsFold(FieldName, v))
-}
-
-// InitialSeedEQ applies the EQ predicate on the "initial_seed" field.
-func InitialSeedEQ(v int) predicate.Team {
-	return predicate.Team(sql.FieldEQ(FieldInitialSeed, v))
-}
-
-// InitialSeedNEQ applies the NEQ predicate on the "initial_seed" field.
-func InitialSeedNEQ(v int) predicate.Team {
-	return predicate.Team(sql.FieldNEQ(FieldInitialSeed, v))
-}
-
-// InitialSeedIn applies the In predicate on the "initial_seed" field.
-func InitialSeedIn(vs ...int) predicate.Team {
-	return predicate.Team(sql.FieldIn(FieldInitialSeed, vs...))
-}
-
-// InitialSeedNotIn applies the NotIn predicate on the "initial_seed" field.
-func InitialSeedNotIn(vs ...int) predicate.Team {
-	return predicate.Team(sql.FieldNotIn(FieldInitialSeed, vs...))
-}
-
-// InitialSeedGT applies the GT predicate on the "initial_seed" field.
-func InitialSeedGT(v int) predicate.Team {
-	return predicate.Team(sql.FieldGT(FieldInitialSeed, v))
-}
-
-// InitialSeedGTE applies the GTE predicate on the "initial_seed" field.
-func InitialSeedGTE(v int) predicate.Team {
-	return predicate.Team(sql.FieldGTE(FieldInitialSeed, v))
-}
-
-// InitialSeedLT applies the LT predicate on the "initial_seed" field.
-func InitialSeedLT(v int) predicate.Team {
-	return predicate.Team(sql.FieldLT(FieldInitialSeed, v))
-}
-
-// InitialSeedLTE applies the LTE predicate on the "initial_seed" field.
-func InitialSeedLTE(v int) predicate.Team {
-	return predicate.Team(sql.FieldLTE(FieldInitialSeed, v))
-}
-
-// InitialSeedIsNil applies the IsNil predicate on the "initial_seed" field.
-func InitialSeedIsNil() predicate.Team {
-	return predicate.Team(sql.FieldIsNull(FieldInitialSeed))
-}
-
-// InitialSeedNotNil applies the NotNil predicate on the "initial_seed" field.
-func InitialSeedNotNil() predicate.Team {
-	return predicate.Team(sql.FieldNotNull(FieldInitialSeed))
-}
-
-// FinalPlacementEQ applies the EQ predicate on the "final_placement" field.
-func FinalPlacementEQ(v int) predicate.Team {
-	return predicate.Team(sql.FieldEQ(FieldFinalPlacement, v))
-}
-
-// FinalPlacementNEQ applies the NEQ predicate on the "final_placement" field.
-func FinalPlacementNEQ(v int) predicate.Team {
-	return predicate.Team(sql.FieldNEQ(FieldFinalPlacement, v))
-}
-
-// FinalPlacementIn applies the In predicate on the "final_placement" field.
-func FinalPlacementIn(vs ...int) predicate.Team {
-	return predicate.Team(sql.FieldIn(FieldFinalPlacement, vs...))
-}
-
-// FinalPlacementNotIn applies the NotIn predicate on the "final_placement" field.
-func FinalPlacementNotIn(vs ...int) predicate.Team {
-	return predicate.Team(sql.FieldNotIn(FieldFinalPlacement, vs...))
-}
-
-// FinalPlacementGT applies the GT predicate on the "final_placement" field.
-func FinalPlacementGT(v int) predicate.Team {
-	return predicate.Team(sql.FieldGT(FieldFinalPlacement, v))
-}
-
-// FinalPlacementGTE applies the GTE predicate on the "final_placement" field.
-func FinalPlacementGTE(v int) predicate.Team {
-	return predicate.Team(sql.FieldGTE(FieldFinalPlacement, v))
-}
-
-// FinalPlacementLT applies the LT predicate on the "final_placement" field.
-func FinalPlacementLT(v int) predicate.Team {
-	return predicate.Team(sql.FieldLT(FieldFinalPlacement, v))
-}
-
-// FinalPlacementLTE applies the LTE predicate on the "final_placement" field.
-func FinalPlacementLTE(v int) predicate.Team {
-	return predicate.Team(sql.FieldLTE(FieldFinalPlacement, v))
-}
-
-// FinalPlacementIsNil applies the IsNil predicate on the "final_placement" field.
-func FinalPlacementIsNil() predicate.Team {
-	return predicate.Team(sql.FieldIsNull(FieldFinalPlacement))
-}
-
-// FinalPlacementNotNil applies the NotNil predicate on the "final_placement" field.
-func FinalPlacementNotNil() predicate.Team {
-	return predicate.Team(sql.FieldNotNull(FieldFinalPlacement))
 }
 
 // LogoURLEQ applies the EQ predicate on the "logo_url" field.
@@ -801,26 +686,6 @@ func MetadataNotNil() predicate.Team {
 	return predicate.Team(sql.FieldNotNull(FieldMetadata))
 }
 
-// DivisionPoolIDEQ applies the EQ predicate on the "division_pool_id" field.
-func DivisionPoolIDEQ(v uuid.UUID) predicate.Team {
-	return predicate.Team(sql.FieldEQ(FieldDivisionPoolID, v))
-}
-
-// DivisionPoolIDNEQ applies the NEQ predicate on the "division_pool_id" field.
-func DivisionPoolIDNEQ(v uuid.UUID) predicate.Team {
-	return predicate.Team(sql.FieldNEQ(FieldDivisionPoolID, v))
-}
-
-// DivisionPoolIDIn applies the In predicate on the "division_pool_id" field.
-func DivisionPoolIDIn(vs ...uuid.UUID) predicate.Team {
-	return predicate.Team(sql.FieldIn(FieldDivisionPoolID, vs...))
-}
-
-// DivisionPoolIDNotIn applies the NotIn predicate on the "division_pool_id" field.
-func DivisionPoolIDNotIn(vs ...uuid.UUID) predicate.Team {
-	return predicate.Team(sql.FieldNotIn(FieldDivisionPoolID, vs...))
-}
-
 // HomeLocationIDEQ applies the EQ predicate on the "home_location_id" field.
 func HomeLocationIDEQ(v uuid.UUID) predicate.Team {
 	return predicate.Team(sql.FieldEQ(FieldHomeLocationID, v))
@@ -851,21 +716,21 @@ func HomeLocationIDNotNil() predicate.Team {
 	return predicate.Team(sql.FieldNotNull(FieldHomeLocationID))
 }
 
-// HasDivisionPool applies the HasEdge predicate on the "division_pool" edge.
-func HasDivisionPool() predicate.Team {
+// HasDivisionPools applies the HasEdge predicate on the "division_pools" edge.
+func HasDivisionPools() predicate.Team {
 	return predicate.Team(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, DivisionPoolTable, DivisionPoolColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, DivisionPoolsTable, DivisionPoolsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasDivisionPoolWith applies the HasEdge predicate on the "division_pool" edge with a given conditions (other predicates).
-func HasDivisionPoolWith(preds ...predicate.DivisionPool) predicate.Team {
+// HasDivisionPoolsWith applies the HasEdge predicate on the "division_pools" edge with a given conditions (other predicates).
+func HasDivisionPoolsWith(preds ...predicate.DivisionPool) predicate.Team {
 	return predicate.Team(func(s *sql.Selector) {
-		step := newDivisionPoolStep()
+		step := newDivisionPoolsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -902,7 +767,7 @@ func HasPlayers() predicate.Team {
 	return predicate.Team(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, PlayersTable, PlayersColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, PlayersTable, PlayersPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

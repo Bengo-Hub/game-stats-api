@@ -147,7 +147,7 @@ func (m *Migrator) finalizeMigration(ctx context.Context) error {
 		scores, err := m.client.Scoring.Query().
 			Where(scoring.HasGameWith(game.ID(g.ID))).
 			WithPlayer(func(q *ent.PlayerQuery) {
-				q.WithTeam()
+				q.WithTeams()
 			}).
 			All(ctx)
 
@@ -171,11 +171,15 @@ func (m *Migrator) finalizeMigration(ctx context.Context) error {
 		}
 
 		for _, s := range scores {
-			if s.Edges.Player != nil && s.Edges.Player.Edges.Team != nil {
-				if s.Edges.Player.Edges.Team.ID == gWithTeams.Edges.HomeTeam.ID {
-					homeScore += s.Goals
-				} else if s.Edges.Player.Edges.Team.ID == gWithTeams.Edges.AwayTeam.ID {
-					awayScore += s.Goals
+			if s.Edges.Player != nil {
+				for _, t := range s.Edges.Player.Edges.Teams {
+					if t.ID == gWithTeams.Edges.HomeTeam.ID {
+						homeScore += s.Goals
+						break
+					} else if t.ID == gWithTeams.Edges.AwayTeam.ID {
+						awayScore += s.Goals
+						break
+					}
 				}
 			}
 		}

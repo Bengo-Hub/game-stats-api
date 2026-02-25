@@ -198,12 +198,18 @@ func (s *Service) GetTeamSpiritAverage(ctx context.Context, teamID uuid.UUID) (*
 		return nil, err
 	}
 
+	// Get nomination counts
+	mvpCount, _ := s.mvpNominationRepo.CountByTeam(ctx, teamID)
+	spiritCount, _ := s.spiritNominationRepo.CountByTeam(ctx, teamID)
+
 	if len(scores) == 0 {
 		return &TeamSpiritAverageDTO{
-			TeamID:       teamID,
-			TeamName:     team.Name,
-			GamesPlayed:  0,
-			AverageTotal: 0,
+			TeamID:                 teamID,
+			TeamName:               team.Name,
+			GamesPlayed:            0,
+			AverageTotal:           0,
+			MVPNominationsCount:    mvpCount,
+			SpiritNominationsCount: spiritCount,
 		}, nil
 	}
 
@@ -226,15 +232,17 @@ func (s *Service) GetTeamSpiritAverage(ctx context.Context, teamID uuid.UUID) (*
 	avgTotal := avgRules + avgFouls + avgFair + avgAttitude + avgComm
 
 	return &TeamSpiritAverageDTO{
-		TeamID:           teamID,
-		TeamName:         team.Name,
-		GamesPlayed:      len(scores),
-		RulesKnowledge:   avgRules,
-		FoulsBodyContact: avgFouls,
-		FairMindedness:   avgFair,
-		Attitude:         avgAttitude,
-		Communication:    avgComm,
-		AverageTotal:     avgTotal,
+		TeamID:                 teamID,
+		TeamName:               team.Name,
+		GamesPlayed:            len(scores),
+		RulesKnowledge:         avgRules,
+		FoulsBodyContact:       avgFouls,
+		FairMindedness:         avgFair,
+		Attitude:               avgAttitude,
+		Communication:          avgComm,
+		AverageTotal:           avgTotal,
+		MVPNominationsCount:    mvpCount,
+		SpiritNominationsCount: spiritCount,
 	}, nil
 }
 

@@ -644,7 +644,7 @@ func (s *Service) BulkTransferPlayers(ctx context.Context, req BulkTransferReque
 		}
 
 		// Update team association in Player model
-		p.Edges.Team = &ent.Team{ID: t.ToTeamID}
+		p.Edges.Teams = []*ent.Team{{ID: t.ToTeamID}}
 		_, err = s.playerRepo.Update(ctx, p)
 		if err != nil {
 			return err
@@ -690,7 +690,7 @@ func (s *Service) MassImportPlayers(ctx context.Context, req MassImportPlayersRe
 			Gender:       ip.Gender,
 			JerseyNumber: ip.JerseyNumber,
 			Edges: ent.PlayerEdges{
-				Team: &ent.Team{ID: req.TeamID},
+				Teams: []*ent.Team{{ID: req.TeamID}},
 			},
 		}
 

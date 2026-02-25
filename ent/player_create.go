@@ -199,12 +199,6 @@ func (_c *PlayerCreate) SetMetadata(v map[string]interface{}) *PlayerCreate {
 	return _c
 }
 
-// SetTeamID sets the "team_id" field.
-func (_c *PlayerCreate) SetTeamID(v uuid.UUID) *PlayerCreate {
-	_c.mutation.SetTeamID(v)
-	return _c
-}
-
 // SetID sets the "id" field.
 func (_c *PlayerCreate) SetID(v uuid.UUID) *PlayerCreate {
 	_c.mutation.SetID(v)
@@ -219,9 +213,19 @@ func (_c *PlayerCreate) SetNillableID(v *uuid.UUID) *PlayerCreate {
 	return _c
 }
 
-// SetTeam sets the "team" edge to the Team entity.
-func (_c *PlayerCreate) SetTeam(v *Team) *PlayerCreate {
-	return _c.SetTeamID(v.ID)
+// AddTeamIDs adds the "teams" edge to the Team entity by IDs.
+func (_c *PlayerCreate) AddTeamIDs(ids ...uuid.UUID) *PlayerCreate {
+	_c.mutation.AddTeamIDs(ids...)
+	return _c
+}
+
+// AddTeams adds the "teams" edges to the Team entity.
+func (_c *PlayerCreate) AddTeams(v ...*Team) *PlayerCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddTeamIDs(ids...)
 }
 
 // AddScoreIDs adds the "scores" edge to the Scoring entity by IDs.
@@ -386,12 +390,6 @@ func (_c *PlayerCreate) check() error {
 	if _, ok := _c.mutation.IsSpiritCaptain(); !ok {
 		return &ValidationError{Name: "is_spirit_captain", err: errors.New(`ent: missing required field "Player.is_spirit_captain"`)}
 	}
-	if _, ok := _c.mutation.TeamID(); !ok {
-		return &ValidationError{Name: "team_id", err: errors.New(`ent: missing required field "Player.team_id"`)}
-	}
-	if len(_c.mutation.TeamIDs()) == 0 {
-		return &ValidationError{Name: "team", err: errors.New(`ent: missing required edge "Player.team"`)}
-	}
 	return nil
 }
 
@@ -483,12 +481,12 @@ func (_c *PlayerCreate) createSpec() (*Player, *sqlgraph.CreateSpec) {
 		_spec.SetField(player.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
 	}
-	if nodes := _c.mutation.TeamIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.TeamsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   player.TeamTable,
-			Columns: []string{player.TeamColumn},
+			Table:   player.TeamsTable,
+			Columns: player.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
@@ -497,7 +495,6 @@ func (_c *PlayerCreate) createSpec() (*Player, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.TeamID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.ScoresIDs(); len(nodes) > 0 {

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -15,6 +16,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/bengobox/game-stats-api/internal/application/ranking"
 	"github.com/bengobox/game-stats-api/internal/pkg/logger"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -35,7 +37,6 @@ type CreateTeamRequest struct {
 	SecondaryColor *string                `json:"secondaryColor,omitempty"`
 	ContactEmail   *string                `json:"contactEmail,omitempty"`
 	ContactPhone   *string                `json:"contactPhone,omitempty"`
-	InitialSeed    *int                   `json:"initialSeed,omitempty"`
 	TeamID         *uuid.UUID             `json:"teamId,omitempty"` // Add TeamID for reuse
 	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 }
@@ -50,7 +51,6 @@ type UpdateTeamRequest struct {
 	SecondaryColor *string                `json:"secondaryColor,omitempty"`
 	ContactEmail   *string                `json:"contactEmail,omitempty"`
 	ContactPhone   *string                `json:"contactPhone,omitempty"`
-	InitialSeed    *int                   `json:"initialSeed,omitempty"`
 	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 }
 
@@ -82,11 +82,15 @@ type UpdatePlayerRequest struct {
 }
 
 type TeamHandler struct {
-	client *ent.Client
+	client         *ent.Client
+	rankingService *ranking.Service
 }
 
-func NewTeamHandler(client *ent.Client) *TeamHandler {
-	return &TeamHandler{client: client}
+func NewTeamHandler(client *ent.Client, rankingService *ranking.Service) *TeamHandler {
+	return &TeamHandler{
+		client:         client,
+		rankingService: rankingService,
+	}
 }
 
 // PlayerResponse represents a player in API responses
@@ -101,8 +105,9 @@ type PlayerResponse struct {
 	ProfileImageURL *string                 `json:"profileImageUrl,omitempty"`
 	IsCaptain       bool                    `json:"isCaptain"`
 	IsSpiritCaptain bool                    `json:"isSpiritCaptain"`
-	TeamID          *string                 `json:"teamId,omitempty"`
-	TeamName        *string                 `json:"teamName,omitempty"`
+	Teams           []TeamResponse          `json:"teams,omitempty"`
+	TeamID          *string                 `json:"teamId,omitempty"`   // Legacy: use first team
+	TeamName        *string                 `json:"teamName,omitempty"` // Legacy: use first team
 	Participations  []ParticipationResponse `json:"participations,omitempty"`
 }
 
@@ -144,7 +149,7 @@ type TeamResponse struct {
 	PlayersCount   int                    `json:"playersCount"`
 }
 
-func toPlayerResponse(p *ent.Player) PlayerResponse {
+func (h *TeamHandler) toPlayerResponse(p *ent.Player) PlayerResponse {
 	resp := PlayerResponse{
 		ID:              p.ID.String(),
 		Name:            p.Name,
@@ -161,10 +166,15 @@ func toPlayerResponse(p *ent.Player) PlayerResponse {
 	if p.ProfileImageURL != nil {
 		resp.ProfileImageURL = p.ProfileImageURL
 	}
-	if p.Edges.Team != nil {
-		id := p.Edges.Team.ID.String()
+	if len(p.Edges.Teams) > 0 {
+		resp.Teams = make([]TeamResponse, len(p.Edges.Teams))
+		for i, t := range p.Edges.Teams {
+			resp.Teams[i] = h.toTeamResponse(t, nil)
+		}
+		// Set legacy fields for backwards compatibility
+		id := p.Edges.Teams[0].ID.String()
 		resp.TeamID = &id
-		resp.TeamName = &p.Edges.Team.Name
+		resp.TeamName = &p.Edges.Teams[0].Name
 	}
 
 	if p.Edges.Participations != nil {
@@ -194,7 +204,7 @@ func toPlayerResponse(p *ent.Player) PlayerResponse {
 	return resp
 }
 
-func toTeamResponse(t *ent.Team) TeamResponse {
+func (h *TeamHandler) toTeamResponse(t *ent.Team, contextEventID *uuid.UUID) TeamResponse {
 	resp := TeamResponse{
 		ID:             t.ID.String(),
 		Name:           t.Name,
@@ -205,24 +215,49 @@ func toTeamResponse(t *ent.Team) TeamResponse {
 		ContactPhone:   t.ContactPhone,
 	}
 
-	if t.InitialSeed != nil {
-		resp.InitialSeed = t.InitialSeed
-	}
-	if t.FinalPlacement != nil {
-		resp.FinalPlacement = t.FinalPlacement
-	}
 	if t.LogoURL != nil {
 		resp.LogoURL = t.LogoURL
 	}
 
-	if t.Edges.DivisionPool != nil {
-		id := t.Edges.DivisionPool.ID.String()
-		resp.DivisionPoolID = &id
-		resp.DivisionName = &t.Edges.DivisionPool.Name
+	// Handle division pools (multi-event support)
+	if len(t.Edges.DivisionPools) > 0 {
+		// If contextEventID is provided, try to find the division in that event
+		var dp *ent.DivisionPool
+		if contextEventID != nil {
+			for _, pool := range t.Edges.DivisionPools {
+				if pool.Edges.Event != nil && pool.Edges.Event.ID == *contextEventID {
+					dp = pool
+					break
+				}
+			}
+		}
 
-		if t.Edges.DivisionPool.Edges.Event != nil {
-			eventID := t.Edges.DivisionPool.Edges.Event.ID.String()
+		// Fallback to first division pool
+		if dp == nil {
+			dp = t.Edges.DivisionPools[0]
+		}
+
+		id := dp.ID.String()
+		resp.DivisionPoolID = &id
+		resp.DivisionName = &dp.Name
+
+		if dp.Edges.Event != nil {
+			eventID := dp.Edges.Event.ID.String()
 			resp.EventID = &eventID
+
+			// If we have both division and event context, we can calculate rank/seed
+			if h.rankingService != nil {
+				// We don't want to block the entire response for ranking errors, so we ignore errors here
+				rank, err := h.rankingService.GetTeamRank(context.Background(), dp.ID, t.ID)
+				if err == nil {
+					resp.FinalPlacement = &rank
+				}
+
+				seed, err := h.rankingService.GetTeamSeed(context.Background(), dp.ID, t.ID)
+				if err == nil {
+					resp.InitialSeed = &seed
+				}
+			}
 		}
 	}
 
@@ -237,14 +272,14 @@ func toTeamResponse(t *ent.Team) TeamResponse {
 		resp.PlayersCount = len(t.Edges.Players)
 		resp.Players = make([]PlayerResponse, len(t.Edges.Players))
 		for i, p := range t.Edges.Players {
-			resp.Players[i] = toPlayerResponse(p)
+			resp.Players[i] = h.toPlayerResponse(p)
 			// Identify captain and spirit captain
 			if p.IsCaptain {
-				playerResp := toPlayerResponse(p)
+				playerResp := h.toPlayerResponse(p)
 				resp.Captain = &playerResp
 			}
 			if p.IsSpiritCaptain {
-				playerResp := toPlayerResponse(p)
+				playerResp := h.toPlayerResponse(p)
 				resp.SpiritCaptain = &playerResp
 			}
 		}
@@ -273,7 +308,7 @@ func (h *TeamHandler) ListTeams(w http.ResponseWriter, r *http.Request) {
 	// Parse query parameters
 	query := h.client.Team.Query().
 		Where(team.DeletedAtIsNil()).
-		WithDivisionPool(func(dpq *ent.DivisionPoolQuery) {
+		WithDivisionPools(func(dpq *ent.DivisionPoolQuery) {
 			dpq.WithEvent()
 		}).
 		WithHomeLocation().
@@ -286,7 +321,7 @@ func (h *TeamHandler) ListTeams(w http.ResponseWriter, r *http.Request) {
 			respondError(w, http.StatusBadRequest, "Invalid event ID")
 			return
 		}
-		query = query.Where(team.HasDivisionPoolWith(divisionpool.HasEventWith(event.ID(eventID))))
+		query = query.Where(team.HasDivisionPoolsWith(divisionpool.HasEventWith(event.ID(eventID))))
 	}
 
 	// Filter by division pool
@@ -296,7 +331,7 @@ func (h *TeamHandler) ListTeams(w http.ResponseWriter, r *http.Request) {
 			respondError(w, http.StatusBadRequest, "Invalid division pool ID")
 			return
 		}
-		query = query.Where(team.HasDivisionPoolWith(divisionpool.ID(divisionPoolID)))
+		query = query.Where(team.HasDivisionPoolsWith(divisionpool.ID(divisionPoolID)))
 	}
 
 	// Search by name
@@ -318,9 +353,16 @@ func (h *TeamHandler) ListTeams(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Transform to response
+	var eventID *uuid.UUID
+	if eventIDStr := r.URL.Query().Get("eventId"); eventIDStr != "" {
+		if id, err := uuid.Parse(eventIDStr); err == nil {
+			eventID = &id
+		}
+	}
+
 	response := make([]TeamResponse, len(teams))
 	for i, t := range teams {
-		response[i] = toTeamResponse(t)
+		response[i] = h.toTeamResponse(t, eventID)
 	}
 
 	respondJSON(w, http.StatusOK, response)
@@ -350,7 +392,7 @@ func (h *TeamHandler) GetTeam(w http.ResponseWriter, r *http.Request) {
 	t, err := h.client.Team.Query().
 		Where(team.ID(teamID)).
 		Where(team.DeletedAtIsNil()).
-		WithDivisionPool(func(dpq *ent.DivisionPoolQuery) {
+		WithDivisionPools(func(dpq *ent.DivisionPoolQuery) {
 			dpq.WithEvent()
 		}).
 		WithHomeLocation().
@@ -365,7 +407,7 @@ func (h *TeamHandler) GetTeam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondJSON(w, http.StatusOK, toTeamResponse(t))
+	respondJSON(w, http.StatusOK, h.toTeamResponse(t, nil))
 }
 
 // ============================================
@@ -397,106 +439,66 @@ func (h *TeamHandler) CreateTeam(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if req.TeamID != nil && *req.TeamID != uuid.Nil {
-		// Check if we should update or clone
-		existing, err := h.client.Team.Get(ctx, *req.TeamID)
-		if err == nil && existing.DivisionPoolID != req.DivisionPoolID {
-			// Clone team for new division pool to preserve history
-			builder := h.client.Team.Create().
-				SetName(req.Name).
-				SetDivisionPoolID(req.DivisionPoolID)
+		// Reuse existing team
+		updater := h.client.Team.UpdateOneID(*req.TeamID).
+			AddDivisionPoolIDs(req.DivisionPoolID)
 
-			if req.HomeLocationID != nil {
-				builder.SetHomeLocationID(*req.HomeLocationID)
-			}
-			if req.LogoURL != nil {
-				builder.SetLogoURL(*req.LogoURL)
-			}
-			if req.InitialSeed != nil {
-				builder.SetInitialSeed(*req.InitialSeed)
-			}
-			if req.Metadata != nil {
-				builder.SetMetadata(req.Metadata)
-			}
-			if req.PrimaryColor != nil {
-				builder.SetNillablePrimaryColor(req.PrimaryColor)
-			}
-			if req.SecondaryColor != nil {
-				builder.SetNillableSecondaryColor(req.SecondaryColor)
-			}
-			if req.ContactEmail != nil {
-				builder.SetNillableContactEmail(req.ContactEmail)
-			}
-			if req.ContactPhone != nil {
-				builder.SetNillableContactPhone(req.ContactPhone)
-			}
+		if req.Name != "" {
+			updater.SetName(req.Name)
+		}
 
-			t, err = builder.Save(ctx)
-			if err != nil {
-				respondError(w, http.StatusInternalServerError, "Failed to clone team for new division")
-				return
+		// Resolve Location
+		if req.HomeLocationID != nil {
+			updater.SetHomeLocationID(*req.HomeLocationID)
+		} else if req.LocationName != nil && *req.LocationName != "" {
+			l, _ := h.client.Location.Query().Where(location.NameEQ(*req.LocationName)).Only(ctx)
+			if l != nil {
+				updater.SetHomeLocation(l)
 			}
-		} else {
-			// Update existing team (same pool or error fetching)
-			updater := h.client.Team.UpdateOneID(*req.TeamID).
-				SetDivisionPoolID(req.DivisionPoolID)
+		}
 
-			if req.Name != "" {
-				updater.SetName(req.Name)
-			}
-			if req.HomeLocationID != nil {
-				updater.SetHomeLocationID(*req.HomeLocationID)
-			}
-			if req.LogoURL != nil {
-				updater.SetLogoURL(*req.LogoURL)
-			}
-			if req.InitialSeed != nil {
-				updater.SetInitialSeed(*req.InitialSeed)
-			}
-			if req.Metadata != nil {
-				updater.SetMetadata(req.Metadata)
-			}
-			if req.PrimaryColor != nil {
-				updater.SetNillablePrimaryColor(req.PrimaryColor)
-			}
-			if req.SecondaryColor != nil {
-				updater.SetNillableSecondaryColor(req.SecondaryColor)
-			}
-			if req.ContactEmail != nil {
-				updater.SetNillableContactEmail(req.ContactEmail)
-			}
-			if req.ContactPhone != nil {
-				updater.SetNillableContactPhone(req.ContactPhone)
-			}
+		if req.LogoURL != nil {
+			updater.SetLogoURL(*req.LogoURL)
+		}
+		if req.Metadata != nil {
+			updater.SetMetadata(req.Metadata)
+		}
+		if req.PrimaryColor != nil {
+			updater.SetNillablePrimaryColor(req.PrimaryColor)
+		}
+		if req.SecondaryColor != nil {
+			updater.SetNillableSecondaryColor(req.SecondaryColor)
+		}
+		if req.ContactEmail != nil {
+			updater.SetNillableContactEmail(req.ContactEmail)
+		}
+		if req.ContactPhone != nil {
+			updater.SetNillableContactPhone(req.ContactPhone)
+		}
 
-			t, err = updater.Save(ctx)
-			if err != nil {
-				respondError(w, http.StatusInternalServerError, "Failed to update existing team for reuse")
-				return
-			}
+		t, err = updater.Save(ctx)
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, "Failed to update existing team for reuse")
+			return
 		}
 	} else {
 		// Create new team
 		builder := h.client.Team.Create().
 			SetName(req.Name).
-			SetDivisionPoolID(req.DivisionPoolID)
+			AddDivisionPoolIDs(req.DivisionPoolID)
 
+		// Resolve Location
 		if req.HomeLocationID != nil {
 			builder.SetHomeLocationID(*req.HomeLocationID)
 		} else if req.LocationName != nil && *req.LocationName != "" {
-			// Try to resolve location by name or slug
-			l, err := h.client.Location.Query().Where(location.SlugEQ(*req.LocationName)).Only(ctx)
-			if err != nil {
-				l, _ = h.client.Location.Query().Where(location.NameEQ(*req.LocationName)).Only(ctx)
-			}
+			l, _ := h.client.Location.Query().Where(location.NameEQ(*req.LocationName)).Only(ctx)
 			if l != nil {
 				builder.SetHomeLocation(l)
 			}
 		}
+
 		if req.LogoURL != nil {
 			builder.SetLogoURL(*req.LogoURL)
-		}
-		if req.InitialSeed != nil {
-			builder.SetInitialSeed(*req.InitialSeed)
 		}
 		if req.Metadata != nil {
 			builder.SetMetadata(req.Metadata)
@@ -528,18 +530,20 @@ func (h *TeamHandler) CreateTeam(w http.ResponseWriter, r *http.Request) {
 	// Refetch to get related division pool and event data
 	tFull, err := h.client.Team.Query().
 		Where(team.ID(t.ID)).
-		WithDivisionPool().
+		WithDivisionPools(func(dpq *ent.DivisionPoolQuery) {
+			dpq.WithEvent()
+		}).
 		WithHomeLocation().
 		WithPlayers().
 		Only(ctx)
 
 	if err != nil {
 		// Output the basic model if full fetch fails
-		respondJSON(w, http.StatusCreated, toTeamResponse(t))
+		respondJSON(w, http.StatusCreated, h.toTeamResponse(t, &req.EventID))
 		return
 	}
 
-	respondJSON(w, http.StatusCreated, toTeamResponse(tFull))
+	respondJSON(w, http.StatusCreated, h.toTeamResponse(tFull, &req.EventID))
 }
 
 // UpdateTeam godoc
@@ -558,11 +562,19 @@ func (h *TeamHandler) UpdateTeam(w http.ResponseWriter, r *http.Request) {
 		updater.SetName(*req.Name)
 	}
 	if req.DivisionPoolID != nil {
-		updater.SetDivisionPoolID(*req.DivisionPoolID)
+		updater.AddDivisionPoolIDs(*req.DivisionPoolID)
 	}
+
+	// Resolve Location
 	if req.HomeLocationID != nil {
 		updater.SetHomeLocationID(*req.HomeLocationID)
+	} else if req.LocationName != nil && *req.LocationName != "" {
+		l, _ := h.client.Location.Query().Where(location.NameEQ(*req.LocationName)).Only(ctx)
+		if l != nil {
+			updater.SetHomeLocation(l)
+		}
 	}
+
 	if req.LogoURL != nil {
 		updater.SetLogoURL(*req.LogoURL)
 	}
@@ -578,9 +590,6 @@ func (h *TeamHandler) UpdateTeam(w http.ResponseWriter, r *http.Request) {
 	if req.ContactPhone != nil {
 		updater.SetNillableContactPhone(req.ContactPhone)
 	}
-	if req.InitialSeed != nil {
-		updater.SetInitialSeed(*req.InitialSeed)
-	}
 	if req.Metadata != nil {
 		updater.SetMetadata(req.Metadata)
 	}
@@ -591,7 +600,7 @@ func (h *TeamHandler) UpdateTeam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondJSON(w, http.StatusOK, toTeamResponse(t))
+	respondJSON(w, http.StatusOK, h.toTeamResponse(t, nil))
 }
 
 // ============================================
@@ -643,7 +652,7 @@ func (h *TeamHandler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 		updater := h.client.Player.UpdateOneID(*req.PlayerID).
 			SetName(req.Name).
 			SetGender(req.Gender).
-			SetTeamID(teamID).
+			AddTeamIDs(teamID).
 			SetIsCaptain(req.IsCaptain).
 			SetIsSpiritCaptain(req.IsSpiritCaptain)
 
@@ -673,7 +682,7 @@ func (h *TeamHandler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 		builder := h.client.Player.Create().
 			SetName(req.Name).
 			SetGender(req.Gender).
-			SetTeamID(teamID).
+			AddTeamIDs(teamID).
 			SetIsCaptain(req.IsCaptain).
 			SetIsSpiritCaptain(req.IsSpiritCaptain)
 
@@ -723,7 +732,7 @@ func (h *TeamHandler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondJSON(w, http.StatusCreated, toPlayerResponse(p))
+	respondJSON(w, http.StatusCreated, h.toPlayerResponse(p))
 }
 
 // UpdatePlayer godoc
@@ -780,7 +789,7 @@ func (h *TeamHandler) UpdatePlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondJSON(w, http.StatusOK, toPlayerResponse(p))
+	respondJSON(w, http.StatusOK, h.toPlayerResponse(p))
 }
 
 // DeletePlayer removes a player
@@ -819,8 +828,9 @@ func (h *TeamHandler) GetTeamPlayers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	players, err := h.client.Player.Query().
-		Where(player.HasTeamWith(team.ID(teamID))).
+		Where(player.HasTeamsWith(team.ID(teamID))).
 		Where(player.DeletedAtIsNil()).
+		WithTeams().
 		All(ctx)
 
 	if err != nil {
@@ -830,7 +840,7 @@ func (h *TeamHandler) GetTeamPlayers(w http.ResponseWriter, r *http.Request) {
 
 	response := make([]PlayerResponse, len(players))
 	for i, p := range players {
-		response[i] = toPlayerResponse(p)
+		response[i] = h.toPlayerResponse(p)
 	}
 
 	respondJSON(w, http.StatusOK, response)
@@ -859,7 +869,7 @@ func (h *TeamHandler) GetPlayer(w http.ResponseWriter, r *http.Request) {
 
 	p, err := h.client.Player.Query().
 		Where(player.ID(playerID)).
-		WithTeam().
+		WithTeams().
 		WithParticipations(func(q *ent.EventParticipationQuery) {
 			q.WithEvent().WithTeam()
 		}).
@@ -873,7 +883,7 @@ func (h *TeamHandler) GetPlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondJSON(w, http.StatusOK, toPlayerResponse(p))
+	respondJSON(w, http.StatusOK, h.toPlayerResponse(p))
 }
 
 // ListPlayers godoc
@@ -893,7 +903,7 @@ func (h *TeamHandler) ListPlayers(w http.ResponseWriter, r *http.Request) {
 
 	query := h.client.Player.Query().
 		Where(player.DeletedAtIsNil()).
-		WithTeam()
+		WithTeams()
 
 	if search := r.URL.Query().Get("search"); search != "" {
 		query = query.Where(player.NameContainsFold(search))
@@ -901,7 +911,7 @@ func (h *TeamHandler) ListPlayers(w http.ResponseWriter, r *http.Request) {
 
 	if teamIDStr := r.URL.Query().Get("teamId"); teamIDStr != "" {
 		if teamID, err := uuid.Parse(teamIDStr); err == nil {
-			query = query.Where(player.HasTeamWith(team.ID(teamID)))
+			query = query.Where(player.HasTeamsWith(team.ID(teamID)))
 		} else {
 			respondError(w, http.StatusBadRequest, "Invalid team ID")
 			return
@@ -910,7 +920,7 @@ func (h *TeamHandler) ListPlayers(w http.ResponseWriter, r *http.Request) {
 
 	if eventIDStr := r.URL.Query().Get("eventId"); eventIDStr != "" {
 		if eventID, err := uuid.Parse(eventIDStr); err == nil {
-			query = query.Where(player.HasTeamWith(team.HasDivisionPoolWith(divisionpool.HasEventWith(event.ID(eventID)))))
+			query = query.Where(player.HasTeamsWith(team.HasDivisionPoolsWith(divisionpool.HasEventWith(event.ID(eventID)))))
 		} else {
 			respondError(w, http.StatusBadRequest, "Invalid event ID")
 			return
@@ -945,7 +955,7 @@ func (h *TeamHandler) ListPlayers(w http.ResponseWriter, r *http.Request) {
 
 	response := make([]PlayerResponse, len(players))
 	for i, p := range players {
-		response[i] = toPlayerResponse(p)
+		response[i] = h.toPlayerResponse(p)
 	}
 
 	respondJSON(w, http.StatusOK, response)
@@ -1048,7 +1058,7 @@ func (h *TeamHandler) BulkImportPlayers(w http.ResponseWriter, r *http.Request) 
 		builder := h.client.Player.Create().
 			SetName(name).
 			SetGender(gender).
-			SetTeamID(teamID)
+			AddTeamIDs(teamID)
 
 		if len(record) > 2 {
 			jerseyStr := strings.TrimSpace(record[2])

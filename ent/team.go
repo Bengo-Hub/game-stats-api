@@ -10,7 +10,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/google/uuid"
@@ -29,10 +28,6 @@ type Team struct {
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
-	// InitialSeed holds the value of the "initial_seed" field.
-	InitialSeed *int `json:"initial_seed,omitempty"`
-	// FinalPlacement holds the value of the "final_placement" field.
-	FinalPlacement *int `json:"final_placement,omitempty"`
 	// LogoURL holds the value of the "logo_url" field.
 	LogoURL *string `json:"logo_url,omitempty"`
 	// PrimaryColor holds the value of the "primary_color" field.
@@ -45,8 +40,6 @@ type Team struct {
 	ContactPhone *string `json:"contact_phone,omitempty"`
 	// Metadata holds the value of the "metadata" field.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	// DivisionPoolID holds the value of the "division_pool_id" field.
-	DivisionPoolID uuid.UUID `json:"division_pool_id,omitempty"`
 	// HomeLocationID holds the value of the "home_location_id" field.
 	HomeLocationID *uuid.UUID `json:"home_location_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -57,8 +50,8 @@ type Team struct {
 
 // TeamEdges holds the relations/edges for other nodes in the graph.
 type TeamEdges struct {
-	// DivisionPool holds the value of the division_pool edge.
-	DivisionPool *DivisionPool `json:"division_pool,omitempty"`
+	// DivisionPools holds the value of the division_pools edge.
+	DivisionPools []*DivisionPool `json:"division_pools,omitempty"`
 	// HomeLocation holds the value of the home_location edge.
 	HomeLocation *Location `json:"home_location,omitempty"`
 	// Players holds the value of the players edge.
@@ -80,15 +73,13 @@ type TeamEdges struct {
 	loadedTypes [9]bool
 }
 
-// DivisionPoolOrErr returns the DivisionPool value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e TeamEdges) DivisionPoolOrErr() (*DivisionPool, error) {
-	if e.DivisionPool != nil {
-		return e.DivisionPool, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: divisionpool.Label}
+// DivisionPoolsOrErr returns the DivisionPools value or an error if the edge
+// was not loaded in eager-loading.
+func (e TeamEdges) DivisionPoolsOrErr() ([]*DivisionPool, error) {
+	if e.loadedTypes[0] {
+		return e.DivisionPools, nil
 	}
-	return nil, &NotLoadedError{edge: "division_pool"}
+	return nil, &NotLoadedError{edge: "division_pools"}
 }
 
 // HomeLocationOrErr returns the HomeLocation value or an error if the edge
@@ -174,13 +165,11 @@ func (*Team) scanValues(columns []string) ([]any, error) {
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case team.FieldMetadata:
 			values[i] = new([]byte)
-		case team.FieldInitialSeed, team.FieldFinalPlacement:
-			values[i] = new(sql.NullInt64)
 		case team.FieldName, team.FieldLogoURL, team.FieldPrimaryColor, team.FieldSecondaryColor, team.FieldContactEmail, team.FieldContactPhone:
 			values[i] = new(sql.NullString)
 		case team.FieldCreatedAt, team.FieldUpdatedAt, team.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case team.FieldID, team.FieldDivisionPoolID:
+		case team.FieldID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -228,20 +217,6 @@ func (_m *Team) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Name = value.String
 			}
-		case team.FieldInitialSeed:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field initial_seed", values[i])
-			} else if value.Valid {
-				_m.InitialSeed = new(int)
-				*_m.InitialSeed = int(value.Int64)
-			}
-		case team.FieldFinalPlacement:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field final_placement", values[i])
-			} else if value.Valid {
-				_m.FinalPlacement = new(int)
-				*_m.FinalPlacement = int(value.Int64)
-			}
 		case team.FieldLogoURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field logo_url", values[i])
@@ -285,12 +260,6 @@ func (_m *Team) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
-		case team.FieldDivisionPoolID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field division_pool_id", values[i])
-			} else if value != nil {
-				_m.DivisionPoolID = *value
-			}
 		case team.FieldHomeLocationID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field home_location_id", values[i])
@@ -311,9 +280,9 @@ func (_m *Team) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryDivisionPool queries the "division_pool" edge of the Team entity.
-func (_m *Team) QueryDivisionPool() *DivisionPoolQuery {
-	return NewTeamClient(_m.config).QueryDivisionPool(_m)
+// QueryDivisionPools queries the "division_pools" edge of the Team entity.
+func (_m *Team) QueryDivisionPools() *DivisionPoolQuery {
+	return NewTeamClient(_m.config).QueryDivisionPools(_m)
 }
 
 // QueryHomeLocation queries the "home_location" edge of the Team entity.
@@ -393,16 +362,6 @@ func (_m *Team) String() string {
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
-	if v := _m.InitialSeed; v != nil {
-		builder.WriteString("initial_seed=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	if v := _m.FinalPlacement; v != nil {
-		builder.WriteString("final_placement=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
 	if v := _m.LogoURL; v != nil {
 		builder.WriteString("logo_url=")
 		builder.WriteString(*v)
@@ -430,9 +389,6 @@ func (_m *Team) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
-	builder.WriteString(", ")
-	builder.WriteString("division_pool_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.DivisionPoolID))
 	builder.WriteString(", ")
 	if v := _m.HomeLocationID; v != nil {
 		builder.WriteString("home_location_id=")

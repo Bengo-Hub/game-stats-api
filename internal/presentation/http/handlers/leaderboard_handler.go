@@ -80,7 +80,7 @@ func (h *LeaderboardHandler) GetPlayerLeaderboard(w http.ResponseWriter, r *http
 	var playerPreds []predicate.Player
 	if teamIdStr != "" {
 		if teamId, err := uuid.Parse(teamIdStr); err == nil {
-			playerPreds = append(playerPreds, player.HasTeamWith(team.IDEQ(teamId)))
+			playerPreds = append(playerPreds, player.HasTeamsWith(team.IDEQ(teamId)))
 		}
 	}
 	if gender != "" {
@@ -100,7 +100,7 @@ func (h *LeaderboardHandler) GetPlayerLeaderboard(w http.ResponseWriter, r *http
 	query := h.client.Scoring.Query().
 		Where(scoring.DeletedAtIsNil()).
 		WithPlayer(func(pq *ent.PlayerQuery) {
-			pq.WithTeam()
+			pq.WithTeams()
 		}).
 		WithGame()
 
@@ -129,9 +129,9 @@ func (h *LeaderboardHandler) GetPlayerLeaderboard(w http.ResponseWriter, r *http
 		if _, exists := playerStats[playerID]; !exists {
 			teamName := "Unknown Team"
 			teamID := ""
-			if player.Edges.Team != nil {
-				teamName = player.Edges.Team.Name
-				teamID = player.Edges.Team.ID.String()
+			if len(player.Edges.Teams) > 0 {
+				teamName = player.Edges.Teams[0].Name
+				teamID = player.Edges.Teams[0].ID.String()
 			}
 
 			playerStats[playerID] = &PlayerStatResponse{

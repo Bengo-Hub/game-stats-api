@@ -23,10 +23,6 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// FieldInitialSeed holds the string denoting the initial_seed field in the database.
-	FieldInitialSeed = "initial_seed"
-	// FieldFinalPlacement holds the string denoting the final_placement field in the database.
-	FieldFinalPlacement = "final_placement"
 	// FieldLogoURL holds the string denoting the logo_url field in the database.
 	FieldLogoURL = "logo_url"
 	// FieldPrimaryColor holds the string denoting the primary_color field in the database.
@@ -39,12 +35,10 @@ const (
 	FieldContactPhone = "contact_phone"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
-	// FieldDivisionPoolID holds the string denoting the division_pool_id field in the database.
-	FieldDivisionPoolID = "division_pool_id"
 	// FieldHomeLocationID holds the string denoting the home_location_id field in the database.
 	FieldHomeLocationID = "home_location_id"
-	// EdgeDivisionPool holds the string denoting the division_pool edge name in mutations.
-	EdgeDivisionPool = "division_pool"
+	// EdgeDivisionPools holds the string denoting the division_pools edge name in mutations.
+	EdgeDivisionPools = "division_pools"
 	// EdgeHomeLocation holds the string denoting the home_location edge name in mutations.
 	EdgeHomeLocation = "home_location"
 	// EdgePlayers holds the string denoting the players edge name in mutations.
@@ -63,13 +57,11 @@ const (
 	EdgeParticipations = "participations"
 	// Table holds the table name of the team in the database.
 	Table = "teams"
-	// DivisionPoolTable is the table that holds the division_pool relation/edge.
-	DivisionPoolTable = "teams"
-	// DivisionPoolInverseTable is the table name for the DivisionPool entity.
+	// DivisionPoolsTable is the table that holds the division_pools relation/edge. The primary key declared below.
+	DivisionPoolsTable = "division_pool_teams"
+	// DivisionPoolsInverseTable is the table name for the DivisionPool entity.
 	// It exists in this package in order to avoid circular dependency with the "divisionpool" package.
-	DivisionPoolInverseTable = "division_pools"
-	// DivisionPoolColumn is the table column denoting the division_pool relation/edge.
-	DivisionPoolColumn = "division_pool_id"
+	DivisionPoolsInverseTable = "division_pools"
 	// HomeLocationTable is the table that holds the home_location relation/edge.
 	HomeLocationTable = "teams"
 	// HomeLocationInverseTable is the table name for the Location entity.
@@ -77,13 +69,11 @@ const (
 	HomeLocationInverseTable = "locations"
 	// HomeLocationColumn is the table column denoting the home_location relation/edge.
 	HomeLocationColumn = "home_location_id"
-	// PlayersTable is the table that holds the players relation/edge.
-	PlayersTable = "players"
+	// PlayersTable is the table that holds the players relation/edge. The primary key declared below.
+	PlayersTable = "team_players"
 	// PlayersInverseTable is the table name for the Player entity.
 	// It exists in this package in order to avoid circular dependency with the "player" package.
 	PlayersInverseTable = "players"
-	// PlayersColumn is the table column denoting the players relation/edge.
-	PlayersColumn = "team_id"
 	// ManagedByTable is the table that holds the managed_by relation/edge. The primary key declared below.
 	ManagedByTable = "team_managed_by"
 	// ManagedByInverseTable is the table name for the User entity.
@@ -133,19 +123,22 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldName,
-	FieldInitialSeed,
-	FieldFinalPlacement,
 	FieldLogoURL,
 	FieldPrimaryColor,
 	FieldSecondaryColor,
 	FieldContactEmail,
 	FieldContactPhone,
 	FieldMetadata,
-	FieldDivisionPoolID,
 	FieldHomeLocationID,
 }
 
 var (
+	// DivisionPoolsPrimaryKey and DivisionPoolsColumn2 are the table columns denoting the
+	// primary key for the division_pools relation (M2M).
+	DivisionPoolsPrimaryKey = []string{"division_pool_id", "team_id"}
+	// PlayersPrimaryKey and PlayersColumn2 are the table columns denoting the
+	// primary key for the players relation (M2M).
+	PlayersPrimaryKey = []string{"team_id", "player_id"}
 	// ManagedByPrimaryKey and ManagedByColumn2 are the table columns denoting the
 	// primary key for the managed_by relation (M2M).
 	ManagedByPrimaryKey = []string{"team_id", "user_id"}
@@ -202,16 +195,6 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
 }
 
-// ByInitialSeed orders the results by the initial_seed field.
-func ByInitialSeed(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldInitialSeed, opts...).ToFunc()
-}
-
-// ByFinalPlacement orders the results by the final_placement field.
-func ByFinalPlacement(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldFinalPlacement, opts...).ToFunc()
-}
-
 // ByLogoURL orders the results by the logo_url field.
 func ByLogoURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLogoURL, opts...).ToFunc()
@@ -237,20 +220,22 @@ func ByContactPhone(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldContactPhone, opts...).ToFunc()
 }
 
-// ByDivisionPoolID orders the results by the division_pool_id field.
-func ByDivisionPoolID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDivisionPoolID, opts...).ToFunc()
-}
-
 // ByHomeLocationID orders the results by the home_location_id field.
 func ByHomeLocationID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldHomeLocationID, opts...).ToFunc()
 }
 
-// ByDivisionPoolField orders the results by division_pool field.
-func ByDivisionPoolField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByDivisionPoolsCount orders the results by division_pools count.
+func ByDivisionPoolsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newDivisionPoolStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newDivisionPoolsStep(), opts...)
+	}
+}
+
+// ByDivisionPools orders the results by division_pools terms.
+func ByDivisionPools(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDivisionPoolsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -358,11 +343,11 @@ func ByParticipations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newParticipationsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newDivisionPoolStep() *sqlgraph.Step {
+func newDivisionPoolsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(DivisionPoolInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, DivisionPoolTable, DivisionPoolColumn),
+		sqlgraph.To(DivisionPoolsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, DivisionPoolsTable, DivisionPoolsPrimaryKey...),
 	)
 }
 func newHomeLocationStep() *sqlgraph.Step {
@@ -376,7 +361,7 @@ func newPlayersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(PlayersInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, PlayersTable, PlayersColumn),
+		sqlgraph.Edge(sqlgraph.M2M, false, PlayersTable, PlayersPrimaryKey...),
 	)
 }
 func newManagedByStep() *sqlgraph.Step {

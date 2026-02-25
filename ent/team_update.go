@@ -76,60 +76,6 @@ func (_u *TeamUpdate) SetNillableName(v *string) *TeamUpdate {
 	return _u
 }
 
-// SetInitialSeed sets the "initial_seed" field.
-func (_u *TeamUpdate) SetInitialSeed(v int) *TeamUpdate {
-	_u.mutation.ResetInitialSeed()
-	_u.mutation.SetInitialSeed(v)
-	return _u
-}
-
-// SetNillableInitialSeed sets the "initial_seed" field if the given value is not nil.
-func (_u *TeamUpdate) SetNillableInitialSeed(v *int) *TeamUpdate {
-	if v != nil {
-		_u.SetInitialSeed(*v)
-	}
-	return _u
-}
-
-// AddInitialSeed adds value to the "initial_seed" field.
-func (_u *TeamUpdate) AddInitialSeed(v int) *TeamUpdate {
-	_u.mutation.AddInitialSeed(v)
-	return _u
-}
-
-// ClearInitialSeed clears the value of the "initial_seed" field.
-func (_u *TeamUpdate) ClearInitialSeed() *TeamUpdate {
-	_u.mutation.ClearInitialSeed()
-	return _u
-}
-
-// SetFinalPlacement sets the "final_placement" field.
-func (_u *TeamUpdate) SetFinalPlacement(v int) *TeamUpdate {
-	_u.mutation.ResetFinalPlacement()
-	_u.mutation.SetFinalPlacement(v)
-	return _u
-}
-
-// SetNillableFinalPlacement sets the "final_placement" field if the given value is not nil.
-func (_u *TeamUpdate) SetNillableFinalPlacement(v *int) *TeamUpdate {
-	if v != nil {
-		_u.SetFinalPlacement(*v)
-	}
-	return _u
-}
-
-// AddFinalPlacement adds value to the "final_placement" field.
-func (_u *TeamUpdate) AddFinalPlacement(v int) *TeamUpdate {
-	_u.mutation.AddFinalPlacement(v)
-	return _u
-}
-
-// ClearFinalPlacement clears the value of the "final_placement" field.
-func (_u *TeamUpdate) ClearFinalPlacement() *TeamUpdate {
-	_u.mutation.ClearFinalPlacement()
-	return _u
-}
-
 // SetLogoURL sets the "logo_url" field.
 func (_u *TeamUpdate) SetLogoURL(v string) *TeamUpdate {
 	_u.mutation.SetLogoURL(v)
@@ -242,20 +188,6 @@ func (_u *TeamUpdate) ClearMetadata() *TeamUpdate {
 	return _u
 }
 
-// SetDivisionPoolID sets the "division_pool_id" field.
-func (_u *TeamUpdate) SetDivisionPoolID(v uuid.UUID) *TeamUpdate {
-	_u.mutation.SetDivisionPoolID(v)
-	return _u
-}
-
-// SetNillableDivisionPoolID sets the "division_pool_id" field if the given value is not nil.
-func (_u *TeamUpdate) SetNillableDivisionPoolID(v *uuid.UUID) *TeamUpdate {
-	if v != nil {
-		_u.SetDivisionPoolID(*v)
-	}
-	return _u
-}
-
 // SetHomeLocationID sets the "home_location_id" field.
 func (_u *TeamUpdate) SetHomeLocationID(v uuid.UUID) *TeamUpdate {
 	_u.mutation.SetHomeLocationID(v)
@@ -276,9 +208,19 @@ func (_u *TeamUpdate) ClearHomeLocationID() *TeamUpdate {
 	return _u
 }
 
-// SetDivisionPool sets the "division_pool" edge to the DivisionPool entity.
-func (_u *TeamUpdate) SetDivisionPool(v *DivisionPool) *TeamUpdate {
-	return _u.SetDivisionPoolID(v.ID)
+// AddDivisionPoolIDs adds the "division_pools" edge to the DivisionPool entity by IDs.
+func (_u *TeamUpdate) AddDivisionPoolIDs(ids ...uuid.UUID) *TeamUpdate {
+	_u.mutation.AddDivisionPoolIDs(ids...)
+	return _u
+}
+
+// AddDivisionPools adds the "division_pools" edges to the DivisionPool entity.
+func (_u *TeamUpdate) AddDivisionPools(v ...*DivisionPool) *TeamUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddDivisionPoolIDs(ids...)
 }
 
 // SetHomeLocation sets the "home_location" edge to the Location entity.
@@ -396,10 +338,25 @@ func (_u *TeamUpdate) Mutation() *TeamMutation {
 	return _u.mutation
 }
 
-// ClearDivisionPool clears the "division_pool" edge to the DivisionPool entity.
-func (_u *TeamUpdate) ClearDivisionPool() *TeamUpdate {
-	_u.mutation.ClearDivisionPool()
+// ClearDivisionPools clears all "division_pools" edges to the DivisionPool entity.
+func (_u *TeamUpdate) ClearDivisionPools() *TeamUpdate {
+	_u.mutation.ClearDivisionPools()
 	return _u
+}
+
+// RemoveDivisionPoolIDs removes the "division_pools" edge to DivisionPool entities by IDs.
+func (_u *TeamUpdate) RemoveDivisionPoolIDs(ids ...uuid.UUID) *TeamUpdate {
+	_u.mutation.RemoveDivisionPoolIDs(ids...)
+	return _u
+}
+
+// RemoveDivisionPools removes "division_pools" edges to DivisionPool entities.
+func (_u *TeamUpdate) RemoveDivisionPools(v ...*DivisionPool) *TeamUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveDivisionPoolIDs(ids...)
 }
 
 // ClearHomeLocation clears the "home_location" edge to the Location entity.
@@ -598,9 +555,6 @@ func (_u *TeamUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Team.name": %w`, err)}
 		}
 	}
-	if _u.mutation.DivisionPoolCleared() && len(_u.mutation.DivisionPoolIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Team.division_pool"`)
-	}
 	return nil
 }
 
@@ -627,24 +581,6 @@ func (_u *TeamUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(team.FieldName, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.InitialSeed(); ok {
-		_spec.SetField(team.FieldInitialSeed, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedInitialSeed(); ok {
-		_spec.AddField(team.FieldInitialSeed, field.TypeInt, value)
-	}
-	if _u.mutation.InitialSeedCleared() {
-		_spec.ClearField(team.FieldInitialSeed, field.TypeInt)
-	}
-	if value, ok := _u.mutation.FinalPlacement(); ok {
-		_spec.SetField(team.FieldFinalPlacement, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedFinalPlacement(); ok {
-		_spec.AddField(team.FieldFinalPlacement, field.TypeInt, value)
-	}
-	if _u.mutation.FinalPlacementCleared() {
-		_spec.ClearField(team.FieldFinalPlacement, field.TypeInt)
 	}
 	if value, ok := _u.mutation.LogoURL(); ok {
 		_spec.SetField(team.FieldLogoURL, field.TypeString, value)
@@ -682,12 +618,12 @@ func (_u *TeamUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(team.FieldMetadata, field.TypeJSON)
 	}
-	if _u.mutation.DivisionPoolCleared() {
+	if _u.mutation.DivisionPoolsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   team.DivisionPoolTable,
-			Columns: []string{team.DivisionPoolColumn},
+			Table:   team.DivisionPoolsTable,
+			Columns: team.DivisionPoolsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
@@ -695,12 +631,28 @@ func (_u *TeamUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.DivisionPoolIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedDivisionPoolsIDs(); len(nodes) > 0 && !_u.mutation.DivisionPoolsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   team.DivisionPoolTable,
-			Columns: []string{team.DivisionPoolColumn},
+			Table:   team.DivisionPoolsTable,
+			Columns: team.DivisionPoolsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DivisionPoolsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   team.DivisionPoolsTable,
+			Columns: team.DivisionPoolsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
@@ -742,10 +694,10 @@ func (_u *TeamUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.PlayersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.PlayersTable,
-			Columns: []string{team.PlayersColumn},
+			Columns: team.PlayersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
@@ -755,10 +707,10 @@ func (_u *TeamUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.RemovedPlayersIDs(); len(nodes) > 0 && !_u.mutation.PlayersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.PlayersTable,
-			Columns: []string{team.PlayersColumn},
+			Columns: team.PlayersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
@@ -771,10 +723,10 @@ func (_u *TeamUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.PlayersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.PlayersTable,
-			Columns: []string{team.PlayersColumn},
+			Columns: team.PlayersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
@@ -1115,60 +1067,6 @@ func (_u *TeamUpdateOne) SetNillableName(v *string) *TeamUpdateOne {
 	return _u
 }
 
-// SetInitialSeed sets the "initial_seed" field.
-func (_u *TeamUpdateOne) SetInitialSeed(v int) *TeamUpdateOne {
-	_u.mutation.ResetInitialSeed()
-	_u.mutation.SetInitialSeed(v)
-	return _u
-}
-
-// SetNillableInitialSeed sets the "initial_seed" field if the given value is not nil.
-func (_u *TeamUpdateOne) SetNillableInitialSeed(v *int) *TeamUpdateOne {
-	if v != nil {
-		_u.SetInitialSeed(*v)
-	}
-	return _u
-}
-
-// AddInitialSeed adds value to the "initial_seed" field.
-func (_u *TeamUpdateOne) AddInitialSeed(v int) *TeamUpdateOne {
-	_u.mutation.AddInitialSeed(v)
-	return _u
-}
-
-// ClearInitialSeed clears the value of the "initial_seed" field.
-func (_u *TeamUpdateOne) ClearInitialSeed() *TeamUpdateOne {
-	_u.mutation.ClearInitialSeed()
-	return _u
-}
-
-// SetFinalPlacement sets the "final_placement" field.
-func (_u *TeamUpdateOne) SetFinalPlacement(v int) *TeamUpdateOne {
-	_u.mutation.ResetFinalPlacement()
-	_u.mutation.SetFinalPlacement(v)
-	return _u
-}
-
-// SetNillableFinalPlacement sets the "final_placement" field if the given value is not nil.
-func (_u *TeamUpdateOne) SetNillableFinalPlacement(v *int) *TeamUpdateOne {
-	if v != nil {
-		_u.SetFinalPlacement(*v)
-	}
-	return _u
-}
-
-// AddFinalPlacement adds value to the "final_placement" field.
-func (_u *TeamUpdateOne) AddFinalPlacement(v int) *TeamUpdateOne {
-	_u.mutation.AddFinalPlacement(v)
-	return _u
-}
-
-// ClearFinalPlacement clears the value of the "final_placement" field.
-func (_u *TeamUpdateOne) ClearFinalPlacement() *TeamUpdateOne {
-	_u.mutation.ClearFinalPlacement()
-	return _u
-}
-
 // SetLogoURL sets the "logo_url" field.
 func (_u *TeamUpdateOne) SetLogoURL(v string) *TeamUpdateOne {
 	_u.mutation.SetLogoURL(v)
@@ -1281,20 +1179,6 @@ func (_u *TeamUpdateOne) ClearMetadata() *TeamUpdateOne {
 	return _u
 }
 
-// SetDivisionPoolID sets the "division_pool_id" field.
-func (_u *TeamUpdateOne) SetDivisionPoolID(v uuid.UUID) *TeamUpdateOne {
-	_u.mutation.SetDivisionPoolID(v)
-	return _u
-}
-
-// SetNillableDivisionPoolID sets the "division_pool_id" field if the given value is not nil.
-func (_u *TeamUpdateOne) SetNillableDivisionPoolID(v *uuid.UUID) *TeamUpdateOne {
-	if v != nil {
-		_u.SetDivisionPoolID(*v)
-	}
-	return _u
-}
-
 // SetHomeLocationID sets the "home_location_id" field.
 func (_u *TeamUpdateOne) SetHomeLocationID(v uuid.UUID) *TeamUpdateOne {
 	_u.mutation.SetHomeLocationID(v)
@@ -1315,9 +1199,19 @@ func (_u *TeamUpdateOne) ClearHomeLocationID() *TeamUpdateOne {
 	return _u
 }
 
-// SetDivisionPool sets the "division_pool" edge to the DivisionPool entity.
-func (_u *TeamUpdateOne) SetDivisionPool(v *DivisionPool) *TeamUpdateOne {
-	return _u.SetDivisionPoolID(v.ID)
+// AddDivisionPoolIDs adds the "division_pools" edge to the DivisionPool entity by IDs.
+func (_u *TeamUpdateOne) AddDivisionPoolIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	_u.mutation.AddDivisionPoolIDs(ids...)
+	return _u
+}
+
+// AddDivisionPools adds the "division_pools" edges to the DivisionPool entity.
+func (_u *TeamUpdateOne) AddDivisionPools(v ...*DivisionPool) *TeamUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddDivisionPoolIDs(ids...)
 }
 
 // SetHomeLocation sets the "home_location" edge to the Location entity.
@@ -1435,10 +1329,25 @@ func (_u *TeamUpdateOne) Mutation() *TeamMutation {
 	return _u.mutation
 }
 
-// ClearDivisionPool clears the "division_pool" edge to the DivisionPool entity.
-func (_u *TeamUpdateOne) ClearDivisionPool() *TeamUpdateOne {
-	_u.mutation.ClearDivisionPool()
+// ClearDivisionPools clears all "division_pools" edges to the DivisionPool entity.
+func (_u *TeamUpdateOne) ClearDivisionPools() *TeamUpdateOne {
+	_u.mutation.ClearDivisionPools()
 	return _u
+}
+
+// RemoveDivisionPoolIDs removes the "division_pools" edge to DivisionPool entities by IDs.
+func (_u *TeamUpdateOne) RemoveDivisionPoolIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	_u.mutation.RemoveDivisionPoolIDs(ids...)
+	return _u
+}
+
+// RemoveDivisionPools removes "division_pools" edges to DivisionPool entities.
+func (_u *TeamUpdateOne) RemoveDivisionPools(v ...*DivisionPool) *TeamUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveDivisionPoolIDs(ids...)
 }
 
 // ClearHomeLocation clears the "home_location" edge to the Location entity.
@@ -1650,9 +1559,6 @@ func (_u *TeamUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Team.name": %w`, err)}
 		}
 	}
-	if _u.mutation.DivisionPoolCleared() && len(_u.mutation.DivisionPoolIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Team.division_pool"`)
-	}
 	return nil
 }
 
@@ -1697,24 +1603,6 @@ func (_u *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) {
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(team.FieldName, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.InitialSeed(); ok {
-		_spec.SetField(team.FieldInitialSeed, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedInitialSeed(); ok {
-		_spec.AddField(team.FieldInitialSeed, field.TypeInt, value)
-	}
-	if _u.mutation.InitialSeedCleared() {
-		_spec.ClearField(team.FieldInitialSeed, field.TypeInt)
-	}
-	if value, ok := _u.mutation.FinalPlacement(); ok {
-		_spec.SetField(team.FieldFinalPlacement, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedFinalPlacement(); ok {
-		_spec.AddField(team.FieldFinalPlacement, field.TypeInt, value)
-	}
-	if _u.mutation.FinalPlacementCleared() {
-		_spec.ClearField(team.FieldFinalPlacement, field.TypeInt)
-	}
 	if value, ok := _u.mutation.LogoURL(); ok {
 		_spec.SetField(team.FieldLogoURL, field.TypeString, value)
 	}
@@ -1751,12 +1639,12 @@ func (_u *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) {
 	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(team.FieldMetadata, field.TypeJSON)
 	}
-	if _u.mutation.DivisionPoolCleared() {
+	if _u.mutation.DivisionPoolsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   team.DivisionPoolTable,
-			Columns: []string{team.DivisionPoolColumn},
+			Table:   team.DivisionPoolsTable,
+			Columns: team.DivisionPoolsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
@@ -1764,12 +1652,28 @@ func (_u *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.DivisionPoolIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedDivisionPoolsIDs(); len(nodes) > 0 && !_u.mutation.DivisionPoolsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   team.DivisionPoolTable,
-			Columns: []string{team.DivisionPoolColumn},
+			Table:   team.DivisionPoolsTable,
+			Columns: team.DivisionPoolsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DivisionPoolsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   team.DivisionPoolsTable,
+			Columns: team.DivisionPoolsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
@@ -1811,10 +1715,10 @@ func (_u *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) {
 	}
 	if _u.mutation.PlayersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.PlayersTable,
-			Columns: []string{team.PlayersColumn},
+			Columns: team.PlayersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
@@ -1824,10 +1728,10 @@ func (_u *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) {
 	}
 	if nodes := _u.mutation.RemovedPlayersIDs(); len(nodes) > 0 && !_u.mutation.PlayersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.PlayersTable,
-			Columns: []string{team.PlayersColumn},
+			Columns: team.PlayersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
@@ -1840,10 +1744,10 @@ func (_u *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) {
 	}
 	if nodes := _u.mutation.PlayersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.PlayersTable,
-			Columns: []string{team.PlayersColumn},
+			Columns: team.PlayersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),

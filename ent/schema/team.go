@@ -27,12 +27,6 @@ func (Team) Fields() []ent.Field {
 		field.String("name").
 			MaxLen(100).
 			NotEmpty(),
-		field.Int("initial_seed").
-			Optional().
-			Nillable(),
-		field.Int("final_placement").
-			Optional().
-			Nillable(),
 		field.String("logo_url").
 			Optional().
 			Nillable(),
@@ -50,7 +44,6 @@ func (Team) Fields() []ent.Field {
 			Nillable(),
 		field.JSON("metadata", map[string]interface{}{}).
 			Optional(),
-		field.UUID("division_pool_id", uuid.UUID{}),
 		field.UUID("home_location_id", uuid.UUID{}).
 			Optional().
 			Nillable(),
@@ -60,11 +53,8 @@ func (Team) Fields() []ent.Field {
 // Edges of the Team.
 func (Team) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("division_pool", DivisionPool.Type).
-			Ref("teams").
-			Field("division_pool_id").
-			Unique().
-			Required(),
+		edge.From("division_pools", DivisionPool.Type).
+			Ref("teams"),
 		edge.From("home_location", Location.Type).
 			Ref("teams").
 			Field("home_location_id").

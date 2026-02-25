@@ -76,34 +76,6 @@ func (_c *TeamCreate) SetName(v string) *TeamCreate {
 	return _c
 }
 
-// SetInitialSeed sets the "initial_seed" field.
-func (_c *TeamCreate) SetInitialSeed(v int) *TeamCreate {
-	_c.mutation.SetInitialSeed(v)
-	return _c
-}
-
-// SetNillableInitialSeed sets the "initial_seed" field if the given value is not nil.
-func (_c *TeamCreate) SetNillableInitialSeed(v *int) *TeamCreate {
-	if v != nil {
-		_c.SetInitialSeed(*v)
-	}
-	return _c
-}
-
-// SetFinalPlacement sets the "final_placement" field.
-func (_c *TeamCreate) SetFinalPlacement(v int) *TeamCreate {
-	_c.mutation.SetFinalPlacement(v)
-	return _c
-}
-
-// SetNillableFinalPlacement sets the "final_placement" field if the given value is not nil.
-func (_c *TeamCreate) SetNillableFinalPlacement(v *int) *TeamCreate {
-	if v != nil {
-		_c.SetFinalPlacement(*v)
-	}
-	return _c
-}
-
 // SetLogoURL sets the "logo_url" field.
 func (_c *TeamCreate) SetLogoURL(v string) *TeamCreate {
 	_c.mutation.SetLogoURL(v)
@@ -180,12 +152,6 @@ func (_c *TeamCreate) SetMetadata(v map[string]interface{}) *TeamCreate {
 	return _c
 }
 
-// SetDivisionPoolID sets the "division_pool_id" field.
-func (_c *TeamCreate) SetDivisionPoolID(v uuid.UUID) *TeamCreate {
-	_c.mutation.SetDivisionPoolID(v)
-	return _c
-}
-
 // SetHomeLocationID sets the "home_location_id" field.
 func (_c *TeamCreate) SetHomeLocationID(v uuid.UUID) *TeamCreate {
 	_c.mutation.SetHomeLocationID(v)
@@ -214,9 +180,19 @@ func (_c *TeamCreate) SetNillableID(v *uuid.UUID) *TeamCreate {
 	return _c
 }
 
-// SetDivisionPool sets the "division_pool" edge to the DivisionPool entity.
-func (_c *TeamCreate) SetDivisionPool(v *DivisionPool) *TeamCreate {
-	return _c.SetDivisionPoolID(v.ID)
+// AddDivisionPoolIDs adds the "division_pools" edge to the DivisionPool entity by IDs.
+func (_c *TeamCreate) AddDivisionPoolIDs(ids ...uuid.UUID) *TeamCreate {
+	_c.mutation.AddDivisionPoolIDs(ids...)
+	return _c
+}
+
+// AddDivisionPools adds the "division_pools" edges to the DivisionPool entity.
+func (_c *TeamCreate) AddDivisionPools(v ...*DivisionPool) *TeamCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddDivisionPoolIDs(ids...)
 }
 
 // SetHomeLocation sets the "home_location" edge to the Location entity.
@@ -394,12 +370,6 @@ func (_c *TeamCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Team.name": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.DivisionPoolID(); !ok {
-		return &ValidationError{Name: "division_pool_id", err: errors.New(`ent: missing required field "Team.division_pool_id"`)}
-	}
-	if len(_c.mutation.DivisionPoolIDs()) == 0 {
-		return &ValidationError{Name: "division_pool", err: errors.New(`ent: missing required edge "Team.division_pool"`)}
-	}
 	return nil
 }
 
@@ -451,14 +421,6 @@ func (_c *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 		_spec.SetField(team.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := _c.mutation.InitialSeed(); ok {
-		_spec.SetField(team.FieldInitialSeed, field.TypeInt, value)
-		_node.InitialSeed = &value
-	}
-	if value, ok := _c.mutation.FinalPlacement(); ok {
-		_spec.SetField(team.FieldFinalPlacement, field.TypeInt, value)
-		_node.FinalPlacement = &value
-	}
 	if value, ok := _c.mutation.LogoURL(); ok {
 		_spec.SetField(team.FieldLogoURL, field.TypeString, value)
 		_node.LogoURL = &value
@@ -483,12 +445,12 @@ func (_c *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 		_spec.SetField(team.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
 	}
-	if nodes := _c.mutation.DivisionPoolIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.DivisionPoolsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   team.DivisionPoolTable,
-			Columns: []string{team.DivisionPoolColumn},
+			Table:   team.DivisionPoolsTable,
+			Columns: team.DivisionPoolsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
@@ -497,7 +459,6 @@ func (_c *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.DivisionPoolID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.HomeLocationIDs(); len(nodes) > 0 {
@@ -519,10 +480,10 @@ func (_c *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 	}
 	if nodes := _c.mutation.PlayersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.PlayersTable,
-			Columns: []string{team.PlayersColumn},
+			Columns: team.PlayersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),

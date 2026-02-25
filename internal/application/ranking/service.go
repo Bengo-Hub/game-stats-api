@@ -142,6 +142,29 @@ func (s *Service) CalculateStandings(ctx context.Context, divisionID uuid.UUID) 
 	return response, nil
 }
 
+// GetTeamRank returns the rank of a team in a division
+func (s *Service) GetTeamRank(ctx context.Context, divisionID, teamID uuid.UUID) (int, error) {
+	standings, err := s.CalculateStandings(ctx, divisionID)
+	if err != nil {
+		return 0, err
+	}
+
+	for _, ts := range standings.Standings {
+		if ts.TeamID == teamID {
+			return ts.Rank, nil
+		}
+	}
+
+	return 0, fmt.Errorf("team not found in division standings")
+}
+
+// GetTeamSeed returns the seed of a team in a division (defaults to its rank if not explicitly set)
+func (s *Service) GetTeamSeed(ctx context.Context, divisionID, teamID uuid.UUID) (int, error) {
+	// For now, we return the rank as the seed.
+	// In the future, this could look up an explicit seed in a join table if implemented.
+	return s.GetTeamRank(ctx, divisionID, teamID)
+}
+
 // CalculateEventStandings computes standings for all divisions in an event
 func (s *Service) CalculateEventStandings(ctx context.Context, eventID uuid.UUID) (*EventStandingsResponse, error) {
 	ev, err := s.eventRepo.GetByID(ctx, eventID)

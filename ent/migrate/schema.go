@@ -560,21 +560,12 @@ var (
 		{Name: "phone", Type: field.TypeString, Nullable: true},
 		{Name: "position", Type: field.TypeString, Nullable: true},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
-		{Name: "team_id", Type: field.TypeUUID},
 	}
 	// PlayersTable holds the schema information for the "players" table.
 	PlayersTable = &schema.Table{
 		Name:       "players",
 		Columns:    PlayersColumns,
 		PrimaryKey: []*schema.Column{PlayersColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "players_teams_players",
-				Columns:    []*schema.Column{PlayersColumns[15]},
-				RefColumns: []*schema.Column{TeamsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
 	}
 	// ScopedRolesColumns holds the columns for the "scoped_roles" table.
 	ScopedRolesColumns = []*schema.Column{
@@ -764,15 +755,12 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "name", Type: field.TypeString, Size: 100},
-		{Name: "initial_seed", Type: field.TypeInt, Nullable: true},
-		{Name: "final_placement", Type: field.TypeInt, Nullable: true},
 		{Name: "logo_url", Type: field.TypeString, Nullable: true},
 		{Name: "primary_color", Type: field.TypeString, Nullable: true},
 		{Name: "secondary_color", Type: field.TypeString, Nullable: true},
 		{Name: "contact_email", Type: field.TypeString, Nullable: true},
 		{Name: "contact_phone", Type: field.TypeString, Nullable: true},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
-		{Name: "division_pool_id", Type: field.TypeUUID},
 		{Name: "home_location_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// TeamsTable holds the schema information for the "teams" table.
@@ -782,14 +770,8 @@ var (
 		PrimaryKey: []*schema.Column{TeamsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "teams_division_pools_teams",
-				Columns:    []*schema.Column{TeamsColumns[13]},
-				RefColumns: []*schema.Column{DivisionPoolsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
 				Symbol:     "teams_locations_teams",
-				Columns:    []*schema.Column{TeamsColumns[14]},
+				Columns:    []*schema.Column{TeamsColumns[11]},
 				RefColumns: []*schema.Column{LocationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -906,6 +888,31 @@ var (
 			},
 		},
 	}
+	// DivisionPoolTeamsColumns holds the columns for the "division_pool_teams" table.
+	DivisionPoolTeamsColumns = []*schema.Column{
+		{Name: "division_pool_id", Type: field.TypeUUID},
+		{Name: "team_id", Type: field.TypeUUID},
+	}
+	// DivisionPoolTeamsTable holds the schema information for the "division_pool_teams" table.
+	DivisionPoolTeamsTable = &schema.Table{
+		Name:       "division_pool_teams",
+		Columns:    DivisionPoolTeamsColumns,
+		PrimaryKey: []*schema.Column{DivisionPoolTeamsColumns[0], DivisionPoolTeamsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "division_pool_teams_division_pool_id",
+				Columns:    []*schema.Column{DivisionPoolTeamsColumns[0]},
+				RefColumns: []*schema.Column{DivisionPoolsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "division_pool_teams_team_id",
+				Columns:    []*schema.Column{DivisionPoolTeamsColumns[1]},
+				RefColumns: []*schema.Column{TeamsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// EventManagedByColumns holds the columns for the "event_managed_by" table.
 	EventManagedByColumns = []*schema.Column{
 		{Name: "event_id", Type: field.TypeUUID},
@@ -952,6 +959,31 @@ var (
 				Symbol:     "event_categories_category_id",
 				Columns:    []*schema.Column{EventCategoriesColumns[1]},
 				RefColumns: []*schema.Column{CategoriesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// TeamPlayersColumns holds the columns for the "team_players" table.
+	TeamPlayersColumns = []*schema.Column{
+		{Name: "team_id", Type: field.TypeUUID},
+		{Name: "player_id", Type: field.TypeUUID},
+	}
+	// TeamPlayersTable holds the schema information for the "team_players" table.
+	TeamPlayersTable = &schema.Table{
+		Name:       "team_players",
+		Columns:    TeamPlayersColumns,
+		PrimaryKey: []*schema.Column{TeamPlayersColumns[0], TeamPlayersColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "team_players_team_id",
+				Columns:    []*schema.Column{TeamPlayersColumns[0]},
+				RefColumns: []*schema.Column{TeamsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "team_players_player_id",
+				Columns:    []*schema.Column{TeamPlayersColumns[1]},
+				RefColumns: []*schema.Column{PlayersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
@@ -1012,8 +1044,10 @@ var (
 		ContinentManagedByTable,
 		CountryManagedByTable,
 		DisciplineManagedByTable,
+		DivisionPoolTeamsTable,
 		EventManagedByTable,
 		EventCategoriesTable,
+		TeamPlayersTable,
 		TeamManagedByTable,
 	}
 )
@@ -1044,7 +1078,6 @@ func init() {
 	LocationsTable.ForeignKeys[0].RefTable = CountriesTable
 	MvpNominationsTable.ForeignKeys[0].RefTable = PlayersTable
 	MvpNominationsTable.ForeignKeys[1].RefTable = SpiritScoresTable
-	PlayersTable.ForeignKeys[0].RefTable = TeamsTable
 	ScopedRolesTable.ForeignKeys[0].RefTable = UsersTable
 	ScoreEditRequestsTable.ForeignKeys[0].RefTable = GamesTable
 	ScoreEditRequestsTable.ForeignKeys[1].RefTable = UsersTable
@@ -1057,18 +1090,21 @@ func init() {
 	SpiritScoresTable.ForeignKeys[1].RefTable = TeamsTable
 	SpiritScoresTable.ForeignKeys[2].RefTable = TeamsTable
 	SpiritScoresTable.ForeignKeys[3].RefTable = UsersTable
-	TeamsTable.ForeignKeys[0].RefTable = DivisionPoolsTable
-	TeamsTable.ForeignKeys[1].RefTable = LocationsTable
+	TeamsTable.ForeignKeys[0].RefTable = LocationsTable
 	ContinentManagedByTable.ForeignKeys[0].RefTable = ContinentsTable
 	ContinentManagedByTable.ForeignKeys[1].RefTable = UsersTable
 	CountryManagedByTable.ForeignKeys[0].RefTable = CountriesTable
 	CountryManagedByTable.ForeignKeys[1].RefTable = UsersTable
 	DisciplineManagedByTable.ForeignKeys[0].RefTable = DisciplinesTable
 	DisciplineManagedByTable.ForeignKeys[1].RefTable = UsersTable
+	DivisionPoolTeamsTable.ForeignKeys[0].RefTable = DivisionPoolsTable
+	DivisionPoolTeamsTable.ForeignKeys[1].RefTable = TeamsTable
 	EventManagedByTable.ForeignKeys[0].RefTable = EventsTable
 	EventManagedByTable.ForeignKeys[1].RefTable = UsersTable
 	EventCategoriesTable.ForeignKeys[0].RefTable = EventsTable
 	EventCategoriesTable.ForeignKeys[1].RefTable = CategoriesTable
+	TeamPlayersTable.ForeignKeys[0].RefTable = TeamsTable
+	TeamPlayersTable.ForeignKeys[1].RefTable = PlayersTable
 	TeamManagedByTable.ForeignKeys[0].RefTable = TeamsTable
 	TeamManagedByTable.ForeignKeys[1].RefTable = UsersTable
 }

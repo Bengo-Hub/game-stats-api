@@ -43,10 +43,8 @@ const (
 	FieldPosition = "position"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
-	// FieldTeamID holds the string denoting the team_id field in the database.
-	FieldTeamID = "team_id"
-	// EdgeTeam holds the string denoting the team edge name in mutations.
-	EdgeTeam = "team"
+	// EdgeTeams holds the string denoting the teams edge name in mutations.
+	EdgeTeams = "teams"
 	// EdgeScores holds the string denoting the scores edge name in mutations.
 	EdgeScores = "scores"
 	// EdgeGameEvents holds the string denoting the game_events edge name in mutations.
@@ -59,13 +57,11 @@ const (
 	EdgeParticipations = "participations"
 	// Table holds the table name of the player in the database.
 	Table = "players"
-	// TeamTable is the table that holds the team relation/edge.
-	TeamTable = "players"
-	// TeamInverseTable is the table name for the Team entity.
+	// TeamsTable is the table that holds the teams relation/edge. The primary key declared below.
+	TeamsTable = "team_players"
+	// TeamsInverseTable is the table name for the Team entity.
 	// It exists in this package in order to avoid circular dependency with the "team" package.
-	TeamInverseTable = "teams"
-	// TeamColumn is the table column denoting the team relation/edge.
-	TeamColumn = "team_id"
+	TeamsInverseTable = "teams"
 	// ScoresTable is the table that holds the scores relation/edge.
 	ScoresTable = "scorings"
 	// ScoresInverseTable is the table name for the Scoring entity.
@@ -120,8 +116,13 @@ var Columns = []string{
 	FieldPhone,
 	FieldPosition,
 	FieldMetadata,
-	FieldTeamID,
 }
+
+var (
+	// TeamsPrimaryKey and TeamsColumn2 are the table columns denoting the
+	// primary key for the teams relation (M2M).
+	TeamsPrimaryKey = []string{"team_id", "player_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -225,15 +226,17 @@ func ByPosition(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPosition, opts...).ToFunc()
 }
 
-// ByTeamID orders the results by the team_id field.
-func ByTeamID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTeamID, opts...).ToFunc()
+// ByTeamsCount orders the results by teams count.
+func ByTeamsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTeamsStep(), opts...)
+	}
 }
 
-// ByTeamField orders the results by team field.
-func ByTeamField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByTeams orders the results by teams terms.
+func ByTeams(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newTeamStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newTeamsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -306,11 +309,11 @@ func ByParticipations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newParticipationsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newTeamStep() *sqlgraph.Step {
+func newTeamsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(TeamInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, TeamTable, TeamColumn),
+		sqlgraph.To(TeamsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, TeamsTable, TeamsPrimaryKey...),
 	)
 }
 func newScoresStep() *sqlgraph.Step {

@@ -256,23 +256,19 @@ func (_u *PlayerUpdate) ClearMetadata() *PlayerUpdate {
 	return _u
 }
 
-// SetTeamID sets the "team_id" field.
-func (_u *PlayerUpdate) SetTeamID(v uuid.UUID) *PlayerUpdate {
-	_u.mutation.SetTeamID(v)
+// AddTeamIDs adds the "teams" edge to the Team entity by IDs.
+func (_u *PlayerUpdate) AddTeamIDs(ids ...uuid.UUID) *PlayerUpdate {
+	_u.mutation.AddTeamIDs(ids...)
 	return _u
 }
 
-// SetNillableTeamID sets the "team_id" field if the given value is not nil.
-func (_u *PlayerUpdate) SetNillableTeamID(v *uuid.UUID) *PlayerUpdate {
-	if v != nil {
-		_u.SetTeamID(*v)
+// AddTeams adds the "teams" edges to the Team entity.
+func (_u *PlayerUpdate) AddTeams(v ...*Team) *PlayerUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return _u
-}
-
-// SetTeam sets the "team" edge to the Team entity.
-func (_u *PlayerUpdate) SetTeam(v *Team) *PlayerUpdate {
-	return _u.SetTeamID(v.ID)
+	return _u.AddTeamIDs(ids...)
 }
 
 // AddScoreIDs adds the "scores" edge to the Scoring entity by IDs.
@@ -355,10 +351,25 @@ func (_u *PlayerUpdate) Mutation() *PlayerMutation {
 	return _u.mutation
 }
 
-// ClearTeam clears the "team" edge to the Team entity.
-func (_u *PlayerUpdate) ClearTeam() *PlayerUpdate {
-	_u.mutation.ClearTeam()
+// ClearTeams clears all "teams" edges to the Team entity.
+func (_u *PlayerUpdate) ClearTeams() *PlayerUpdate {
+	_u.mutation.ClearTeams()
 	return _u
+}
+
+// RemoveTeamIDs removes the "teams" edge to Team entities by IDs.
+func (_u *PlayerUpdate) RemoveTeamIDs(ids ...uuid.UUID) *PlayerUpdate {
+	_u.mutation.RemoveTeamIDs(ids...)
+	return _u
+}
+
+// RemoveTeams removes "teams" edges to Team entities.
+func (_u *PlayerUpdate) RemoveTeams(v ...*Team) *PlayerUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTeamIDs(ids...)
 }
 
 // ClearScores clears all "scores" edges to the Scoring entity.
@@ -514,9 +525,6 @@ func (_u *PlayerUpdate) check() error {
 			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Player.gender": %w`, err)}
 		}
 	}
-	if _u.mutation.TeamCleared() && len(_u.mutation.TeamIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Player.team"`)
-	}
 	return nil
 }
 
@@ -598,12 +606,12 @@ func (_u *PlayerUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(player.FieldMetadata, field.TypeJSON)
 	}
-	if _u.mutation.TeamCleared() {
+	if _u.mutation.TeamsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   player.TeamTable,
-			Columns: []string{player.TeamColumn},
+			Table:   player.TeamsTable,
+			Columns: player.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
@@ -611,12 +619,28 @@ func (_u *PlayerUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.TeamIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedTeamsIDs(); len(nodes) > 0 && !_u.mutation.TeamsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   player.TeamTable,
-			Columns: []string{player.TeamColumn},
+			Table:   player.TeamsTable,
+			Columns: player.TeamsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TeamsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   player.TeamsTable,
+			Columns: player.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
@@ -1093,23 +1117,19 @@ func (_u *PlayerUpdateOne) ClearMetadata() *PlayerUpdateOne {
 	return _u
 }
 
-// SetTeamID sets the "team_id" field.
-func (_u *PlayerUpdateOne) SetTeamID(v uuid.UUID) *PlayerUpdateOne {
-	_u.mutation.SetTeamID(v)
+// AddTeamIDs adds the "teams" edge to the Team entity by IDs.
+func (_u *PlayerUpdateOne) AddTeamIDs(ids ...uuid.UUID) *PlayerUpdateOne {
+	_u.mutation.AddTeamIDs(ids...)
 	return _u
 }
 
-// SetNillableTeamID sets the "team_id" field if the given value is not nil.
-func (_u *PlayerUpdateOne) SetNillableTeamID(v *uuid.UUID) *PlayerUpdateOne {
-	if v != nil {
-		_u.SetTeamID(*v)
+// AddTeams adds the "teams" edges to the Team entity.
+func (_u *PlayerUpdateOne) AddTeams(v ...*Team) *PlayerUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return _u
-}
-
-// SetTeam sets the "team" edge to the Team entity.
-func (_u *PlayerUpdateOne) SetTeam(v *Team) *PlayerUpdateOne {
-	return _u.SetTeamID(v.ID)
+	return _u.AddTeamIDs(ids...)
 }
 
 // AddScoreIDs adds the "scores" edge to the Scoring entity by IDs.
@@ -1192,10 +1212,25 @@ func (_u *PlayerUpdateOne) Mutation() *PlayerMutation {
 	return _u.mutation
 }
 
-// ClearTeam clears the "team" edge to the Team entity.
-func (_u *PlayerUpdateOne) ClearTeam() *PlayerUpdateOne {
-	_u.mutation.ClearTeam()
+// ClearTeams clears all "teams" edges to the Team entity.
+func (_u *PlayerUpdateOne) ClearTeams() *PlayerUpdateOne {
+	_u.mutation.ClearTeams()
 	return _u
+}
+
+// RemoveTeamIDs removes the "teams" edge to Team entities by IDs.
+func (_u *PlayerUpdateOne) RemoveTeamIDs(ids ...uuid.UUID) *PlayerUpdateOne {
+	_u.mutation.RemoveTeamIDs(ids...)
+	return _u
+}
+
+// RemoveTeams removes "teams" edges to Team entities.
+func (_u *PlayerUpdateOne) RemoveTeams(v ...*Team) *PlayerUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTeamIDs(ids...)
 }
 
 // ClearScores clears all "scores" edges to the Scoring entity.
@@ -1364,9 +1399,6 @@ func (_u *PlayerUpdateOne) check() error {
 			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Player.gender": %w`, err)}
 		}
 	}
-	if _u.mutation.TeamCleared() && len(_u.mutation.TeamIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Player.team"`)
-	}
 	return nil
 }
 
@@ -1465,12 +1497,12 @@ func (_u *PlayerUpdateOne) sqlSave(ctx context.Context) (_node *Player, err erro
 	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(player.FieldMetadata, field.TypeJSON)
 	}
-	if _u.mutation.TeamCleared() {
+	if _u.mutation.TeamsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   player.TeamTable,
-			Columns: []string{player.TeamColumn},
+			Table:   player.TeamsTable,
+			Columns: player.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
@@ -1478,12 +1510,28 @@ func (_u *PlayerUpdateOne) sqlSave(ctx context.Context) (_node *Player, err erro
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.TeamIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedTeamsIDs(); len(nodes) > 0 && !_u.mutation.TeamsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   player.TeamTable,
-			Columns: []string{player.TeamColumn},
+			Table:   player.TeamsTable,
+			Columns: player.TeamsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TeamsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   player.TeamsTable,
+			Columns: player.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),

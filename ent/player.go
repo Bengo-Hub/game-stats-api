@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/game-stats-api/ent/player"
-	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/google/uuid"
 )
 
@@ -48,8 +47,6 @@ type Player struct {
 	Position *string `json:"position,omitempty"`
 	// Metadata holds the value of the "metadata" field.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	// TeamID holds the value of the "team_id" field.
-	TeamID uuid.UUID `json:"team_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PlayerQuery when eager-loading is set.
 	Edges        PlayerEdges `json:"edges"`
@@ -58,8 +55,8 @@ type Player struct {
 
 // PlayerEdges holds the relations/edges for other nodes in the graph.
 type PlayerEdges struct {
-	// Team holds the value of the team edge.
-	Team *Team `json:"team,omitempty"`
+	// Teams holds the value of the teams edge.
+	Teams []*Team `json:"teams,omitempty"`
 	// Scores holds the value of the scores edge.
 	Scores []*Scoring `json:"scores,omitempty"`
 	// GameEvents holds the value of the game_events edge.
@@ -75,15 +72,13 @@ type PlayerEdges struct {
 	loadedTypes [6]bool
 }
 
-// TeamOrErr returns the Team value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e PlayerEdges) TeamOrErr() (*Team, error) {
-	if e.Team != nil {
-		return e.Team, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: team.Label}
+// TeamsOrErr returns the Teams value or an error if the edge
+// was not loaded in eager-loading.
+func (e PlayerEdges) TeamsOrErr() ([]*Team, error) {
+	if e.loadedTypes[0] {
+		return e.Teams, nil
 	}
-	return nil, &NotLoadedError{edge: "team"}
+	return nil, &NotLoadedError{edge: "teams"}
 }
 
 // ScoresOrErr returns the Scores value or an error if the edge
@@ -146,7 +141,7 @@ func (*Player) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case player.FieldCreatedAt, player.FieldUpdatedAt, player.FieldDeletedAt, player.FieldDateOfBirth:
 			values[i] = new(sql.NullTime)
-		case player.FieldID, player.FieldTeamID:
+		case player.FieldID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -262,12 +257,6 @@ func (_m *Player) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
-		case player.FieldTeamID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field team_id", values[i])
-			} else if value != nil {
-				_m.TeamID = *value
-			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -281,9 +270,9 @@ func (_m *Player) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryTeam queries the "team" edge of the Player entity.
-func (_m *Player) QueryTeam() *TeamQuery {
-	return NewPlayerClient(_m.config).QueryTeam(_m)
+// QueryTeams queries the "teams" edge of the Player entity.
+func (_m *Player) QueryTeams() *TeamQuery {
+	return NewPlayerClient(_m.config).QueryTeams(_m)
 }
 
 // QueryScores queries the "scores" edge of the Player entity.
@@ -389,9 +378,6 @@ func (_m *Player) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
-	builder.WriteString(", ")
-	builder.WriteString("team_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.TeamID))
 	builder.WriteByte(')')
 	return builder.String()
 }

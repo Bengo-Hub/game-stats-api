@@ -31,7 +31,7 @@ type TeamQuery struct {
 	order                    []team.OrderOption
 	inters                   []Interceptor
 	predicates               []predicate.Team
-	withDivisionPool         *DivisionPoolQuery
+	withDivisionPools        *DivisionPoolQuery
 	withHomeLocation         *LocationQuery
 	withPlayers              *PlayerQuery
 	withManagedBy            *UserQuery
@@ -76,8 +76,8 @@ func (_q *TeamQuery) Order(o ...team.OrderOption) *TeamQuery {
 	return _q
 }
 
-// QueryDivisionPool chains the current query on the "division_pool" edge.
-func (_q *TeamQuery) QueryDivisionPool() *DivisionPoolQuery {
+// QueryDivisionPools chains the current query on the "division_pools" edge.
+func (_q *TeamQuery) QueryDivisionPools() *DivisionPoolQuery {
 	query := (&DivisionPoolClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
@@ -90,7 +90,7 @@ func (_q *TeamQuery) QueryDivisionPool() *DivisionPoolQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(team.Table, team.FieldID, selector),
 			sqlgraph.To(divisionpool.Table, divisionpool.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, team.DivisionPoolTable, team.DivisionPoolColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, team.DivisionPoolsTable, team.DivisionPoolsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -134,7 +134,7 @@ func (_q *TeamQuery) QueryPlayers() *PlayerQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(team.Table, team.FieldID, selector),
 			sqlgraph.To(player.Table, player.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, team.PlayersTable, team.PlayersColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, team.PlayersTable, team.PlayersPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -466,7 +466,7 @@ func (_q *TeamQuery) Clone() *TeamQuery {
 		order:                    append([]team.OrderOption{}, _q.order...),
 		inters:                   append([]Interceptor{}, _q.inters...),
 		predicates:               append([]predicate.Team{}, _q.predicates...),
-		withDivisionPool:         _q.withDivisionPool.Clone(),
+		withDivisionPools:        _q.withDivisionPools.Clone(),
 		withHomeLocation:         _q.withHomeLocation.Clone(),
 		withPlayers:              _q.withPlayers.Clone(),
 		withManagedBy:            _q.withManagedBy.Clone(),
@@ -481,14 +481,14 @@ func (_q *TeamQuery) Clone() *TeamQuery {
 	}
 }
 
-// WithDivisionPool tells the query-builder to eager-load the nodes that are connected to
-// the "division_pool" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *TeamQuery) WithDivisionPool(opts ...func(*DivisionPoolQuery)) *TeamQuery {
+// WithDivisionPools tells the query-builder to eager-load the nodes that are connected to
+// the "division_pools" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TeamQuery) WithDivisionPools(opts ...func(*DivisionPoolQuery)) *TeamQuery {
 	query := (&DivisionPoolClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withDivisionPool = query
+	_q.withDivisionPools = query
 	return _q
 }
 
@@ -659,7 +659,7 @@ func (_q *TeamQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Team, e
 		nodes       = []*Team{}
 		_spec       = _q.querySpec()
 		loadedTypes = [9]bool{
-			_q.withDivisionPool != nil,
+			_q.withDivisionPools != nil,
 			_q.withHomeLocation != nil,
 			_q.withPlayers != nil,
 			_q.withManagedBy != nil,
@@ -688,9 +688,10 @@ func (_q *TeamQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Team, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withDivisionPool; query != nil {
-		if err := _q.loadDivisionPool(ctx, query, nodes, nil,
-			func(n *Team, e *DivisionPool) { n.Edges.DivisionPool = e }); err != nil {
+	if query := _q.withDivisionPools; query != nil {
+		if err := _q.loadDivisionPools(ctx, query, nodes,
+			func(n *Team) { n.Edges.DivisionPools = []*DivisionPool{} },
+			func(n *Team, e *DivisionPool) { n.Edges.DivisionPools = append(n.Edges.DivisionPools, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -752,31 +753,63 @@ func (_q *TeamQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Team, e
 	return nodes, nil
 }
 
-func (_q *TeamQuery) loadDivisionPool(ctx context.Context, query *DivisionPoolQuery, nodes []*Team, init func(*Team), assign func(*Team, *DivisionPool)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Team)
-	for i := range nodes {
-		fk := nodes[i].DivisionPoolID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
+func (_q *TeamQuery) loadDivisionPools(ctx context.Context, query *DivisionPoolQuery, nodes []*Team, init func(*Team), assign func(*Team, *DivisionPool)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*Team)
+	nids := make(map[uuid.UUID]map[*Team]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
 		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(team.DivisionPoolsTable)
+		s.Join(joinT).On(s.C(divisionpool.FieldID), joinT.C(team.DivisionPoolsPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(team.DivisionPoolsPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(team.DivisionPoolsPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
 	}
-	query.Where(divisionpool.IDIn(ids...))
-	neighbors, err := query.All(ctx)
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Team]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*DivisionPool](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "division_pool_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "division_pools" node returned %v`, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
+		for kn := range nodes {
+			assign(kn, n)
 		}
 	}
 	return nil
@@ -814,32 +847,63 @@ func (_q *TeamQuery) loadHomeLocation(ctx context.Context, query *LocationQuery,
 	return nil
 }
 func (_q *TeamQuery) loadPlayers(ctx context.Context, query *PlayerQuery, nodes []*Team, init func(*Team), assign func(*Team, *Player)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*Team)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*Team)
+	nids := make(map[uuid.UUID]map[*Team]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
 		if init != nil {
-			init(nodes[i])
+			init(node)
 		}
 	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(player.FieldTeamID)
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(team.PlayersTable)
+		s.Join(joinT).On(s.C(player.FieldID), joinT.C(team.PlayersPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(team.PlayersPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(team.PlayersPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
 	}
-	query.Where(predicate.Player(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(team.PlayersColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Team]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Player](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.TeamID
-		node, ok := nodeids[fk]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "team_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected "players" node returned %v`, n.ID)
 		}
-		assign(node, n)
+		for kn := range nodes {
+			assign(kn, n)
+		}
 	}
 	return nil
 }
@@ -1084,9 +1148,6 @@ func (_q *TeamQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != team.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if _q.withDivisionPool != nil {
-			_spec.Node.AddColumnOnce(team.FieldDivisionPoolID)
 		}
 		if _q.withHomeLocation != nil {
 			_spec.Node.AddColumnOnce(team.FieldHomeLocationID)

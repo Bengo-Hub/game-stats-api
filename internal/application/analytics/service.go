@@ -228,7 +228,7 @@ func (s *Service) GetEventStatistics(ctx context.Context, eventID uuid.UUID) (*E
 
 		// Count teams
 		totalTeams, err := s.dbClient.Team.Query().
-			Where(team.HasDivisionPoolWith(divisionpool.IDIn(poolIDs...))).
+			Where(team.HasDivisionPoolsWith(divisionpool.IDIn(poolIDs...))).
 			Count(ctx)
 		if err == nil {
 			stats.TotalTeams = totalTeams
@@ -236,7 +236,7 @@ func (s *Service) GetEventStatistics(ctx context.Context, eventID uuid.UUID) (*E
 
 		// Count players (players on teams in this event)
 		totalPlayers, err := s.dbClient.Player.Query().
-			Where(player.HasTeamWith(team.HasDivisionPoolWith(divisionpool.IDIn(poolIDs...)))).
+			Where(player.HasTeamsWith(team.HasDivisionPoolsWith(divisionpool.IDIn(poolIDs...)))).
 			Count(ctx)
 		if err == nil {
 			stats.TotalPlayers = totalPlayers

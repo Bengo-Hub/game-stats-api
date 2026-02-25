@@ -340,7 +340,7 @@ func (r *gameRepository) SyncGameScores(ctx context.Context, id uuid.UUID) (*ent
 		WithAwayTeam().
 		WithScores(func(q *ent.ScoringQuery) {
 			q.WithPlayer(func(pq *ent.PlayerQuery) {
-				pq.WithTeam()
+				pq.WithTeams()
 			})
 		}).
 		Only(ctx)
@@ -351,11 +351,15 @@ func (r *gameRepository) SyncGameScores(ctx context.Context, id uuid.UUID) (*ent
 	homeScore := 0
 	awayScore := 0
 	for _, s := range g.Edges.Scores {
-		if s.Edges.Player != nil && s.Edges.Player.Edges.Team != nil {
-			if s.Edges.Player.Edges.Team.ID == g.Edges.HomeTeam.ID {
-				homeScore += s.Goals
-			} else if s.Edges.Player.Edges.Team.ID == g.Edges.AwayTeam.ID {
-				awayScore += s.Goals
+		if s.Edges.Player != nil {
+			for _, team := range s.Edges.Player.Edges.Teams {
+				if team.ID == g.Edges.HomeTeam.ID {
+					homeScore += s.Goals
+					break
+				} else if team.ID == g.Edges.AwayTeam.ID {
+					awayScore += s.Goals
+					break
+				}
 			}
 		}
 	}

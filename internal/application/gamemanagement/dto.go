@@ -192,15 +192,17 @@ type SpiritScoreDTO struct {
 }
 
 type TeamSpiritAverageDTO struct {
-	TeamID           uuid.UUID `json:"teamId"`
-	TeamName         string    `json:"teamName"`
-	GamesPlayed      int       `json:"gamesPlayed"`
-	RulesKnowledge   float64   `json:"rulesKnowledge"`
-	FoulsBodyContact float64   `json:"foulsBodyContact"`
-	FairMindedness   float64   `json:"fairMindedness"`
-	Attitude         float64   `json:"attitude"`
-	Communication    float64   `json:"communication"`
-	AverageTotal     float64   `json:"averageTotal"`
+	TeamID                 uuid.UUID `json:"teamId"`
+	TeamName               string    `json:"teamName"`
+	GamesPlayed            int       `json:"gamesPlayed"`
+	RulesKnowledge         float64   `json:"rulesKnowledge"`
+	FoulsBodyContact       float64   `json:"foulsBodyContact"`
+	FairMindedness         float64   `json:"fairMindedness"`
+	Attitude               float64   `json:"attitude"`
+	Communication          float64   `json:"communication"`
+	AverageTotal           float64   `json:"averageTotal"`
+	MVPNominationsCount    int       `json:"mvpNominationsCount"`
+	SpiritNominationsCount int       `json:"spiritNominationsCount"`
 }
 
 // List filters

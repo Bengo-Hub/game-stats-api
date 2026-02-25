@@ -1653,7 +1653,7 @@ func (c *DivisionPoolClient) QueryTeams(_m *DivisionPool) *TeamQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(divisionpool.Table, divisionpool.FieldID, id),
 			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, divisionpool.TeamsTable, divisionpool.TeamsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, divisionpool.TeamsTable, divisionpool.TeamsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -3583,15 +3583,15 @@ func (c *PlayerClient) GetX(ctx context.Context, id uuid.UUID) *Player {
 	return obj
 }
 
-// QueryTeam queries the team edge of a Player.
-func (c *PlayerClient) QueryTeam(_m *Player) *TeamQuery {
+// QueryTeams queries the teams edge of a Player.
+func (c *PlayerClient) QueryTeams(_m *Player) *TeamQuery {
 	query := (&TeamClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(player.Table, player.FieldID, id),
 			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, player.TeamTable, player.TeamColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, player.TeamsTable, player.TeamsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -4701,15 +4701,15 @@ func (c *TeamClient) GetX(ctx context.Context, id uuid.UUID) *Team {
 	return obj
 }
 
-// QueryDivisionPool queries the division_pool edge of a Team.
-func (c *TeamClient) QueryDivisionPool(_m *Team) *DivisionPoolQuery {
+// QueryDivisionPools queries the division_pools edge of a Team.
+func (c *TeamClient) QueryDivisionPools(_m *Team) *DivisionPoolQuery {
 	query := (&DivisionPoolClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(team.Table, team.FieldID, id),
 			sqlgraph.To(divisionpool.Table, divisionpool.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, team.DivisionPoolTable, team.DivisionPoolColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, team.DivisionPoolsTable, team.DivisionPoolsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -4741,7 +4741,7 @@ func (c *TeamClient) QueryPlayers(_m *Team) *PlayerQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(team.Table, team.FieldID, id),
 			sqlgraph.To(player.Table, player.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, team.PlayersTable, team.PlayersColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, team.PlayersTable, team.PlayersPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil

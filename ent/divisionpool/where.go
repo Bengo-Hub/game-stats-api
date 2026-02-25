@@ -584,7 +584,7 @@ func HasTeams() predicate.DivisionPool {
 	return predicate.DivisionPool(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, TeamsTable, TeamsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, TeamsTable, TeamsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

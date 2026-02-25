@@ -6,6 +6,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
 	"github.com/bengobox/game-stats-api/ent/spiritscore"
+	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/google/uuid"
 )
 
@@ -39,6 +40,12 @@ func (r *mvpNominationRepository) ListBySpiritScore(ctx context.Context, spiritS
 		Where(mvp_nomination.HasSpiritScoreWith(spiritscore.ID(spiritScoreID))).
 		WithPlayer().
 		All(ctx)
+}
+
+func (r *mvpNominationRepository) CountByTeam(ctx context.Context, teamID uuid.UUID) (int, error) {
+	return r.client.MVP_Nomination.Query().
+		Where(mvp_nomination.HasSpiritScoreWith(spiritscore.HasTeamWith(team.ID(teamID)))).
+		Count(ctx)
 }
 
 func (r *mvpNominationRepository) Delete(ctx context.Context, id uuid.UUID) error {

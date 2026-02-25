@@ -392,10 +392,10 @@ func (_c *DivisionPoolCreate) createSpec() (*DivisionPool, *sqlgraph.CreateSpec)
 	}
 	if nodes := _c.mutation.TeamsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   divisionpool.TeamsTable,
-			Columns: []string{divisionpool.TeamsColumn},
+			Columns: divisionpool.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),

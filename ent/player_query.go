@@ -30,7 +30,7 @@ type PlayerQuery struct {
 	order                 []player.OrderOption
 	inters                []Interceptor
 	predicates            []predicate.Player
-	withTeam              *TeamQuery
+	withTeams             *TeamQuery
 	withScores            *ScoringQuery
 	withGameEvents        *GameEventQuery
 	withMvpNominations    *MVPNominationQuery
@@ -72,8 +72,8 @@ func (_q *PlayerQuery) Order(o ...player.OrderOption) *PlayerQuery {
 	return _q
 }
 
-// QueryTeam chains the current query on the "team" edge.
-func (_q *PlayerQuery) QueryTeam() *TeamQuery {
+// QueryTeams chains the current query on the "teams" edge.
+func (_q *PlayerQuery) QueryTeams() *TeamQuery {
 	query := (&TeamClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
@@ -86,7 +86,7 @@ func (_q *PlayerQuery) QueryTeam() *TeamQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(player.Table, player.FieldID, selector),
 			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, player.TeamTable, player.TeamColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, player.TeamsTable, player.TeamsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -396,7 +396,7 @@ func (_q *PlayerQuery) Clone() *PlayerQuery {
 		order:                 append([]player.OrderOption{}, _q.order...),
 		inters:                append([]Interceptor{}, _q.inters...),
 		predicates:            append([]predicate.Player{}, _q.predicates...),
-		withTeam:              _q.withTeam.Clone(),
+		withTeams:             _q.withTeams.Clone(),
 		withScores:            _q.withScores.Clone(),
 		withGameEvents:        _q.withGameEvents.Clone(),
 		withMvpNominations:    _q.withMvpNominations.Clone(),
@@ -408,14 +408,14 @@ func (_q *PlayerQuery) Clone() *PlayerQuery {
 	}
 }
 
-// WithTeam tells the query-builder to eager-load the nodes that are connected to
-// the "team" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *PlayerQuery) WithTeam(opts ...func(*TeamQuery)) *PlayerQuery {
+// WithTeams tells the query-builder to eager-load the nodes that are connected to
+// the "teams" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *PlayerQuery) WithTeams(opts ...func(*TeamQuery)) *PlayerQuery {
 	query := (&TeamClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withTeam = query
+	_q.withTeams = query
 	return _q
 }
 
@@ -553,7 +553,7 @@ func (_q *PlayerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Playe
 		nodes       = []*Player{}
 		_spec       = _q.querySpec()
 		loadedTypes = [6]bool{
-			_q.withTeam != nil,
+			_q.withTeams != nil,
 			_q.withScores != nil,
 			_q.withGameEvents != nil,
 			_q.withMvpNominations != nil,
@@ -579,9 +579,10 @@ func (_q *PlayerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Playe
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withTeam; query != nil {
-		if err := _q.loadTeam(ctx, query, nodes, nil,
-			func(n *Player, e *Team) { n.Edges.Team = e }); err != nil {
+	if query := _q.withTeams; query != nil {
+		if err := _q.loadTeams(ctx, query, nodes,
+			func(n *Player) { n.Edges.Teams = []*Team{} },
+			func(n *Player, e *Team) { n.Edges.Teams = append(n.Edges.Teams, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -623,31 +624,63 @@ func (_q *PlayerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Playe
 	return nodes, nil
 }
 
-func (_q *PlayerQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*Player, init func(*Player), assign func(*Player, *Team)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Player)
-	for i := range nodes {
-		fk := nodes[i].TeamID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
+func (_q *PlayerQuery) loadTeams(ctx context.Context, query *TeamQuery, nodes []*Player, init func(*Player), assign func(*Player, *Team)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*Player)
+	nids := make(map[uuid.UUID]map[*Player]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
 		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(player.TeamsTable)
+		s.Join(joinT).On(s.C(team.FieldID), joinT.C(player.TeamsPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(player.TeamsPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(player.TeamsPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
 	}
-	query.Where(team.IDIn(ids...))
-	neighbors, err := query.All(ctx)
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Player]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Team](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "team_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "teams" node returned %v`, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
+		for kn := range nodes {
+			assign(kn, n)
 		}
 	}
 	return nil
@@ -832,9 +865,6 @@ func (_q *PlayerQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != player.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if _q.withTeam != nil {
-			_spec.Node.AddColumnOnce(player.FieldTeamID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

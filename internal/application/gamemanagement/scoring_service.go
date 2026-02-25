@@ -229,10 +229,46 @@ func mapScoringToDTO(s *ent.Scoring) *ScoringDTO {
 		dto.PlayerNumber = s.Edges.Player.JerseyNumber
 
 		// Include team information for split view display
-		if s.Edges.Player.Edges.Team != nil {
-			teamID := s.Edges.Player.Edges.Team.ID
-			dto.TeamID = &teamID
-			dto.TeamName = s.Edges.Player.Edges.Team.Name
+		if len(s.Edges.Player.Edges.Teams) > 0 {
+			// Try to find the team that matches the game's home or away team if Game edge is loaded
+			var foundTeamID *uuid.UUID
+			var foundTeamName string
+			found := false
+
+			if s.Edges.Game != nil {
+				if s.Edges.Game.Edges.HomeTeam != nil {
+					for _, t := range s.Edges.Player.Edges.Teams {
+						if t.ID == s.Edges.Game.Edges.HomeTeam.ID {
+							uid := t.ID
+							foundTeamID = &uid
+							foundTeamName = t.Name
+							found = true
+							break
+						}
+					}
+				}
+				if !found && s.Edges.Game.Edges.AwayTeam != nil {
+					for _, t := range s.Edges.Player.Edges.Teams {
+						if t.ID == s.Edges.Game.Edges.AwayTeam.ID {
+							uid := t.ID
+							foundTeamID = &uid
+							foundTeamName = t.Name
+							found = true
+							break
+						}
+					}
+				}
+			}
+
+			// Fallback to the first team if no match or game/teams not loaded adequately
+			if !found {
+				uid := s.Edges.Player.Edges.Teams[0].ID
+				foundTeamID = &uid
+				foundTeamName = s.Edges.Player.Edges.Teams[0].Name
+			}
+
+			dto.TeamID = foundTeamID
+			dto.TeamName = foundTeamName
 		}
 	}
 

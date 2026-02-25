@@ -18340,8 +18340,9 @@ type PlayerMutation struct {
 	position                  *string
 	metadata                  *map[string]interface{}
 	clearedFields             map[string]struct{}
-	team                      *uuid.UUID
-	clearedteam               bool
+	teams                     map[uuid.UUID]struct{}
+	removedteams              map[uuid.UUID]struct{}
+	clearedteams              bool
 	scores                    map[uuid.UUID]struct{}
 	removedscores             map[uuid.UUID]struct{}
 	clearedscores             bool
@@ -19095,67 +19096,58 @@ func (m *PlayerMutation) ResetMetadata() {
 	delete(m.clearedFields, player.FieldMetadata)
 }
 
-// SetTeamID sets the "team_id" field.
-func (m *PlayerMutation) SetTeamID(u uuid.UUID) {
-	m.team = &u
-}
-
-// TeamID returns the value of the "team_id" field in the mutation.
-func (m *PlayerMutation) TeamID() (r uuid.UUID, exists bool) {
-	v := m.team
-	if v == nil {
-		return
+// AddTeamIDs adds the "teams" edge to the Team entity by ids.
+func (m *PlayerMutation) AddTeamIDs(ids ...uuid.UUID) {
+	if m.teams == nil {
+		m.teams = make(map[uuid.UUID]struct{})
 	}
-	return *v, true
-}
-
-// OldTeamID returns the old "team_id" field's value of the Player entity.
-// If the Player object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlayerMutation) OldTeamID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldTeamID is only allowed on UpdateOne operations")
+	for i := range ids {
+		m.teams[ids[i]] = struct{}{}
 	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldTeamID requires an ID field in the mutation")
+}
+
+// ClearTeams clears the "teams" edge to the Team entity.
+func (m *PlayerMutation) ClearTeams() {
+	m.clearedteams = true
+}
+
+// TeamsCleared reports if the "teams" edge to the Team entity was cleared.
+func (m *PlayerMutation) TeamsCleared() bool {
+	return m.clearedteams
+}
+
+// RemoveTeamIDs removes the "teams" edge to the Team entity by IDs.
+func (m *PlayerMutation) RemoveTeamIDs(ids ...uuid.UUID) {
+	if m.removedteams == nil {
+		m.removedteams = make(map[uuid.UUID]struct{})
 	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldTeamID: %w", err)
+	for i := range ids {
+		delete(m.teams, ids[i])
+		m.removedteams[ids[i]] = struct{}{}
 	}
-	return oldValue.TeamID, nil
 }
 
-// ResetTeamID resets all changes to the "team_id" field.
-func (m *PlayerMutation) ResetTeamID() {
-	m.team = nil
-}
-
-// ClearTeam clears the "team" edge to the Team entity.
-func (m *PlayerMutation) ClearTeam() {
-	m.clearedteam = true
-	m.clearedFields[player.FieldTeamID] = struct{}{}
-}
-
-// TeamCleared reports if the "team" edge to the Team entity was cleared.
-func (m *PlayerMutation) TeamCleared() bool {
-	return m.clearedteam
-}
-
-// TeamIDs returns the "team" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// TeamID instead. It exists only for internal usage by the builders.
-func (m *PlayerMutation) TeamIDs() (ids []uuid.UUID) {
-	if id := m.team; id != nil {
-		ids = append(ids, *id)
+// RemovedTeams returns the removed IDs of the "teams" edge to the Team entity.
+func (m *PlayerMutation) RemovedTeamsIDs() (ids []uuid.UUID) {
+	for id := range m.removedteams {
+		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetTeam resets all changes to the "team" edge.
-func (m *PlayerMutation) ResetTeam() {
-	m.team = nil
-	m.clearedteam = false
+// TeamsIDs returns the "teams" edge IDs in the mutation.
+func (m *PlayerMutation) TeamsIDs() (ids []uuid.UUID) {
+	for id := range m.teams {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTeams resets all changes to the "teams" edge.
+func (m *PlayerMutation) ResetTeams() {
+	m.teams = nil
+	m.clearedteams = false
+	m.removedteams = nil
 }
 
 // AddScoreIDs adds the "scores" edge to the Scoring entity by ids.
@@ -19462,7 +19454,7 @@ func (m *PlayerMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PlayerMutation) Fields() []string {
-	fields := make([]string, 0, 15)
+	fields := make([]string, 0, 14)
 	if m.created_at != nil {
 		fields = append(fields, player.FieldCreatedAt)
 	}
@@ -19505,9 +19497,6 @@ func (m *PlayerMutation) Fields() []string {
 	if m.metadata != nil {
 		fields = append(fields, player.FieldMetadata)
 	}
-	if m.team != nil {
-		fields = append(fields, player.FieldTeamID)
-	}
 	return fields
 }
 
@@ -19544,8 +19533,6 @@ func (m *PlayerMutation) Field(name string) (ent.Value, bool) {
 		return m.Position()
 	case player.FieldMetadata:
 		return m.Metadata()
-	case player.FieldTeamID:
-		return m.TeamID()
 	}
 	return nil, false
 }
@@ -19583,8 +19570,6 @@ func (m *PlayerMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldPosition(ctx)
 	case player.FieldMetadata:
 		return m.OldMetadata(ctx)
-	case player.FieldTeamID:
-		return m.OldTeamID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Player field %s", name)
 }
@@ -19691,13 +19676,6 @@ func (m *PlayerMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMetadata(v)
-		return nil
-	case player.FieldTeamID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetTeamID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Player field %s", name)
@@ -19856,9 +19834,6 @@ func (m *PlayerMutation) ResetField(name string) error {
 	case player.FieldMetadata:
 		m.ResetMetadata()
 		return nil
-	case player.FieldTeamID:
-		m.ResetTeamID()
-		return nil
 	}
 	return fmt.Errorf("unknown Player field %s", name)
 }
@@ -19866,8 +19841,8 @@ func (m *PlayerMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *PlayerMutation) AddedEdges() []string {
 	edges := make([]string, 0, 6)
-	if m.team != nil {
-		edges = append(edges, player.EdgeTeam)
+	if m.teams != nil {
+		edges = append(edges, player.EdgeTeams)
 	}
 	if m.scores != nil {
 		edges = append(edges, player.EdgeScores)
@@ -19891,10 +19866,12 @@ func (m *PlayerMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *PlayerMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case player.EdgeTeam:
-		if id := m.team; id != nil {
-			return []ent.Value{*id}
+	case player.EdgeTeams:
+		ids := make([]ent.Value, 0, len(m.teams))
+		for id := range m.teams {
+			ids = append(ids, id)
 		}
+		return ids
 	case player.EdgeScores:
 		ids := make([]ent.Value, 0, len(m.scores))
 		for id := range m.scores {
@@ -19932,6 +19909,9 @@ func (m *PlayerMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *PlayerMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 6)
+	if m.removedteams != nil {
+		edges = append(edges, player.EdgeTeams)
+	}
 	if m.removedscores != nil {
 		edges = append(edges, player.EdgeScores)
 	}
@@ -19954,6 +19934,12 @@ func (m *PlayerMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *PlayerMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
+	case player.EdgeTeams:
+		ids := make([]ent.Value, 0, len(m.removedteams))
+		for id := range m.removedteams {
+			ids = append(ids, id)
+		}
+		return ids
 	case player.EdgeScores:
 		ids := make([]ent.Value, 0, len(m.removedscores))
 		for id := range m.removedscores {
@@ -19991,8 +19977,8 @@ func (m *PlayerMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *PlayerMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 6)
-	if m.clearedteam {
-		edges = append(edges, player.EdgeTeam)
+	if m.clearedteams {
+		edges = append(edges, player.EdgeTeams)
 	}
 	if m.clearedscores {
 		edges = append(edges, player.EdgeScores)
@@ -20016,8 +20002,8 @@ func (m *PlayerMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *PlayerMutation) EdgeCleared(name string) bool {
 	switch name {
-	case player.EdgeTeam:
-		return m.clearedteam
+	case player.EdgeTeams:
+		return m.clearedteams
 	case player.EdgeScores:
 		return m.clearedscores
 	case player.EdgeGameEvents:
@@ -20036,9 +20022,6 @@ func (m *PlayerMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *PlayerMutation) ClearEdge(name string) error {
 	switch name {
-	case player.EdgeTeam:
-		m.ClearTeam()
-		return nil
 	}
 	return fmt.Errorf("unknown Player unique edge %s", name)
 }
@@ -20047,8 +20030,8 @@ func (m *PlayerMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *PlayerMutation) ResetEdge(name string) error {
 	switch name {
-	case player.EdgeTeam:
-		m.ResetTeam()
+	case player.EdgeTeams:
+		m.ResetTeams()
 		return nil
 	case player.EdgeScores:
 		m.ResetScores()
@@ -25235,10 +25218,6 @@ type TeamMutation struct {
 	updated_at                    *time.Time
 	deleted_at                    *time.Time
 	name                          *string
-	initial_seed                  *int
-	addinitial_seed               *int
-	final_placement               *int
-	addfinal_placement            *int
 	logo_url                      *string
 	primary_color                 *string
 	secondary_color               *string
@@ -25246,8 +25225,9 @@ type TeamMutation struct {
 	contact_phone                 *string
 	metadata                      *map[string]interface{}
 	clearedFields                 map[string]struct{}
-	division_pool                 *uuid.UUID
-	cleareddivision_pool          bool
+	division_pools                map[uuid.UUID]struct{}
+	removeddivision_pools         map[uuid.UUID]struct{}
+	cleareddivision_pools         bool
 	home_location                 *uuid.UUID
 	clearedhome_location          bool
 	players                       map[uuid.UUID]struct{}
@@ -25535,146 +25515,6 @@ func (m *TeamMutation) OldName(ctx context.Context) (v string, err error) {
 // ResetName resets all changes to the "name" field.
 func (m *TeamMutation) ResetName() {
 	m.name = nil
-}
-
-// SetInitialSeed sets the "initial_seed" field.
-func (m *TeamMutation) SetInitialSeed(i int) {
-	m.initial_seed = &i
-	m.addinitial_seed = nil
-}
-
-// InitialSeed returns the value of the "initial_seed" field in the mutation.
-func (m *TeamMutation) InitialSeed() (r int, exists bool) {
-	v := m.initial_seed
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldInitialSeed returns the old "initial_seed" field's value of the Team entity.
-// If the Team object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeamMutation) OldInitialSeed(ctx context.Context) (v *int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldInitialSeed is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldInitialSeed requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldInitialSeed: %w", err)
-	}
-	return oldValue.InitialSeed, nil
-}
-
-// AddInitialSeed adds i to the "initial_seed" field.
-func (m *TeamMutation) AddInitialSeed(i int) {
-	if m.addinitial_seed != nil {
-		*m.addinitial_seed += i
-	} else {
-		m.addinitial_seed = &i
-	}
-}
-
-// AddedInitialSeed returns the value that was added to the "initial_seed" field in this mutation.
-func (m *TeamMutation) AddedInitialSeed() (r int, exists bool) {
-	v := m.addinitial_seed
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearInitialSeed clears the value of the "initial_seed" field.
-func (m *TeamMutation) ClearInitialSeed() {
-	m.initial_seed = nil
-	m.addinitial_seed = nil
-	m.clearedFields[team.FieldInitialSeed] = struct{}{}
-}
-
-// InitialSeedCleared returns if the "initial_seed" field was cleared in this mutation.
-func (m *TeamMutation) InitialSeedCleared() bool {
-	_, ok := m.clearedFields[team.FieldInitialSeed]
-	return ok
-}
-
-// ResetInitialSeed resets all changes to the "initial_seed" field.
-func (m *TeamMutation) ResetInitialSeed() {
-	m.initial_seed = nil
-	m.addinitial_seed = nil
-	delete(m.clearedFields, team.FieldInitialSeed)
-}
-
-// SetFinalPlacement sets the "final_placement" field.
-func (m *TeamMutation) SetFinalPlacement(i int) {
-	m.final_placement = &i
-	m.addfinal_placement = nil
-}
-
-// FinalPlacement returns the value of the "final_placement" field in the mutation.
-func (m *TeamMutation) FinalPlacement() (r int, exists bool) {
-	v := m.final_placement
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldFinalPlacement returns the old "final_placement" field's value of the Team entity.
-// If the Team object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeamMutation) OldFinalPlacement(ctx context.Context) (v *int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldFinalPlacement is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldFinalPlacement requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldFinalPlacement: %w", err)
-	}
-	return oldValue.FinalPlacement, nil
-}
-
-// AddFinalPlacement adds i to the "final_placement" field.
-func (m *TeamMutation) AddFinalPlacement(i int) {
-	if m.addfinal_placement != nil {
-		*m.addfinal_placement += i
-	} else {
-		m.addfinal_placement = &i
-	}
-}
-
-// AddedFinalPlacement returns the value that was added to the "final_placement" field in this mutation.
-func (m *TeamMutation) AddedFinalPlacement() (r int, exists bool) {
-	v := m.addfinal_placement
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearFinalPlacement clears the value of the "final_placement" field.
-func (m *TeamMutation) ClearFinalPlacement() {
-	m.final_placement = nil
-	m.addfinal_placement = nil
-	m.clearedFields[team.FieldFinalPlacement] = struct{}{}
-}
-
-// FinalPlacementCleared returns if the "final_placement" field was cleared in this mutation.
-func (m *TeamMutation) FinalPlacementCleared() bool {
-	_, ok := m.clearedFields[team.FieldFinalPlacement]
-	return ok
-}
-
-// ResetFinalPlacement resets all changes to the "final_placement" field.
-func (m *TeamMutation) ResetFinalPlacement() {
-	m.final_placement = nil
-	m.addfinal_placement = nil
-	delete(m.clearedFields, team.FieldFinalPlacement)
 }
 
 // SetLogoURL sets the "logo_url" field.
@@ -25971,42 +25811,6 @@ func (m *TeamMutation) ResetMetadata() {
 	delete(m.clearedFields, team.FieldMetadata)
 }
 
-// SetDivisionPoolID sets the "division_pool_id" field.
-func (m *TeamMutation) SetDivisionPoolID(u uuid.UUID) {
-	m.division_pool = &u
-}
-
-// DivisionPoolID returns the value of the "division_pool_id" field in the mutation.
-func (m *TeamMutation) DivisionPoolID() (r uuid.UUID, exists bool) {
-	v := m.division_pool
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDivisionPoolID returns the old "division_pool_id" field's value of the Team entity.
-// If the Team object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeamMutation) OldDivisionPoolID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDivisionPoolID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDivisionPoolID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDivisionPoolID: %w", err)
-	}
-	return oldValue.DivisionPoolID, nil
-}
-
-// ResetDivisionPoolID resets all changes to the "division_pool_id" field.
-func (m *TeamMutation) ResetDivisionPoolID() {
-	m.division_pool = nil
-}
-
 // SetHomeLocationID sets the "home_location_id" field.
 func (m *TeamMutation) SetHomeLocationID(u uuid.UUID) {
 	m.home_location = &u
@@ -26056,31 +25860,58 @@ func (m *TeamMutation) ResetHomeLocationID() {
 	delete(m.clearedFields, team.FieldHomeLocationID)
 }
 
-// ClearDivisionPool clears the "division_pool" edge to the DivisionPool entity.
-func (m *TeamMutation) ClearDivisionPool() {
-	m.cleareddivision_pool = true
-	m.clearedFields[team.FieldDivisionPoolID] = struct{}{}
+// AddDivisionPoolIDs adds the "division_pools" edge to the DivisionPool entity by ids.
+func (m *TeamMutation) AddDivisionPoolIDs(ids ...uuid.UUID) {
+	if m.division_pools == nil {
+		m.division_pools = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.division_pools[ids[i]] = struct{}{}
+	}
 }
 
-// DivisionPoolCleared reports if the "division_pool" edge to the DivisionPool entity was cleared.
-func (m *TeamMutation) DivisionPoolCleared() bool {
-	return m.cleareddivision_pool
+// ClearDivisionPools clears the "division_pools" edge to the DivisionPool entity.
+func (m *TeamMutation) ClearDivisionPools() {
+	m.cleareddivision_pools = true
 }
 
-// DivisionPoolIDs returns the "division_pool" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// DivisionPoolID instead. It exists only for internal usage by the builders.
-func (m *TeamMutation) DivisionPoolIDs() (ids []uuid.UUID) {
-	if id := m.division_pool; id != nil {
-		ids = append(ids, *id)
+// DivisionPoolsCleared reports if the "division_pools" edge to the DivisionPool entity was cleared.
+func (m *TeamMutation) DivisionPoolsCleared() bool {
+	return m.cleareddivision_pools
+}
+
+// RemoveDivisionPoolIDs removes the "division_pools" edge to the DivisionPool entity by IDs.
+func (m *TeamMutation) RemoveDivisionPoolIDs(ids ...uuid.UUID) {
+	if m.removeddivision_pools == nil {
+		m.removeddivision_pools = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.division_pools, ids[i])
+		m.removeddivision_pools[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedDivisionPools returns the removed IDs of the "division_pools" edge to the DivisionPool entity.
+func (m *TeamMutation) RemovedDivisionPoolsIDs() (ids []uuid.UUID) {
+	for id := range m.removeddivision_pools {
+		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetDivisionPool resets all changes to the "division_pool" edge.
-func (m *TeamMutation) ResetDivisionPool() {
-	m.division_pool = nil
-	m.cleareddivision_pool = false
+// DivisionPoolsIDs returns the "division_pools" edge IDs in the mutation.
+func (m *TeamMutation) DivisionPoolsIDs() (ids []uuid.UUID) {
+	for id := range m.division_pools {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetDivisionPools resets all changes to the "division_pools" edge.
+func (m *TeamMutation) ResetDivisionPools() {
+	m.division_pools = nil
+	m.cleareddivision_pools = false
+	m.removeddivision_pools = nil
 }
 
 // ClearHomeLocation clears the "home_location" edge to the Location entity.
@@ -26522,7 +26353,7 @@ func (m *TeamMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TeamMutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 11)
 	if m.created_at != nil {
 		fields = append(fields, team.FieldCreatedAt)
 	}
@@ -26534,12 +26365,6 @@ func (m *TeamMutation) Fields() []string {
 	}
 	if m.name != nil {
 		fields = append(fields, team.FieldName)
-	}
-	if m.initial_seed != nil {
-		fields = append(fields, team.FieldInitialSeed)
-	}
-	if m.final_placement != nil {
-		fields = append(fields, team.FieldFinalPlacement)
 	}
 	if m.logo_url != nil {
 		fields = append(fields, team.FieldLogoURL)
@@ -26558,9 +26383,6 @@ func (m *TeamMutation) Fields() []string {
 	}
 	if m.metadata != nil {
 		fields = append(fields, team.FieldMetadata)
-	}
-	if m.division_pool != nil {
-		fields = append(fields, team.FieldDivisionPoolID)
 	}
 	if m.home_location != nil {
 		fields = append(fields, team.FieldHomeLocationID)
@@ -26581,10 +26403,6 @@ func (m *TeamMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case team.FieldName:
 		return m.Name()
-	case team.FieldInitialSeed:
-		return m.InitialSeed()
-	case team.FieldFinalPlacement:
-		return m.FinalPlacement()
 	case team.FieldLogoURL:
 		return m.LogoURL()
 	case team.FieldPrimaryColor:
@@ -26597,8 +26415,6 @@ func (m *TeamMutation) Field(name string) (ent.Value, bool) {
 		return m.ContactPhone()
 	case team.FieldMetadata:
 		return m.Metadata()
-	case team.FieldDivisionPoolID:
-		return m.DivisionPoolID()
 	case team.FieldHomeLocationID:
 		return m.HomeLocationID()
 	}
@@ -26618,10 +26434,6 @@ func (m *TeamMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldDeletedAt(ctx)
 	case team.FieldName:
 		return m.OldName(ctx)
-	case team.FieldInitialSeed:
-		return m.OldInitialSeed(ctx)
-	case team.FieldFinalPlacement:
-		return m.OldFinalPlacement(ctx)
 	case team.FieldLogoURL:
 		return m.OldLogoURL(ctx)
 	case team.FieldPrimaryColor:
@@ -26634,8 +26446,6 @@ func (m *TeamMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldContactPhone(ctx)
 	case team.FieldMetadata:
 		return m.OldMetadata(ctx)
-	case team.FieldDivisionPoolID:
-		return m.OldDivisionPoolID(ctx)
 	case team.FieldHomeLocationID:
 		return m.OldHomeLocationID(ctx)
 	}
@@ -26674,20 +26484,6 @@ func (m *TeamMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
-		return nil
-	case team.FieldInitialSeed:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetInitialSeed(v)
-		return nil
-	case team.FieldFinalPlacement:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetFinalPlacement(v)
 		return nil
 	case team.FieldLogoURL:
 		v, ok := value.(string)
@@ -26731,13 +26527,6 @@ func (m *TeamMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetMetadata(v)
 		return nil
-	case team.FieldDivisionPoolID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDivisionPoolID(v)
-		return nil
 	case team.FieldHomeLocationID:
 		v, ok := value.(uuid.UUID)
 		if !ok {
@@ -26752,26 +26541,13 @@ func (m *TeamMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *TeamMutation) AddedFields() []string {
-	var fields []string
-	if m.addinitial_seed != nil {
-		fields = append(fields, team.FieldInitialSeed)
-	}
-	if m.addfinal_placement != nil {
-		fields = append(fields, team.FieldFinalPlacement)
-	}
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *TeamMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case team.FieldInitialSeed:
-		return m.AddedInitialSeed()
-	case team.FieldFinalPlacement:
-		return m.AddedFinalPlacement()
-	}
 	return nil, false
 }
 
@@ -26780,20 +26556,6 @@ func (m *TeamMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *TeamMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case team.FieldInitialSeed:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddInitialSeed(v)
-		return nil
-	case team.FieldFinalPlacement:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddFinalPlacement(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Team numeric field %s", name)
 }
@@ -26804,12 +26566,6 @@ func (m *TeamMutation) ClearedFields() []string {
 	var fields []string
 	if m.FieldCleared(team.FieldDeletedAt) {
 		fields = append(fields, team.FieldDeletedAt)
-	}
-	if m.FieldCleared(team.FieldInitialSeed) {
-		fields = append(fields, team.FieldInitialSeed)
-	}
-	if m.FieldCleared(team.FieldFinalPlacement) {
-		fields = append(fields, team.FieldFinalPlacement)
 	}
 	if m.FieldCleared(team.FieldLogoURL) {
 		fields = append(fields, team.FieldLogoURL)
@@ -26848,12 +26604,6 @@ func (m *TeamMutation) ClearField(name string) error {
 	switch name {
 	case team.FieldDeletedAt:
 		m.ClearDeletedAt()
-		return nil
-	case team.FieldInitialSeed:
-		m.ClearInitialSeed()
-		return nil
-	case team.FieldFinalPlacement:
-		m.ClearFinalPlacement()
 		return nil
 	case team.FieldLogoURL:
 		m.ClearLogoURL()
@@ -26896,12 +26646,6 @@ func (m *TeamMutation) ResetField(name string) error {
 	case team.FieldName:
 		m.ResetName()
 		return nil
-	case team.FieldInitialSeed:
-		m.ResetInitialSeed()
-		return nil
-	case team.FieldFinalPlacement:
-		m.ResetFinalPlacement()
-		return nil
 	case team.FieldLogoURL:
 		m.ResetLogoURL()
 		return nil
@@ -26920,9 +26664,6 @@ func (m *TeamMutation) ResetField(name string) error {
 	case team.FieldMetadata:
 		m.ResetMetadata()
 		return nil
-	case team.FieldDivisionPoolID:
-		m.ResetDivisionPoolID()
-		return nil
 	case team.FieldHomeLocationID:
 		m.ResetHomeLocationID()
 		return nil
@@ -26933,8 +26674,8 @@ func (m *TeamMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *TeamMutation) AddedEdges() []string {
 	edges := make([]string, 0, 9)
-	if m.division_pool != nil {
-		edges = append(edges, team.EdgeDivisionPool)
+	if m.division_pools != nil {
+		edges = append(edges, team.EdgeDivisionPools)
 	}
 	if m.home_location != nil {
 		edges = append(edges, team.EdgeHomeLocation)
@@ -26967,10 +26708,12 @@ func (m *TeamMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *TeamMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case team.EdgeDivisionPool:
-		if id := m.division_pool; id != nil {
-			return []ent.Value{*id}
+	case team.EdgeDivisionPools:
+		ids := make([]ent.Value, 0, len(m.division_pools))
+		for id := range m.division_pools {
+			ids = append(ids, id)
 		}
+		return ids
 	case team.EdgeHomeLocation:
 		if id := m.home_location; id != nil {
 			return []ent.Value{*id}
@@ -27024,6 +26767,9 @@ func (m *TeamMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *TeamMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 9)
+	if m.removeddivision_pools != nil {
+		edges = append(edges, team.EdgeDivisionPools)
+	}
 	if m.removedplayers != nil {
 		edges = append(edges, team.EdgePlayers)
 	}
@@ -27052,6 +26798,12 @@ func (m *TeamMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *TeamMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
+	case team.EdgeDivisionPools:
+		ids := make([]ent.Value, 0, len(m.removeddivision_pools))
+		for id := range m.removeddivision_pools {
+			ids = append(ids, id)
+		}
+		return ids
 	case team.EdgePlayers:
 		ids := make([]ent.Value, 0, len(m.removedplayers))
 		for id := range m.removedplayers {
@@ -27101,8 +26853,8 @@ func (m *TeamMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *TeamMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 9)
-	if m.cleareddivision_pool {
-		edges = append(edges, team.EdgeDivisionPool)
+	if m.cleareddivision_pools {
+		edges = append(edges, team.EdgeDivisionPools)
 	}
 	if m.clearedhome_location {
 		edges = append(edges, team.EdgeHomeLocation)
@@ -27135,8 +26887,8 @@ func (m *TeamMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *TeamMutation) EdgeCleared(name string) bool {
 	switch name {
-	case team.EdgeDivisionPool:
-		return m.cleareddivision_pool
+	case team.EdgeDivisionPools:
+		return m.cleareddivision_pools
 	case team.EdgeHomeLocation:
 		return m.clearedhome_location
 	case team.EdgePlayers:
@@ -27161,9 +26913,6 @@ func (m *TeamMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *TeamMutation) ClearEdge(name string) error {
 	switch name {
-	case team.EdgeDivisionPool:
-		m.ClearDivisionPool()
-		return nil
 	case team.EdgeHomeLocation:
 		m.ClearHomeLocation()
 		return nil
@@ -27175,8 +26924,8 @@ func (m *TeamMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *TeamMutation) ResetEdge(name string) error {
 	switch name {
-	case team.EdgeDivisionPool:
-		m.ResetDivisionPool()
+	case team.EdgeDivisionPools:
+		m.ResetDivisionPools()
 		return nil
 	case team.EdgeHomeLocation:
 		m.ResetHomeLocation()

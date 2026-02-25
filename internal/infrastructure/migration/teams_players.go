@@ -52,11 +52,10 @@ func (m *Migrator) migrateTeams(ctx context.Context, fixturesDir string) error {
 
 		// Create new team
 		creator := m.client.Team.Create().
-			SetName(name).
-			SetNillableInitialSeed(intPtr(parseInt(fix.Fields["initial_seed"])))
+			SetName(name)
 
 		if divisionPool != nil {
-			creator.SetDivisionPool(divisionPool)
+			creator.AddDivisionPools(divisionPool)
 		}
 		if homeLocation != nil {
 			creator.SetHomeLocation(homeLocation)
@@ -100,7 +99,7 @@ func (m *Migrator) migratePlayers(ctx context.Context, fixturesDir string) error
 			existingPlayer, err := m.client.Player.Query().
 				Where(
 					player.Name(name),
-					player.HasTeamWith(team.ID(teamUUID)),
+					player.HasTeamsWith(team.ID(teamUUID)),
 				).
 				Only(ctx)
 			if err == nil {
@@ -146,7 +145,7 @@ func (m *Migrator) migratePlayers(ctx context.Context, fixturesDir string) error
 		newPlayer, err := m.client.Player.Create().
 			SetName(name).
 			SetGender(gender).
-			SetTeam(playerTeam).
+			AddTeams(playerTeam).
 			Save(ctx)
 		if err != nil {
 			logger.Error("Failed to create player", logger.Err(err), logger.String("name", name))
