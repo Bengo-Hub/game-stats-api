@@ -15,9 +15,9 @@ var Dir atlasmigrate.Dir
 
 func init() {
 	var err error
-	// Use NewDirFS to support embedded migrations in production
-	Dir, err = atlasmigrate.NewDirFS(migrations, "migrations")
+	// Use NewLocalDir from atlas migrate package
+	Dir, err = atlasmigrate.NewLocalDir("ent/migrate/migrations")
 	if err != nil {
-		log.Fatalf("failed to create migration dir from embed: %v", err)
+		log.Fatalf("failed to create embed dir: %v", err)
 	}
 }

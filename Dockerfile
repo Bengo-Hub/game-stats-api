@@ -20,6 +20,8 @@ COPY --from=builder /bin/game-stats-api /usr/local/bin/game-stats-api
 
 # Copy scripts/fixtures so runtime migrations/fixtures are available
 COPY --from=builder /app/scripts ./scripts
+# Copy migrations folder as required by NewLocalDir
+COPY --from=builder /app/ent/migrate/migrations ./ent/migrate/migrations
 
 RUN chmod +x /usr/local/bin/game-stats-api || true
 USER app
