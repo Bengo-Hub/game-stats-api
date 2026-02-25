@@ -650,6 +650,7 @@ var (
 		{Name: "version", Type: field.TypeInt, Default: 1},
 		{Name: "game_scores", Type: field.TypeUUID},
 		{Name: "player_scores", Type: field.TypeUUID},
+		{Name: "team_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// ScoringsTable holds the schema information for the "scorings" table.
 	ScoringsTable = &schema.Table{
@@ -668,6 +669,12 @@ var (
 				Columns:    []*schema.Column{ScoringsColumns[10]},
 				RefColumns: []*schema.Column{PlayersColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "scorings_teams_team",
+				Columns:    []*schema.Column{ScoringsColumns[11]},
+				RefColumns: []*schema.Column{TeamsColumns[0]},
+				OnDelete:   schema.SetNull,
 			},
 		},
 	}
@@ -1084,6 +1091,7 @@ func init() {
 	ScoreEditRequestsTable.ForeignKeys[2].RefTable = UsersTable
 	ScoringsTable.ForeignKeys[0].RefTable = GamesTable
 	ScoringsTable.ForeignKeys[1].RefTable = PlayersTable
+	ScoringsTable.ForeignKeys[2].RefTable = TeamsTable
 	SpiritNominationsTable.ForeignKeys[0].RefTable = PlayersTable
 	SpiritNominationsTable.ForeignKeys[1].RefTable = SpiritScoresTable
 	SpiritScoresTable.ForeignKeys[0].RefTable = GamesTable

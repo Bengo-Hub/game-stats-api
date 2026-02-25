@@ -56,7 +56,7 @@ type UpdateTeamRequest struct {
 
 type CreatePlayerRequest struct {
 	Name            string     `json:"name" validate:"required"`
-	EventID         uuid.UUID  `json:"eventId"`
+	EventID         *uuid.UUID `json:"eventId,omitempty"`
 	TeamID          uuid.UUID  `json:"teamId"`
 	Gender          string     `json:"gender" validate:"required,oneof=M F X"`
 	JerseyNumber    *int       `json:"jerseyNumber,omitempty"`
@@ -710,13 +710,13 @@ func (h *TeamHandler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create EventParticipation record to preserve historical data
-	if req.EventID != uuid.Nil {
+	if req.EventID != nil && *req.EventID != uuid.Nil {
 		_, err = h.client.EventParticipation.Create().
 			SetRole("player").
 			SetStatus("active").
 			SetPlayer(p).
 			SetTeamID(teamID).
-			SetEventID(req.EventID).
+			SetEventID(*req.EventID).
 			SetNillableJerseyNumber(req.JerseyNumber).
 			SetNillablePosition(req.Position).
 			SetIsCaptain(req.IsCaptain).

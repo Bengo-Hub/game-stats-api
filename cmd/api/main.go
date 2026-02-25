@@ -166,6 +166,7 @@ func main() {
 		teamRepo,
 		eventRepo,
 		redisClient,
+		client,
 	)
 
 	// Cross-link services if needed

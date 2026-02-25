@@ -13,6 +13,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/google/uuid"
 )
 
@@ -121,6 +122,20 @@ func (_c *ScoringCreate) SetNillableTurns(v *int) *ScoringCreate {
 	return _c
 }
 
+// SetTeamID sets the "team_id" field.
+func (_c *ScoringCreate) SetTeamID(v uuid.UUID) *ScoringCreate {
+	_c.mutation.SetTeamID(v)
+	return _c
+}
+
+// SetNillableTeamID sets the "team_id" field if the given value is not nil.
+func (_c *ScoringCreate) SetNillableTeamID(v *uuid.UUID) *ScoringCreate {
+	if v != nil {
+		_c.SetTeamID(*v)
+	}
+	return _c
+}
+
 // SetVersion sets the "version" field.
 func (_c *ScoringCreate) SetVersion(v int) *ScoringCreate {
 	_c.mutation.SetVersion(v)
@@ -169,6 +184,11 @@ func (_c *ScoringCreate) SetPlayerID(id uuid.UUID) *ScoringCreate {
 // SetPlayer sets the "player" edge to the Player entity.
 func (_c *ScoringCreate) SetPlayer(v *Player) *ScoringCreate {
 	return _c.SetPlayerID(v.ID)
+}
+
+// SetTeam sets the "team" edge to the Team entity.
+func (_c *ScoringCreate) SetTeam(v *Team) *ScoringCreate {
+	return _c.SetTeamID(v.ID)
 }
 
 // Mutation returns the ScoringMutation object of the builder.
@@ -368,6 +388,23 @@ func (_c *ScoringCreate) createSpec() (*Scoring, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.player_scores = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   scoring.TeamTable,
+			Columns: []string{scoring.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.TeamID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

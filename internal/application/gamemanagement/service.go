@@ -152,13 +152,11 @@ func (s *Service) ScheduleGame(ctx context.Context, req CreateGameRequest) (*Gam
 		},
 	}
 
-	if req.GameRoundID != nil {
-		round, err := s.gameRoundRepo.GetByID(ctx, *req.GameRoundID)
-		if err != nil {
-			return nil, err
-		}
-		gameEntity.Edges.GameRound = round
+	round, err := s.gameRoundRepo.GetByID(ctx, req.GameRoundID)
+	if err != nil {
+		return nil, err
 	}
+	gameEntity.Edges.GameRound = round
 
 	if req.ScorekeeperID != nil {
 		scorekeeper, err := s.userRepo.GetByID(ctx, *req.ScorekeeperID)
@@ -717,4 +715,14 @@ func (s *Service) MassImportPlayers(ctx context.Context, req MassImportPlayersRe
 		}
 	}
 	return createdIDs, nil
+}
+
+func (s *Service) DeleteGameRound(ctx context.Context, id uuid.UUID) error {
+	// Check if exists
+	_, err := s.gameRoundRepo.GetByID(ctx, id)
+	if err != nil {
+		return ErrGameRoundNotFound
+	}
+
+	return s.gameRoundRepo.Delete(ctx, id)
 }

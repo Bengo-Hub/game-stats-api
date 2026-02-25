@@ -180,7 +180,7 @@ func TestGenerateBracket_Success(t *testing.T) {
 	mockTeamRepo := new(MockTeamRepository)
 	mockEventRepo := new(MockEventRepository)
 
-	service := NewService(mockGameRepo, mockRoundRepo, mockTeamRepo, mockEventRepo, nil)
+	service := NewService(mockGameRepo, mockRoundRepo, mockTeamRepo, mockEventRepo, nil, nil)
 
 	eventID := uuid.New()
 	roundID := uuid.New()
@@ -259,7 +259,7 @@ func TestGenerateBracket_NonPowerOfTwo(t *testing.T) {
 	mockTeamRepo := new(MockTeamRepository)
 	mockEventRepo := new(MockEventRepository)
 
-	service := NewService(mockGameRepo, mockRoundRepo, mockTeamRepo, mockEventRepo, nil)
+	service := NewService(mockGameRepo, mockRoundRepo, mockTeamRepo, mockEventRepo, nil, nil)
 
 	eventID := uuid.New()
 	roundID := uuid.New()
@@ -333,7 +333,7 @@ func TestGenerateBracket_InvalidRoundType(t *testing.T) {
 	mockTeamRepo := new(MockTeamRepository)
 	mockEventRepo := new(MockEventRepository)
 
-	service := NewService(mockGameRepo, mockRoundRepo, mockTeamRepo, mockEventRepo, nil)
+	service := NewService(mockGameRepo, mockRoundRepo, mockTeamRepo, mockEventRepo, nil, nil)
 
 	eventID := uuid.New()
 	roundID := uuid.New()
@@ -387,7 +387,7 @@ func TestGetBracket_Success(t *testing.T) {
 	mockTeamRepo := new(MockTeamRepository)
 	mockEventRepo := new(MockEventRepository)
 
-	service := NewService(mockGameRepo, mockRoundRepo, mockTeamRepo, mockEventRepo, nil)
+	service := NewService(mockGameRepo, mockRoundRepo, mockTeamRepo, mockEventRepo, nil, nil)
 
 	roundID := uuid.New()
 	eventID := uuid.New()

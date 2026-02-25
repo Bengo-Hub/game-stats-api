@@ -26,16 +26,10 @@ func (s *ScoreService) RecalculateTotals(ctx context.Context, gameID uuid.UUID, 
 	awayScore := 0
 
 	for _, score := range scores {
-		if score.Edges.Player != nil {
-			for _, t := range score.Edges.Player.Edges.Teams {
-				if t.ID == homeTeamID {
-					homeScore += score.Goals
-					break
-				} else if t.ID == awayTeamID {
-					awayScore += score.Goals
-					break
-				}
-			}
+		if score.TeamID == homeTeamID {
+			homeScore += score.Goals
+		} else if score.TeamID == awayTeamID {
+			awayScore += score.Goals
 		}
 	}
 

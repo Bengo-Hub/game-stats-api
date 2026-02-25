@@ -23,7 +23,8 @@ func (r *gameRoundRepository) Create(ctx context.Context, round *ent.GameRound) 
 	query := r.client.GameRound.Create().
 		SetName(round.Name).
 		SetRoundType(round.RoundType).
-		SetEventID(round.Edges.Event.ID)
+		SetEventID(round.Edges.Event.ID).
+		SetAutoAdvance(round.AutoAdvance)
 
 	if round.RoundNumber != nil {
 		query.SetRoundNumber(*round.RoundNumber)
@@ -35,6 +36,10 @@ func (r *gameRoundRepository) Create(ctx context.Context, round *ent.GameRound) 
 
 	if round.EndDate != nil {
 		query.SetEndDate(*round.EndDate)
+	}
+
+	if round.TopNTeams != nil {
+		query.SetTopNTeams(*round.TopNTeams)
 	}
 
 	return query.Save(ctx)
@@ -72,6 +77,7 @@ func (r *gameRoundRepository) Update(ctx context.Context, round *ent.GameRound) 
 	query := r.client.GameRound.UpdateOneID(round.ID).
 		SetName(round.Name).
 		SetRoundType(round.RoundType).
+		SetAutoAdvance(round.AutoAdvance).
 		SetUpdatedAt(time.Now())
 
 	if round.RoundNumber != nil {
@@ -86,6 +92,10 @@ func (r *gameRoundRepository) Update(ctx context.Context, round *ent.GameRound) 
 		query.SetEndDate(*round.EndDate)
 	}
 
+	if round.TopNTeams != nil {
+		query.SetTopNTeams(*round.TopNTeams)
+	}
+
 	return query.Save(ctx)
 }
 
@@ -93,4 +103,8 @@ func (r *gameRoundRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return r.client.GameRound.UpdateOneID(id).
 		SetDeletedAt(time.Now()).
 		Exec(ctx)
+}
+
+func (r *gameRoundRepository) GetClient() *ent.Client {
+	return r.client
 }

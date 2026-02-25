@@ -40,6 +40,7 @@ type Service struct {
 	teamRepo      TeamRepository
 	eventRepo     EventRepository
 	cache         *cache.RedisClient
+	client        *ent.Client
 }
 
 // NewService creates a new bracket service
@@ -49,6 +50,7 @@ func NewService(
 	teamRepo TeamRepository,
 	eventRepo EventRepository,
 	cacheClient *cache.RedisClient,
+	client *ent.Client,
 ) *Service {
 	return &Service{
 		gameRepo:      gameRepo,
@@ -56,6 +58,7 @@ func NewService(
 		teamRepo:      teamRepo,
 		eventRepo:     eventRepo,
 		cache:         cacheClient,
+		client:        client,
 	}
 }
 
@@ -98,6 +101,12 @@ func (s *Service) GenerateBracket(ctx context.Context, req GenerateBracketReques
 				Seed: numTeams + i + 1,
 			})
 		}
+	}
+
+	// Validate division pool exists
+	_, err = s.client.DivisionPool.Get(ctx, req.DivisionPoolID)
+	if err != nil {
+		return nil, fmt.Errorf("division pool not found: %w", err)
 	}
 
 	// Generate bracket based on type
@@ -236,10 +245,15 @@ func (s *Service) createBracketGame(ctx context.Context, req GenerateBracketRequ
 		HomeTeamScore:        0,
 		AwayTeamScore:        0,
 		Version:              1,
+		Edges: ent.GameEdges{
+			HomeTeam:      &ent.Team{ID: team1ID},
+			AwayTeam:      &ent.Team{ID: team2ID},
+			DivisionPool:  &ent.DivisionPool{ID: req.DivisionPoolID},
+			FieldLocation: &ent.Field{ID: req.FieldID},
+			GameRound:     &ent.GameRound{ID: req.RoundID},
+		},
 	}
 
-	// Note: In a real implementation, you'd use the Ent client's builder pattern
-	// This is a simplified version
 	createdGame, err := s.gameRepo.Create(ctx, game)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create game: %w", err)

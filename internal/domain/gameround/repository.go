@@ -14,4 +14,5 @@ type Repository interface {
 	ListByEvent(ctx context.Context, eventID uuid.UUID) ([]*ent.GameRound, error)
 	Update(ctx context.Context, round *ent.GameRound) (*ent.GameRound, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+	GetClient() *ent.Client
 }

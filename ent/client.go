@@ -4174,6 +4174,22 @@ func (c *ScoringClient) QueryPlayer(_m *Scoring) *PlayerQuery {
 	return query
 }
 
+// QueryTeam queries the team edge of a Scoring.
+func (c *ScoringClient) QueryTeam(_m *Scoring) *TeamQuery {
+	query := (&TeamClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(scoring.Table, scoring.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, scoring.TeamTable, scoring.TeamColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ScoringClient) Hooks() []Hook {
 	return c.hooks.Scoring

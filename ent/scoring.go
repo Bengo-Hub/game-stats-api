@@ -12,6 +12,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/google/uuid"
 )
 
@@ -34,6 +35,8 @@ type Scoring struct {
 	Blocks int `json:"blocks,omitempty"`
 	// Turns holds the value of the "turns" field.
 	Turns int `json:"turns,omitempty"`
+	// The team for which the player was playing when scoring
+	TeamID uuid.UUID `json:"team_id,omitempty"`
 	// Version holds the value of the "version" field.
 	Version int `json:"version,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -50,9 +53,11 @@ type ScoringEdges struct {
 	Game *Game `json:"game,omitempty"`
 	// Player holds the value of the player edge.
 	Player *Player `json:"player,omitempty"`
+	// Team holds the value of the team edge.
+	Team *Team `json:"team,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // GameOrErr returns the Game value or an error if the edge
@@ -77,6 +82,17 @@ func (e ScoringEdges) PlayerOrErr() (*Player, error) {
 	return nil, &NotLoadedError{edge: "player"}
 }
 
+// TeamOrErr returns the Team value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ScoringEdges) TeamOrErr() (*Team, error) {
+	if e.Team != nil {
+		return e.Team, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: team.Label}
+	}
+	return nil, &NotLoadedError{edge: "team"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Scoring) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -86,7 +102,7 @@ func (*Scoring) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case scoring.FieldCreatedAt, scoring.FieldUpdatedAt, scoring.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case scoring.FieldID:
+		case scoring.FieldID, scoring.FieldTeamID:
 			values[i] = new(uuid.UUID)
 		case scoring.ForeignKeys[0]: // game_scores
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
@@ -156,6 +172,12 @@ func (_m *Scoring) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Turns = int(value.Int64)
 			}
+		case scoring.FieldTeamID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field team_id", values[i])
+			} else if value != nil {
+				_m.TeamID = *value
+			}
 		case scoring.FieldVersion:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field version", values[i])
@@ -197,6 +219,11 @@ func (_m *Scoring) QueryGame() *GameQuery {
 // QueryPlayer queries the "player" edge of the Scoring entity.
 func (_m *Scoring) QueryPlayer() *PlayerQuery {
 	return NewScoringClient(_m.config).QueryPlayer(_m)
+}
+
+// QueryTeam queries the "team" edge of the Scoring entity.
+func (_m *Scoring) QueryTeam() *TeamQuery {
+	return NewScoringClient(_m.config).QueryTeam(_m)
 }
 
 // Update returns a builder for updating this Scoring.
@@ -244,6 +271,9 @@ func (_m *Scoring) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("turns=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Turns))
+	builder.WriteString(", ")
+	builder.WriteString("team_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TeamID))
 	builder.WriteString(", ")
 	builder.WriteString("version=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Version))

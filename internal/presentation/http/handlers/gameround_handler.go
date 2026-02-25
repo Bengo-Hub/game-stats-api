@@ -156,3 +156,59 @@ func (h *GameRoundHandler) UpdateGameRound(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(round)
 }
+
+// DeleteGameRound deletes a game round.
+// @Summary Delete Game Round
+// @Description Delete a game round by ID
+// @Tags game-rounds
+// @Param id path string true "Round ID"
+// @Success 204 "no content"
+// @Failure 404 {string} string "not found"
+// @Security BearerAuth
+// @Router /rounds/{id} [delete]
+func (h *GameRoundHandler) DeleteGameRound(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		http.Error(w, "invalid round ID", http.StatusBadRequest)
+		return
+	}
+
+	err = h.service.DeleteGameRound(r.Context(), id)
+	if err != nil {
+		if err == gamemanagement.ErrGameRoundNotFound {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// SeedDefaultRounds seeds default rounds for an event.
+// @Summary Seed Default Rounds
+// @Description Seed common game rounds (Pool, Bracket, etc.) for an event
+// @Tags game-rounds
+// @Param event_id path string true "Event ID"
+// @Success 204 "no content"
+// @Failure 400 {string} string "bad request"
+// @Security BearerAuth
+// @Router /events/{event_id}/rounds/seed [post]
+func (h *GameRoundHandler) SeedDefaultRounds(w http.ResponseWriter, r *http.Request) {
+	eventIDStr := chi.URLParam(r, "event_id")
+	eventID, err := uuid.Parse(eventIDStr)
+	if err != nil {
+		http.Error(w, "invalid event ID", http.StatusBadRequest)
+		return
+	}
+
+	err = h.service.SeedDefaultRounds(r.Context(), eventID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

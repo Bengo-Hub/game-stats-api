@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/bengobox/game-stats-api/ent"
+	"github.com/bengobox/game-stats-api/internal/infrastructure/db/seeds"
 	"github.com/google/uuid"
 )
 
@@ -21,6 +22,8 @@ func (s *Service) CreateGameRound(ctx context.Context, req CreateGameRoundReques
 		RoundNumber: req.RoundNumber,
 		StartDate:   req.StartDate,
 		EndDate:     req.EndDate,
+		AutoAdvance: req.AutoAdvance,
+		TopNTeams:   req.TopNTeams,
 		Edges: ent.GameRoundEdges{
 			Event: event,
 		},
@@ -89,6 +92,12 @@ func (s *Service) UpdateGameRound(ctx context.Context, id uuid.UUID, req UpdateG
 	if req.EndDate != nil {
 		round.EndDate = req.EndDate
 	}
+	if req.AutoAdvance != nil {
+		round.AutoAdvance = *req.AutoAdvance
+	}
+	if req.TopNTeams != nil {
+		round.TopNTeams = req.TopNTeams
+	}
 
 	updated, err := s.gameRoundRepo.Update(ctx, round)
 	if err != nil {
@@ -96,6 +105,16 @@ func (s *Service) UpdateGameRound(ctx context.Context, id uuid.UUID, req UpdateG
 	}
 
 	return mapGameRoundToDTO(updated), nil
+}
+
+func (s *Service) SeedDefaultRounds(ctx context.Context, eventID uuid.UUID) error {
+	// Validate event exists
+	_, err := s.eventRepo.GetByID(ctx, eventID)
+	if err != nil {
+		return err
+	}
+
+	return seeds.SeedGameRounds(ctx, s.gameRoundRepo.GetClient(), eventID)
 }
 
 func mapGameRoundToDTO(r *ent.GameRound) *GameRoundDTO {
@@ -106,6 +125,8 @@ func mapGameRoundToDTO(r *ent.GameRound) *GameRoundDTO {
 		RoundNumber: r.RoundNumber,
 		StartDate:   r.StartDate,
 		EndDate:     r.EndDate,
+		AutoAdvance: r.AutoAdvance,
+		TopNTeams:   r.TopNTeams,
 		CreatedAt:   r.CreatedAt,
 		UpdatedAt:   r.UpdatedAt,
 	}

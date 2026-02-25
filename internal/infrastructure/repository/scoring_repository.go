@@ -28,6 +28,7 @@ func (r *scoringRepository) Create(ctx context.Context, s *ent.Scoring) (*ent.Sc
 		SetBlocks(s.Blocks).
 		SetTurns(s.Turns).
 		SetVersion(s.Version).
+		SetTeamID(s.TeamID).
 		SetGameID(s.Edges.Game.ID).
 		SetPlayerID(s.Edges.Player.ID).
 		Save(ctx)

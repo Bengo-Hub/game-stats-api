@@ -100,6 +100,7 @@ func (s *Service) RecordScore(ctx context.Context, gameID uuid.UUID, userID uuid
 		existingScore.Assists = req.Assists
 		existingScore.Blocks = req.Blocks
 		existingScore.Turns = req.Turns
+		existingScore.TeamID = req.TeamID
 
 		_, err = s.scoringRepo.Update(ctx, existingScore)
 		if err != nil {
@@ -112,6 +113,7 @@ func (s *Service) RecordScore(ctx context.Context, gameID uuid.UUID, userID uuid
 			Assists: req.Assists,
 			Blocks:  req.Blocks,
 			Turns:   req.Turns,
+			TeamID:  req.TeamID,
 			Edges: ent.ScoringEdges{
 				Game:   game,
 				Player: player,

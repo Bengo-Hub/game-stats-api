@@ -509,13 +509,14 @@ func (s *Service) AdvanceTeams(ctx context.Context, req AdvanceTeamsRequest) (*A
 
 		// Call bracket service
 		bracketReq := bracket.GenerateBracketRequest{
-			EventID:      targetRound.Edges.Event.ID,
-			BracketType:  bracket.BracketTypeSingleElimination,
-			Teams:        teamSeeds,
-			RoundID:      req.TargetRoundID,
-			StartTime:    *req.StartTime,
-			FieldID:      *req.FieldID,
-			GameDuration: req.GameDuration,
+			EventID:        targetRound.Edges.Event.ID,
+			BracketType:    bracket.BracketTypeSingleElimination,
+			Teams:          teamSeeds,
+			RoundID:        req.TargetRoundID,
+			DivisionPoolID: req.DivisionID,
+			StartTime:      *req.StartTime,
+			FieldID:        *req.FieldID,
+			GameDuration:   req.GameDuration,
 		}
 
 		bracketResp, err := s.bracketService.GenerateBracket(ctx, bracketReq)

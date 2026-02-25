@@ -29,12 +29,16 @@ const (
 	FieldBlocks = "blocks"
 	// FieldTurns holds the string denoting the turns field in the database.
 	FieldTurns = "turns"
+	// FieldTeamID holds the string denoting the team_id field in the database.
+	FieldTeamID = "team_id"
 	// FieldVersion holds the string denoting the version field in the database.
 	FieldVersion = "version"
 	// EdgeGame holds the string denoting the game edge name in mutations.
 	EdgeGame = "game"
 	// EdgePlayer holds the string denoting the player edge name in mutations.
 	EdgePlayer = "player"
+	// EdgeTeam holds the string denoting the team edge name in mutations.
+	EdgeTeam = "team"
 	// Table holds the table name of the scoring in the database.
 	Table = "scorings"
 	// GameTable is the table that holds the game relation/edge.
@@ -51,6 +55,13 @@ const (
 	PlayerInverseTable = "players"
 	// PlayerColumn is the table column denoting the player relation/edge.
 	PlayerColumn = "player_scores"
+	// TeamTable is the table that holds the team relation/edge.
+	TeamTable = "scorings"
+	// TeamInverseTable is the table name for the Team entity.
+	// It exists in this package in order to avoid circular dependency with the "team" package.
+	TeamInverseTable = "teams"
+	// TeamColumn is the table column denoting the team relation/edge.
+	TeamColumn = "team_id"
 )
 
 // Columns holds all SQL columns for scoring fields.
@@ -63,6 +74,7 @@ var Columns = []string{
 	FieldAssists,
 	FieldBlocks,
 	FieldTurns,
+	FieldTeamID,
 	FieldVersion,
 }
 
@@ -152,6 +164,11 @@ func ByTurns(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTurns, opts...).ToFunc()
 }
 
+// ByTeamID orders the results by the team_id field.
+func ByTeamID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTeamID, opts...).ToFunc()
+}
+
 // ByVersion orders the results by the version field.
 func ByVersion(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldVersion, opts...).ToFunc()
@@ -170,6 +187,13 @@ func ByPlayerField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newPlayerStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByTeamField orders the results by team field.
+func ByTeamField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTeamStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newGameStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -182,5 +206,12 @@ func newPlayerStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(PlayerInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, PlayerTable, PlayerColumn),
+	)
+}
+func newTeamStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TeamInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, false, TeamTable, TeamColumn),
 	)
 }

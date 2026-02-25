@@ -91,6 +91,11 @@ func Turns(v int) predicate.Scoring {
 	return predicate.Scoring(sql.FieldEQ(FieldTurns, v))
 }
 
+// TeamID applies equality check predicate on the "team_id" field. It's identical to TeamIDEQ.
+func TeamID(v uuid.UUID) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldTeamID, v))
+}
+
 // Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
 func Version(v int) predicate.Scoring {
 	return predicate.Scoring(sql.FieldEQ(FieldVersion, v))
@@ -386,6 +391,36 @@ func TurnsLTE(v int) predicate.Scoring {
 	return predicate.Scoring(sql.FieldLTE(FieldTurns, v))
 }
 
+// TeamIDEQ applies the EQ predicate on the "team_id" field.
+func TeamIDEQ(v uuid.UUID) predicate.Scoring {
+	return predicate.Scoring(sql.FieldEQ(FieldTeamID, v))
+}
+
+// TeamIDNEQ applies the NEQ predicate on the "team_id" field.
+func TeamIDNEQ(v uuid.UUID) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNEQ(FieldTeamID, v))
+}
+
+// TeamIDIn applies the In predicate on the "team_id" field.
+func TeamIDIn(vs ...uuid.UUID) predicate.Scoring {
+	return predicate.Scoring(sql.FieldIn(FieldTeamID, vs...))
+}
+
+// TeamIDNotIn applies the NotIn predicate on the "team_id" field.
+func TeamIDNotIn(vs ...uuid.UUID) predicate.Scoring {
+	return predicate.Scoring(sql.FieldNotIn(FieldTeamID, vs...))
+}
+
+// TeamIDIsNil applies the IsNil predicate on the "team_id" field.
+func TeamIDIsNil() predicate.Scoring {
+	return predicate.Scoring(sql.FieldIsNull(FieldTeamID))
+}
+
+// TeamIDNotNil applies the NotNil predicate on the "team_id" field.
+func TeamIDNotNil() predicate.Scoring {
+	return predicate.Scoring(sql.FieldNotNull(FieldTeamID))
+}
+
 // VersionEQ applies the EQ predicate on the "version" field.
 func VersionEQ(v int) predicate.Scoring {
 	return predicate.Scoring(sql.FieldEQ(FieldVersion, v))
@@ -464,6 +499,29 @@ func HasPlayer() predicate.Scoring {
 func HasPlayerWith(preds ...predicate.Player) predicate.Scoring {
 	return predicate.Scoring(func(s *sql.Selector) {
 		step := newPlayerStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTeam applies the HasEdge predicate on the "team" edge.
+func HasTeam() predicate.Scoring {
+	return predicate.Scoring(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, TeamTable, TeamColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTeamWith applies the HasEdge predicate on the "team" edge with a given conditions (other predicates).
+func HasTeamWith(preds ...predicate.Team) predicate.Scoring {
+	return predicate.Scoring(func(s *sql.Selector) {
+		step := newTeamStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

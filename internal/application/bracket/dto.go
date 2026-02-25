@@ -40,10 +40,11 @@ type GenerateBracketRequest struct {
 	EventID      uuid.UUID   `json:"event_id" validate:"required"`
 	BracketType  BracketType `json:"bracket_type" validate:"required,oneof=single_elimination double_elimination"`
 	Teams        []TeamSeed  `json:"teams" validate:"required,min=2,dive"`
-	RoundID      uuid.UUID   `json:"round_id" validate:"required"`
-	StartTime    time.Time   `json:"start_time" validate:"required"`
-	FieldID      uuid.UUID   `json:"field_id" validate:"required"`
-	GameDuration int         `json:"game_duration" validate:"required,min=30"`
+	RoundID        uuid.UUID   `json:"round_id" validate:"required"`
+	DivisionPoolID uuid.UUID   `json:"division_pool_id" validate:"required"`
+	StartTime      time.Time   `json:"start_time" validate:"required"`
+	FieldID        uuid.UUID   `json:"field_id" validate:"required"`
+	GameDuration   int         `json:"game_duration" validate:"required,min=30"`
 }
 
 // TeamSeed represents a team with its seed position

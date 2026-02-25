@@ -15,6 +15,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/predicate"
 	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/google/uuid"
 )
 
@@ -141,6 +142,26 @@ func (_u *ScoringUpdate) AddTurns(v int) *ScoringUpdate {
 	return _u
 }
 
+// SetTeamID sets the "team_id" field.
+func (_u *ScoringUpdate) SetTeamID(v uuid.UUID) *ScoringUpdate {
+	_u.mutation.SetTeamID(v)
+	return _u
+}
+
+// SetNillableTeamID sets the "team_id" field if the given value is not nil.
+func (_u *ScoringUpdate) SetNillableTeamID(v *uuid.UUID) *ScoringUpdate {
+	if v != nil {
+		_u.SetTeamID(*v)
+	}
+	return _u
+}
+
+// ClearTeamID clears the value of the "team_id" field.
+func (_u *ScoringUpdate) ClearTeamID() *ScoringUpdate {
+	_u.mutation.ClearTeamID()
+	return _u
+}
+
 // SetVersion sets the "version" field.
 func (_u *ScoringUpdate) SetVersion(v int) *ScoringUpdate {
 	_u.mutation.ResetVersion()
@@ -184,6 +205,11 @@ func (_u *ScoringUpdate) SetPlayer(v *Player) *ScoringUpdate {
 	return _u.SetPlayerID(v.ID)
 }
 
+// SetTeam sets the "team" edge to the Team entity.
+func (_u *ScoringUpdate) SetTeam(v *Team) *ScoringUpdate {
+	return _u.SetTeamID(v.ID)
+}
+
 // Mutation returns the ScoringMutation object of the builder.
 func (_u *ScoringUpdate) Mutation() *ScoringMutation {
 	return _u.mutation
@@ -198,6 +224,12 @@ func (_u *ScoringUpdate) ClearGame() *ScoringUpdate {
 // ClearPlayer clears the "player" edge to the Player entity.
 func (_u *ScoringUpdate) ClearPlayer() *ScoringUpdate {
 	_u.mutation.ClearPlayer()
+	return _u
+}
+
+// ClearTeam clears the "team" edge to the Team entity.
+func (_u *ScoringUpdate) ClearTeam() *ScoringUpdate {
+	_u.mutation.ClearTeam()
 	return _u
 }
 
@@ -357,6 +389,35 @@ func (_u *ScoringUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   scoring.TeamTable,
+			Columns: []string{scoring.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   scoring.TeamTable,
+			Columns: []string{scoring.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{scoring.Label}
@@ -487,6 +548,26 @@ func (_u *ScoringUpdateOne) AddTurns(v int) *ScoringUpdateOne {
 	return _u
 }
 
+// SetTeamID sets the "team_id" field.
+func (_u *ScoringUpdateOne) SetTeamID(v uuid.UUID) *ScoringUpdateOne {
+	_u.mutation.SetTeamID(v)
+	return _u
+}
+
+// SetNillableTeamID sets the "team_id" field if the given value is not nil.
+func (_u *ScoringUpdateOne) SetNillableTeamID(v *uuid.UUID) *ScoringUpdateOne {
+	if v != nil {
+		_u.SetTeamID(*v)
+	}
+	return _u
+}
+
+// ClearTeamID clears the value of the "team_id" field.
+func (_u *ScoringUpdateOne) ClearTeamID() *ScoringUpdateOne {
+	_u.mutation.ClearTeamID()
+	return _u
+}
+
 // SetVersion sets the "version" field.
 func (_u *ScoringUpdateOne) SetVersion(v int) *ScoringUpdateOne {
 	_u.mutation.ResetVersion()
@@ -530,6 +611,11 @@ func (_u *ScoringUpdateOne) SetPlayer(v *Player) *ScoringUpdateOne {
 	return _u.SetPlayerID(v.ID)
 }
 
+// SetTeam sets the "team" edge to the Team entity.
+func (_u *ScoringUpdateOne) SetTeam(v *Team) *ScoringUpdateOne {
+	return _u.SetTeamID(v.ID)
+}
+
 // Mutation returns the ScoringMutation object of the builder.
 func (_u *ScoringUpdateOne) Mutation() *ScoringMutation {
 	return _u.mutation
@@ -544,6 +630,12 @@ func (_u *ScoringUpdateOne) ClearGame() *ScoringUpdateOne {
 // ClearPlayer clears the "player" edge to the Player entity.
 func (_u *ScoringUpdateOne) ClearPlayer() *ScoringUpdateOne {
 	_u.mutation.ClearPlayer()
+	return _u
+}
+
+// ClearTeam clears the "team" edge to the Team entity.
+func (_u *ScoringUpdateOne) ClearTeam() *ScoringUpdateOne {
+	_u.mutation.ClearTeam()
 	return _u
 }
 
@@ -726,6 +818,35 @@ func (_u *ScoringUpdateOne) sqlSave(ctx context.Context) (_node *Scoring, err er
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(player.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   scoring.TeamTable,
+			Columns: []string{scoring.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   scoring.TeamTable,
+			Columns: []string{scoring.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

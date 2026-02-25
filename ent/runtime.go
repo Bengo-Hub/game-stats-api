@@ -996,7 +996,7 @@ func init() {
 	// scoring.DefaultTurns holds the default value on creation for the turns field.
 	scoring.DefaultTurns = scoringDescTurns.Default.(int)
 	// scoringDescVersion is the schema descriptor for version field.
-	scoringDescVersion := scoringFields[5].Descriptor()
+	scoringDescVersion := scoringFields[6].Descriptor()
 	// scoring.DefaultVersion holds the default value on creation for the version field.
 	scoring.DefaultVersion = scoringDescVersion.Default.(int)
 	// scoringDescID is the schema descriptor for id field.

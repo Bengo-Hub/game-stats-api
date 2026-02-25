@@ -15,7 +15,7 @@ type CreateGameRequest struct {
 	AwayTeamID           uuid.UUID              `json:"away_team_id" validate:"required"`
 	DivisionPoolID       uuid.UUID              `json:"division_pool_id" validate:"required"`
 	FieldLocationID      uuid.UUID              `json:"field_location_id" validate:"required"`
-	GameRoundID          *uuid.UUID             `json:"game_round_id,omitempty"`
+	GameRoundID          uuid.UUID              `json:"game_round_id" validate:"required"` // Ensure required
 	ScorekeeperID        *uuid.UUID             `json:"scorekeeper_id,omitempty"`
 	FirstPullBy          *string                `json:"first_pull_by,omitempty"`
 	Metadata             map[string]interface{} `json:"metadata,omitempty"`
@@ -91,19 +91,23 @@ type RecordStoppageRequest struct {
 // GameRound DTOs
 type CreateGameRoundRequest struct {
 	Name        string     `json:"name" validate:"required,max=100"`
-	RoundType   string     `json:"round_type" validate:"required,oneof=pool bracket semifinal final"`
+	RoundType   string     `json:"round_type" validate:"required,oneof=pool crossover bracket semifinal final"`
 	EventID     uuid.UUID  `json:"event_id" validate:"required"`
 	RoundNumber *int       `json:"round_number,omitempty"`
 	StartDate   *time.Time `json:"start_date,omitempty"`
 	EndDate     *time.Time `json:"end_date,omitempty"`
+	AutoAdvance bool       `json:"auto_advance,omitempty"`
+	TopNTeams   *int       `json:"top_n_teams,omitempty"`
 }
 
 type UpdateGameRoundRequest struct {
 	Name        *string    `json:"name,omitempty" validate:"omitempty,max=100"`
-	RoundType   *string    `json:"roundType,omitempty" validate:"omitempty,oneof=pool bracket semifinal final"`
+	RoundType   *string    `json:"roundType,omitempty" validate:"omitempty,oneof=pool crossover bracket semifinal final"`
 	RoundNumber *int       `json:"roundNumber,omitempty"`
 	StartDate   *time.Time `json:"startDate,omitempty"`
 	EndDate     *time.Time `json:"endDate,omitempty"`
+	AutoAdvance *bool      `json:"autoAdvance,omitempty"`
+	TopNTeams   *int       `json:"topNTeams,omitempty"`
 }
 
 type GameRoundDTO struct {
@@ -115,6 +119,8 @@ type GameRoundDTO struct {
 	EndDate     *time.Time `json:"endDate,omitempty"`
 	EventID     uuid.UUID  `json:"eventId"`
 	GamesCount  int        `json:"gamesCount,omitempty"`
+	AutoAdvance bool       `json:"autoAdvance"`
+	TopNTeams   *int       `json:"topNTeams,omitempty"`
 	CreatedAt   time.Time  `json:"createdAt"`
 	UpdatedAt   time.Time  `json:"updatedAt"`
 }
@@ -137,6 +143,7 @@ type GameEventDTO struct {
 // Scoring DTOs
 type RecordScoreRequest struct {
 	PlayerID uuid.UUID `json:"playerId" validate:"required"`
+	TeamID   uuid.UUID `json:"teamId" validate:"required"`
 	Goals    int       `json:"goals" validate:"min=0"`
 	Assists  int       `json:"assists" validate:"min=0"`
 	Blocks   int       `json:"blocks" validate:"min=0"`

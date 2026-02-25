@@ -32,6 +32,9 @@ func (Scoring) Fields() []ent.Field {
 			Default(0),
 		field.Int("turns").
 			Default(0),
+		field.UUID("team_id", uuid.UUID{}).
+			Optional().
+			Comment("The team for which the player was playing when scoring"),
 		field.Int("version").
 			Default(1),
 	}
@@ -48,5 +51,8 @@ func (Scoring) Edges() []ent.Edge {
 			Ref("scores").
 			Unique().
 			Required(),
+		edge.To("team", Team.Type).
+			Unique().
+			Field("team_id"),
 	}
 }

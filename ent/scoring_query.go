@@ -15,6 +15,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/predicate"
 	"github.com/bengobox/game-stats-api/ent/scoring"
+	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/google/uuid"
 )
 
@@ -27,6 +28,7 @@ type ScoringQuery struct {
 	predicates []predicate.Scoring
 	withGame   *GameQuery
 	withPlayer *PlayerQuery
+	withTeam   *TeamQuery
 	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -101,6 +103,28 @@ func (_q *ScoringQuery) QueryPlayer() *PlayerQuery {
 			sqlgraph.From(scoring.Table, scoring.FieldID, selector),
 			sqlgraph.To(player.Table, player.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, scoring.PlayerTable, scoring.PlayerColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTeam chains the current query on the "team" edge.
+func (_q *ScoringQuery) QueryTeam() *TeamQuery {
+	query := (&TeamClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(scoring.Table, scoring.FieldID, selector),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, scoring.TeamTable, scoring.TeamColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -302,6 +326,7 @@ func (_q *ScoringQuery) Clone() *ScoringQuery {
 		predicates: append([]predicate.Scoring{}, _q.predicates...),
 		withGame:   _q.withGame.Clone(),
 		withPlayer: _q.withPlayer.Clone(),
+		withTeam:   _q.withTeam.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -327,6 +352,17 @@ func (_q *ScoringQuery) WithPlayer(opts ...func(*PlayerQuery)) *ScoringQuery {
 		opt(query)
 	}
 	_q.withPlayer = query
+	return _q
+}
+
+// WithTeam tells the query-builder to eager-load the nodes that are connected to
+// the "team" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ScoringQuery) WithTeam(opts ...func(*TeamQuery)) *ScoringQuery {
+	query := (&TeamClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTeam = query
 	return _q
 }
 
@@ -409,9 +445,10 @@ func (_q *ScoringQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Scor
 		nodes       = []*Scoring{}
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			_q.withGame != nil,
 			_q.withPlayer != nil,
+			_q.withTeam != nil,
 		}
 	)
 	if _q.withGame != nil || _q.withPlayer != nil {
@@ -447,6 +484,12 @@ func (_q *ScoringQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Scor
 	if query := _q.withPlayer; query != nil {
 		if err := _q.loadPlayer(ctx, query, nodes, nil,
 			func(n *Scoring, e *Player) { n.Edges.Player = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withTeam; query != nil {
+		if err := _q.loadTeam(ctx, query, nodes, nil,
+			func(n *Scoring, e *Team) { n.Edges.Team = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -517,6 +560,35 @@ func (_q *ScoringQuery) loadPlayer(ctx context.Context, query *PlayerQuery, node
 	}
 	return nil
 }
+func (_q *ScoringQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*Scoring, init func(*Scoring), assign func(*Scoring, *Team)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Scoring)
+	for i := range nodes {
+		fk := nodes[i].TeamID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(team.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "team_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (_q *ScoringQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -542,6 +614,9 @@ func (_q *ScoringQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != scoring.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withTeam != nil {
+			_spec.Node.AddColumnOnce(scoring.FieldTeamID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

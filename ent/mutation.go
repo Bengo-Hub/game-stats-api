@@ -22309,6 +22309,8 @@ type ScoringMutation struct {
 	clearedgame   bool
 	player        *uuid.UUID
 	clearedplayer bool
+	team          *uuid.UUID
+	clearedteam   bool
 	done          bool
 	oldValue      func(context.Context) (*Scoring, error)
 	predicates    []predicate.Scoring
@@ -22763,6 +22765,55 @@ func (m *ScoringMutation) ResetTurns() {
 	m.addturns = nil
 }
 
+// SetTeamID sets the "team_id" field.
+func (m *ScoringMutation) SetTeamID(u uuid.UUID) {
+	m.team = &u
+}
+
+// TeamID returns the value of the "team_id" field in the mutation.
+func (m *ScoringMutation) TeamID() (r uuid.UUID, exists bool) {
+	v := m.team
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTeamID returns the old "team_id" field's value of the Scoring entity.
+// If the Scoring object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ScoringMutation) OldTeamID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTeamID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTeamID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTeamID: %w", err)
+	}
+	return oldValue.TeamID, nil
+}
+
+// ClearTeamID clears the value of the "team_id" field.
+func (m *ScoringMutation) ClearTeamID() {
+	m.team = nil
+	m.clearedFields[scoring.FieldTeamID] = struct{}{}
+}
+
+// TeamIDCleared returns if the "team_id" field was cleared in this mutation.
+func (m *ScoringMutation) TeamIDCleared() bool {
+	_, ok := m.clearedFields[scoring.FieldTeamID]
+	return ok
+}
+
+// ResetTeamID resets all changes to the "team_id" field.
+func (m *ScoringMutation) ResetTeamID() {
+	m.team = nil
+	delete(m.clearedFields, scoring.FieldTeamID)
+}
+
 // SetVersion sets the "version" field.
 func (m *ScoringMutation) SetVersion(i int) {
 	m.version = &i
@@ -22897,6 +22948,33 @@ func (m *ScoringMutation) ResetPlayer() {
 	m.clearedplayer = false
 }
 
+// ClearTeam clears the "team" edge to the Team entity.
+func (m *ScoringMutation) ClearTeam() {
+	m.clearedteam = true
+	m.clearedFields[scoring.FieldTeamID] = struct{}{}
+}
+
+// TeamCleared reports if the "team" edge to the Team entity was cleared.
+func (m *ScoringMutation) TeamCleared() bool {
+	return m.TeamIDCleared() || m.clearedteam
+}
+
+// TeamIDs returns the "team" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// TeamID instead. It exists only for internal usage by the builders.
+func (m *ScoringMutation) TeamIDs() (ids []uuid.UUID) {
+	if id := m.team; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetTeam resets all changes to the "team" edge.
+func (m *ScoringMutation) ResetTeam() {
+	m.team = nil
+	m.clearedteam = false
+}
+
 // Where appends a list predicates to the ScoringMutation builder.
 func (m *ScoringMutation) Where(ps ...predicate.Scoring) {
 	m.predicates = append(m.predicates, ps...)
@@ -22931,7 +23009,7 @@ func (m *ScoringMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ScoringMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.created_at != nil {
 		fields = append(fields, scoring.FieldCreatedAt)
 	}
@@ -22952,6 +23030,9 @@ func (m *ScoringMutation) Fields() []string {
 	}
 	if m.turns != nil {
 		fields = append(fields, scoring.FieldTurns)
+	}
+	if m.team != nil {
+		fields = append(fields, scoring.FieldTeamID)
 	}
 	if m.version != nil {
 		fields = append(fields, scoring.FieldVersion)
@@ -22978,6 +23059,8 @@ func (m *ScoringMutation) Field(name string) (ent.Value, bool) {
 		return m.Blocks()
 	case scoring.FieldTurns:
 		return m.Turns()
+	case scoring.FieldTeamID:
+		return m.TeamID()
 	case scoring.FieldVersion:
 		return m.Version()
 	}
@@ -23003,6 +23086,8 @@ func (m *ScoringMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldBlocks(ctx)
 	case scoring.FieldTurns:
 		return m.OldTurns(ctx)
+	case scoring.FieldTeamID:
+		return m.OldTeamID(ctx)
 	case scoring.FieldVersion:
 		return m.OldVersion(ctx)
 	}
@@ -23062,6 +23147,13 @@ func (m *ScoringMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTurns(v)
+		return nil
+	case scoring.FieldTeamID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTeamID(v)
 		return nil
 	case scoring.FieldVersion:
 		v, ok := value.(int)
@@ -23166,6 +23258,9 @@ func (m *ScoringMutation) ClearedFields() []string {
 	if m.FieldCleared(scoring.FieldDeletedAt) {
 		fields = append(fields, scoring.FieldDeletedAt)
 	}
+	if m.FieldCleared(scoring.FieldTeamID) {
+		fields = append(fields, scoring.FieldTeamID)
+	}
 	return fields
 }
 
@@ -23182,6 +23277,9 @@ func (m *ScoringMutation) ClearField(name string) error {
 	switch name {
 	case scoring.FieldDeletedAt:
 		m.ClearDeletedAt()
+		return nil
+	case scoring.FieldTeamID:
+		m.ClearTeamID()
 		return nil
 	}
 	return fmt.Errorf("unknown Scoring nullable field %s", name)
@@ -23212,6 +23310,9 @@ func (m *ScoringMutation) ResetField(name string) error {
 	case scoring.FieldTurns:
 		m.ResetTurns()
 		return nil
+	case scoring.FieldTeamID:
+		m.ResetTeamID()
+		return nil
 	case scoring.FieldVersion:
 		m.ResetVersion()
 		return nil
@@ -23221,12 +23322,15 @@ func (m *ScoringMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ScoringMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.game != nil {
 		edges = append(edges, scoring.EdgeGame)
 	}
 	if m.player != nil {
 		edges = append(edges, scoring.EdgePlayer)
+	}
+	if m.team != nil {
+		edges = append(edges, scoring.EdgeTeam)
 	}
 	return edges
 }
@@ -23243,13 +23347,17 @@ func (m *ScoringMutation) AddedIDs(name string) []ent.Value {
 		if id := m.player; id != nil {
 			return []ent.Value{*id}
 		}
+	case scoring.EdgeTeam:
+		if id := m.team; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ScoringMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	return edges
 }
 
@@ -23261,12 +23369,15 @@ func (m *ScoringMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ScoringMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedgame {
 		edges = append(edges, scoring.EdgeGame)
 	}
 	if m.clearedplayer {
 		edges = append(edges, scoring.EdgePlayer)
+	}
+	if m.clearedteam {
+		edges = append(edges, scoring.EdgeTeam)
 	}
 	return edges
 }
@@ -23279,6 +23390,8 @@ func (m *ScoringMutation) EdgeCleared(name string) bool {
 		return m.clearedgame
 	case scoring.EdgePlayer:
 		return m.clearedplayer
+	case scoring.EdgeTeam:
+		return m.clearedteam
 	}
 	return false
 }
@@ -23293,6 +23406,9 @@ func (m *ScoringMutation) ClearEdge(name string) error {
 	case scoring.EdgePlayer:
 		m.ClearPlayer()
 		return nil
+	case scoring.EdgeTeam:
+		m.ClearTeam()
+		return nil
 	}
 	return fmt.Errorf("unknown Scoring unique edge %s", name)
 }
@@ -23306,6 +23422,9 @@ func (m *ScoringMutation) ResetEdge(name string) error {
 		return nil
 	case scoring.EdgePlayer:
 		m.ResetPlayer()
+		return nil
+	case scoring.EdgeTeam:
+		m.ResetTeam()
 		return nil
 	}
 	return fmt.Errorf("unknown Scoring edge %s", name)
