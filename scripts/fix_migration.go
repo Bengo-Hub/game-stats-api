@@ -24,10 +24,10 @@ func main() {
 	defer db.Close()
 
 	// Drop and recreate public schema for a clean slate
-	_, err = db.Exec("DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO postgres; GRANT ALL ON SCHEMA public TO public;")
+	fmt.Println("Dropping and recreating public schema...")
+	_, err = db.Exec("DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO postgres; GRANT ALL ON SCHEMA public TO public;")
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
-	} else {
-		fmt.Println("Successfully cleared database")
+		log.Fatalf("Error clearing database: %v", err)
 	}
+	fmt.Println("✓ Successfully cleared database (public schema recreated)")
 }
