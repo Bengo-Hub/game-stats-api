@@ -170,6 +170,21 @@ func (r *gameRepository) ListWithFilter(ctx context.Context, filter domaingame.S
 		query = query.Where(game.HasGameRoundWith(gameround.ID(*filter.GameRoundID)))
 	}
 
+	if filter.RoundType != nil && *filter.RoundType != "" && *filter.RoundType != "all" {
+		rt := *filter.RoundType
+		// Handle common frontend mappings if necessary, or just use exact match
+		// The frontend maps 'pool' to 'pool' or 'group'.
+		if rt == "pool" {
+			query = query.Where(game.HasGameRoundWith(gameround.RoundTypeIn("pool", "group")))
+		} else if rt == "bracket" {
+			query = query.Where(game.HasGameRoundWith(gameround.RoundTypeIn("bracket", "quarter", "semi", "quarterfinal", "semifinal")))
+		} else if rt == "final" {
+			query = query.Where(game.HasGameRoundWith(gameround.RoundTypeIn("final", "finals", "third_place", "third place")))
+		} else {
+			query = query.Where(game.HasGameRoundWith(gameround.RoundTypeEQ(rt)))
+		}
+	}
+
 	if filter.Status != nil && *filter.Status != "" && *filter.Status != "all" {
 		query = query.Where(game.Status(*filter.Status))
 	}

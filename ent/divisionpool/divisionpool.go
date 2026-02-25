@@ -58,7 +58,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "team" package.
 	TeamsInverseTable = "teams"
 	// TeamsColumn is the table column denoting the teams relation/edge.
-	TeamsColumn = "division_pool_teams"
+	TeamsColumn = "division_pool_id"
 	// GamesTable is the table that holds the games relation/edge.
 	GamesTable = "games"
 	// GamesInverseTable is the table name for the Game entity.

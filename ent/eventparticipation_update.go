@@ -99,6 +99,54 @@ func (_u *EventParticipationUpdate) ClearJerseyNumber() *EventParticipationUpdat
 	return _u
 }
 
+// SetPosition sets the "position" field.
+func (_u *EventParticipationUpdate) SetPosition(v string) *EventParticipationUpdate {
+	_u.mutation.SetPosition(v)
+	return _u
+}
+
+// SetNillablePosition sets the "position" field if the given value is not nil.
+func (_u *EventParticipationUpdate) SetNillablePosition(v *string) *EventParticipationUpdate {
+	if v != nil {
+		_u.SetPosition(*v)
+	}
+	return _u
+}
+
+// ClearPosition clears the value of the "position" field.
+func (_u *EventParticipationUpdate) ClearPosition() *EventParticipationUpdate {
+	_u.mutation.ClearPosition()
+	return _u
+}
+
+// SetIsCaptain sets the "is_captain" field.
+func (_u *EventParticipationUpdate) SetIsCaptain(v bool) *EventParticipationUpdate {
+	_u.mutation.SetIsCaptain(v)
+	return _u
+}
+
+// SetNillableIsCaptain sets the "is_captain" field if the given value is not nil.
+func (_u *EventParticipationUpdate) SetNillableIsCaptain(v *bool) *EventParticipationUpdate {
+	if v != nil {
+		_u.SetIsCaptain(*v)
+	}
+	return _u
+}
+
+// SetIsSpiritCaptain sets the "is_spirit_captain" field.
+func (_u *EventParticipationUpdate) SetIsSpiritCaptain(v bool) *EventParticipationUpdate {
+	_u.mutation.SetIsSpiritCaptain(v)
+	return _u
+}
+
+// SetNillableIsSpiritCaptain sets the "is_spirit_captain" field if the given value is not nil.
+func (_u *EventParticipationUpdate) SetNillableIsSpiritCaptain(v *bool) *EventParticipationUpdate {
+	if v != nil {
+		_u.SetIsSpiritCaptain(*v)
+	}
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *EventParticipationUpdate) SetStatus(v string) *EventParticipationUpdate {
 	_u.mutation.SetStatus(v)
@@ -263,6 +311,18 @@ func (_u *EventParticipationUpdate) sqlSave(ctx context.Context) (_node int, err
 	}
 	if _u.mutation.JerseyNumberCleared() {
 		_spec.ClearField(eventparticipation.FieldJerseyNumber, field.TypeInt)
+	}
+	if value, ok := _u.mutation.Position(); ok {
+		_spec.SetField(eventparticipation.FieldPosition, field.TypeString, value)
+	}
+	if _u.mutation.PositionCleared() {
+		_spec.ClearField(eventparticipation.FieldPosition, field.TypeString)
+	}
+	if value, ok := _u.mutation.IsCaptain(); ok {
+		_spec.SetField(eventparticipation.FieldIsCaptain, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.IsSpiritCaptain(); ok {
+		_spec.SetField(eventparticipation.FieldIsSpiritCaptain, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(eventparticipation.FieldStatus, field.TypeString, value)
@@ -444,6 +504,54 @@ func (_u *EventParticipationUpdateOne) AddJerseyNumber(v int) *EventParticipatio
 // ClearJerseyNumber clears the value of the "jersey_number" field.
 func (_u *EventParticipationUpdateOne) ClearJerseyNumber() *EventParticipationUpdateOne {
 	_u.mutation.ClearJerseyNumber()
+	return _u
+}
+
+// SetPosition sets the "position" field.
+func (_u *EventParticipationUpdateOne) SetPosition(v string) *EventParticipationUpdateOne {
+	_u.mutation.SetPosition(v)
+	return _u
+}
+
+// SetNillablePosition sets the "position" field if the given value is not nil.
+func (_u *EventParticipationUpdateOne) SetNillablePosition(v *string) *EventParticipationUpdateOne {
+	if v != nil {
+		_u.SetPosition(*v)
+	}
+	return _u
+}
+
+// ClearPosition clears the value of the "position" field.
+func (_u *EventParticipationUpdateOne) ClearPosition() *EventParticipationUpdateOne {
+	_u.mutation.ClearPosition()
+	return _u
+}
+
+// SetIsCaptain sets the "is_captain" field.
+func (_u *EventParticipationUpdateOne) SetIsCaptain(v bool) *EventParticipationUpdateOne {
+	_u.mutation.SetIsCaptain(v)
+	return _u
+}
+
+// SetNillableIsCaptain sets the "is_captain" field if the given value is not nil.
+func (_u *EventParticipationUpdateOne) SetNillableIsCaptain(v *bool) *EventParticipationUpdateOne {
+	if v != nil {
+		_u.SetIsCaptain(*v)
+	}
+	return _u
+}
+
+// SetIsSpiritCaptain sets the "is_spirit_captain" field.
+func (_u *EventParticipationUpdateOne) SetIsSpiritCaptain(v bool) *EventParticipationUpdateOne {
+	_u.mutation.SetIsSpiritCaptain(v)
+	return _u
+}
+
+// SetNillableIsSpiritCaptain sets the "is_spirit_captain" field if the given value is not nil.
+func (_u *EventParticipationUpdateOne) SetNillableIsSpiritCaptain(v *bool) *EventParticipationUpdateOne {
+	if v != nil {
+		_u.SetIsSpiritCaptain(*v)
+	}
 	return _u
 }
 
@@ -641,6 +749,18 @@ func (_u *EventParticipationUpdateOne) sqlSave(ctx context.Context) (_node *Even
 	}
 	if _u.mutation.JerseyNumberCleared() {
 		_spec.ClearField(eventparticipation.FieldJerseyNumber, field.TypeInt)
+	}
+	if value, ok := _u.mutation.Position(); ok {
+		_spec.SetField(eventparticipation.FieldPosition, field.TypeString, value)
+	}
+	if _u.mutation.PositionCleared() {
+		_spec.ClearField(eventparticipation.FieldPosition, field.TypeString)
+	}
+	if value, ok := _u.mutation.IsCaptain(); ok {
+		_spec.SetField(eventparticipation.FieldIsCaptain, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.IsSpiritCaptain(); ok {
+		_spec.SetField(eventparticipation.FieldIsSpiritCaptain, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(eventparticipation.FieldStatus, field.TypeString, value)

@@ -121,6 +121,11 @@ func Position(v string) predicate.Player {
 	return predicate.Player(sql.FieldEQ(FieldPosition, v))
 }
 
+// TeamID applies equality check predicate on the "team_id" field. It's identical to TeamIDEQ.
+func TeamID(v uuid.UUID) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldTeamID, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Player {
 	return predicate.Player(sql.FieldEQ(FieldCreatedAt, v))
@@ -809,6 +814,26 @@ func MetadataIsNil() predicate.Player {
 // MetadataNotNil applies the NotNil predicate on the "metadata" field.
 func MetadataNotNil() predicate.Player {
 	return predicate.Player(sql.FieldNotNull(FieldMetadata))
+}
+
+// TeamIDEQ applies the EQ predicate on the "team_id" field.
+func TeamIDEQ(v uuid.UUID) predicate.Player {
+	return predicate.Player(sql.FieldEQ(FieldTeamID, v))
+}
+
+// TeamIDNEQ applies the NEQ predicate on the "team_id" field.
+func TeamIDNEQ(v uuid.UUID) predicate.Player {
+	return predicate.Player(sql.FieldNEQ(FieldTeamID, v))
+}
+
+// TeamIDIn applies the In predicate on the "team_id" field.
+func TeamIDIn(vs ...uuid.UUID) predicate.Player {
+	return predicate.Player(sql.FieldIn(FieldTeamID, vs...))
+}
+
+// TeamIDNotIn applies the NotIn predicate on the "team_id" field.
+func TeamIDNotIn(vs ...uuid.UUID) predicate.Player {
+	return predicate.Player(sql.FieldNotIn(FieldTeamID, vs...))
 }
 
 // HasTeam applies the HasEdge predicate on the "team" edge.

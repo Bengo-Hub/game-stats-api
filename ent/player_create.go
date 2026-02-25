@@ -199,6 +199,12 @@ func (_c *PlayerCreate) SetMetadata(v map[string]interface{}) *PlayerCreate {
 	return _c
 }
 
+// SetTeamID sets the "team_id" field.
+func (_c *PlayerCreate) SetTeamID(v uuid.UUID) *PlayerCreate {
+	_c.mutation.SetTeamID(v)
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *PlayerCreate) SetID(v uuid.UUID) *PlayerCreate {
 	_c.mutation.SetID(v)
@@ -210,12 +216,6 @@ func (_c *PlayerCreate) SetNillableID(v *uuid.UUID) *PlayerCreate {
 	if v != nil {
 		_c.SetID(*v)
 	}
-	return _c
-}
-
-// SetTeamID sets the "team" edge to the Team entity by ID.
-func (_c *PlayerCreate) SetTeamID(id uuid.UUID) *PlayerCreate {
-	_c.mutation.SetTeamID(id)
 	return _c
 }
 
@@ -386,6 +386,9 @@ func (_c *PlayerCreate) check() error {
 	if _, ok := _c.mutation.IsSpiritCaptain(); !ok {
 		return &ValidationError{Name: "is_spirit_captain", err: errors.New(`ent: missing required field "Player.is_spirit_captain"`)}
 	}
+	if _, ok := _c.mutation.TeamID(); !ok {
+		return &ValidationError{Name: "team_id", err: errors.New(`ent: missing required field "Player.team_id"`)}
+	}
 	if len(_c.mutation.TeamIDs()) == 0 {
 		return &ValidationError{Name: "team", err: errors.New(`ent: missing required edge "Player.team"`)}
 	}
@@ -494,7 +497,7 @@ func (_c *PlayerCreate) createSpec() (*Player, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.team_players = &nodes[0]
+		_node.TeamID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.ScoresIDs(); len(nodes) > 0 {

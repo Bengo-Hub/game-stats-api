@@ -72,7 +72,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "team" package.
 	TeamsInverseTable = "teams"
 	// TeamsColumn is the table column denoting the teams relation/edge.
-	TeamsColumn = "location_teams"
+	TeamsColumn = "home_location_id"
 )
 
 // Columns holds all SQL columns for location fields.

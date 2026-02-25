@@ -40,7 +40,6 @@ type TeamQuery struct {
 	withSpiritScoresGiven    *SpiritScoreQuery
 	withSpiritScoresReceived *SpiritScoreQuery
 	withParticipations       *EventParticipationQuery
-	withFKs                  bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -658,7 +657,6 @@ func (_q *TeamQuery) prepareQuery(ctx context.Context) error {
 func (_q *TeamQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Team, error) {
 	var (
 		nodes       = []*Team{}
-		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
 		loadedTypes = [9]bool{
 			_q.withDivisionPool != nil,
@@ -672,12 +670,6 @@ func (_q *TeamQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Team, e
 			_q.withParticipations != nil,
 		}
 	)
-	if _q.withDivisionPool != nil || _q.withHomeLocation != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, team.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Team).scanValues(nil, columns)
 	}
@@ -764,10 +756,7 @@ func (_q *TeamQuery) loadDivisionPool(ctx context.Context, query *DivisionPoolQu
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Team)
 	for i := range nodes {
-		if nodes[i].division_pool_teams == nil {
-			continue
-		}
-		fk := *nodes[i].division_pool_teams
+		fk := nodes[i].DivisionPoolID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -784,7 +773,7 @@ func (_q *TeamQuery) loadDivisionPool(ctx context.Context, query *DivisionPoolQu
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "division_pool_teams" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "division_pool_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -796,10 +785,10 @@ func (_q *TeamQuery) loadHomeLocation(ctx context.Context, query *LocationQuery,
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Team)
 	for i := range nodes {
-		if nodes[i].location_teams == nil {
+		if nodes[i].HomeLocationID == nil {
 			continue
 		}
-		fk := *nodes[i].location_teams
+		fk := *nodes[i].HomeLocationID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -816,7 +805,7 @@ func (_q *TeamQuery) loadHomeLocation(ctx context.Context, query *LocationQuery,
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "location_teams" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "home_location_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -834,7 +823,9 @@ func (_q *TeamQuery) loadPlayers(ctx context.Context, query *PlayerQuery, nodes 
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(player.FieldTeamID)
+	}
 	query.Where(predicate.Player(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(team.PlayersColumn), fks...))
 	}))
@@ -843,13 +834,10 @@ func (_q *TeamQuery) loadPlayers(ctx context.Context, query *PlayerQuery, nodes 
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.team_players
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "team_players" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.TeamID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "team_players" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "team_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -1096,6 +1084,12 @@ func (_q *TeamQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != team.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withDivisionPool != nil {
+			_spec.Node.AddColumnOnce(team.FieldDivisionPoolID)
+		}
+		if _q.withHomeLocation != nil {
+			_spec.Node.AddColumnOnce(team.FieldHomeLocationID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

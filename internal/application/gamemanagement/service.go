@@ -216,6 +216,7 @@ func (s *Service) ListGames(ctx context.Context, filter ListGamesFilter) ([]*Gam
 		FieldID:        filter.FieldID,
 		StartDate:      filter.StartDate,
 		EndDate:        filter.EndDate,
+		RoundType:      filter.RoundType,
 		Limit:          limit,
 		Offset:         offset,
 	}
@@ -660,8 +661,12 @@ func (s *Service) BulkTransferPlayers(ctx context.Context, req BulkTransferReque
 		}
 
 		_, err = s.participationRepo.Create(ctx, &ent.EventParticipation{
-			Role:   role,
-			Status: status,
+			Role:            role,
+			Status:          status,
+			JerseyNumber:    p.JerseyNumber, // Use current player details as default
+			Position:        p.Position,
+			IsCaptain:       p.IsCaptain,
+			IsSpiritCaptain: p.IsSpiritCaptain,
 			Edges: ent.EventParticipationEdges{
 				Player: &ent.Player{ID: t.PlayerID},
 				Team:   &ent.Team{ID: t.ToTeamID},
@@ -698,8 +703,11 @@ func (s *Service) MassImportPlayers(ctx context.Context, req MassImportPlayersRe
 		// Create participation if EventID is provided
 		if req.EventID != nil {
 			_, _ = s.participationRepo.Create(ctx, &ent.EventParticipation{
-				Role:   "player",
-				Status: "active",
+				Role:            "player",
+				Status:          "active",
+				JerseyNumber:    ip.JerseyNumber,
+				IsCaptain:       false,
+				IsSpiritCaptain: false,
 				Edges: ent.EventParticipationEdges{
 					Player: &ent.Player{ID: newPlayer.ID},
 					Team:   &ent.Team{ID: req.TeamID},

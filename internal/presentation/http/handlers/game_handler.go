@@ -142,6 +142,10 @@ func (h *GameHandler) ListGames(w http.ResponseWriter, r *http.Request) {
 		filter.Status = &status
 	}
 
+	if stage := r.URL.Query().Get("game_stage"); stage != "" {
+		filter.RoundType = &stage
+	}
+
 	if fieldStr := r.URL.Query().Get("field_id"); fieldStr != "" {
 		fieldID, err := uuid.Parse(fieldStr)
 		if err != nil {

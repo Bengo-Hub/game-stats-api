@@ -9,16 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -2344,6 +2335,132 @@ const docTemplate = `{
                 }
             }
         },
+        "/events/{id}/divisions/{divisionId}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an existing division pool",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Update a division pool",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Division ID",
+                        "name": "divisionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Division data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.UpdateDivisionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.DivisionDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete an existing division pool",
+                "tags": [
+                    "events"
+                ],
+                "summary": "Delete a division pool",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Division ID",
+                        "name": "divisionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/events/{id}/spirit": {
             "get": {
                 "description": "Get all spirit scores submitted for all games in an event",
@@ -3175,6 +3292,37 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "geographic"
+                ],
+                "summary": "Create Continent",
+                "parameters": [
+                    {
+                        "description": "Continent",
+                        "name": "continent",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.ContinentDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.ContinentDTO"
+                        }
+                    }
+                }
             }
         },
         "/geographic/countries": {
@@ -3209,6 +3357,155 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "geographic"
+                ],
+                "summary": "Create Country",
+                "parameters": [
+                    {
+                        "description": "Country",
+                        "name": "country",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.CountryDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.CountryDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/geographic/fields": {
+            "get": {
+                "description": "Get a list of all fields, optionally filtered by location.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "geographic"
+                ],
+                "summary": "List Fields",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by location ID",
+                        "name": "location_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.FieldDTO"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "geographic"
+                ],
+                "summary": "Create Field",
+                "parameters": [
+                    {
+                        "description": "Field",
+                        "name": "field",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.CreateFieldRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.FieldDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/geographic/locations": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "geographic"
+                ],
+                "summary": "List locations",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.LocationDTO"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "geographic"
+                ],
+                "summary": "Create location",
+                "parameters": [
+                    {
+                        "description": "Location",
+                        "name": "location",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.CreateLocationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.LocationDTO"
+                        }
+                    }
+                }
             }
         },
         "/geographic/worlds": {
@@ -3232,6 +3529,37 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO"
                             }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "geographic"
+                ],
+                "summary": "Create World",
+                "parameters": [
+                    {
+                        "description": "World",
+                        "name": "world",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO"
                         }
                     }
                 }
@@ -4902,6 +5230,14 @@ const docTemplate = `{
                     "description": "ID of the ent.",
                     "type": "string"
                 },
+                "is_captain": {
+                    "description": "Whether this player is the team captain in this event",
+                    "type": "boolean"
+                },
+                "is_spirit_captain": {
+                    "description": "Whether this player is the spirit captain in this event",
+                    "type": "boolean"
+                },
                 "jersey_number": {
                     "description": "JerseyNumber holds the value of the \"jersey_number\" field.",
                     "type": "integer"
@@ -4910,6 +5246,10 @@ const docTemplate = `{
                     "description": "Metadata holds the value of the \"metadata\" field.",
                     "type": "object",
                     "additionalProperties": true
+                },
+                "position": {
+                    "description": "Position holds the value of the \"position\" field.",
+                    "type": "string"
                 },
                 "role": {
                     "description": "Role in the event: player, captain, spirit_captain, coach",
@@ -5598,6 +5938,10 @@ const docTemplate = `{
                     "description": "ProfileImageURL holds the value of the \"profile_image_url\" field.",
                     "type": "string"
                 },
+                "team_id": {
+                    "description": "TeamID holds the value of the \"team_id\" field.",
+                    "type": "string"
+                },
                 "updated_at": {
                     "description": "UpdatedAt holds the value of the \"updated_at\" field.",
                     "type": "string"
@@ -6062,6 +6406,10 @@ const docTemplate = `{
                     "description": "DeletedAt holds the value of the \"deleted_at\" field.",
                     "type": "string"
                 },
+                "division_pool_id": {
+                    "description": "DivisionPoolID holds the value of the \"division_pool_id\" field.",
+                    "type": "string"
+                },
                 "edges": {
                     "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the TeamQuery when eager-loading is set.",
                     "allOf": [
@@ -6073,6 +6421,10 @@ const docTemplate = `{
                 "final_placement": {
                     "description": "FinalPlacement holds the value of the \"final_placement\" field.",
                     "type": "integer"
+                },
+                "home_location_id": {
+                    "description": "HomeLocationID holds the value of the \"home_location_id\" field.",
+                    "type": "string"
                 },
                 "id": {
                     "description": "ID of the ent.",
@@ -6826,35 +7178,35 @@ const docTemplate = `{
         "github_com_bengobox_game-stats-api_internal_application_gamemanagement.CreateGameRequest": {
             "type": "object",
             "required": [
-                "allocatedTimeMinutes",
-                "awayTeamId",
-                "divisionPoolId",
-                "fieldLocationId",
-                "homeTeamId",
+                "allocated_time_minutes",
+                "away_team_id",
+                "division_pool_id",
+                "field_location_id",
+                "home_team_id",
                 "name",
-                "scheduledTime"
+                "scheduled_time"
             ],
             "properties": {
-                "allocatedTimeMinutes": {
+                "allocated_time_minutes": {
                     "type": "integer",
                     "minimum": 1
                 },
-                "awayTeamId": {
+                "away_team_id": {
                     "type": "string"
                 },
-                "divisionPoolId": {
+                "division_pool_id": {
                     "type": "string"
                 },
-                "fieldLocationId": {
+                "field_location_id": {
                     "type": "string"
                 },
-                "firstPullBy": {
+                "first_pull_by": {
                     "type": "string"
                 },
-                "gameRoundId": {
+                "game_round_id": {
                     "type": "string"
                 },
-                "homeTeamId": {
+                "home_team_id": {
                     "type": "string"
                 },
                 "metadata": {
@@ -6865,10 +7217,10 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 100
                 },
-                "scheduledTime": {
+                "scheduled_time": {
                     "type": "string"
                 },
-                "scorekeeperId": {
+                "scorekeeper_id": {
                     "type": "string"
                 }
             }
@@ -7500,6 +7852,59 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_bengobox_game-stats-api_internal_application_metadata.FieldDTO": {
+            "type": "object",
+            "properties": {
+                "capacity": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "location_id": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string"
+                },
+                "surface_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_bengobox_game-stats-api_internal_application_metadata.LocationDTO": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO": {
             "type": "object",
             "properties": {
@@ -7936,6 +8341,9 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "divisionType": {
                     "type": "string",
                     "enum": [
@@ -7974,6 +8382,12 @@ const docTemplate = `{
                 "disciplineId": {
                     "type": "string"
                 },
+                "divisions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_presentation_http_handlers.CreateDivisionRequest"
+                    }
+                },
                 "endDate": {
                     "type": "string",
                     "example": "2026-02-26"
@@ -8009,19 +8423,72 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_presentation_http_handlers.CreateFieldRequest": {
+            "type": "object",
+            "required": [
+                "location_id",
+                "name"
+            ],
+            "properties": {
+                "capacity": {
+                    "type": "integer"
+                },
+                "location_id": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string"
+                },
+                "surface_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.CreateLocationRequest": {
+            "type": "object",
+            "required": [
+                "countryId",
+                "name"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "countryId": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_presentation_http_handlers.CreatePlayerRequest": {
             "type": "object",
             "required": [
-                "eventId",
                 "gender",
-                "name",
-                "teamId"
+                "name"
             ],
             "properties": {
                 "email": {
                     "type": "string"
                 },
-                "eventId": {
+                "event_id": {
                     "type": "string"
                 },
                 "gender": {
@@ -8032,13 +8499,13 @@ const docTemplate = `{
                         "X"
                     ]
                 },
-                "isCaptain": {
+                "is_captain": {
                     "type": "boolean"
                 },
-                "isSpiritCaptain": {
+                "is_spirit_captain": {
                     "type": "boolean"
                 },
-                "jerseyNumber": {
+                "jersey_number": {
                     "type": "integer"
                 },
                 "name": {
@@ -8047,13 +8514,17 @@ const docTemplate = `{
                 "phone": {
                     "type": "string"
                 },
+                "player_id": {
+                    "description": "Add PlayerID for reuse",
+                    "type": "string"
+                },
                 "position": {
                     "type": "string"
                 },
-                "profileImageUrl": {
+                "profile_image_url": {
                     "type": "string"
                 },
-                "teamId": {
+                "team_id": {
                     "type": "string"
                 }
             }
@@ -8061,33 +8532,33 @@ const docTemplate = `{
         "internal_presentation_http_handlers.CreateTeamRequest": {
             "type": "object",
             "required": [
-                "divisionPoolId",
-                "eventId",
+                "division_pool_id",
+                "event_id",
                 "name"
             ],
             "properties": {
-                "contactEmail": {
+                "contact_email": {
                     "type": "string"
                 },
-                "contactPhone": {
+                "contact_phone": {
                     "type": "string"
                 },
-                "divisionPoolId": {
+                "division_pool_id": {
                     "type": "string"
                 },
-                "eventId": {
+                "event_id": {
                     "type": "string"
                 },
-                "homeLocationId": {
+                "home_location_id": {
                     "type": "string"
                 },
-                "initialSeed": {
+                "initial_seed": {
                     "type": "integer"
                 },
-                "locationName": {
+                "location_name": {
                     "type": "string"
                 },
-                "logoUrl": {
+                "logo_url": {
                     "type": "string"
                 },
                 "metadata": {
@@ -8097,10 +8568,14 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "primaryColor": {
+                "primary_color": {
                     "type": "string"
                 },
-                "secondaryColor": {
+                "secondary_color": {
+                    "type": "string"
+                },
+                "team_id": {
+                    "description": "Add TeamID for reuse",
                     "type": "string"
                 }
             }
@@ -8331,6 +8806,47 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_presentation_http_handlers.ParticipationResponse": {
+            "type": "object",
+            "properties": {
+                "eventId": {
+                    "type": "string"
+                },
+                "eventName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isCaptain": {
+                    "type": "boolean"
+                },
+                "isSpiritCaptain": {
+                    "type": "boolean"
+                },
+                "jerseyNumber": {
+                    "type": "integer"
+                },
+                "joinedAt": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "teamName": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_presentation_http_handlers.PlayerResponse": {
             "type": "object",
             "properties": {
@@ -8354,6 +8870,12 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "participations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_presentation_http_handlers.ParticipationResponse"
+                    }
                 },
                 "phone": {
                     "type": "string"
@@ -8615,6 +9137,25 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_presentation_http_handlers.UpdateDivisionRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "divisionType": {
+                    "type": "string",
+                    "enum": [
+                        "pool",
+                        "bracket",
+                        "mixed"
+                    ]
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_presentation_http_handlers.UpdateEventRequest": {
             "type": "object",
             "properties": {
@@ -8632,6 +9173,12 @@ const docTemplate = `{
                 },
                 "disciplineId": {
                     "type": "string"
+                },
+                "divisions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_presentation_http_handlers.CreateDivisionRequest"
+                    }
                 },
                 "endDate": {
                     "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime"
@@ -8765,24 +9312,17 @@ const docTemplate = `{
                 }
             }
         }
-    },
-    "securityDefinitions": {
-        "BearerAuth": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
-        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "",
 	Host:             "",
 	BasePath:         "",
-	Schemes:          []string{"http", "https"},
-	Title:            "DigiGameStats API",
-	Description:      "API for DigiGameStats reimplementation.",
+	Schemes:          []string{},
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

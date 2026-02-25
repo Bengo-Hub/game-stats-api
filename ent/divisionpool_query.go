@@ -584,7 +584,9 @@ func (_q *DivisionPoolQuery) loadTeams(ctx context.Context, query *TeamQuery, no
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(team.FieldDivisionPoolID)
+	}
 	query.Where(predicate.Team(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(divisionpool.TeamsColumn), fks...))
 	}))
@@ -593,13 +595,10 @@ func (_q *DivisionPoolQuery) loadTeams(ctx context.Context, query *TeamQuery, no
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.division_pool_teams
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "division_pool_teams" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.DivisionPoolID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "division_pool_teams" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "division_pool_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

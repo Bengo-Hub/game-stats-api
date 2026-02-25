@@ -45,12 +45,14 @@ type Team struct {
 	ContactPhone *string `json:"contact_phone,omitempty"`
 	// Metadata holds the value of the "metadata" field.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	// DivisionPoolID holds the value of the "division_pool_id" field.
+	DivisionPoolID uuid.UUID `json:"division_pool_id,omitempty"`
+	// HomeLocationID holds the value of the "home_location_id" field.
+	HomeLocationID *uuid.UUID `json:"home_location_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TeamQuery when eager-loading is set.
-	Edges               TeamEdges `json:"edges"`
-	division_pool_teams *uuid.UUID
-	location_teams      *uuid.UUID
-	selectValues        sql.SelectValues
+	Edges        TeamEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // TeamEdges holds the relations/edges for other nodes in the graph.
@@ -168,6 +170,8 @@ func (*Team) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case team.FieldHomeLocationID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case team.FieldMetadata:
 			values[i] = new([]byte)
 		case team.FieldInitialSeed, team.FieldFinalPlacement:
@@ -176,12 +180,8 @@ func (*Team) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case team.FieldCreatedAt, team.FieldUpdatedAt, team.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case team.FieldID:
+		case team.FieldID, team.FieldDivisionPoolID:
 			values[i] = new(uuid.UUID)
-		case team.ForeignKeys[0]: // division_pool_teams
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case team.ForeignKeys[1]: // location_teams
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -285,19 +285,18 @@ func (_m *Team) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
-		case team.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field division_pool_teams", values[i])
-			} else if value.Valid {
-				_m.division_pool_teams = new(uuid.UUID)
-				*_m.division_pool_teams = *value.S.(*uuid.UUID)
+		case team.FieldDivisionPoolID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field division_pool_id", values[i])
+			} else if value != nil {
+				_m.DivisionPoolID = *value
 			}
-		case team.ForeignKeys[1]:
+		case team.FieldHomeLocationID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field location_teams", values[i])
+				return fmt.Errorf("unexpected type %T for field home_location_id", values[i])
 			} else if value.Valid {
-				_m.location_teams = new(uuid.UUID)
-				*_m.location_teams = *value.S.(*uuid.UUID)
+				_m.HomeLocationID = new(uuid.UUID)
+				*_m.HomeLocationID = *value.S.(*uuid.UUID)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -431,6 +430,14 @@ func (_m *Team) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
+	builder.WriteString(", ")
+	builder.WriteString("division_pool_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.DivisionPoolID))
+	builder.WriteString(", ")
+	if v := _m.HomeLocationID; v != nil {
+		builder.WriteString("home_location_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -43,10 +43,12 @@ type DisciplineResponse struct {
 
 func toDisciplineResponse(d *ent.Discipline) DisciplineResponse {
 	resp := DisciplineResponse{
-		ID:        d.ID.String(),
-		Name:      d.Name,
-		Slug:      d.Slug,
-		CountryID: d.Edges.Country.ID.String(),
+		ID:   d.ID.String(),
+		Name: d.Name,
+		Slug: d.Slug,
+	}
+	if d.Edges.Country != nil {
+		resp.CountryID = d.Edges.Country.ID.String()
 	}
 	if d.Description != nil {
 		resp.Description = d.Description

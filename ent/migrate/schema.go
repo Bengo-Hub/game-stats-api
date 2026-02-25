@@ -260,6 +260,9 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "role", Type: field.TypeString, Default: "player"},
 		{Name: "jersey_number", Type: field.TypeInt, Nullable: true},
+		{Name: "position", Type: field.TypeString, Nullable: true},
+		{Name: "is_captain", Type: field.TypeBool, Default: false},
+		{Name: "is_spirit_captain", Type: field.TypeBool, Default: false},
 		{Name: "status", Type: field.TypeString, Default: "active"},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 		{Name: "event_participations", Type: field.TypeUUID},
@@ -274,19 +277,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "event_participations_events_participations",
-				Columns:    []*schema.Column{EventParticipationsColumns[8]},
+				Columns:    []*schema.Column{EventParticipationsColumns[11]},
 				RefColumns: []*schema.Column{EventsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "event_participations_players_participations",
-				Columns:    []*schema.Column{EventParticipationsColumns[9]},
+				Columns:    []*schema.Column{EventParticipationsColumns[12]},
 				RefColumns: []*schema.Column{PlayersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "event_participations_teams_participations",
-				Columns:    []*schema.Column{EventParticipationsColumns[10]},
+				Columns:    []*schema.Column{EventParticipationsColumns[13]},
 				RefColumns: []*schema.Column{TeamsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -557,7 +560,7 @@ var (
 		{Name: "phone", Type: field.TypeString, Nullable: true},
 		{Name: "position", Type: field.TypeString, Nullable: true},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
-		{Name: "team_players", Type: field.TypeUUID},
+		{Name: "team_id", Type: field.TypeUUID},
 	}
 	// PlayersTable holds the schema information for the "players" table.
 	PlayersTable = &schema.Table{
@@ -760,7 +763,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "name", Type: field.TypeString, Size: 100},
 		{Name: "initial_seed", Type: field.TypeInt, Nullable: true},
 		{Name: "final_placement", Type: field.TypeInt, Nullable: true},
 		{Name: "logo_url", Type: field.TypeString, Nullable: true},
@@ -769,8 +772,8 @@ var (
 		{Name: "contact_email", Type: field.TypeString, Nullable: true},
 		{Name: "contact_phone", Type: field.TypeString, Nullable: true},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
-		{Name: "division_pool_teams", Type: field.TypeUUID},
-		{Name: "location_teams", Type: field.TypeUUID, Nullable: true},
+		{Name: "division_pool_id", Type: field.TypeUUID},
+		{Name: "home_location_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// TeamsTable holds the schema information for the "teams" table.
 	TeamsTable = &schema.Table{

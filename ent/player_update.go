@@ -256,9 +256,17 @@ func (_u *PlayerUpdate) ClearMetadata() *PlayerUpdate {
 	return _u
 }
 
-// SetTeamID sets the "team" edge to the Team entity by ID.
-func (_u *PlayerUpdate) SetTeamID(id uuid.UUID) *PlayerUpdate {
-	_u.mutation.SetTeamID(id)
+// SetTeamID sets the "team_id" field.
+func (_u *PlayerUpdate) SetTeamID(v uuid.UUID) *PlayerUpdate {
+	_u.mutation.SetTeamID(v)
+	return _u
+}
+
+// SetNillableTeamID sets the "team_id" field if the given value is not nil.
+func (_u *PlayerUpdate) SetNillableTeamID(v *uuid.UUID) *PlayerUpdate {
+	if v != nil {
+		_u.SetTeamID(*v)
+	}
 	return _u
 }
 
@@ -1085,9 +1093,17 @@ func (_u *PlayerUpdateOne) ClearMetadata() *PlayerUpdateOne {
 	return _u
 }
 
-// SetTeamID sets the "team" edge to the Team entity by ID.
-func (_u *PlayerUpdateOne) SetTeamID(id uuid.UUID) *PlayerUpdateOne {
-	_u.mutation.SetTeamID(id)
+// SetTeamID sets the "team_id" field.
+func (_u *PlayerUpdateOne) SetTeamID(v uuid.UUID) *PlayerUpdateOne {
+	_u.mutation.SetTeamID(v)
+	return _u
+}
+
+// SetNillableTeamID sets the "team_id" field if the given value is not nil.
+func (_u *PlayerUpdateOne) SetNillableTeamID(v *uuid.UUID) *PlayerUpdateOne {
+	if v != nil {
+		_u.SetTeamID(*v)
+	}
 	return _u
 }
 

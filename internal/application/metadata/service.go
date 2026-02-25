@@ -6,6 +6,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/internal/domain/continent"
 	"github.com/bengobox/game-stats-api/internal/domain/country"
+	"github.com/bengobox/game-stats-api/internal/domain/field"
 	"github.com/bengobox/game-stats-api/internal/domain/location"
 	"github.com/bengobox/game-stats-api/internal/domain/world"
 	"github.com/google/uuid"
@@ -16,14 +17,16 @@ type Service struct {
 	continentRepo continent.Repository
 	countryRepo   country.Repository
 	locationRepo  location.Repository
+	fieldRepo     field.Repository
 }
 
-func NewService(w world.Repository, con continent.Repository, cou country.Repository, l location.Repository) *Service {
+func NewService(w world.Repository, con continent.Repository, cou country.Repository, l location.Repository, f field.Repository) *Service {
 	return &Service{
 		worldRepo:     w,
 		continentRepo: con,
 		countryRepo:   cou,
 		locationRepo:  l,
+		fieldRepo:     f,
 	}
 }
 
@@ -142,6 +145,56 @@ func (s *Service) ListLocations(ctx context.Context) ([]LocationDTO, error) {
 		}
 	}
 	return dtos, nil
+}
+
+type FieldDTO struct {
+	ID          string                 `json:"id"`
+	Name        string                 `json:"name"`
+	Capacity    *int                   `json:"capacity,omitempty"`
+	SurfaceType *string                `json:"surface_type,omitempty"`
+	LocationID  string                 `json:"location_id"`
+	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+}
+
+func (s *Service) ListFields(ctx context.Context, locationID *uuid.UUID) ([]FieldDTO, error) {
+	fields, err := s.fieldRepo.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	dtos := make([]FieldDTO, 0, len(fields))
+	for _, f := range fields {
+		if locationID != nil && f.Edges.Location != nil && f.Edges.Location.ID != *locationID {
+			continue
+		}
+		// If f.Edges.Location is nil but filter is provided, skip
+		if locationID != nil && f.Edges.Location == nil {
+			continue
+		}
+
+		locID := ""
+		if f.Edges.Location != nil {
+			locID = f.Edges.Location.ID.String()
+		}
+
+		dtos = append(dtos, FieldDTO{
+			ID:          f.ID.String(),
+			Name:        f.Name,
+			Capacity:    f.Capacity,
+			SurfaceType: f.SurfaceType,
+			LocationID:  locID,
+			Metadata:    f.Metadata,
+		})
+	}
+	return dtos, nil
+}
+
+func (s *Service) CreateField(ctx context.Context, f *ent.Field) (*ent.Field, error) {
+	return s.fieldRepo.Create(ctx, f)
+}
+
+func (s *Service) GetFieldByID(ctx context.Context, id uuid.UUID) (*ent.Field, error) {
+	return s.fieldRepo.GetByID(ctx, id)
 }
 
 func (s *Service) CreateWorld(ctx context.Context, w *ent.World) (*ent.World, error) {

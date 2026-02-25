@@ -9,15 +9,15 @@ import (
 // Game DTOs
 type CreateGameRequest struct {
 	Name                 string                 `json:"name" validate:"required,max=100"`
-	ScheduledTime        time.Time              `json:"scheduledTime" validate:"required"`
-	AllocatedTimeMinutes int                    `json:"allocatedTimeMinutes" validate:"required,min=1"`
-	HomeTeamID           uuid.UUID              `json:"homeTeamId" validate:"required"`
-	AwayTeamID           uuid.UUID              `json:"awayTeamId" validate:"required"`
-	DivisionPoolID       uuid.UUID              `json:"divisionPoolId" validate:"required"`
-	FieldLocationID      uuid.UUID              `json:"fieldLocationId" validate:"required"`
-	GameRoundID          *uuid.UUID             `json:"gameRoundId,omitempty"`
-	ScorekeeperID        *uuid.UUID             `json:"scorekeeperId,omitempty"`
-	FirstPullBy          *string                `json:"firstPullBy,omitempty"`
+	ScheduledTime        time.Time              `json:"scheduled_time" validate:"required"`
+	AllocatedTimeMinutes int                    `json:"allocated_time_minutes" validate:"required,min=1"`
+	HomeTeamID           uuid.UUID              `json:"home_team_id" validate:"required"`
+	AwayTeamID           uuid.UUID              `json:"away_team_id" validate:"required"`
+	DivisionPoolID       uuid.UUID              `json:"division_pool_id" validate:"required"`
+	FieldLocationID      uuid.UUID              `json:"field_location_id" validate:"required"`
+	GameRoundID          *uuid.UUID             `json:"game_round_id,omitempty"`
+	ScorekeeperID        *uuid.UUID             `json:"scorekeeper_id,omitempty"`
+	FirstPullBy          *string                `json:"first_pull_by,omitempty"`
 	Metadata             map[string]interface{} `json:"metadata,omitempty"`
 }
 
@@ -212,6 +212,7 @@ type ListGamesFilter struct {
 	FieldID        *uuid.UUID
 	StartDate      *time.Time
 	EndDate        *time.Time
+	RoundType      *string
 	Limit          int
 	Offset         int
 }

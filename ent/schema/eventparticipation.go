@@ -30,6 +30,15 @@ func (EventParticipation) Fields() []ent.Field {
 		field.Int("jersey_number").
 			Optional().
 			Nillable(),
+		field.String("position").
+			Optional().
+			Nillable(),
+		field.Bool("is_captain").
+			Default(false).
+			Comment("Whether this player is the team captain in this event"),
+		field.Bool("is_spirit_captain").
+			Default(false).
+			Comment("Whether this player is the spirit captain in this event"),
 		field.String("status").
 			Default("active").
 			Comment("Status in the event: active, injured, transferred, inactive"),

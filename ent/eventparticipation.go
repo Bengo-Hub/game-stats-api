@@ -32,6 +32,12 @@ type EventParticipation struct {
 	Role string `json:"role,omitempty"`
 	// JerseyNumber holds the value of the "jersey_number" field.
 	JerseyNumber *int `json:"jersey_number,omitempty"`
+	// Position holds the value of the "position" field.
+	Position *string `json:"position,omitempty"`
+	// Whether this player is the team captain in this event
+	IsCaptain bool `json:"is_captain,omitempty"`
+	// Whether this player is the spirit captain in this event
+	IsSpiritCaptain bool `json:"is_spirit_captain,omitempty"`
 	// Status in the event: active, injured, transferred, inactive
 	Status string `json:"status,omitempty"`
 	// Metadata holds the value of the "metadata" field.
@@ -98,9 +104,11 @@ func (*EventParticipation) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case eventparticipation.FieldMetadata:
 			values[i] = new([]byte)
+		case eventparticipation.FieldIsCaptain, eventparticipation.FieldIsSpiritCaptain:
+			values[i] = new(sql.NullBool)
 		case eventparticipation.FieldJerseyNumber:
 			values[i] = new(sql.NullInt64)
-		case eventparticipation.FieldRole, eventparticipation.FieldStatus:
+		case eventparticipation.FieldRole, eventparticipation.FieldPosition, eventparticipation.FieldStatus:
 			values[i] = new(sql.NullString)
 		case eventparticipation.FieldCreatedAt, eventparticipation.FieldUpdatedAt, eventparticipation.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -164,6 +172,25 @@ func (_m *EventParticipation) assignValues(columns []string, values []any) error
 			} else if value.Valid {
 				_m.JerseyNumber = new(int)
 				*_m.JerseyNumber = int(value.Int64)
+			}
+		case eventparticipation.FieldPosition:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field position", values[i])
+			} else if value.Valid {
+				_m.Position = new(string)
+				*_m.Position = value.String
+			}
+		case eventparticipation.FieldIsCaptain:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_captain", values[i])
+			} else if value.Valid {
+				_m.IsCaptain = value.Bool
+			}
+		case eventparticipation.FieldIsSpiritCaptain:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_spirit_captain", values[i])
+			} else if value.Valid {
+				_m.IsSpiritCaptain = value.Bool
 			}
 		case eventparticipation.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -269,6 +296,17 @@ func (_m *EventParticipation) String() string {
 		builder.WriteString("jersey_number=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	if v := _m.Position; v != nil {
+		builder.WriteString("position=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	builder.WriteString("is_captain=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsCaptain))
+	builder.WriteString(", ")
+	builder.WriteString("is_spirit_captain=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsSpiritCaptain))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(_m.Status)

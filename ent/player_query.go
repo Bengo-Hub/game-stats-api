@@ -36,7 +36,6 @@ type PlayerQuery struct {
 	withMvpNominations    *MVPNominationQuery
 	withSpiritNominations *SpiritNominationQuery
 	withParticipations    *EventParticipationQuery
-	withFKs               bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -552,7 +551,6 @@ func (_q *PlayerQuery) prepareQuery(ctx context.Context) error {
 func (_q *PlayerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Player, error) {
 	var (
 		nodes       = []*Player{}
-		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
 		loadedTypes = [6]bool{
 			_q.withTeam != nil,
@@ -563,12 +561,6 @@ func (_q *PlayerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Playe
 			_q.withParticipations != nil,
 		}
 	)
-	if _q.withTeam != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, player.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Player).scanValues(nil, columns)
 	}
@@ -635,10 +627,7 @@ func (_q *PlayerQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Player)
 	for i := range nodes {
-		if nodes[i].team_players == nil {
-			continue
-		}
-		fk := *nodes[i].team_players
+		fk := nodes[i].TeamID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -655,7 +644,7 @@ func (_q *PlayerQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "team_players" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "team_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -843,6 +832,9 @@ func (_q *PlayerQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != player.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withTeam != nil {
+			_spec.Node.AddColumnOnce(player.FieldTeamID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

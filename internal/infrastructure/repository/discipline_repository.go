@@ -19,13 +19,17 @@ func NewDisciplineRepository(client *ent.Client) *disciplineRepository {
 }
 
 func (r *disciplineRepository) Create(ctx context.Context, d *ent.Discipline) (*ent.Discipline, error) {
-	return r.client.Discipline.Create().
+	created, err := r.client.Discipline.Create().
 		SetName(d.Name).
 		SetSlug(d.Slug).
 		SetNillableDescription(d.Description).
 		SetNillableRulesPdfURL(d.RulesPdfURL).
 		SetCountryID(d.Edges.Country.ID).
 		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return r.GetByID(ctx, created.ID)
 }
 
 func (r *disciplineRepository) GetByID(ctx context.Context, id uuid.UUID) (*ent.Discipline, error) {
@@ -50,7 +54,7 @@ func (r *disciplineRepository) List(ctx context.Context) ([]*ent.Discipline, err
 }
 
 func (r *disciplineRepository) Update(ctx context.Context, d *ent.Discipline) (*ent.Discipline, error) {
-	return r.client.Discipline.UpdateOneID(d.ID).
+	updated, err := r.client.Discipline.UpdateOneID(d.ID).
 		SetName(d.Name).
 		SetSlug(d.Slug).
 		SetNillableDescription(d.Description).
@@ -58,6 +62,10 @@ func (r *disciplineRepository) Update(ctx context.Context, d *ent.Discipline) (*
 		SetCountryID(d.Edges.Country.ID).
 		SetUpdatedAt(time.Now()).
 		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return r.GetByID(ctx, updated.ID)
 }
 
 func (r *disciplineRepository) Delete(ctx context.Context, id uuid.UUID) error {

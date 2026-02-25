@@ -9465,27 +9465,30 @@ func (m *EventMutation) ResetEdge(name string) error {
 // EventParticipationMutation represents an operation that mutates the EventParticipation nodes in the graph.
 type EventParticipationMutation struct {
 	config
-	op               Op
-	typ              string
-	id               *uuid.UUID
-	created_at       *time.Time
-	updated_at       *time.Time
-	deleted_at       *time.Time
-	role             *string
-	jersey_number    *int
-	addjersey_number *int
-	status           *string
-	metadata         *map[string]interface{}
-	clearedFields    map[string]struct{}
-	event            *uuid.UUID
-	clearedevent     bool
-	team             *uuid.UUID
-	clearedteam      bool
-	player           *uuid.UUID
-	clearedplayer    bool
-	done             bool
-	oldValue         func(context.Context) (*EventParticipation, error)
-	predicates       []predicate.EventParticipation
+	op                Op
+	typ               string
+	id                *uuid.UUID
+	created_at        *time.Time
+	updated_at        *time.Time
+	deleted_at        *time.Time
+	role              *string
+	jersey_number     *int
+	addjersey_number  *int
+	position          *string
+	is_captain        *bool
+	is_spirit_captain *bool
+	status            *string
+	metadata          *map[string]interface{}
+	clearedFields     map[string]struct{}
+	event             *uuid.UUID
+	clearedevent      bool
+	team              *uuid.UUID
+	clearedteam       bool
+	player            *uuid.UUID
+	clearedplayer     bool
+	done              bool
+	oldValue          func(context.Context) (*EventParticipation, error)
+	predicates        []predicate.EventParticipation
 }
 
 var _ ent.Mutation = (*EventParticipationMutation)(nil)
@@ -9819,6 +9822,127 @@ func (m *EventParticipationMutation) ResetJerseyNumber() {
 	delete(m.clearedFields, eventparticipation.FieldJerseyNumber)
 }
 
+// SetPosition sets the "position" field.
+func (m *EventParticipationMutation) SetPosition(s string) {
+	m.position = &s
+}
+
+// Position returns the value of the "position" field in the mutation.
+func (m *EventParticipationMutation) Position() (r string, exists bool) {
+	v := m.position
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPosition returns the old "position" field's value of the EventParticipation entity.
+// If the EventParticipation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EventParticipationMutation) OldPosition(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPosition is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPosition requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPosition: %w", err)
+	}
+	return oldValue.Position, nil
+}
+
+// ClearPosition clears the value of the "position" field.
+func (m *EventParticipationMutation) ClearPosition() {
+	m.position = nil
+	m.clearedFields[eventparticipation.FieldPosition] = struct{}{}
+}
+
+// PositionCleared returns if the "position" field was cleared in this mutation.
+func (m *EventParticipationMutation) PositionCleared() bool {
+	_, ok := m.clearedFields[eventparticipation.FieldPosition]
+	return ok
+}
+
+// ResetPosition resets all changes to the "position" field.
+func (m *EventParticipationMutation) ResetPosition() {
+	m.position = nil
+	delete(m.clearedFields, eventparticipation.FieldPosition)
+}
+
+// SetIsCaptain sets the "is_captain" field.
+func (m *EventParticipationMutation) SetIsCaptain(b bool) {
+	m.is_captain = &b
+}
+
+// IsCaptain returns the value of the "is_captain" field in the mutation.
+func (m *EventParticipationMutation) IsCaptain() (r bool, exists bool) {
+	v := m.is_captain
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsCaptain returns the old "is_captain" field's value of the EventParticipation entity.
+// If the EventParticipation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EventParticipationMutation) OldIsCaptain(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsCaptain is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsCaptain requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsCaptain: %w", err)
+	}
+	return oldValue.IsCaptain, nil
+}
+
+// ResetIsCaptain resets all changes to the "is_captain" field.
+func (m *EventParticipationMutation) ResetIsCaptain() {
+	m.is_captain = nil
+}
+
+// SetIsSpiritCaptain sets the "is_spirit_captain" field.
+func (m *EventParticipationMutation) SetIsSpiritCaptain(b bool) {
+	m.is_spirit_captain = &b
+}
+
+// IsSpiritCaptain returns the value of the "is_spirit_captain" field in the mutation.
+func (m *EventParticipationMutation) IsSpiritCaptain() (r bool, exists bool) {
+	v := m.is_spirit_captain
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsSpiritCaptain returns the old "is_spirit_captain" field's value of the EventParticipation entity.
+// If the EventParticipation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EventParticipationMutation) OldIsSpiritCaptain(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsSpiritCaptain is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsSpiritCaptain requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsSpiritCaptain: %w", err)
+	}
+	return oldValue.IsSpiritCaptain, nil
+}
+
+// ResetIsSpiritCaptain resets all changes to the "is_spirit_captain" field.
+func (m *EventParticipationMutation) ResetIsSpiritCaptain() {
+	m.is_spirit_captain = nil
+}
+
 // SetStatus sets the "status" field.
 func (m *EventParticipationMutation) SetStatus(s string) {
 	m.status = &s
@@ -10055,7 +10179,7 @@ func (m *EventParticipationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *EventParticipationMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 10)
 	if m.created_at != nil {
 		fields = append(fields, eventparticipation.FieldCreatedAt)
 	}
@@ -10070,6 +10194,15 @@ func (m *EventParticipationMutation) Fields() []string {
 	}
 	if m.jersey_number != nil {
 		fields = append(fields, eventparticipation.FieldJerseyNumber)
+	}
+	if m.position != nil {
+		fields = append(fields, eventparticipation.FieldPosition)
+	}
+	if m.is_captain != nil {
+		fields = append(fields, eventparticipation.FieldIsCaptain)
+	}
+	if m.is_spirit_captain != nil {
+		fields = append(fields, eventparticipation.FieldIsSpiritCaptain)
 	}
 	if m.status != nil {
 		fields = append(fields, eventparticipation.FieldStatus)
@@ -10095,6 +10228,12 @@ func (m *EventParticipationMutation) Field(name string) (ent.Value, bool) {
 		return m.Role()
 	case eventparticipation.FieldJerseyNumber:
 		return m.JerseyNumber()
+	case eventparticipation.FieldPosition:
+		return m.Position()
+	case eventparticipation.FieldIsCaptain:
+		return m.IsCaptain()
+	case eventparticipation.FieldIsSpiritCaptain:
+		return m.IsSpiritCaptain()
 	case eventparticipation.FieldStatus:
 		return m.Status()
 	case eventparticipation.FieldMetadata:
@@ -10118,6 +10257,12 @@ func (m *EventParticipationMutation) OldField(ctx context.Context, name string) 
 		return m.OldRole(ctx)
 	case eventparticipation.FieldJerseyNumber:
 		return m.OldJerseyNumber(ctx)
+	case eventparticipation.FieldPosition:
+		return m.OldPosition(ctx)
+	case eventparticipation.FieldIsCaptain:
+		return m.OldIsCaptain(ctx)
+	case eventparticipation.FieldIsSpiritCaptain:
+		return m.OldIsSpiritCaptain(ctx)
 	case eventparticipation.FieldStatus:
 		return m.OldStatus(ctx)
 	case eventparticipation.FieldMetadata:
@@ -10165,6 +10310,27 @@ func (m *EventParticipationMutation) SetField(name string, value ent.Value) erro
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetJerseyNumber(v)
+		return nil
+	case eventparticipation.FieldPosition:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPosition(v)
+		return nil
+	case eventparticipation.FieldIsCaptain:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsCaptain(v)
+		return nil
+	case eventparticipation.FieldIsSpiritCaptain:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsSpiritCaptain(v)
 		return nil
 	case eventparticipation.FieldStatus:
 		v, ok := value.(string)
@@ -10231,6 +10397,9 @@ func (m *EventParticipationMutation) ClearedFields() []string {
 	if m.FieldCleared(eventparticipation.FieldJerseyNumber) {
 		fields = append(fields, eventparticipation.FieldJerseyNumber)
 	}
+	if m.FieldCleared(eventparticipation.FieldPosition) {
+		fields = append(fields, eventparticipation.FieldPosition)
+	}
 	if m.FieldCleared(eventparticipation.FieldMetadata) {
 		fields = append(fields, eventparticipation.FieldMetadata)
 	}
@@ -10253,6 +10422,9 @@ func (m *EventParticipationMutation) ClearField(name string) error {
 		return nil
 	case eventparticipation.FieldJerseyNumber:
 		m.ClearJerseyNumber()
+		return nil
+	case eventparticipation.FieldPosition:
+		m.ClearPosition()
 		return nil
 	case eventparticipation.FieldMetadata:
 		m.ClearMetadata()
@@ -10279,6 +10451,15 @@ func (m *EventParticipationMutation) ResetField(name string) error {
 		return nil
 	case eventparticipation.FieldJerseyNumber:
 		m.ResetJerseyNumber()
+		return nil
+	case eventparticipation.FieldPosition:
+		m.ResetPosition()
+		return nil
+	case eventparticipation.FieldIsCaptain:
+		m.ResetIsCaptain()
+		return nil
+	case eventparticipation.FieldIsSpiritCaptain:
+		m.ResetIsSpiritCaptain()
 		return nil
 	case eventparticipation.FieldStatus:
 		m.ResetStatus()
@@ -18914,27 +19095,51 @@ func (m *PlayerMutation) ResetMetadata() {
 	delete(m.clearedFields, player.FieldMetadata)
 }
 
-// SetTeamID sets the "team" edge to the Team entity by id.
-func (m *PlayerMutation) SetTeamID(id uuid.UUID) {
-	m.team = &id
+// SetTeamID sets the "team_id" field.
+func (m *PlayerMutation) SetTeamID(u uuid.UUID) {
+	m.team = &u
+}
+
+// TeamID returns the value of the "team_id" field in the mutation.
+func (m *PlayerMutation) TeamID() (r uuid.UUID, exists bool) {
+	v := m.team
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTeamID returns the old "team_id" field's value of the Player entity.
+// If the Player object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PlayerMutation) OldTeamID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTeamID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTeamID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTeamID: %w", err)
+	}
+	return oldValue.TeamID, nil
+}
+
+// ResetTeamID resets all changes to the "team_id" field.
+func (m *PlayerMutation) ResetTeamID() {
+	m.team = nil
 }
 
 // ClearTeam clears the "team" edge to the Team entity.
 func (m *PlayerMutation) ClearTeam() {
 	m.clearedteam = true
+	m.clearedFields[player.FieldTeamID] = struct{}{}
 }
 
 // TeamCleared reports if the "team" edge to the Team entity was cleared.
 func (m *PlayerMutation) TeamCleared() bool {
 	return m.clearedteam
-}
-
-// TeamID returns the "team" edge ID in the mutation.
-func (m *PlayerMutation) TeamID() (id uuid.UUID, exists bool) {
-	if m.team != nil {
-		return *m.team, true
-	}
-	return
 }
 
 // TeamIDs returns the "team" edge IDs in the mutation.
@@ -19257,7 +19462,7 @@ func (m *PlayerMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PlayerMutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 15)
 	if m.created_at != nil {
 		fields = append(fields, player.FieldCreatedAt)
 	}
@@ -19300,6 +19505,9 @@ func (m *PlayerMutation) Fields() []string {
 	if m.metadata != nil {
 		fields = append(fields, player.FieldMetadata)
 	}
+	if m.team != nil {
+		fields = append(fields, player.FieldTeamID)
+	}
 	return fields
 }
 
@@ -19336,6 +19544,8 @@ func (m *PlayerMutation) Field(name string) (ent.Value, bool) {
 		return m.Position()
 	case player.FieldMetadata:
 		return m.Metadata()
+	case player.FieldTeamID:
+		return m.TeamID()
 	}
 	return nil, false
 }
@@ -19373,6 +19583,8 @@ func (m *PlayerMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldPosition(ctx)
 	case player.FieldMetadata:
 		return m.OldMetadata(ctx)
+	case player.FieldTeamID:
+		return m.OldTeamID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Player field %s", name)
 }
@@ -19479,6 +19691,13 @@ func (m *PlayerMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMetadata(v)
+		return nil
+	case player.FieldTeamID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTeamID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Player field %s", name)
@@ -19636,6 +19855,9 @@ func (m *PlayerMutation) ResetField(name string) error {
 		return nil
 	case player.FieldMetadata:
 		m.ResetMetadata()
+		return nil
+	case player.FieldTeamID:
+		m.ResetTeamID()
 		return nil
 	}
 	return fmt.Errorf("unknown Player field %s", name)
@@ -25749,27 +25971,100 @@ func (m *TeamMutation) ResetMetadata() {
 	delete(m.clearedFields, team.FieldMetadata)
 }
 
-// SetDivisionPoolID sets the "division_pool" edge to the DivisionPool entity by id.
-func (m *TeamMutation) SetDivisionPoolID(id uuid.UUID) {
-	m.division_pool = &id
+// SetDivisionPoolID sets the "division_pool_id" field.
+func (m *TeamMutation) SetDivisionPoolID(u uuid.UUID) {
+	m.division_pool = &u
+}
+
+// DivisionPoolID returns the value of the "division_pool_id" field in the mutation.
+func (m *TeamMutation) DivisionPoolID() (r uuid.UUID, exists bool) {
+	v := m.division_pool
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDivisionPoolID returns the old "division_pool_id" field's value of the Team entity.
+// If the Team object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TeamMutation) OldDivisionPoolID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDivisionPoolID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDivisionPoolID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDivisionPoolID: %w", err)
+	}
+	return oldValue.DivisionPoolID, nil
+}
+
+// ResetDivisionPoolID resets all changes to the "division_pool_id" field.
+func (m *TeamMutation) ResetDivisionPoolID() {
+	m.division_pool = nil
+}
+
+// SetHomeLocationID sets the "home_location_id" field.
+func (m *TeamMutation) SetHomeLocationID(u uuid.UUID) {
+	m.home_location = &u
+}
+
+// HomeLocationID returns the value of the "home_location_id" field in the mutation.
+func (m *TeamMutation) HomeLocationID() (r uuid.UUID, exists bool) {
+	v := m.home_location
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHomeLocationID returns the old "home_location_id" field's value of the Team entity.
+// If the Team object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TeamMutation) OldHomeLocationID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHomeLocationID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHomeLocationID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHomeLocationID: %w", err)
+	}
+	return oldValue.HomeLocationID, nil
+}
+
+// ClearHomeLocationID clears the value of the "home_location_id" field.
+func (m *TeamMutation) ClearHomeLocationID() {
+	m.home_location = nil
+	m.clearedFields[team.FieldHomeLocationID] = struct{}{}
+}
+
+// HomeLocationIDCleared returns if the "home_location_id" field was cleared in this mutation.
+func (m *TeamMutation) HomeLocationIDCleared() bool {
+	_, ok := m.clearedFields[team.FieldHomeLocationID]
+	return ok
+}
+
+// ResetHomeLocationID resets all changes to the "home_location_id" field.
+func (m *TeamMutation) ResetHomeLocationID() {
+	m.home_location = nil
+	delete(m.clearedFields, team.FieldHomeLocationID)
 }
 
 // ClearDivisionPool clears the "division_pool" edge to the DivisionPool entity.
 func (m *TeamMutation) ClearDivisionPool() {
 	m.cleareddivision_pool = true
+	m.clearedFields[team.FieldDivisionPoolID] = struct{}{}
 }
 
 // DivisionPoolCleared reports if the "division_pool" edge to the DivisionPool entity was cleared.
 func (m *TeamMutation) DivisionPoolCleared() bool {
 	return m.cleareddivision_pool
-}
-
-// DivisionPoolID returns the "division_pool" edge ID in the mutation.
-func (m *TeamMutation) DivisionPoolID() (id uuid.UUID, exists bool) {
-	if m.division_pool != nil {
-		return *m.division_pool, true
-	}
-	return
 }
 
 // DivisionPoolIDs returns the "division_pool" edge IDs in the mutation.
@@ -25788,27 +26083,15 @@ func (m *TeamMutation) ResetDivisionPool() {
 	m.cleareddivision_pool = false
 }
 
-// SetHomeLocationID sets the "home_location" edge to the Location entity by id.
-func (m *TeamMutation) SetHomeLocationID(id uuid.UUID) {
-	m.home_location = &id
-}
-
 // ClearHomeLocation clears the "home_location" edge to the Location entity.
 func (m *TeamMutation) ClearHomeLocation() {
 	m.clearedhome_location = true
+	m.clearedFields[team.FieldHomeLocationID] = struct{}{}
 }
 
 // HomeLocationCleared reports if the "home_location" edge to the Location entity was cleared.
 func (m *TeamMutation) HomeLocationCleared() bool {
-	return m.clearedhome_location
-}
-
-// HomeLocationID returns the "home_location" edge ID in the mutation.
-func (m *TeamMutation) HomeLocationID() (id uuid.UUID, exists bool) {
-	if m.home_location != nil {
-		return *m.home_location, true
-	}
-	return
+	return m.HomeLocationIDCleared() || m.clearedhome_location
 }
 
 // HomeLocationIDs returns the "home_location" edge IDs in the mutation.
@@ -26239,7 +26522,7 @@ func (m *TeamMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TeamMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 14)
 	if m.created_at != nil {
 		fields = append(fields, team.FieldCreatedAt)
 	}
@@ -26276,6 +26559,12 @@ func (m *TeamMutation) Fields() []string {
 	if m.metadata != nil {
 		fields = append(fields, team.FieldMetadata)
 	}
+	if m.division_pool != nil {
+		fields = append(fields, team.FieldDivisionPoolID)
+	}
+	if m.home_location != nil {
+		fields = append(fields, team.FieldHomeLocationID)
+	}
 	return fields
 }
 
@@ -26308,6 +26597,10 @@ func (m *TeamMutation) Field(name string) (ent.Value, bool) {
 		return m.ContactPhone()
 	case team.FieldMetadata:
 		return m.Metadata()
+	case team.FieldDivisionPoolID:
+		return m.DivisionPoolID()
+	case team.FieldHomeLocationID:
+		return m.HomeLocationID()
 	}
 	return nil, false
 }
@@ -26341,6 +26634,10 @@ func (m *TeamMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldContactPhone(ctx)
 	case team.FieldMetadata:
 		return m.OldMetadata(ctx)
+	case team.FieldDivisionPoolID:
+		return m.OldDivisionPoolID(ctx)
+	case team.FieldHomeLocationID:
+		return m.OldHomeLocationID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Team field %s", name)
 }
@@ -26434,6 +26731,20 @@ func (m *TeamMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetMetadata(v)
 		return nil
+	case team.FieldDivisionPoolID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDivisionPoolID(v)
+		return nil
+	case team.FieldHomeLocationID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHomeLocationID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Team field %s", name)
 }
@@ -26518,6 +26829,9 @@ func (m *TeamMutation) ClearedFields() []string {
 	if m.FieldCleared(team.FieldMetadata) {
 		fields = append(fields, team.FieldMetadata)
 	}
+	if m.FieldCleared(team.FieldHomeLocationID) {
+		fields = append(fields, team.FieldHomeLocationID)
+	}
 	return fields
 }
 
@@ -26558,6 +26872,9 @@ func (m *TeamMutation) ClearField(name string) error {
 		return nil
 	case team.FieldMetadata:
 		m.ClearMetadata()
+		return nil
+	case team.FieldHomeLocationID:
+		m.ClearHomeLocationID()
 		return nil
 	}
 	return fmt.Errorf("unknown Team nullable field %s", name)
@@ -26602,6 +26919,12 @@ func (m *TeamMutation) ResetField(name string) error {
 		return nil
 	case team.FieldMetadata:
 		m.ResetMetadata()
+		return nil
+	case team.FieldDivisionPoolID:
+		m.ResetDivisionPoolID()
+		return nil
+	case team.FieldHomeLocationID:
+		m.ResetHomeLocationID()
 		return nil
 	}
 	return fmt.Errorf("unknown Team field %s", name)

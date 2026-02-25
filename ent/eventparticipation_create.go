@@ -94,6 +94,48 @@ func (_c *EventParticipationCreate) SetNillableJerseyNumber(v *int) *EventPartic
 	return _c
 }
 
+// SetPosition sets the "position" field.
+func (_c *EventParticipationCreate) SetPosition(v string) *EventParticipationCreate {
+	_c.mutation.SetPosition(v)
+	return _c
+}
+
+// SetNillablePosition sets the "position" field if the given value is not nil.
+func (_c *EventParticipationCreate) SetNillablePosition(v *string) *EventParticipationCreate {
+	if v != nil {
+		_c.SetPosition(*v)
+	}
+	return _c
+}
+
+// SetIsCaptain sets the "is_captain" field.
+func (_c *EventParticipationCreate) SetIsCaptain(v bool) *EventParticipationCreate {
+	_c.mutation.SetIsCaptain(v)
+	return _c
+}
+
+// SetNillableIsCaptain sets the "is_captain" field if the given value is not nil.
+func (_c *EventParticipationCreate) SetNillableIsCaptain(v *bool) *EventParticipationCreate {
+	if v != nil {
+		_c.SetIsCaptain(*v)
+	}
+	return _c
+}
+
+// SetIsSpiritCaptain sets the "is_spirit_captain" field.
+func (_c *EventParticipationCreate) SetIsSpiritCaptain(v bool) *EventParticipationCreate {
+	_c.mutation.SetIsSpiritCaptain(v)
+	return _c
+}
+
+// SetNillableIsSpiritCaptain sets the "is_spirit_captain" field if the given value is not nil.
+func (_c *EventParticipationCreate) SetNillableIsSpiritCaptain(v *bool) *EventParticipationCreate {
+	if v != nil {
+		_c.SetIsSpiritCaptain(*v)
+	}
+	return _c
+}
+
 // SetStatus sets the "status" field.
 func (_c *EventParticipationCreate) SetStatus(v string) *EventParticipationCreate {
 	_c.mutation.SetStatus(v)
@@ -208,6 +250,14 @@ func (_c *EventParticipationCreate) defaults() {
 		v := eventparticipation.DefaultRole
 		_c.mutation.SetRole(v)
 	}
+	if _, ok := _c.mutation.IsCaptain(); !ok {
+		v := eventparticipation.DefaultIsCaptain
+		_c.mutation.SetIsCaptain(v)
+	}
+	if _, ok := _c.mutation.IsSpiritCaptain(); !ok {
+		v := eventparticipation.DefaultIsSpiritCaptain
+		_c.mutation.SetIsSpiritCaptain(v)
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		v := eventparticipation.DefaultStatus
 		_c.mutation.SetStatus(v)
@@ -228,6 +278,12 @@ func (_c *EventParticipationCreate) check() error {
 	}
 	if _, ok := _c.mutation.Role(); !ok {
 		return &ValidationError{Name: "role", err: errors.New(`ent: missing required field "EventParticipation.role"`)}
+	}
+	if _, ok := _c.mutation.IsCaptain(); !ok {
+		return &ValidationError{Name: "is_captain", err: errors.New(`ent: missing required field "EventParticipation.is_captain"`)}
+	}
+	if _, ok := _c.mutation.IsSpiritCaptain(); !ok {
+		return &ValidationError{Name: "is_spirit_captain", err: errors.New(`ent: missing required field "EventParticipation.is_spirit_captain"`)}
 	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "EventParticipation.status"`)}
@@ -295,6 +351,18 @@ func (_c *EventParticipationCreate) createSpec() (*EventParticipation, *sqlgraph
 	if value, ok := _c.mutation.JerseyNumber(); ok {
 		_spec.SetField(eventparticipation.FieldJerseyNumber, field.TypeInt, value)
 		_node.JerseyNumber = &value
+	}
+	if value, ok := _c.mutation.Position(); ok {
+		_spec.SetField(eventparticipation.FieldPosition, field.TypeString, value)
+		_node.Position = &value
+	}
+	if value, ok := _c.mutation.IsCaptain(); ok {
+		_spec.SetField(eventparticipation.FieldIsCaptain, field.TypeBool, value)
+		_node.IsCaptain = value
+	}
+	if value, ok := _c.mutation.IsSpiritCaptain(); ok {
+		_spec.SetField(eventparticipation.FieldIsSpiritCaptain, field.TypeBool, value)
+		_node.IsSpiritCaptain = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(eventparticipation.FieldStatus, field.TypeString, value)

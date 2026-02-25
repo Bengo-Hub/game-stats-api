@@ -15,6 +15,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/team"
+	"github.com/bengobox/game-stats-api/internal/pkg/logger"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
@@ -25,57 +26,59 @@ import (
 
 type CreateTeamRequest struct {
 	Name           string                 `json:"name" validate:"required"`
-	EventID        uuid.UUID              `json:"eventId" validate:"required"`
-	DivisionPoolID uuid.UUID              `json:"divisionPoolId" validate:"required"`
-	HomeLocationID *uuid.UUID             `json:"homeLocationId,omitempty"`
-	LocationName   *string                `json:"locationName,omitempty"`
-	LogoURL        *string                `json:"logoUrl,omitempty"`
-	PrimaryColor   *string                `json:"primaryColor,omitempty"`
-	SecondaryColor *string                `json:"secondaryColor,omitempty"`
-	ContactEmail   *string                `json:"contactEmail,omitempty"`
-	ContactPhone   *string                `json:"contactPhone,omitempty"`
-	InitialSeed    *int                   `json:"initialSeed,omitempty"`
+	EventID        uuid.UUID              `json:"event_id" validate:"required"`
+	DivisionPoolID uuid.UUID              `json:"division_pool_id" validate:"required"`
+	HomeLocationID *uuid.UUID             `json:"home_location_id,omitempty"`
+	LocationName   *string                `json:"location_name,omitempty"`
+	LogoURL        *string                `json:"logo_url,omitempty"`
+	PrimaryColor   *string                `json:"primary_color,omitempty"`
+	SecondaryColor *string                `json:"secondary_color,omitempty"`
+	ContactEmail   *string                `json:"contact_email,omitempty"`
+	ContactPhone   *string                `json:"contact_phone,omitempty"`
+	InitialSeed    *int                   `json:"initial_seed,omitempty"`
+	TeamID         *uuid.UUID             `json:"team_id,omitempty"` // Add TeamID for reuse
 	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 }
 
 type UpdateTeamRequest struct {
 	Name           *string                `json:"name,omitempty"`
-	DivisionPoolID *uuid.UUID             `json:"divisionPoolId,omitempty"`
-	HomeLocationID *uuid.UUID             `json:"homeLocationId,omitempty"`
-	LocationName   *string                `json:"locationName,omitempty"`
-	LogoURL        *string                `json:"logoUrl,omitempty"`
-	PrimaryColor   *string                `json:"primaryColor,omitempty"`
-	SecondaryColor *string                `json:"secondaryColor,omitempty"`
-	ContactEmail   *string                `json:"contactEmail,omitempty"`
-	ContactPhone   *string                `json:"contactPhone,omitempty"`
-	InitialSeed    *int                   `json:"initialSeed,omitempty"`
+	DivisionPoolID *uuid.UUID             `json:"division_pool_id,omitempty"`
+	HomeLocationID *uuid.UUID             `json:"home_location_id,omitempty"`
+	LocationName   *string                `json:"location_name,omitempty"`
+	LogoURL        *string                `json:"logo_url,omitempty"`
+	PrimaryColor   *string                `json:"primary_color,omitempty"`
+	SecondaryColor *string                `json:"secondary_color,omitempty"`
+	ContactEmail   *string                `json:"contact_email,omitempty"`
+	ContactPhone   *string                `json:"contact_phone,omitempty"`
+	InitialSeed    *int                   `json:"initial_seed,omitempty"`
 	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 }
 
 type CreatePlayerRequest struct {
-	Name            string    `json:"name" validate:"required"`
-	EventID         uuid.UUID `json:"eventId" validate:"required"`
-	TeamID          uuid.UUID `json:"teamId" validate:"required"`
-	Gender          string    `json:"gender" validate:"required,oneof=M F X"`
-	JerseyNumber    *int      `json:"jerseyNumber,omitempty"`
-	Email           *string   `json:"email,omitempty"`
-	Phone           *string   `json:"phone,omitempty"`
-	Position        *string   `json:"position,omitempty"`
-	ProfileImageURL *string   `json:"profileImageUrl,omitempty"`
-	IsCaptain       bool      `json:"isCaptain"`
-	IsSpiritCaptain bool      `json:"isSpiritCaptain"`
+	Name            string     `json:"name" validate:"required"`
+	EventID         uuid.UUID  `json:"event_id"`
+	TeamID          uuid.UUID  `json:"team_id"`
+	Gender          string     `json:"gender" validate:"required,oneof=M F X"`
+	JerseyNumber    *int       `json:"jersey_number,omitempty"`
+	Email           *string    `json:"email,omitempty"`
+	Phone           *string    `json:"phone,omitempty"`
+	Position        *string    `json:"position,omitempty"`
+	ProfileImageURL *string    `json:"profile_image_url,omitempty"`
+	IsCaptain       bool       `json:"is_captain"`
+	IsSpiritCaptain bool       `json:"is_spirit_captain"`
+	PlayerID        *uuid.UUID `json:"player_id,omitempty"` // Add PlayerID for reuse
 }
 
 type UpdatePlayerRequest struct {
 	Name            *string `json:"name,omitempty"`
 	Gender          *string `json:"gender,omitempty"`
-	JerseyNumber    *int    `json:"jerseyNumber,omitempty"`
+	JerseyNumber    *int    `json:"jersey_number,omitempty"`
 	Email           *string `json:"email,omitempty"`
 	Phone           *string `json:"phone,omitempty"`
 	Position        *string `json:"position,omitempty"`
-	ProfileImageURL *string `json:"profileImageUrl,omitempty"`
-	IsCaptain       *bool   `json:"isCaptain,omitempty"`
-	IsSpiritCaptain *bool   `json:"isSpiritCaptain,omitempty"`
+	ProfileImageURL *string `json:"profile_image_url,omitempty"`
+	IsCaptain       *bool   `json:"is_captain,omitempty"`
+	IsSpiritCaptain *bool   `json:"is_spirit_captain,omitempty"`
 }
 
 type TeamHandler struct {
@@ -88,18 +91,34 @@ func NewTeamHandler(client *ent.Client) *TeamHandler {
 
 // PlayerResponse represents a player in API responses
 type PlayerResponse struct {
+	ID              string                  `json:"id"`
+	Name            string                  `json:"name"`
+	Gender          string                  `json:"gender"`
+	JerseyNumber    *int                    `json:"jerseyNumber,omitempty"`
+	Email           *string                 `json:"email,omitempty"`
+	Phone           *string                 `json:"phone,omitempty"`
+	Position        *string                 `json:"position,omitempty"`
+	ProfileImageURL *string                 `json:"profileImageUrl,omitempty"`
+	IsCaptain       bool                    `json:"isCaptain"`
+	IsSpiritCaptain bool                    `json:"isSpiritCaptain"`
+	TeamID          *string                 `json:"teamId,omitempty"`
+	TeamName        *string                 `json:"teamName,omitempty"`
+	Participations  []ParticipationResponse `json:"participations,omitempty"`
+}
+
+type ParticipationResponse struct {
 	ID              string  `json:"id"`
-	Name            string  `json:"name"`
-	Gender          string  `json:"gender"`
+	EventID         string  `json:"eventId"`
+	EventName       string  `json:"eventName"`
+	TeamID          string  `json:"teamId"`
+	TeamName        string  `json:"teamName"`
 	JerseyNumber    *int    `json:"jerseyNumber,omitempty"`
-	Email           *string `json:"email,omitempty"`
-	Phone           *string `json:"phone,omitempty"`
 	Position        *string `json:"position,omitempty"`
-	ProfileImageURL *string `json:"profileImageUrl,omitempty"`
+	Role            string  `json:"role"`
+	Status          string  `json:"status"`
 	IsCaptain       bool    `json:"isCaptain"`
 	IsSpiritCaptain bool    `json:"isSpiritCaptain"`
-	TeamID          *string `json:"teamId,omitempty"`
-	TeamName        *string `json:"teamName,omitempty"`
+	JoinedAt        string  `json:"joinedAt"`
 }
 
 // TeamResponse represents a team in API responses
@@ -146,6 +165,31 @@ func toPlayerResponse(p *ent.Player) PlayerResponse {
 		id := p.Edges.Team.ID.String()
 		resp.TeamID = &id
 		resp.TeamName = &p.Edges.Team.Name
+	}
+
+	if p.Edges.Participations != nil {
+		resp.Participations = make([]ParticipationResponse, len(p.Edges.Participations))
+		for i, ep := range p.Edges.Participations {
+			pr := ParticipationResponse{
+				ID:              ep.ID.String(),
+				Role:            ep.Role,
+				Status:          ep.Status,
+				JerseyNumber:    ep.JerseyNumber,
+				Position:        ep.Position,
+				IsCaptain:       ep.IsCaptain,
+				IsSpiritCaptain: ep.IsSpiritCaptain,
+				JoinedAt:        ep.CreatedAt.Format(time.RFC3339),
+			}
+			if ep.Edges.Event != nil {
+				pr.EventID = ep.Edges.Event.ID.String()
+				pr.EventName = ep.Edges.Event.Name
+			}
+			if ep.Edges.Team != nil {
+				pr.TeamID = ep.Edges.Team.ID.String()
+				pr.TeamName = ep.Edges.Team.Name
+			}
+			resp.Participations[i] = pr
+		}
 	}
 	return resp
 }
@@ -349,45 +393,133 @@ func (h *TeamHandler) CreateTeam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	builder := h.client.Team.Create().
-		SetName(req.Name).
-		SetDivisionPoolID(req.DivisionPoolID)
+	var t *ent.Team
+	var err error
 
-	if req.HomeLocationID != nil {
-		builder.SetHomeLocationID(*req.HomeLocationID)
-	} else if req.LocationName != nil && *req.LocationName != "" {
-		// Try to resolve location by name or slug
-		l, err := h.client.Location.Query().Where(location.SlugEQ(*req.LocationName)).Only(ctx)
+	if req.TeamID != nil && *req.TeamID != uuid.Nil {
+		// Check if we should update or clone
+		existing, err := h.client.Team.Get(ctx, *req.TeamID)
+		if err == nil && existing.DivisionPoolID != req.DivisionPoolID {
+			// Clone team for new division pool to preserve history
+			builder := h.client.Team.Create().
+				SetName(req.Name).
+				SetDivisionPoolID(req.DivisionPoolID)
+
+			if req.HomeLocationID != nil {
+				builder.SetHomeLocationID(*req.HomeLocationID)
+			}
+			if req.LogoURL != nil {
+				builder.SetLogoURL(*req.LogoURL)
+			}
+			if req.InitialSeed != nil {
+				builder.SetInitialSeed(*req.InitialSeed)
+			}
+			if req.Metadata != nil {
+				builder.SetMetadata(req.Metadata)
+			}
+			if req.PrimaryColor != nil {
+				builder.SetNillablePrimaryColor(req.PrimaryColor)
+			}
+			if req.SecondaryColor != nil {
+				builder.SetNillableSecondaryColor(req.SecondaryColor)
+			}
+			if req.ContactEmail != nil {
+				builder.SetNillableContactEmail(req.ContactEmail)
+			}
+			if req.ContactPhone != nil {
+				builder.SetNillableContactPhone(req.ContactPhone)
+			}
+
+			t, err = builder.Save(ctx)
+			if err != nil {
+				respondError(w, http.StatusInternalServerError, "Failed to clone team for new division")
+				return
+			}
+		} else {
+			// Update existing team (same pool or error fetching)
+			updater := h.client.Team.UpdateOneID(*req.TeamID).
+				SetDivisionPoolID(req.DivisionPoolID)
+
+			if req.Name != "" {
+				updater.SetName(req.Name)
+			}
+			if req.HomeLocationID != nil {
+				updater.SetHomeLocationID(*req.HomeLocationID)
+			}
+			if req.LogoURL != nil {
+				updater.SetLogoURL(*req.LogoURL)
+			}
+			if req.InitialSeed != nil {
+				updater.SetInitialSeed(*req.InitialSeed)
+			}
+			if req.Metadata != nil {
+				updater.SetMetadata(req.Metadata)
+			}
+			if req.PrimaryColor != nil {
+				updater.SetNillablePrimaryColor(req.PrimaryColor)
+			}
+			if req.SecondaryColor != nil {
+				updater.SetNillableSecondaryColor(req.SecondaryColor)
+			}
+			if req.ContactEmail != nil {
+				updater.SetNillableContactEmail(req.ContactEmail)
+			}
+			if req.ContactPhone != nil {
+				updater.SetNillableContactPhone(req.ContactPhone)
+			}
+
+			t, err = updater.Save(ctx)
+			if err != nil {
+				respondError(w, http.StatusInternalServerError, "Failed to update existing team for reuse")
+				return
+			}
+		}
+	} else {
+		// Create new team
+		builder := h.client.Team.Create().
+			SetName(req.Name).
+			SetDivisionPoolID(req.DivisionPoolID)
+
+		if req.HomeLocationID != nil {
+			builder.SetHomeLocationID(*req.HomeLocationID)
+		} else if req.LocationName != nil && *req.LocationName != "" {
+			// Try to resolve location by name or slug
+			l, err := h.client.Location.Query().Where(location.SlugEQ(*req.LocationName)).Only(ctx)
+			if err != nil {
+				l, _ = h.client.Location.Query().Where(location.NameEQ(*req.LocationName)).Only(ctx)
+			}
+			if l != nil {
+				builder.SetHomeLocation(l)
+			}
+		}
+		if req.LogoURL != nil {
+			builder.SetLogoURL(*req.LogoURL)
+		}
+		if req.InitialSeed != nil {
+			builder.SetInitialSeed(*req.InitialSeed)
+		}
+		if req.Metadata != nil {
+			builder.SetMetadata(req.Metadata)
+		}
+		if req.PrimaryColor != nil {
+			builder.SetNillablePrimaryColor(req.PrimaryColor)
+		}
+		if req.SecondaryColor != nil {
+			builder.SetNillableSecondaryColor(req.SecondaryColor)
+		}
+		if req.ContactEmail != nil {
+			builder.SetNillableContactEmail(req.ContactEmail)
+		}
+		if req.ContactPhone != nil {
+			builder.SetNillableContactPhone(req.ContactPhone)
+		}
+
+		t, err = builder.Save(ctx)
 		if err != nil {
-			l, _ = h.client.Location.Query().Where(location.NameEQ(*req.LocationName)).Only(ctx)
-		}
-		if l != nil {
-			builder.SetHomeLocation(l)
+			respondError(w, http.StatusInternalServerError, "Failed to create team")
+			return
 		}
 	}
-	if req.LogoURL != nil {
-		builder.SetLogoURL(*req.LogoURL)
-	}
-	if req.InitialSeed != nil {
-		builder.SetInitialSeed(*req.InitialSeed)
-	}
-	if req.Metadata != nil {
-		builder.SetMetadata(req.Metadata)
-	}
-	if req.PrimaryColor != nil {
-		builder.SetNillablePrimaryColor(req.PrimaryColor)
-	}
-	if req.SecondaryColor != nil {
-		builder.SetNillableSecondaryColor(req.SecondaryColor)
-	}
-	if req.ContactEmail != nil {
-		builder.SetNillableContactEmail(req.ContactEmail)
-	}
-	if req.ContactPhone != nil {
-		builder.SetNillableContactPhone(req.ContactPhone)
-	}
-
-	t, err := builder.Save(ctx)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to create team")
 		return
@@ -496,36 +628,96 @@ func (h *TeamHandler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verify path matches request
-	if req.TeamID != teamID {
+	// Use team ID from path if not provided in body, or verify consistency
+	if req.TeamID == uuid.Nil {
+		req.TeamID = teamID
+	} else if req.TeamID != teamID {
 		respondError(w, http.StatusBadRequest, "Team ID in path and body must match")
 		return
 	}
 
-	builder := h.client.Player.Create().
-		SetName(req.Name).
-		SetGender(req.Gender).
-		SetTeamID(teamID).
-		SetIsCaptain(req.IsCaptain).
-		SetIsSpiritCaptain(req.IsSpiritCaptain)
+	var p *ent.Player
 
-	if req.JerseyNumber != nil {
-		builder.SetJerseyNumber(*req.JerseyNumber)
-	}
-	if req.ProfileImageURL != nil {
-		builder.SetProfileImageURL(*req.ProfileImageURL)
-	}
-	if req.Email != nil {
-		builder.SetNillableEmail(req.Email)
-	}
-	if req.Phone != nil {
-		builder.SetNillablePhone(req.Phone)
-	}
-	if req.Position != nil {
-		builder.SetNillablePosition(req.Position)
+	if req.PlayerID != nil && *req.PlayerID != uuid.Nil {
+		// Reuse existing player
+		updater := h.client.Player.UpdateOneID(*req.PlayerID).
+			SetName(req.Name).
+			SetGender(req.Gender).
+			SetTeamID(teamID).
+			SetIsCaptain(req.IsCaptain).
+			SetIsSpiritCaptain(req.IsSpiritCaptain)
+
+		if req.JerseyNumber != nil {
+			updater.SetJerseyNumber(*req.JerseyNumber)
+		}
+		if req.ProfileImageURL != nil {
+			updater.SetProfileImageURL(*req.ProfileImageURL)
+		}
+		if req.Email != nil {
+			updater.SetNillableEmail(req.Email)
+		}
+		if req.Phone != nil {
+			updater.SetNillablePhone(req.Phone)
+		}
+		if req.Position != nil {
+			updater.SetNillablePosition(req.Position)
+		}
+
+		p, err = updater.Save(ctx)
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, "Failed to update existing player for reuse")
+			return
+		}
+	} else {
+		// Create new player
+		builder := h.client.Player.Create().
+			SetName(req.Name).
+			SetGender(req.Gender).
+			SetTeamID(teamID).
+			SetIsCaptain(req.IsCaptain).
+			SetIsSpiritCaptain(req.IsSpiritCaptain)
+
+		if req.JerseyNumber != nil {
+			builder.SetJerseyNumber(*req.JerseyNumber)
+		}
+		if req.ProfileImageURL != nil {
+			builder.SetProfileImageURL(*req.ProfileImageURL)
+		}
+		if req.Email != nil {
+			builder.SetNillableEmail(req.Email)
+		}
+		if req.Phone != nil {
+			builder.SetNillablePhone(req.Phone)
+		}
+		if req.Position != nil {
+			builder.SetNillablePosition(req.Position)
+		}
+
+		p, err = builder.Save(ctx)
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, "Failed to create player")
+			return
+		}
 	}
 
-	p, err := builder.Save(ctx)
+	// Create EventParticipation record to preserve historical data
+	if req.EventID != uuid.Nil {
+		_, err = h.client.EventParticipation.Create().
+			SetRole("player").
+			SetStatus("active").
+			SetPlayer(p).
+			SetTeamID(teamID).
+			SetEventID(req.EventID).
+			SetNillableJerseyNumber(req.JerseyNumber).
+			SetNillablePosition(req.Position).
+			SetIsCaptain(req.IsCaptain).
+			SetIsSpiritCaptain(req.IsSpiritCaptain).
+			Save(ctx)
+		if err != nil {
+			// Do not fail if participation already exists (might happen if re-submitting)
+			logger.Warn("Failed to create event participation (might already exist)", logger.Err(err))
+		}
+	}
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to create player")
 		return
@@ -668,6 +860,9 @@ func (h *TeamHandler) GetPlayer(w http.ResponseWriter, r *http.Request) {
 	p, err := h.client.Player.Query().
 		Where(player.ID(playerID)).
 		WithTeam().
+		WithParticipations(func(q *ent.EventParticipationQuery) {
+			q.WithEvent().WithTeam()
+		}).
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {

@@ -382,6 +382,12 @@ definitions:
       id:
         description: ID of the ent.
         type: string
+      is_captain:
+        description: Whether this player is the team captain in this event
+        type: boolean
+      is_spirit_captain:
+        description: Whether this player is the spirit captain in this event
+        type: boolean
       jersey_number:
         description: JerseyNumber holds the value of the "jersey_number" field.
         type: integer
@@ -389,6 +395,9 @@ definitions:
         additionalProperties: true
         description: Metadata holds the value of the "metadata" field.
         type: object
+      position:
+        description: Position holds the value of the "position" field.
+        type: string
       role:
         description: 'Role in the event: player, captain, spirit_captain, coach'
         type: string
@@ -858,6 +867,9 @@ definitions:
       profile_image_url:
         description: ProfileImageURL holds the value of the "profile_image_url" field.
         type: string
+      team_id:
+        description: TeamID holds the value of the "team_id" field.
+        type: string
       updated_at:
         description: UpdatedAt holds the value of the "updated_at" field.
         type: string
@@ -1172,6 +1184,9 @@ definitions:
       deleted_at:
         description: DeletedAt holds the value of the "deleted_at" field.
         type: string
+      division_pool_id:
+        description: DivisionPoolID holds the value of the "division_pool_id" field.
+        type: string
       edges:
         allOf:
         - $ref: '#/definitions/ent.TeamEdges'
@@ -1181,6 +1196,9 @@ definitions:
       final_placement:
         description: FinalPlacement holds the value of the "final_placement" field.
         type: integer
+      home_location_id:
+        description: HomeLocationID holds the value of the "home_location_id" field.
+        type: string
       id:
         description: ID of the ent.
         type: string
@@ -1695,20 +1713,20 @@ definitions:
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.CreateGameRequest:
     properties:
-      allocatedTimeMinutes:
+      allocated_time_minutes:
         minimum: 1
         type: integer
-      awayTeamId:
+      away_team_id:
         type: string
-      divisionPoolId:
+      division_pool_id:
         type: string
-      fieldLocationId:
+      field_location_id:
         type: string
-      firstPullBy:
+      first_pull_by:
         type: string
-      gameRoundId:
+      game_round_id:
         type: string
-      homeTeamId:
+      home_team_id:
         type: string
       metadata:
         additionalProperties: true
@@ -1716,18 +1734,18 @@ definitions:
       name:
         maxLength: 100
         type: string
-      scheduledTime:
+      scheduled_time:
         type: string
-      scorekeeperId:
+      scorekeeper_id:
         type: string
     required:
-    - allocatedTimeMinutes
-    - awayTeamId
-    - divisionPoolId
-    - fieldLocationId
-    - homeTeamId
+    - allocated_time_minutes
+    - away_team_id
+    - division_pool_id
+    - field_location_id
+    - home_team_id
     - name
-    - scheduledTime
+    - scheduled_time
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.CreateGameRoundRequest:
     properties:
@@ -2154,6 +2172,41 @@ definitions:
       slug:
         type: string
     type: object
+  github_com_bengobox_game-stats-api_internal_application_metadata.FieldDTO:
+    properties:
+      capacity:
+        type: integer
+      id:
+        type: string
+      location_id:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        type: string
+      surface_type:
+        type: string
+    type: object
+  github_com_bengobox_game-stats-api_internal_application_metadata.LocationDTO:
+    properties:
+      address:
+        type: string
+      city:
+        type: string
+      country_id:
+        type: string
+      id:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
   github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO:
     properties:
       id:
@@ -2445,6 +2498,8 @@ definitions:
     type: object
   internal_presentation_http_handlers.CreateDivisionRequest:
     properties:
+      description:
+        type: string
       divisionType:
         enum:
         - pool
@@ -2470,6 +2525,10 @@ definitions:
         type: string
       disciplineId:
         type: string
+      divisions:
+        items:
+          $ref: '#/definitions/internal_presentation_http_handlers.CreateDivisionRequest'
+        type: array
       endDate:
         example: "2026-02-26"
         type: string
@@ -2499,11 +2558,48 @@ definitions:
     - name
     - slug
     type: object
+  internal_presentation_http_handlers.CreateFieldRequest:
+    properties:
+      capacity:
+        type: integer
+      location_id:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        type: string
+      surface_type:
+        type: string
+    required:
+    - location_id
+    - name
+    type: object
+  internal_presentation_http_handlers.CreateLocationRequest:
+    properties:
+      address:
+        type: string
+      city:
+        type: string
+      countryId:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      slug:
+        type: string
+    required:
+    - countryId
+    - name
+    type: object
   internal_presentation_http_handlers.CreatePlayerRequest:
     properties:
       email:
         type: string
-      eventId:
+      event_id:
         type: string
       gender:
         enum:
@@ -2511,58 +2607,62 @@ definitions:
         - F
         - X
         type: string
-      isCaptain:
+      is_captain:
         type: boolean
-      isSpiritCaptain:
+      is_spirit_captain:
         type: boolean
-      jerseyNumber:
+      jersey_number:
         type: integer
       name:
         type: string
       phone:
         type: string
+      player_id:
+        description: Add PlayerID for reuse
+        type: string
       position:
         type: string
-      profileImageUrl:
+      profile_image_url:
         type: string
-      teamId:
+      team_id:
         type: string
     required:
-    - eventId
     - gender
     - name
-    - teamId
     type: object
   internal_presentation_http_handlers.CreateTeamRequest:
     properties:
-      contactEmail:
+      contact_email:
         type: string
-      contactPhone:
+      contact_phone:
         type: string
-      divisionPoolId:
+      division_pool_id:
         type: string
-      eventId:
+      event_id:
         type: string
-      homeLocationId:
+      home_location_id:
         type: string
-      initialSeed:
+      initial_seed:
         type: integer
-      locationName:
+      location_name:
         type: string
-      logoUrl:
+      logo_url:
         type: string
       metadata:
         additionalProperties: true
         type: object
       name:
         type: string
-      primaryColor:
+      primary_color:
         type: string
-      secondaryColor:
+      secondary_color:
+        type: string
+      team_id:
+        description: Add TeamID for reuse
         type: string
     required:
-    - divisionPoolId
-    - eventId
+    - division_pool_id
+    - event_id
     - name
     type: object
   internal_presentation_http_handlers.CreateUserRequestDTO:
@@ -2715,6 +2815,33 @@ definitions:
     - question
     - user_id
     type: object
+  internal_presentation_http_handlers.ParticipationResponse:
+    properties:
+      eventId:
+        type: string
+      eventName:
+        type: string
+      id:
+        type: string
+      isCaptain:
+        type: boolean
+      isSpiritCaptain:
+        type: boolean
+      jerseyNumber:
+        type: integer
+      joinedAt:
+        type: string
+      position:
+        type: string
+      role:
+        type: string
+      status:
+        type: string
+      teamId:
+        type: string
+      teamName:
+        type: string
+    type: object
   internal_presentation_http_handlers.PlayerResponse:
     properties:
       email:
@@ -2731,6 +2858,10 @@ definitions:
         type: integer
       name:
         type: string
+      participations:
+        items:
+          $ref: '#/definitions/internal_presentation_http_handlers.ParticipationResponse'
+        type: array
       phone:
         type: string
       position:
@@ -2901,6 +3032,19 @@ definitions:
       slug:
         type: string
     type: object
+  internal_presentation_http_handlers.UpdateDivisionRequest:
+    properties:
+      description:
+        type: string
+      divisionType:
+        enum:
+        - pool
+        - bracket
+        - mixed
+        type: string
+      name:
+        type: string
+    type: object
   internal_presentation_http_handlers.UpdateEventRequest:
     properties:
       bannerUrl:
@@ -2913,6 +3057,10 @@ definitions:
         type: string
       disciplineId:
         type: string
+      divisions:
+        items:
+          $ref: '#/definitions/internal_presentation_http_handlers.CreateDivisionRequest'
+        type: array
       endDate:
         $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime'
       locationId:
@@ -3005,17 +3153,7 @@ definitions:
         type: string
     type: object
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: API for DigiGameStats reimplementation.
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: DigiGameStats API
-  version: "1.0"
+  contact: {}
 paths:
   /admin/audit-logs:
     get:
@@ -4504,6 +4642,89 @@ paths:
       summary: Create a new division pool
       tags:
       - events
+  /events/{id}/divisions/{divisionId}:
+    delete:
+      description: Delete an existing division pool
+      parameters:
+      - description: Event ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Division ID
+        format: uuid
+        in: path
+        name: divisionId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a division pool
+      tags:
+      - events
+    put:
+      consumes:
+      - application/json
+      description: Update an existing division pool
+      parameters:
+      - description: Event ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Division ID
+        format: uuid
+        in: path
+        name: divisionId
+        required: true
+        type: string
+      - description: Division data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.UpdateDivisionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.DivisionDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a division pool
+      tags:
+      - events
   /events/{id}/spirit:
     get:
       description: Get all spirit scores submitted for all games in an event
@@ -5046,6 +5267,26 @@ paths:
       summary: List Continents
       tags:
       - geographic
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Continent
+        in: body
+        name: continent
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.ContinentDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.ContinentDTO'
+      summary: Create Continent
+      tags:
+      - geographic
   /geographic/countries:
     get:
       consumes:
@@ -5068,6 +5309,102 @@ paths:
       summary: List Countries
       tags:
       - geographic
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Country
+        in: body
+        name: country
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.CountryDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.CountryDTO'
+      summary: Create Country
+      tags:
+      - geographic
+  /geographic/fields:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all fields, optionally filtered by location.
+      parameters:
+      - description: Filter by location ID
+        in: query
+        name: location_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.FieldDTO'
+            type: array
+      summary: List Fields
+      tags:
+      - geographic
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Field
+        in: body
+        name: field
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.CreateFieldRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.FieldDTO'
+      summary: Create Field
+      tags:
+      - geographic
+  /geographic/locations:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.LocationDTO'
+            type: array
+      summary: List locations
+      tags:
+      - geographic
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Location
+        in: body
+        name: location
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.CreateLocationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.LocationDTO'
+      summary: Create location
+      tags:
+      - geographic
   /geographic/worlds:
     get:
       consumes:
@@ -5083,6 +5420,26 @@ paths:
               $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO'
             type: array
       summary: List Worlds
+      tags:
+      - geographic
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: World
+        in: body
+        name: world
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_metadata.WorldDTO'
+      summary: Create World
       tags:
       - geographic
   /health:
@@ -5817,12 +6174,4 @@ paths:
       summary: Upload a file
       tags:
       - media
-schemes:
-- http
-- https
-securityDefinitions:
-  BearerAuth:
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"

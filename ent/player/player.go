@@ -43,6 +43,8 @@ const (
 	FieldPosition = "position"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
+	// FieldTeamID holds the string denoting the team_id field in the database.
+	FieldTeamID = "team_id"
 	// EdgeTeam holds the string denoting the team edge name in mutations.
 	EdgeTeam = "team"
 	// EdgeScores holds the string denoting the scores edge name in mutations.
@@ -63,7 +65,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "team" package.
 	TeamInverseTable = "teams"
 	// TeamColumn is the table column denoting the team relation/edge.
-	TeamColumn = "team_players"
+	TeamColumn = "team_id"
 	// ScoresTable is the table that holds the scores relation/edge.
 	ScoresTable = "scorings"
 	// ScoresInverseTable is the table name for the Scoring entity.
@@ -118,23 +120,13 @@ var Columns = []string{
 	FieldPhone,
 	FieldPosition,
 	FieldMetadata,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "players"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"team_players",
+	FieldTeamID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -231,6 +223,11 @@ func ByPhone(opts ...sql.OrderTermOption) OrderOption {
 // ByPosition orders the results by the position field.
 func ByPosition(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPosition, opts...).ToFunc()
+}
+
+// ByTeamID orders the results by the team_id field.
+func ByTeamID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTeamID, opts...).ToFunc()
 }
 
 // ByTeamField orders the results by team field.

@@ -81,6 +81,21 @@ func JerseyNumber(v int) predicate.EventParticipation {
 	return predicate.EventParticipation(sql.FieldEQ(FieldJerseyNumber, v))
 }
 
+// Position applies equality check predicate on the "position" field. It's identical to PositionEQ.
+func Position(v string) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldEQ(FieldPosition, v))
+}
+
+// IsCaptain applies equality check predicate on the "is_captain" field. It's identical to IsCaptainEQ.
+func IsCaptain(v bool) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldEQ(FieldIsCaptain, v))
+}
+
+// IsSpiritCaptain applies equality check predicate on the "is_spirit_captain" field. It's identical to IsSpiritCaptainEQ.
+func IsSpiritCaptain(v bool) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldEQ(FieldIsSpiritCaptain, v))
+}
+
 // Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
 func Status(v string) predicate.EventParticipation {
 	return predicate.EventParticipation(sql.FieldEQ(FieldStatus, v))
@@ -329,6 +344,101 @@ func JerseyNumberIsNil() predicate.EventParticipation {
 // JerseyNumberNotNil applies the NotNil predicate on the "jersey_number" field.
 func JerseyNumberNotNil() predicate.EventParticipation {
 	return predicate.EventParticipation(sql.FieldNotNull(FieldJerseyNumber))
+}
+
+// PositionEQ applies the EQ predicate on the "position" field.
+func PositionEQ(v string) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldEQ(FieldPosition, v))
+}
+
+// PositionNEQ applies the NEQ predicate on the "position" field.
+func PositionNEQ(v string) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldNEQ(FieldPosition, v))
+}
+
+// PositionIn applies the In predicate on the "position" field.
+func PositionIn(vs ...string) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldIn(FieldPosition, vs...))
+}
+
+// PositionNotIn applies the NotIn predicate on the "position" field.
+func PositionNotIn(vs ...string) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldNotIn(FieldPosition, vs...))
+}
+
+// PositionGT applies the GT predicate on the "position" field.
+func PositionGT(v string) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldGT(FieldPosition, v))
+}
+
+// PositionGTE applies the GTE predicate on the "position" field.
+func PositionGTE(v string) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldGTE(FieldPosition, v))
+}
+
+// PositionLT applies the LT predicate on the "position" field.
+func PositionLT(v string) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldLT(FieldPosition, v))
+}
+
+// PositionLTE applies the LTE predicate on the "position" field.
+func PositionLTE(v string) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldLTE(FieldPosition, v))
+}
+
+// PositionContains applies the Contains predicate on the "position" field.
+func PositionContains(v string) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldContains(FieldPosition, v))
+}
+
+// PositionHasPrefix applies the HasPrefix predicate on the "position" field.
+func PositionHasPrefix(v string) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldHasPrefix(FieldPosition, v))
+}
+
+// PositionHasSuffix applies the HasSuffix predicate on the "position" field.
+func PositionHasSuffix(v string) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldHasSuffix(FieldPosition, v))
+}
+
+// PositionIsNil applies the IsNil predicate on the "position" field.
+func PositionIsNil() predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldIsNull(FieldPosition))
+}
+
+// PositionNotNil applies the NotNil predicate on the "position" field.
+func PositionNotNil() predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldNotNull(FieldPosition))
+}
+
+// PositionEqualFold applies the EqualFold predicate on the "position" field.
+func PositionEqualFold(v string) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldEqualFold(FieldPosition, v))
+}
+
+// PositionContainsFold applies the ContainsFold predicate on the "position" field.
+func PositionContainsFold(v string) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldContainsFold(FieldPosition, v))
+}
+
+// IsCaptainEQ applies the EQ predicate on the "is_captain" field.
+func IsCaptainEQ(v bool) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldEQ(FieldIsCaptain, v))
+}
+
+// IsCaptainNEQ applies the NEQ predicate on the "is_captain" field.
+func IsCaptainNEQ(v bool) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldNEQ(FieldIsCaptain, v))
+}
+
+// IsSpiritCaptainEQ applies the EQ predicate on the "is_spirit_captain" field.
+func IsSpiritCaptainEQ(v bool) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldEQ(FieldIsSpiritCaptain, v))
+}
+
+// IsSpiritCaptainNEQ applies the NEQ predicate on the "is_spirit_captain" field.
+func IsSpiritCaptainNEQ(v bool) predicate.EventParticipation {
+	return predicate.EventParticipation(sql.FieldNEQ(FieldIsSpiritCaptain, v))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.

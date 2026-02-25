@@ -111,6 +111,16 @@ func ContactPhone(v string) predicate.Team {
 	return predicate.Team(sql.FieldEQ(FieldContactPhone, v))
 }
 
+// DivisionPoolID applies equality check predicate on the "division_pool_id" field. It's identical to DivisionPoolIDEQ.
+func DivisionPoolID(v uuid.UUID) predicate.Team {
+	return predicate.Team(sql.FieldEQ(FieldDivisionPoolID, v))
+}
+
+// HomeLocationID applies equality check predicate on the "home_location_id" field. It's identical to HomeLocationIDEQ.
+func HomeLocationID(v uuid.UUID) predicate.Team {
+	return predicate.Team(sql.FieldEQ(FieldHomeLocationID, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Team {
 	return predicate.Team(sql.FieldEQ(FieldCreatedAt, v))
@@ -789,6 +799,56 @@ func MetadataIsNil() predicate.Team {
 // MetadataNotNil applies the NotNil predicate on the "metadata" field.
 func MetadataNotNil() predicate.Team {
 	return predicate.Team(sql.FieldNotNull(FieldMetadata))
+}
+
+// DivisionPoolIDEQ applies the EQ predicate on the "division_pool_id" field.
+func DivisionPoolIDEQ(v uuid.UUID) predicate.Team {
+	return predicate.Team(sql.FieldEQ(FieldDivisionPoolID, v))
+}
+
+// DivisionPoolIDNEQ applies the NEQ predicate on the "division_pool_id" field.
+func DivisionPoolIDNEQ(v uuid.UUID) predicate.Team {
+	return predicate.Team(sql.FieldNEQ(FieldDivisionPoolID, v))
+}
+
+// DivisionPoolIDIn applies the In predicate on the "division_pool_id" field.
+func DivisionPoolIDIn(vs ...uuid.UUID) predicate.Team {
+	return predicate.Team(sql.FieldIn(FieldDivisionPoolID, vs...))
+}
+
+// DivisionPoolIDNotIn applies the NotIn predicate on the "division_pool_id" field.
+func DivisionPoolIDNotIn(vs ...uuid.UUID) predicate.Team {
+	return predicate.Team(sql.FieldNotIn(FieldDivisionPoolID, vs...))
+}
+
+// HomeLocationIDEQ applies the EQ predicate on the "home_location_id" field.
+func HomeLocationIDEQ(v uuid.UUID) predicate.Team {
+	return predicate.Team(sql.FieldEQ(FieldHomeLocationID, v))
+}
+
+// HomeLocationIDNEQ applies the NEQ predicate on the "home_location_id" field.
+func HomeLocationIDNEQ(v uuid.UUID) predicate.Team {
+	return predicate.Team(sql.FieldNEQ(FieldHomeLocationID, v))
+}
+
+// HomeLocationIDIn applies the In predicate on the "home_location_id" field.
+func HomeLocationIDIn(vs ...uuid.UUID) predicate.Team {
+	return predicate.Team(sql.FieldIn(FieldHomeLocationID, vs...))
+}
+
+// HomeLocationIDNotIn applies the NotIn predicate on the "home_location_id" field.
+func HomeLocationIDNotIn(vs ...uuid.UUID) predicate.Team {
+	return predicate.Team(sql.FieldNotIn(FieldHomeLocationID, vs...))
+}
+
+// HomeLocationIDIsNil applies the IsNil predicate on the "home_location_id" field.
+func HomeLocationIDIsNil() predicate.Team {
+	return predicate.Team(sql.FieldIsNull(FieldHomeLocationID))
+}
+
+// HomeLocationIDNotNil applies the NotNil predicate on the "home_location_id" field.
+func HomeLocationIDNotNil() predicate.Team {
+	return predicate.Team(sql.FieldNotNull(FieldHomeLocationID))
 }
 
 // HasDivisionPool applies the HasEdge predicate on the "division_pool" edge.

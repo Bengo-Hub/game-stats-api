@@ -176,7 +176,7 @@ func main() {
 
 	// 5. Initialize application services
 	authService := auth.NewService(userRepo, cfg)
-	metadataService := metadata.NewService(worldRepo, continentRepo, countryRepo, locationRepo)
+	metadataService := metadata.NewService(worldRepo, continentRepo, countryRepo, locationRepo, fieldRepo)
 	locationHandler := handlers.NewLocationHandler(metadataService, client)
 	gameManagementService := gamemanagement.NewService(
 		gameRepo,

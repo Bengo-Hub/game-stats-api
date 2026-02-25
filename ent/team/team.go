@@ -39,6 +39,10 @@ const (
 	FieldContactPhone = "contact_phone"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
+	// FieldDivisionPoolID holds the string denoting the division_pool_id field in the database.
+	FieldDivisionPoolID = "division_pool_id"
+	// FieldHomeLocationID holds the string denoting the home_location_id field in the database.
+	FieldHomeLocationID = "home_location_id"
 	// EdgeDivisionPool holds the string denoting the division_pool edge name in mutations.
 	EdgeDivisionPool = "division_pool"
 	// EdgeHomeLocation holds the string denoting the home_location edge name in mutations.
@@ -65,21 +69,21 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "divisionpool" package.
 	DivisionPoolInverseTable = "division_pools"
 	// DivisionPoolColumn is the table column denoting the division_pool relation/edge.
-	DivisionPoolColumn = "division_pool_teams"
+	DivisionPoolColumn = "division_pool_id"
 	// HomeLocationTable is the table that holds the home_location relation/edge.
 	HomeLocationTable = "teams"
 	// HomeLocationInverseTable is the table name for the Location entity.
 	// It exists in this package in order to avoid circular dependency with the "location" package.
 	HomeLocationInverseTable = "locations"
 	// HomeLocationColumn is the table column denoting the home_location relation/edge.
-	HomeLocationColumn = "location_teams"
+	HomeLocationColumn = "home_location_id"
 	// PlayersTable is the table that holds the players relation/edge.
 	PlayersTable = "players"
 	// PlayersInverseTable is the table name for the Player entity.
 	// It exists in this package in order to avoid circular dependency with the "player" package.
 	PlayersInverseTable = "players"
 	// PlayersColumn is the table column denoting the players relation/edge.
-	PlayersColumn = "team_players"
+	PlayersColumn = "team_id"
 	// ManagedByTable is the table that holds the managed_by relation/edge. The primary key declared below.
 	ManagedByTable = "team_managed_by"
 	// ManagedByInverseTable is the table name for the User entity.
@@ -137,13 +141,8 @@ var Columns = []string{
 	FieldContactEmail,
 	FieldContactPhone,
 	FieldMetadata,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "teams"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"division_pool_teams",
-	"location_teams",
+	FieldDivisionPoolID,
+	FieldHomeLocationID,
 }
 
 var (
@@ -156,11 +155,6 @@ var (
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -241,6 +235,16 @@ func ByContactEmail(opts ...sql.OrderTermOption) OrderOption {
 // ByContactPhone orders the results by the contact_phone field.
 func ByContactPhone(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldContactPhone, opts...).ToFunc()
+}
+
+// ByDivisionPoolID orders the results by the division_pool_id field.
+func ByDivisionPoolID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDivisionPoolID, opts...).ToFunc()
+}
+
+// ByHomeLocationID orders the results by the home_location_id field.
+func ByHomeLocationID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldHomeLocationID, opts...).ToFunc()
 }
 
 // ByDivisionPoolField orders the results by division_pool field.

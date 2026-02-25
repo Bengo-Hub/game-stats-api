@@ -48,10 +48,11 @@ type Player struct {
 	Position *string `json:"position,omitempty"`
 	// Metadata holds the value of the "metadata" field.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	// TeamID holds the value of the "team_id" field.
+	TeamID uuid.UUID `json:"team_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PlayerQuery when eager-loading is set.
 	Edges        PlayerEdges `json:"edges"`
-	team_players *uuid.UUID
 	selectValues sql.SelectValues
 }
 
@@ -145,10 +146,8 @@ func (*Player) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case player.FieldCreatedAt, player.FieldUpdatedAt, player.FieldDeletedAt, player.FieldDateOfBirth:
 			values[i] = new(sql.NullTime)
-		case player.FieldID:
+		case player.FieldID, player.FieldTeamID:
 			values[i] = new(uuid.UUID)
-		case player.ForeignKeys[0]: // team_players
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -263,12 +262,11 @@ func (_m *Player) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
-		case player.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field team_players", values[i])
-			} else if value.Valid {
-				_m.team_players = new(uuid.UUID)
-				*_m.team_players = *value.S.(*uuid.UUID)
+		case player.FieldTeamID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field team_id", values[i])
+			} else if value != nil {
+				_m.TeamID = *value
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -391,6 +389,9 @@ func (_m *Player) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
+	builder.WriteString(", ")
+	builder.WriteString("team_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TeamID))
 	builder.WriteByte(')')
 	return builder.String()
 }

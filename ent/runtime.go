@@ -514,8 +514,16 @@ func init() {
 	eventparticipationDescRole := eventparticipationFields[1].Descriptor()
 	// eventparticipation.DefaultRole holds the default value on creation for the role field.
 	eventparticipation.DefaultRole = eventparticipationDescRole.Default.(string)
+	// eventparticipationDescIsCaptain is the schema descriptor for is_captain field.
+	eventparticipationDescIsCaptain := eventparticipationFields[4].Descriptor()
+	// eventparticipation.DefaultIsCaptain holds the default value on creation for the is_captain field.
+	eventparticipation.DefaultIsCaptain = eventparticipationDescIsCaptain.Default.(bool)
+	// eventparticipationDescIsSpiritCaptain is the schema descriptor for is_spirit_captain field.
+	eventparticipationDescIsSpiritCaptain := eventparticipationFields[5].Descriptor()
+	// eventparticipation.DefaultIsSpiritCaptain holds the default value on creation for the is_spirit_captain field.
+	eventparticipation.DefaultIsSpiritCaptain = eventparticipationDescIsSpiritCaptain.Default.(bool)
 	// eventparticipationDescStatus is the schema descriptor for status field.
-	eventparticipationDescStatus := eventparticipationFields[3].Descriptor()
+	eventparticipationDescStatus := eventparticipationFields[6].Descriptor()
 	// eventparticipation.DefaultStatus holds the default value on creation for the status field.
 	eventparticipation.DefaultStatus = eventparticipationDescStatus.Default.(string)
 	// eventparticipationDescID is the schema descriptor for id field.

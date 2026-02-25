@@ -16,6 +16,7 @@ type SearchFilter struct {
 	FieldID        *uuid.UUID
 	StartDate      *time.Time
 	EndDate        *time.Time
+	RoundType      *string
 	Limit          int
 	Offset         int
 }

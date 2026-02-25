@@ -82,6 +82,89 @@ func (h *GeographicHandler) ListCountries(w http.ResponseWriter, r *http.Request
 	json.NewEncoder(w).Encode(countries)
 }
 
+// ListFields handles the request to list all fields.
+// @Summary List Fields
+// @Description Get a list of all fields, optionally filtered by location.
+// @Tags geographic
+// @Accept json
+// @Produce json
+// @Param location_id query string false "Filter by location ID"
+// @Success 200 {array} metadata.FieldDTO
+// @Router /geographic/fields [get]
+func (h *GeographicHandler) ListFields(w http.ResponseWriter, r *http.Request) {
+	var locationID *uuid.UUID
+	if lid := r.URL.Query().Get("location_id"); lid != "" {
+		if id, err := uuid.Parse(lid); err == nil {
+			locationID = &id
+		}
+	}
+
+	fields, err := h.service.ListFields(r.Context(), locationID)
+	if err != nil {
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(fields)
+}
+
+// CreateFieldRequest represents the body for creating a field.
+type CreateFieldRequest struct {
+	Name        string                 `json:"name" validate:"required"`
+	LocationID  string                 `json:"location_id" validate:"required"`
+	Capacity    *int                   `json:"capacity,omitempty"`
+	SurfaceType *string                `json:"surface_type,omitempty"`
+	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+}
+
+// CreateField handles the request to create a new field.
+// @Summary Create Field
+// @Tags geographic
+// @Accept json
+// @Produce json
+// @Param field body CreateFieldRequest true "Field"
+// @Success 201 {object} metadata.FieldDTO
+// @Router /geographic/fields [post]
+func (h *GeographicHandler) CreateField(w http.ResponseWriter, r *http.Request) {
+	var req CreateFieldRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	locationID, err := uuid.Parse(req.LocationID)
+	if err != nil {
+		http.Error(w, "invalid location ID", http.StatusBadRequest)
+		return
+	}
+
+	res, err := h.service.CreateField(r.Context(), &ent.Field{
+		Name:        req.Name,
+		Capacity:    req.Capacity,
+		SurfaceType: req.SurfaceType,
+		Metadata:    req.Metadata,
+		Edges: ent.FieldEdges{
+			Location: &ent.Location{ID: locationID},
+		},
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(metadata.FieldDTO{
+		ID:          res.ID.String(),
+		Name:        res.Name,
+		Capacity:    res.Capacity,
+		SurfaceType: res.SurfaceType,
+		LocationID:  req.LocationID,
+		Metadata:    res.Metadata,
+	})
+}
+
 // CreateWorld handles the request to create a new world.
 // @Summary Create World
 // @Tags geographic

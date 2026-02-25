@@ -242,29 +242,43 @@ func (_u *TeamUpdate) ClearMetadata() *TeamUpdate {
 	return _u
 }
 
-// SetDivisionPoolID sets the "division_pool" edge to the DivisionPool entity by ID.
-func (_u *TeamUpdate) SetDivisionPoolID(id uuid.UUID) *TeamUpdate {
-	_u.mutation.SetDivisionPoolID(id)
+// SetDivisionPoolID sets the "division_pool_id" field.
+func (_u *TeamUpdate) SetDivisionPoolID(v uuid.UUID) *TeamUpdate {
+	_u.mutation.SetDivisionPoolID(v)
+	return _u
+}
+
+// SetNillableDivisionPoolID sets the "division_pool_id" field if the given value is not nil.
+func (_u *TeamUpdate) SetNillableDivisionPoolID(v *uuid.UUID) *TeamUpdate {
+	if v != nil {
+		_u.SetDivisionPoolID(*v)
+	}
+	return _u
+}
+
+// SetHomeLocationID sets the "home_location_id" field.
+func (_u *TeamUpdate) SetHomeLocationID(v uuid.UUID) *TeamUpdate {
+	_u.mutation.SetHomeLocationID(v)
+	return _u
+}
+
+// SetNillableHomeLocationID sets the "home_location_id" field if the given value is not nil.
+func (_u *TeamUpdate) SetNillableHomeLocationID(v *uuid.UUID) *TeamUpdate {
+	if v != nil {
+		_u.SetHomeLocationID(*v)
+	}
+	return _u
+}
+
+// ClearHomeLocationID clears the value of the "home_location_id" field.
+func (_u *TeamUpdate) ClearHomeLocationID() *TeamUpdate {
+	_u.mutation.ClearHomeLocationID()
 	return _u
 }
 
 // SetDivisionPool sets the "division_pool" edge to the DivisionPool entity.
 func (_u *TeamUpdate) SetDivisionPool(v *DivisionPool) *TeamUpdate {
 	return _u.SetDivisionPoolID(v.ID)
-}
-
-// SetHomeLocationID sets the "home_location" edge to the Location entity by ID.
-func (_u *TeamUpdate) SetHomeLocationID(id uuid.UUID) *TeamUpdate {
-	_u.mutation.SetHomeLocationID(id)
-	return _u
-}
-
-// SetNillableHomeLocationID sets the "home_location" edge to the Location entity by ID if the given value is not nil.
-func (_u *TeamUpdate) SetNillableHomeLocationID(id *uuid.UUID) *TeamUpdate {
-	if id != nil {
-		_u = _u.SetHomeLocationID(*id)
-	}
-	return _u
 }
 
 // SetHomeLocation sets the "home_location" edge to the Location entity.
@@ -1267,29 +1281,43 @@ func (_u *TeamUpdateOne) ClearMetadata() *TeamUpdateOne {
 	return _u
 }
 
-// SetDivisionPoolID sets the "division_pool" edge to the DivisionPool entity by ID.
-func (_u *TeamUpdateOne) SetDivisionPoolID(id uuid.UUID) *TeamUpdateOne {
-	_u.mutation.SetDivisionPoolID(id)
+// SetDivisionPoolID sets the "division_pool_id" field.
+func (_u *TeamUpdateOne) SetDivisionPoolID(v uuid.UUID) *TeamUpdateOne {
+	_u.mutation.SetDivisionPoolID(v)
+	return _u
+}
+
+// SetNillableDivisionPoolID sets the "division_pool_id" field if the given value is not nil.
+func (_u *TeamUpdateOne) SetNillableDivisionPoolID(v *uuid.UUID) *TeamUpdateOne {
+	if v != nil {
+		_u.SetDivisionPoolID(*v)
+	}
+	return _u
+}
+
+// SetHomeLocationID sets the "home_location_id" field.
+func (_u *TeamUpdateOne) SetHomeLocationID(v uuid.UUID) *TeamUpdateOne {
+	_u.mutation.SetHomeLocationID(v)
+	return _u
+}
+
+// SetNillableHomeLocationID sets the "home_location_id" field if the given value is not nil.
+func (_u *TeamUpdateOne) SetNillableHomeLocationID(v *uuid.UUID) *TeamUpdateOne {
+	if v != nil {
+		_u.SetHomeLocationID(*v)
+	}
+	return _u
+}
+
+// ClearHomeLocationID clears the value of the "home_location_id" field.
+func (_u *TeamUpdateOne) ClearHomeLocationID() *TeamUpdateOne {
+	_u.mutation.ClearHomeLocationID()
 	return _u
 }
 
 // SetDivisionPool sets the "division_pool" edge to the DivisionPool entity.
 func (_u *TeamUpdateOne) SetDivisionPool(v *DivisionPool) *TeamUpdateOne {
 	return _u.SetDivisionPoolID(v.ID)
-}
-
-// SetHomeLocationID sets the "home_location" edge to the Location entity by ID.
-func (_u *TeamUpdateOne) SetHomeLocationID(id uuid.UUID) *TeamUpdateOne {
-	_u.mutation.SetHomeLocationID(id)
-	return _u
-}
-
-// SetNillableHomeLocationID sets the "home_location" edge to the Location entity by ID if the given value is not nil.
-func (_u *TeamUpdateOne) SetNillableHomeLocationID(id *uuid.UUID) *TeamUpdateOne {
-	if id != nil {
-		_u = _u.SetHomeLocationID(*id)
-	}
-	return _u
 }
 
 // SetHomeLocation sets the "home_location" edge to the Location entity.

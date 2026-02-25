@@ -57,6 +57,7 @@ func (Player) Fields() []ent.Field {
 			Nillable(),
 		field.JSON("metadata", map[string]interface{}{}).
 			Optional(),
+		field.UUID("team_id", uuid.UUID{}),
 	}
 }
 
@@ -65,6 +66,7 @@ func (Player) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("team", Team.Type).
 			Ref("players").
+			Field("team_id").
 			Unique().
 			Required(),
 		edge.To("scores", Scoring.Type),

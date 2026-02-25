@@ -130,6 +130,10 @@ func NewRouter(opts RouterOptions) chi.Router {
 				r.Get("/teams/{id}", opts.TeamHandler.GetTeam)
 				r.Get("/teams/{id}/spirit-average", opts.SpiritScoreHandler.GetTeamSpiritAverage)
 
+				// Players (public info)
+				r.Get("/players", opts.TeamHandler.ListPlayers)
+				r.Get("/players/{id}", opts.TeamHandler.GetPlayer)
+
 				// Leaderboards
 				r.Get("/leaderboards/players", opts.LeaderboardHandler.GetPlayerLeaderboard)
 				r.Get("/leaderboards/spirit", opts.LeaderboardHandler.GetSpiritLeaderboard)
@@ -139,6 +143,7 @@ func NewRouter(opts RouterOptions) chi.Router {
 				r.Get("/geographic/continents", opts.GeographicHandler.ListContinents)
 				r.Get("/geographic/countries", opts.GeographicHandler.ListCountries)
 				r.Get("/geographic/locations", opts.LocationHandler.ListLocations)
+				r.Get("/geographic/fields", opts.GeographicHandler.ListFields)
 
 				// Discipline metadata (used when creating/editing events)
 				r.Get("/disciplines", opts.DisciplineHandler.ListDisciplines)
@@ -221,6 +226,8 @@ func NewRouter(opts RouterOptions) chi.Router {
 					r.Post("/", opts.EventHandler.CreateEvent)
 					r.Put("/{id}", opts.EventHandler.UpdateEvent)
 					r.Post("/{id}/divisions", opts.EventHandler.CreateDivisionPool)
+					r.Put("/{id}/divisions/{divisionId}", opts.EventHandler.UpdateDivisionPool)
+					r.Delete("/{id}/divisions/{divisionId}", opts.EventHandler.DeleteDivisionPool)
 					r.Post("/{id}/generate-bracket", opts.BracketHandler.GenerateBracket)
 
 					// Crew management
@@ -282,6 +289,13 @@ func NewRouter(opts RouterOptions) chi.Router {
 					r.With(middleware.RequirePermission(middleware.PermViewEvents)).Get("/", opts.LocationHandler.ListLocations)
 					// management
 					r.With(middleware.RequirePermission(middleware.PermManageEvents)).Post("/", opts.LocationHandler.CreateLocation)
+				})
+
+				r.Route("/fields", func(r chi.Router) {
+					// read allowed for viewers
+					r.With(middleware.RequirePermission(middleware.PermViewEvents)).Get("/", opts.GeographicHandler.ListFields)
+					// management
+					r.With(middleware.RequirePermission(middleware.PermManageEvents)).Post("/", opts.GeographicHandler.CreateField)
 				})
 			})
 			// Game round management

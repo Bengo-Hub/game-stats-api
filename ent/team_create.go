@@ -180,6 +180,26 @@ func (_c *TeamCreate) SetMetadata(v map[string]interface{}) *TeamCreate {
 	return _c
 }
 
+// SetDivisionPoolID sets the "division_pool_id" field.
+func (_c *TeamCreate) SetDivisionPoolID(v uuid.UUID) *TeamCreate {
+	_c.mutation.SetDivisionPoolID(v)
+	return _c
+}
+
+// SetHomeLocationID sets the "home_location_id" field.
+func (_c *TeamCreate) SetHomeLocationID(v uuid.UUID) *TeamCreate {
+	_c.mutation.SetHomeLocationID(v)
+	return _c
+}
+
+// SetNillableHomeLocationID sets the "home_location_id" field if the given value is not nil.
+func (_c *TeamCreate) SetNillableHomeLocationID(v *uuid.UUID) *TeamCreate {
+	if v != nil {
+		_c.SetHomeLocationID(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *TeamCreate) SetID(v uuid.UUID) *TeamCreate {
 	_c.mutation.SetID(v)
@@ -194,29 +214,9 @@ func (_c *TeamCreate) SetNillableID(v *uuid.UUID) *TeamCreate {
 	return _c
 }
 
-// SetDivisionPoolID sets the "division_pool" edge to the DivisionPool entity by ID.
-func (_c *TeamCreate) SetDivisionPoolID(id uuid.UUID) *TeamCreate {
-	_c.mutation.SetDivisionPoolID(id)
-	return _c
-}
-
 // SetDivisionPool sets the "division_pool" edge to the DivisionPool entity.
 func (_c *TeamCreate) SetDivisionPool(v *DivisionPool) *TeamCreate {
 	return _c.SetDivisionPoolID(v.ID)
-}
-
-// SetHomeLocationID sets the "home_location" edge to the Location entity by ID.
-func (_c *TeamCreate) SetHomeLocationID(id uuid.UUID) *TeamCreate {
-	_c.mutation.SetHomeLocationID(id)
-	return _c
-}
-
-// SetNillableHomeLocationID sets the "home_location" edge to the Location entity by ID if the given value is not nil.
-func (_c *TeamCreate) SetNillableHomeLocationID(id *uuid.UUID) *TeamCreate {
-	if id != nil {
-		_c = _c.SetHomeLocationID(*id)
-	}
-	return _c
 }
 
 // SetHomeLocation sets the "home_location" edge to the Location entity.
@@ -394,6 +394,9 @@ func (_c *TeamCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Team.name": %w`, err)}
 		}
 	}
+	if _, ok := _c.mutation.DivisionPoolID(); !ok {
+		return &ValidationError{Name: "division_pool_id", err: errors.New(`ent: missing required field "Team.division_pool_id"`)}
+	}
 	if len(_c.mutation.DivisionPoolIDs()) == 0 {
 		return &ValidationError{Name: "division_pool", err: errors.New(`ent: missing required edge "Team.division_pool"`)}
 	}
@@ -494,7 +497,7 @@ func (_c *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.division_pool_teams = &nodes[0]
+		_node.DivisionPoolID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.HomeLocationIDs(); len(nodes) > 0 {
@@ -511,7 +514,7 @@ func (_c *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.location_teams = &nodes[0]
+		_node.HomeLocationID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.PlayersIDs(); len(nodes) > 0 {

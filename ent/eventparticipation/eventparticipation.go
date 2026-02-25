@@ -25,6 +25,12 @@ const (
 	FieldRole = "role"
 	// FieldJerseyNumber holds the string denoting the jersey_number field in the database.
 	FieldJerseyNumber = "jersey_number"
+	// FieldPosition holds the string denoting the position field in the database.
+	FieldPosition = "position"
+	// FieldIsCaptain holds the string denoting the is_captain field in the database.
+	FieldIsCaptain = "is_captain"
+	// FieldIsSpiritCaptain holds the string denoting the is_spirit_captain field in the database.
+	FieldIsSpiritCaptain = "is_spirit_captain"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldMetadata holds the string denoting the metadata field in the database.
@@ -68,6 +74,9 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldRole,
 	FieldJerseyNumber,
+	FieldPosition,
+	FieldIsCaptain,
+	FieldIsSpiritCaptain,
 	FieldStatus,
 	FieldMetadata,
 }
@@ -104,6 +113,10 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultRole holds the default value on creation for the "role" field.
 	DefaultRole string
+	// DefaultIsCaptain holds the default value on creation for the "is_captain" field.
+	DefaultIsCaptain bool
+	// DefaultIsSpiritCaptain holds the default value on creation for the "is_spirit_captain" field.
+	DefaultIsSpiritCaptain bool
 	// DefaultStatus holds the default value on creation for the "status" field.
 	DefaultStatus string
 	// DefaultID holds the default value on creation for the "id" field.
@@ -141,6 +154,21 @@ func ByRole(opts ...sql.OrderTermOption) OrderOption {
 // ByJerseyNumber orders the results by the jersey_number field.
 func ByJerseyNumber(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldJerseyNumber, opts...).ToFunc()
+}
+
+// ByPosition orders the results by the position field.
+func ByPosition(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPosition, opts...).ToFunc()
+}
+
+// ByIsCaptain orders the results by the is_captain field.
+func ByIsCaptain(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsCaptain, opts...).ToFunc()
+}
+
+// ByIsSpiritCaptain orders the results by the is_spirit_captain field.
+func ByIsSpiritCaptain(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsSpiritCaptain, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.
