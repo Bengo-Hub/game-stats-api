@@ -1,3 +1,5 @@
+//go:build ignore
+
 package main
 
 import (
@@ -21,19 +23,11 @@ func main() {
 	}
 	defer db.Close()
 
-	// Drop all tables in the public schema
-	_, err = db.Exec(`
-		DO $$ DECLARE
-			r RECORD;
-		BEGIN
-			FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
-				EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
-			END FOR;
-		END $$;
-	`)
+	// Drop and recreate public schema for a clean slate
+	_, err = db.Exec("DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO postgres; GRANT ALL ON SCHEMA public TO public;")
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 	} else {
-		fmt.Println("Successfully dropped all tables")
+		fmt.Println("Successfully cleared database")
 	}
 }

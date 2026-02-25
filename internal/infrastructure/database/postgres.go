@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql/schema"
 	"github.com/bengobox/game-stats-api/ent"
+	"github.com/bengobox/game-stats-api/ent/migrate"
 	"github.com/bengobox/game-stats-api/internal/pkg/logger"
 	_ "github.com/lib/pq"
 )
@@ -21,12 +23,12 @@ func NewClient(dataSourceName string, debug bool) (*ent.Client, error) {
 		client = client.Debug()
 	}
 
-	// Run the auto migration tool using Ent's built-in schema migration
-	if err := client.Schema.Create(context.Background()); err != nil {
-		return nil, fmt.Errorf("failed creating schema resources: %v", err)
+	// Run versioned migrations
+	if err := client.Schema.Create(context.Background(), schema.WithDir(migrate.Dir)); err != nil {
+		return nil, fmt.Errorf("failed applying migrations: %v", err)
 	}
 
-	logger.Info("Database connection established and schema migrated")
+	logger.Info("Database connection established and versioned migrations applied")
 	return client, nil
 }
 
