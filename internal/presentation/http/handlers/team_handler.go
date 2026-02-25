@@ -26,59 +26,59 @@ import (
 
 type CreateTeamRequest struct {
 	Name           string                 `json:"name" validate:"required"`
-	EventID        uuid.UUID              `json:"event_id" validate:"required"`
-	DivisionPoolID uuid.UUID              `json:"division_pool_id" validate:"required"`
-	HomeLocationID *uuid.UUID             `json:"home_location_id,omitempty"`
-	LocationName   *string                `json:"location_name,omitempty"`
-	LogoURL        *string                `json:"logo_url,omitempty"`
-	PrimaryColor   *string                `json:"primary_color,omitempty"`
-	SecondaryColor *string                `json:"secondary_color,omitempty"`
-	ContactEmail   *string                `json:"contact_email,omitempty"`
-	ContactPhone   *string                `json:"contact_phone,omitempty"`
-	InitialSeed    *int                   `json:"initial_seed,omitempty"`
-	TeamID         *uuid.UUID             `json:"team_id,omitempty"` // Add TeamID for reuse
+	EventID        uuid.UUID              `json:"eventId" validate:"required"`
+	DivisionPoolID uuid.UUID              `json:"divisionPoolId" validate:"required"`
+	HomeLocationID *uuid.UUID             `json:"homeLocationId,omitempty"`
+	LocationName   *string                `json:"locationName,omitempty"`
+	LogoURL        *string                `json:"logoUrl,omitempty"`
+	PrimaryColor   *string                `json:"primaryColor,omitempty"`
+	SecondaryColor *string                `json:"secondaryColor,omitempty"`
+	ContactEmail   *string                `json:"contactEmail,omitempty"`
+	ContactPhone   *string                `json:"contactPhone,omitempty"`
+	InitialSeed    *int                   `json:"initialSeed,omitempty"`
+	TeamID         *uuid.UUID             `json:"teamId,omitempty"` // Add TeamID for reuse
 	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 }
 
 type UpdateTeamRequest struct {
 	Name           *string                `json:"name,omitempty"`
-	DivisionPoolID *uuid.UUID             `json:"division_pool_id,omitempty"`
-	HomeLocationID *uuid.UUID             `json:"home_location_id,omitempty"`
-	LocationName   *string                `json:"location_name,omitempty"`
-	LogoURL        *string                `json:"logo_url,omitempty"`
-	PrimaryColor   *string                `json:"primary_color,omitempty"`
-	SecondaryColor *string                `json:"secondary_color,omitempty"`
-	ContactEmail   *string                `json:"contact_email,omitempty"`
-	ContactPhone   *string                `json:"contact_phone,omitempty"`
-	InitialSeed    *int                   `json:"initial_seed,omitempty"`
+	DivisionPoolID *uuid.UUID             `json:"divisionPoolId,omitempty"`
+	HomeLocationID *uuid.UUID             `json:"homeLocationId,omitempty"`
+	LocationName   *string                `json:"locationName,omitempty"`
+	LogoURL        *string                `json:"logoUrl,omitempty"`
+	PrimaryColor   *string                `json:"primaryColor,omitempty"`
+	SecondaryColor *string                `json:"secondaryColor,omitempty"`
+	ContactEmail   *string                `json:"contactEmail,omitempty"`
+	ContactPhone   *string                `json:"contactPhone,omitempty"`
+	InitialSeed    *int                   `json:"initialSeed,omitempty"`
 	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 }
 
 type CreatePlayerRequest struct {
 	Name            string     `json:"name" validate:"required"`
-	EventID         uuid.UUID  `json:"event_id"`
-	TeamID          uuid.UUID  `json:"team_id"`
+	EventID         uuid.UUID  `json:"eventId"`
+	TeamID          uuid.UUID  `json:"teamId"`
 	Gender          string     `json:"gender" validate:"required,oneof=M F X"`
-	JerseyNumber    *int       `json:"jersey_number,omitempty"`
+	JerseyNumber    *int       `json:"jerseyNumber,omitempty"`
 	Email           *string    `json:"email,omitempty"`
 	Phone           *string    `json:"phone,omitempty"`
 	Position        *string    `json:"position,omitempty"`
-	ProfileImageURL *string    `json:"profile_image_url,omitempty"`
-	IsCaptain       bool       `json:"is_captain"`
-	IsSpiritCaptain bool       `json:"is_spirit_captain"`
-	PlayerID        *uuid.UUID `json:"player_id,omitempty"` // Add PlayerID for reuse
+	ProfileImageURL *string    `json:"profileImageUrl,omitempty"`
+	IsCaptain       bool       `json:"isCaptain"`
+	IsSpiritCaptain bool       `json:"isSpiritCaptain"`
+	PlayerID        *uuid.UUID `json:"playerId,omitempty"` // Add PlayerID for reuse
 }
 
 type UpdatePlayerRequest struct {
 	Name            *string `json:"name,omitempty"`
 	Gender          *string `json:"gender,omitempty"`
-	JerseyNumber    *int    `json:"jersey_number,omitempty"`
+	JerseyNumber    *int    `json:"jerseyNumber,omitempty"`
 	Email           *string `json:"email,omitempty"`
 	Phone           *string `json:"phone,omitempty"`
 	Position        *string `json:"position,omitempty"`
-	ProfileImageURL *string `json:"profile_image_url,omitempty"`
-	IsCaptain       *bool   `json:"is_captain,omitempty"`
-	IsSpiritCaptain *bool   `json:"is_spirit_captain,omitempty"`
+	ProfileImageURL *string `json:"profileImageUrl,omitempty"`
+	IsCaptain       *bool   `json:"isCaptain,omitempty"`
+	IsSpiritCaptain *bool   `json:"isSpiritCaptain,omitempty"`
 }
 
 type TeamHandler struct {
