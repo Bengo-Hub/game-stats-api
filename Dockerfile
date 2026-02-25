@@ -21,8 +21,8 @@ COPY --from=builder /bin/game-stats-api /usr/local/bin/game-stats-api
 # Copy scripts/fixtures so runtime migrations/fixtures are available
 COPY --from=builder /app/scripts ./scripts
 
-# copy the api.exe to the container
-COPY --from=builder /app/api.exe ./api.exe
+# copy the game-stats-api.exe to the container
+COPY --from=builder /bin/game-stats-api ./game-stats-api
 
 # Copy migrations folder as required by NewLocalDir
 COPY --from=builder /app/ent/migrate/migrations ./ent/migrate/migrations
