@@ -6,15 +6,15 @@ import (
 	"strings"
 	"time"
 
-	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqljson"
 	"github.com/bengobox/game-stats-api/ent"
+	"github.com/bengobox/game-stats-api/ent/category"
 	"github.com/bengobox/game-stats-api/ent/country"
 	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/predicate"
+	"github.com/bengobox/game-stats-api/ent/scopedrole"
 	"github.com/bengobox/game-stats-api/internal/pkg/types"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -27,18 +27,20 @@ import (
 // ============================================
 
 type CreateEventRequest struct {
-	Name         string                 `json:"name" validate:"required"`
-	Slug         string                 `json:"slug" validate:"required"`
-	Year         int                    `json:"year"`
-	StartDate    types.JSONTime         `json:"startDate"`
-	EndDate      types.JSONTime         `json:"endDate"`
-	Status       string                 `json:"status"`
-	Description  *string                `json:"description,omitempty"`
-	Categories   []string               `json:"categories,omitempty"`
+	Name        string         `json:"name" validate:"required"`
+	Slug        string         `json:"slug" validate:"required"`
+	Year        int            `json:"year"`
+	StartDate   types.JSONTime `json:"startDate"`
+	EndDate     types.JSONTime `json:"endDate"`
+	Status      string         `json:"status"`
+	Description *string        `json:"description,omitempty"`
+	// category IDs (uuid) that should be associated with the event
+	CategoryIDs  []string               `json:"categoryIds,omitempty"`
 	LogoUrl      *string                `json:"logoUrl,omitempty"`
 	BannerUrl    *string                `json:"bannerUrl,omitempty"`
 	LocationID   *string                `json:"locationId,omitempty"`
 	DisciplineID *string                `json:"disciplineId,omitempty"`
+	RulesUrl     *string                `json:"rulesUrl,omitempty"`
 	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 }
 
@@ -48,7 +50,8 @@ type CreateDivisionRequest struct {
 }
 
 type AddCrewMemberRequest struct {
-	UserID uuid.UUID `json:"userId" validate:"required"`
+	UserID string `json:"userId" validate:"required"`
+	Role   string `json:"role"`
 }
 
 type UpdateEventRequest struct {
@@ -59,9 +62,10 @@ type UpdateEventRequest struct {
 	EndDate      *types.JSONTime        `json:"endDate"`
 	DisciplineID *string                `json:"disciplineId"`
 	LocationID   *string                `json:"locationId"`
-	Categories   []string               `json:"categories"`
+	CategoryIDs  []string               `json:"categoryIds"`
 	LogoUrl      *string                `json:"logoUrl"`
 	BannerUrl    *string                `json:"bannerUrl"`
+	RulesUrl     *string                `json:"rulesUrl"`
 	Status       *string                `json:"status"`
 	Metadata     map[string]interface{} `json:"metadata"`
 }
@@ -88,15 +92,25 @@ type EventResponse struct {
 	EndDate     time.Time        `json:"endDate"`
 	Status      string           `json:"status"`
 	Description *string          `json:"description,omitempty"`
-	Categories  []string         `json:"categories,omitempty"`
+	Categories  []RefDTO         `json:"categories,omitempty"`
 	LogoUrl     *string          `json:"logoUrl,omitempty"`
 	BannerUrl   *string          `json:"bannerUrl,omitempty"`
+	RulesUrl    *string          `json:"rulesUrl,omitempty"`
 	TeamsCount  int              `json:"teamsCount"`
 	GamesCount  int              `json:"gamesCount"`
 	Discipline  *RefDTO          `json:"discipline,omitempty"`
 	Location    *LocationDTO     `json:"location,omitempty"`
 	Divisions   []DivisionDTO    `json:"divisions,omitempty"`
 	TeamPreview []TeamPreviewDTO `json:"teamPreview,omitempty"`
+}
+
+type UserResponse struct {
+	ID        string  `json:"id"`
+	Name      string  `json:"name"`
+	Email     string  `json:"email"`
+	AvatarURL *string `json:"avatarUrl,omitempty"`
+	Role      string  `json:"role"`
+	IsActive  bool    `json:"isActive"`
 }
 
 type RefDTO struct {
@@ -168,9 +182,9 @@ func toEventResponse(e *ent.Event) EventResponse {
 		EndDate:     e.EndDate,
 		Status:      string(e.Status),
 		Description: e.Description,
-		Categories:  e.Categories,
 		LogoUrl:     e.LogoURL,
 		BannerUrl:   e.BannerURL,
+		RulesUrl:    e.RulesURL,
 		TeamsCount:  teamsCount,
 		GamesCount:  gamesCount,
 	}
@@ -197,6 +211,14 @@ func toEventResponse(e *ent.Event) EventResponse {
 			}
 		}
 		resp.Location = locDTO
+	}
+
+	// attach categories
+	if len(e.Edges.Categories) > 0 {
+		resp.Categories = make([]RefDTO, len(e.Edges.Categories))
+		for i, c := range e.Edges.Categories {
+			resp.Categories[i] = RefDTO{ID: c.ID.String(), Name: c.Name}
+		}
 	}
 
 	// Build divisions list
@@ -244,7 +266,7 @@ func toEventResponse(e *ent.Event) EventResponse {
 // @Tags events
 // @Accept json
 // @Produce json
-// @Param request body CreateEventRequest true "Event data"
+// @Param request body CreateEventRequest true "Event data, categoryIds as list of UUIDs or slugs"
 // @Success 201 {object} EventResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
@@ -259,19 +281,39 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	year := req.Year
+	if year == 0 && !req.StartDate.IsZero() {
+		year = req.StartDate.Year()
+	}
+
 	builder := h.client.Event.Create().
 		SetName(req.Name).
 		SetSlug(req.Slug).
-		SetYear(req.Year).
+		SetYear(year).
 		SetStartDate(req.StartDate.Time).
 		SetEndDate(req.EndDate.Time).
 		SetStatus(req.Status)
+	// optionally set rules URL if provided
+	if req.RulesUrl != nil {
+		builder.SetRulesURL(*req.RulesUrl)
+	}
 
 	if req.Description != nil {
 		builder.SetDescription(*req.Description)
 	}
-	if req.Categories != nil {
-		builder.SetCategories(req.Categories)
+	// attach categories by id or slug
+	if len(req.CategoryIDs) > 0 {
+		for _, cid := range req.CategoryIDs {
+			if catID, err := uuid.Parse(cid); err == nil {
+				builder.AddCategoryIDs(catID)
+			} else {
+				// try slug
+				cat, err := h.client.Category.Query().Where(category.SlugEQ(cid)).Only(ctx)
+				if err == nil && cat != nil {
+					builder.AddCategories(cat)
+				}
+			}
+		}
 	}
 	if req.LogoUrl != nil {
 		builder.SetLogoURL(*req.LogoUrl)
@@ -279,25 +321,50 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	if req.BannerUrl != nil {
 		builder.SetBannerURL(*req.BannerUrl)
 	}
+	if req.RulesUrl != nil {
+		builder.SetRulesURL(*req.RulesUrl)
+	}
 	if req.LocationID != nil && *req.LocationID != "" {
 		if locID, err := uuid.Parse(*req.LocationID); err == nil {
+			// verify existence to avoid FK constraint failures
+			if _, err := h.client.Location.Query().Where(location.IDEQ(locID)).Only(ctx); err != nil {
+				respondError(w, http.StatusBadRequest, "Location not found: "+*req.LocationID)
+				return
+			}
 			builder.SetLocationID(locID)
 		} else {
-			// Try lookup by name/slug if supported by schema
-			l, _ := h.client.Location.Query().Where(location.NameEQ(*req.LocationID)).Only(ctx)
+			// Try lookup by name/slug
+			l, err := h.client.Location.Query().Where(location.SlugEQ(*req.LocationID)).Only(ctx)
+			if err != nil {
+				l, _ = h.client.Location.Query().Where(location.NameEQ(*req.LocationID)).Only(ctx)
+			}
 			if l != nil {
 				builder.SetLocation(l)
+			} else {
+				respondError(w, http.StatusBadRequest, "Location not found: "+*req.LocationID)
+				return
 			}
 		}
 	}
 	if req.DisciplineID != nil && *req.DisciplineID != "" {
 		if discID, err := uuid.Parse(*req.DisciplineID); err == nil {
+			// verify existence
+			if _, err := h.client.Discipline.Query().Where(discipline.IDEQ(discID)).Only(ctx); err != nil {
+				respondError(w, http.StatusBadRequest, "Discipline not found: "+*req.DisciplineID)
+				return
+			}
 			builder.SetDisciplineID(discID)
 		} else {
 			// Find discipline by name/slug
-			d, _ := h.client.Discipline.Query().Where(discipline.SlugEQ(*req.DisciplineID)).Only(ctx)
+			d, err := h.client.Discipline.Query().Where(discipline.SlugEQ(*req.DisciplineID)).Only(ctx)
+			if err != nil {
+				d, _ = h.client.Discipline.Query().Where(discipline.NameEQ(*req.DisciplineID)).Only(ctx)
+			}
 			if d != nil {
 				builder.SetDiscipline(d)
+			} else {
+				respondError(w, http.StatusBadRequest, "Discipline not found: "+*req.DisciplineID)
+				return
 			}
 		}
 	}
@@ -380,8 +447,19 @@ func (h *EventHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	if req.Status != nil {
 		updater.SetStatus(*req.Status)
 	}
-	if req.Categories != nil {
-		updater.SetCategories(req.Categories)
+	if req.CategoryIDs != nil {
+		// clear existing and add new
+		updater.ClearCategories()
+		for _, cid := range req.CategoryIDs {
+			if catID, err := uuid.Parse(cid); err == nil {
+				updater.AddCategoryIDs(catID)
+			} else {
+				cat, err := h.client.Category.Query().Where(category.SlugEQ(cid)).Only(ctx)
+				if err == nil && cat != nil {
+					updater.AddCategories(cat)
+				}
+			}
+		}
 	}
 	if req.LogoUrl != nil {
 		if *req.LogoUrl == "" {
@@ -397,10 +475,22 @@ func (h *EventHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 			updater.SetBannerURL(*req.BannerUrl)
 		}
 	}
+	if req.RulesUrl != nil {
+		if *req.RulesUrl == "" {
+			updater.ClearRulesURL()
+		} else {
+			updater.SetRulesURL(*req.RulesUrl)
+		}
+	}
 
 	// Handle discipline
 	if req.DisciplineID != nil && *req.DisciplineID != "" {
 		if discID, err := uuid.Parse(*req.DisciplineID); err == nil {
+			// verify exists
+			if _, err := h.client.Discipline.Query().Where(discipline.IDEQ(discID)).Only(ctx); err != nil {
+				respondError(w, http.StatusBadRequest, "Discipline not found: "+*req.DisciplineID)
+				return
+			}
 			updater.SetDisciplineID(discID)
 		} else {
 			d, _ := h.client.Discipline.Query().Where(discipline.SlugEQ(*req.DisciplineID)).Only(ctx)
@@ -413,6 +503,10 @@ func (h *EventHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	// Handle location
 	if req.LocationID != nil && *req.LocationID != "" {
 		if locID, err := uuid.Parse(*req.LocationID); err == nil {
+			if _, err := h.client.Location.Query().Where(location.IDEQ(locID)).Only(ctx); err != nil {
+				respondError(w, http.StatusBadRequest, "Location not found: "+*req.LocationID)
+				return
+			}
 			updater.SetLocationID(locID)
 		} else {
 			l, _ := h.client.Location.Query().Where(location.NameEQ(*req.LocationID)).Only(ctx)
@@ -518,7 +612,7 @@ func (h *EventHandler) CreateDivisionPool(w http.ResponseWriter, r *http.Request
 // @Param status query string false "Filter by status (draft, published, in_progress, completed, canceled)"
 // @Param year query int false "Filter by year"
 // @Param temporal query string false "Filter by time: past, upcoming, live, all"
-// @Param category query []string false "Filter by categories (outdoor, hat, beach, indoor, league)"
+// @Param category query []string false "Filter by category ID or slug (can repeat)"
 // @Param country query string false "Filter by country code (2-letter ISO)"
 // @Param search query string false "Search in name and description"
 // @Param startDateFrom query string false "Events starting after this date (RFC3339)"
@@ -542,7 +636,8 @@ func (h *EventHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		}).
 		WithDivisionPools(func(dpq *ent.DivisionPoolQuery) {
 			dpq.WithTeams().WithGames()
-		})
+		}).
+		WithCategories()
 
 	// Filter by status
 	if status := r.URL.Query().Get("status"); status != "" {
@@ -569,18 +664,18 @@ func (h *EventHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Filter by categories
-	if categories := r.URL.Query()["category"]; len(categories) > 0 {
-		// OR logic: event has ANY of the specified categories
-		var categoryPredicates []predicate.Event
-		for _, cat := range categories {
-			c := cat // capture loop variable
-			categoryPredicates = append(categoryPredicates, func(s *sql.Selector) {
-				s.Where(sqljson.ValueContains(event.FieldCategories, c))
-			})
+	// Filter by categories (ids or slugs)
+	if cats := r.URL.Query()["category"]; len(cats) > 0 {
+		var catPreds []predicate.Category
+		for _, c := range cats {
+			if id, err := uuid.Parse(c); err == nil {
+				catPreds = append(catPreds, category.IDEQ(id))
+			} else {
+				catPreds = append(catPreds, category.SlugEQ(c))
+			}
 		}
-		if len(categoryPredicates) > 0 {
-			query = query.Where(event.Or(categoryPredicates...))
+		if len(catPreds) > 0 {
+			query = query.Where(event.HasCategoriesWith(category.Or(catPreds...)))
 		}
 	}
 
@@ -704,7 +799,8 @@ func (h *EventHandler) GetEvent(w http.ResponseWriter, r *http.Request) {
 			}).
 			WithDivisionPools(func(dpq *ent.DivisionPoolQuery) {
 				dpq.WithTeams().WithGames()
-			})
+			}).
+			WithCategories()
 	}
 
 	// Try parsing as UUID first
@@ -731,159 +827,7 @@ func (h *EventHandler) GetEvent(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, toEventResponse(e))
 }
 
-// ============================================
-// Event Crew/Staff Handler
-// ============================================
-
-// CrewMemberDTO represents a staff member in API responses
-type CrewMemberDTO struct {
-	ID        string  `json:"id"`
-	Name      string  `json:"name"`
-	Role      string  `json:"role"`
-	AvatarUrl *string `json:"avatarUrl,omitempty"`
-}
-
-// EventCrewResponse contains event staff information
-type EventCrewResponse struct {
-	EventID      string          `json:"eventId"`
-	EventName    string          `json:"eventName"`
-	Admins       []CrewMemberDTO `json:"admins"`
-	Scorekeepers []CrewMemberDTO `json:"scorekeepers"`
-}
-
-// GetEventCrew godoc
-// @Summary Get event crew/staff
-// @Description Get tournament admins and scorekeepers for an event
-// @Tags events
-// @Produce json
-// @Param id path string true "Event ID or slug"
-// @Success 200 {object} EventCrewResponse
-// @Failure 404 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
-// @Router /public/events/{id}/crew [get]
-func (h *EventHandler) GetEventCrew(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	idOrSlug := chi.URLParam(r, "id")
-
-	var e *ent.Event
-	var err error
-
-	baseQuery := func() *ent.EventQuery {
-		return h.client.Event.Query().
-			Where(event.DeletedAtIsNil()).
-			WithManagedBy()
-	}
-
-	// Try parsing as UUID first
-	if eventID, parseErr := uuid.Parse(idOrSlug); parseErr == nil {
-		e, err = baseQuery().
-			Where(event.ID(eventID)).
-			Only(ctx)
-	} else {
-		// Fall back to slug lookup
-		e, err = baseQuery().
-			Where(event.SlugEQ(idOrSlug)).
-			Only(ctx)
-	}
-
-	if err != nil {
-		if ent.IsNotFound(err) {
-			respondError(w, http.StatusNotFound, "Event not found")
-			return
-		}
-		respondError(w, http.StatusInternalServerError, "Failed to get event")
-		return
-	}
-
-	// Build crew response
-	response := EventCrewResponse{
-		EventID:      e.ID.String(),
-		EventName:    e.Name,
-		Admins:       []CrewMemberDTO{},
-		Scorekeepers: []CrewMemberDTO{},
-	}
-
-	// Categorize users by role
-	for _, user := range e.Edges.ManagedBy {
-		member := CrewMemberDTO{
-			ID:        user.ID.String(),
-			Name:      user.Name,
-			Role:      user.Role,
-			AvatarUrl: user.AvatarURL,
-		}
-
-		// Categorize by role
-		switch user.Role {
-		case "admin", "event_admin", "tournament_admin", "organizer":
-			response.Admins = append(response.Admins, member)
-		case "scorekeeper", "referee", "official":
-			response.Scorekeepers = append(response.Scorekeepers, member)
-		default:
-			// Add to admins by default if they're managing the event
-			response.Admins = append(response.Admins, member)
-		}
-	}
-
-	respondJSON(w, http.StatusOK, response)
-}
-
 // AddEventCrewMember adds a user to the event staff
-func (h *EventHandler) AddEventCrewMember(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	eventIDStr := chi.URLParam(r, "id")
-	eventID, err := uuid.Parse(eventIDStr)
-	if err != nil {
-		respondError(w, http.StatusBadRequest, "Invalid event ID")
-		return
-	}
-
-	var req AddCrewMemberRequest
-	if err := parseJSONBody(r, &req); err != nil {
-		respondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	err = h.client.Event.UpdateOneID(eventID).
-		AddManagedByIDs(req.UserID).
-		Exec(ctx)
-
-	if err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to add crew member")
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
-}
-
-// RemoveEventCrewMember removes a user from the event staff
-func (h *EventHandler) RemoveEventCrewMember(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	eventIDStr := chi.URLParam(r, "id")
-	eventID, err := uuid.Parse(eventIDStr)
-	if err != nil {
-		respondError(w, http.StatusBadRequest, "Invalid event ID")
-		return
-	}
-
-	userIDStr := chi.URLParam(r, "userId")
-	userID, err := uuid.Parse(userIDStr)
-	if err != nil {
-		respondError(w, http.StatusBadRequest, "Invalid user ID")
-		return
-	}
-
-	err = h.client.Event.UpdateOneID(eventID).
-		RemoveManagedByIDs(userID).
-		Exec(ctx)
-
-	if err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to remove crew member")
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
-}
 
 // ListDivisionsByEvent returns all divisions for an event
 func (h *EventHandler) ListDivisionsByEvent(w http.ResponseWriter, r *http.Request) {
@@ -920,4 +864,147 @@ func (h *EventHandler) ListDivisionsByEvent(w http.ResponseWriter, r *http.Reque
 	}
 
 	respondJSON(w, http.StatusOK, result)
+}
+
+// GetEventCrew returns all crew members for an event
+func (h *EventHandler) GetEventCrew(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	eventID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid event ID")
+		return
+	}
+
+	roles, err := h.client.ScopedRole.Query().
+		Where(
+			scopedrole.ScopeTypeEQ("event"),
+			scopedrole.ScopeIDEQ(eventID),
+		).
+		WithUser().
+		All(ctx)
+
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to fetch event crew")
+		return
+	}
+
+	admins := []UserResponse{}
+	scorekeepers := []UserResponse{}
+
+	for _, sr := range roles {
+		if sr.Edges.User == nil {
+			continue
+		}
+		u := UserResponse{
+			ID:        sr.Edges.User.ID.String(),
+			Name:      sr.Edges.User.Name,
+			Email:     sr.Edges.User.Email,
+			AvatarURL: sr.Edges.User.AvatarURL,
+			Role:      sr.Edges.User.Role,
+			IsActive:  sr.Edges.User.IsActive,
+		}
+
+		if sr.Role == "admin" || sr.Role == "event_manager" {
+			admins = append(admins, u)
+		} else {
+			scorekeepers = append(scorekeepers, u)
+		}
+	}
+
+	respondJSON(w, http.StatusOK, map[string]interface{}{
+		"admins":       admins,
+		"scorekeepers": scorekeepers,
+	})
+}
+
+// AddEventCrewMember adds a user to the event crew
+func (h *EventHandler) AddEventCrewMember(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	eventID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid event ID")
+		return
+	}
+
+	var req AddCrewMemberRequest
+	if err := parseJSONBody(r, &req); err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	userID, err := uuid.Parse(req.UserID)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid user ID")
+		return
+	}
+
+	role := req.Role
+	if role == "" {
+		role = "scorekeeper"
+	}
+
+	// Check if role already exists
+	exists, err := h.client.ScopedRole.Query().
+		Where(
+			scopedrole.UserIDEQ(userID),
+			scopedrole.ScopeTypeEQ("event"),
+			scopedrole.ScopeIDEQ(eventID),
+			scopedrole.RoleEQ(role),
+		).
+		Exist(ctx)
+
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to check existing crew member")
+		return
+	}
+
+	if exists {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	_, err = h.client.ScopedRole.Create().
+		SetUserID(userID).
+		SetScopeType("event").
+		SetScopeID(eventID).
+		SetRole(role).
+		Save(ctx)
+
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to add crew member")
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+// RemoveEventCrewMember removes a user from the event crew
+func (h *EventHandler) RemoveEventCrewMember(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	eventID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid event ID")
+		return
+	}
+
+	userID, err := uuid.Parse(chi.URLParam(r, "userId"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid user ID")
+		return
+	}
+
+	_, err = h.client.ScopedRole.Delete().
+		Where(
+			scopedrole.UserIDEQ(userID),
+			scopedrole.ScopeTypeEQ("event"),
+			scopedrole.ScopeIDEQ(eventID),
+		).
+		Exec(ctx)
+
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to remove crew member")
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

@@ -80,6 +80,22 @@ var (
 			},
 		},
 	}
+	// CategoriesColumns holds the columns for the "categories" table.
+	CategoriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 100},
+		{Name: "slug", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+	}
+	// CategoriesTable holds the schema information for the "categories" table.
+	CategoriesTable = &schema.Table{
+		Name:       "categories",
+		Columns:    CategoriesColumns,
+		PrimaryKey: []*schema.Column{CategoriesColumns[0]},
+	}
 	// ContinentsColumns holds the columns for the "continents" table.
 	ContinentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -207,9 +223,9 @@ var (
 		{Name: "status", Type: field.TypeString, Default: "draft"},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "settings", Type: field.TypeJSON, Nullable: true},
-		{Name: "categories", Type: field.TypeJSON, Nullable: true},
 		{Name: "logo_url", Type: field.TypeString, Nullable: true, Size: 500},
 		{Name: "banner_url", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "rules_url", Type: field.TypeString, Nullable: true, Size: 500},
 		{Name: "teams_count", Type: field.TypeInt, Default: 0},
 		{Name: "games_count", Type: field.TypeInt, Default: 0},
 		{Name: "score_edit_approval_role", Type: field.TypeString, Default: "event_manager"},
@@ -912,6 +928,31 @@ var (
 			},
 		},
 	}
+	// EventCategoriesColumns holds the columns for the "event_categories" table.
+	EventCategoriesColumns = []*schema.Column{
+		{Name: "event_id", Type: field.TypeUUID},
+		{Name: "category_id", Type: field.TypeUUID},
+	}
+	// EventCategoriesTable holds the schema information for the "event_categories" table.
+	EventCategoriesTable = &schema.Table{
+		Name:       "event_categories",
+		Columns:    EventCategoriesColumns,
+		PrimaryKey: []*schema.Column{EventCategoriesColumns[0], EventCategoriesColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "event_categories_event_id",
+				Columns:    []*schema.Column{EventCategoriesColumns[0]},
+				RefColumns: []*schema.Column{EventsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "event_categories_category_id",
+				Columns:    []*schema.Column{EventCategoriesColumns[1]},
+				RefColumns: []*schema.Column{CategoriesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// TeamManagedByColumns holds the columns for the "team_managed_by" table.
 	TeamManagedByColumns = []*schema.Column{
 		{Name: "team_id", Type: field.TypeUUID},
@@ -942,6 +983,7 @@ var (
 		AnalyticSearchesTable,
 		AnalyticsEmbeddingsTable,
 		AuditLogsTable,
+		CategoriesTable,
 		ContinentsTable,
 		CountriesTable,
 		DisciplinesTable,
@@ -968,6 +1010,7 @@ var (
 		CountryManagedByTable,
 		DisciplineManagedByTable,
 		EventManagedByTable,
+		EventCategoriesTable,
 		TeamManagedByTable,
 	}
 )
@@ -1021,6 +1064,8 @@ func init() {
 	DisciplineManagedByTable.ForeignKeys[1].RefTable = UsersTable
 	EventManagedByTable.ForeignKeys[0].RefTable = EventsTable
 	EventManagedByTable.ForeignKeys[1].RefTable = UsersTable
+	EventCategoriesTable.ForeignKeys[0].RefTable = EventsTable
+	EventCategoriesTable.ForeignKeys[1].RefTable = CategoriesTable
 	TeamManagedByTable.ForeignKeys[0].RefTable = TeamsTable
 	TeamManagedByTable.ForeignKeys[1].RefTable = UsersTable
 }

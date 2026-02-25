@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/category"
 	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
@@ -186,24 +186,6 @@ func (_u *EventUpdate) ClearSettings() *EventUpdate {
 	return _u
 }
 
-// SetCategories sets the "categories" field.
-func (_u *EventUpdate) SetCategories(v []string) *EventUpdate {
-	_u.mutation.SetCategories(v)
-	return _u
-}
-
-// AppendCategories appends value to the "categories" field.
-func (_u *EventUpdate) AppendCategories(v []string) *EventUpdate {
-	_u.mutation.AppendCategories(v)
-	return _u
-}
-
-// ClearCategories clears the value of the "categories" field.
-func (_u *EventUpdate) ClearCategories() *EventUpdate {
-	_u.mutation.ClearCategories()
-	return _u
-}
-
 // SetLogoURL sets the "logo_url" field.
 func (_u *EventUpdate) SetLogoURL(v string) *EventUpdate {
 	_u.mutation.SetLogoURL(v)
@@ -241,6 +223,26 @@ func (_u *EventUpdate) SetNillableBannerURL(v *string) *EventUpdate {
 // ClearBannerURL clears the value of the "banner_url" field.
 func (_u *EventUpdate) ClearBannerURL() *EventUpdate {
 	_u.mutation.ClearBannerURL()
+	return _u
+}
+
+// SetRulesURL sets the "rules_url" field.
+func (_u *EventUpdate) SetRulesURL(v string) *EventUpdate {
+	_u.mutation.SetRulesURL(v)
+	return _u
+}
+
+// SetNillableRulesURL sets the "rules_url" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableRulesURL(v *string) *EventUpdate {
+	if v != nil {
+		_u.SetRulesURL(*v)
+	}
+	return _u
+}
+
+// ClearRulesURL clears the value of the "rules_url" field.
+func (_u *EventUpdate) ClearRulesURL() *EventUpdate {
+	_u.mutation.ClearRulesURL()
 	return _u
 }
 
@@ -397,6 +399,21 @@ func (_u *EventUpdate) AddParticipations(v ...*EventParticipation) *EventUpdate 
 	return _u.AddParticipationIDs(ids...)
 }
 
+// AddCategoryIDs adds the "categories" edge to the Category entity by IDs.
+func (_u *EventUpdate) AddCategoryIDs(ids ...uuid.UUID) *EventUpdate {
+	_u.mutation.AddCategoryIDs(ids...)
+	return _u
+}
+
+// AddCategories adds the "categories" edges to the Category entity.
+func (_u *EventUpdate) AddCategories(v ...*Category) *EventUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddCategoryIDs(ids...)
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (_u *EventUpdate) Mutation() *EventMutation {
 	return _u.mutation
@@ -519,6 +536,27 @@ func (_u *EventUpdate) RemoveParticipations(v ...*EventParticipation) *EventUpda
 	return _u.RemoveParticipationIDs(ids...)
 }
 
+// ClearCategories clears all "categories" edges to the Category entity.
+func (_u *EventUpdate) ClearCategories() *EventUpdate {
+	_u.mutation.ClearCategories()
+	return _u
+}
+
+// RemoveCategoryIDs removes the "categories" edge to Category entities by IDs.
+func (_u *EventUpdate) RemoveCategoryIDs(ids ...uuid.UUID) *EventUpdate {
+	_u.mutation.RemoveCategoryIDs(ids...)
+	return _u
+}
+
+// RemoveCategories removes "categories" edges to Category entities.
+func (_u *EventUpdate) RemoveCategories(v ...*Category) *EventUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveCategoryIDs(ids...)
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *EventUpdate) Save(ctx context.Context) (int, error) {
 	_u.defaults()
@@ -580,6 +618,11 @@ func (_u *EventUpdate) check() error {
 	if v, ok := _u.mutation.BannerURL(); ok {
 		if err := event.BannerURLValidator(v); err != nil {
 			return &ValidationError{Name: "banner_url", err: fmt.Errorf(`ent: validator failed for field "Event.banner_url": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RulesURL(); ok {
+		if err := event.RulesURLValidator(v); err != nil {
+			return &ValidationError{Name: "rules_url", err: fmt.Errorf(`ent: validator failed for field "Event.rules_url": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.ScoreEditApprovalRole(); ok {
@@ -650,17 +693,6 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.SettingsCleared() {
 		_spec.ClearField(event.FieldSettings, field.TypeJSON)
 	}
-	if value, ok := _u.mutation.Categories(); ok {
-		_spec.SetField(event.FieldCategories, field.TypeJSON, value)
-	}
-	if value, ok := _u.mutation.AppendedCategories(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, event.FieldCategories, value)
-		})
-	}
-	if _u.mutation.CategoriesCleared() {
-		_spec.ClearField(event.FieldCategories, field.TypeJSON)
-	}
 	if value, ok := _u.mutation.LogoURL(); ok {
 		_spec.SetField(event.FieldLogoURL, field.TypeString, value)
 	}
@@ -672,6 +704,12 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.BannerURLCleared() {
 		_spec.ClearField(event.FieldBannerURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.RulesURL(); ok {
+		_spec.SetField(event.FieldRulesURL, field.TypeString, value)
+	}
+	if _u.mutation.RulesURLCleared() {
+		_spec.ClearField(event.FieldRulesURL, field.TypeString)
 	}
 	if value, ok := _u.mutation.TeamsCount(); ok {
 		_spec.SetField(event.FieldTeamsCount, field.TypeInt, value)
@@ -964,6 +1002,51 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(eventparticipation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   event.CategoriesTable,
+			Columns: event.CategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedCategoriesIDs(); len(nodes) > 0 && !_u.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   event.CategoriesTable,
+			Columns: event.CategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   event.CategoriesTable,
+			Columns: event.CategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1140,24 +1223,6 @@ func (_u *EventUpdateOne) ClearSettings() *EventUpdateOne {
 	return _u
 }
 
-// SetCategories sets the "categories" field.
-func (_u *EventUpdateOne) SetCategories(v []string) *EventUpdateOne {
-	_u.mutation.SetCategories(v)
-	return _u
-}
-
-// AppendCategories appends value to the "categories" field.
-func (_u *EventUpdateOne) AppendCategories(v []string) *EventUpdateOne {
-	_u.mutation.AppendCategories(v)
-	return _u
-}
-
-// ClearCategories clears the value of the "categories" field.
-func (_u *EventUpdateOne) ClearCategories() *EventUpdateOne {
-	_u.mutation.ClearCategories()
-	return _u
-}
-
 // SetLogoURL sets the "logo_url" field.
 func (_u *EventUpdateOne) SetLogoURL(v string) *EventUpdateOne {
 	_u.mutation.SetLogoURL(v)
@@ -1195,6 +1260,26 @@ func (_u *EventUpdateOne) SetNillableBannerURL(v *string) *EventUpdateOne {
 // ClearBannerURL clears the value of the "banner_url" field.
 func (_u *EventUpdateOne) ClearBannerURL() *EventUpdateOne {
 	_u.mutation.ClearBannerURL()
+	return _u
+}
+
+// SetRulesURL sets the "rules_url" field.
+func (_u *EventUpdateOne) SetRulesURL(v string) *EventUpdateOne {
+	_u.mutation.SetRulesURL(v)
+	return _u
+}
+
+// SetNillableRulesURL sets the "rules_url" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableRulesURL(v *string) *EventUpdateOne {
+	if v != nil {
+		_u.SetRulesURL(*v)
+	}
+	return _u
+}
+
+// ClearRulesURL clears the value of the "rules_url" field.
+func (_u *EventUpdateOne) ClearRulesURL() *EventUpdateOne {
+	_u.mutation.ClearRulesURL()
 	return _u
 }
 
@@ -1351,6 +1436,21 @@ func (_u *EventUpdateOne) AddParticipations(v ...*EventParticipation) *EventUpda
 	return _u.AddParticipationIDs(ids...)
 }
 
+// AddCategoryIDs adds the "categories" edge to the Category entity by IDs.
+func (_u *EventUpdateOne) AddCategoryIDs(ids ...uuid.UUID) *EventUpdateOne {
+	_u.mutation.AddCategoryIDs(ids...)
+	return _u
+}
+
+// AddCategories adds the "categories" edges to the Category entity.
+func (_u *EventUpdateOne) AddCategories(v ...*Category) *EventUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddCategoryIDs(ids...)
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (_u *EventUpdateOne) Mutation() *EventMutation {
 	return _u.mutation
@@ -1473,6 +1573,27 @@ func (_u *EventUpdateOne) RemoveParticipations(v ...*EventParticipation) *EventU
 	return _u.RemoveParticipationIDs(ids...)
 }
 
+// ClearCategories clears all "categories" edges to the Category entity.
+func (_u *EventUpdateOne) ClearCategories() *EventUpdateOne {
+	_u.mutation.ClearCategories()
+	return _u
+}
+
+// RemoveCategoryIDs removes the "categories" edge to Category entities by IDs.
+func (_u *EventUpdateOne) RemoveCategoryIDs(ids ...uuid.UUID) *EventUpdateOne {
+	_u.mutation.RemoveCategoryIDs(ids...)
+	return _u
+}
+
+// RemoveCategories removes "categories" edges to Category entities.
+func (_u *EventUpdateOne) RemoveCategories(v ...*Category) *EventUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveCategoryIDs(ids...)
+}
+
 // Where appends a list predicates to the EventUpdate builder.
 func (_u *EventUpdateOne) Where(ps ...predicate.Event) *EventUpdateOne {
 	_u.mutation.Where(ps...)
@@ -1547,6 +1668,11 @@ func (_u *EventUpdateOne) check() error {
 	if v, ok := _u.mutation.BannerURL(); ok {
 		if err := event.BannerURLValidator(v); err != nil {
 			return &ValidationError{Name: "banner_url", err: fmt.Errorf(`ent: validator failed for field "Event.banner_url": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RulesURL(); ok {
+		if err := event.RulesURLValidator(v); err != nil {
+			return &ValidationError{Name: "rules_url", err: fmt.Errorf(`ent: validator failed for field "Event.rules_url": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.ScoreEditApprovalRole(); ok {
@@ -1634,17 +1760,6 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	if _u.mutation.SettingsCleared() {
 		_spec.ClearField(event.FieldSettings, field.TypeJSON)
 	}
-	if value, ok := _u.mutation.Categories(); ok {
-		_spec.SetField(event.FieldCategories, field.TypeJSON, value)
-	}
-	if value, ok := _u.mutation.AppendedCategories(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, event.FieldCategories, value)
-		})
-	}
-	if _u.mutation.CategoriesCleared() {
-		_spec.ClearField(event.FieldCategories, field.TypeJSON)
-	}
 	if value, ok := _u.mutation.LogoURL(); ok {
 		_spec.SetField(event.FieldLogoURL, field.TypeString, value)
 	}
@@ -1656,6 +1771,12 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if _u.mutation.BannerURLCleared() {
 		_spec.ClearField(event.FieldBannerURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.RulesURL(); ok {
+		_spec.SetField(event.FieldRulesURL, field.TypeString, value)
+	}
+	if _u.mutation.RulesURLCleared() {
+		_spec.ClearField(event.FieldRulesURL, field.TypeString)
 	}
 	if value, ok := _u.mutation.TeamsCount(); ok {
 		_spec.SetField(event.FieldTeamsCount, field.TypeInt, value)
@@ -1948,6 +2069,51 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(eventparticipation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   event.CategoriesTable,
+			Columns: event.CategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedCategoriesIDs(); len(nodes) > 0 && !_u.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   event.CategoriesTable,
+			Columns: event.CategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   event.CategoriesTable,
+			Columns: event.CategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

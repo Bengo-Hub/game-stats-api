@@ -18,6 +18,8 @@ type Tx struct {
 	AnalyticsEmbedding *AnalyticsEmbeddingClient
 	// AuditLog is the client for interacting with the AuditLog builders.
 	AuditLog *AuditLogClient
+	// Category is the client for interacting with the Category builders.
+	Category *CategoryClient
 	// Continent is the client for interacting with the Continent builders.
 	Continent *ContinentClient
 	// Country is the client for interacting with the Country builders.
@@ -196,6 +198,7 @@ func (tx *Tx) init() {
 	tx.AnalyticSearch = NewAnalyticSearchClient(tx.config)
 	tx.AnalyticsEmbedding = NewAnalyticsEmbeddingClient(tx.config)
 	tx.AuditLog = NewAuditLogClient(tx.config)
+	tx.Category = NewCategoryClient(tx.config)
 	tx.Continent = NewContinentClient(tx.config)
 	tx.Country = NewCountryClient(tx.config)
 	tx.Discipline = NewDisciplineClient(tx.config)

@@ -74,6 +74,82 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/audit-logs/export": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a CSV file containing audit logs based on filters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/csv"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Export audit logs to CSV (Admin only)",
+                "parameters": [
+                    {
+                        "description": "Audit log filter parameters",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ListAuditLogsParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "CSV data",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/export/{type}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Exports events, games, teams, or users in CSV or JSON format",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Export system data (Admin only)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Data type (events, games, teams, users)",
+                        "name": "type",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "csv",
+                        "description": "Export format (csv, json)",
+                        "name": "format",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Export data",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/games/{id}/audit": {
             "get": {
                 "security": [
@@ -168,6 +244,180 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/games/{id}/sync": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Re-calculates game scores by summing individual player goals",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Sync game scores from player goals (Admin only)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_admin.UpdateGameScoreResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/score-edits": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves all historical score edits across all games",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get all score edits (Admin only)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/internal_presentation_http_handlers.AuditLogDTO"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/score-edits/pending": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves all pending score edit requests for approval",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "List pending score edit requests (Admin only)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ent.ScoreEditRequest"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/score-edits/{id}/review": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Approves or rejects a pending score edit request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Review a score edit request (Admin only)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Request ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Review request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ReviewScoreEditRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
@@ -367,6 +617,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/users/roles/scoped": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Assigns a role (scorekeeper, manager, etc) tied to a specific scope (event, game)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Assign a scoped role to a user (Admin only)",
+                "parameters": [
+                    {
+                        "description": "Role assignment request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.AssignScopedRoleRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ent.ScopedRole"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/users/{id}": {
             "get": {
                 "security": [
@@ -509,6 +810,109 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}/reset-password": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Resets a user's password to a temporary one",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Reset a user's password (Admin only)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}/roles/scoped": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "List all granular role assignments for a specific user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "List scoped roles for a user (Admin only)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ent.ScopedRole"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
@@ -1051,6 +1455,392 @@ const docTemplate = `{
                 }
             }
         },
+        "/bulk/players/import": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Import multiple players into a specific team for an event",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bulk"
+                ],
+                "summary": "Mass Import Players",
+                "parameters": [
+                    {
+                        "description": "Mass Import Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.MassImportPlayersRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/bulk/players/transfer": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Transfer multiple players from different teams to new destinations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bulk"
+                ],
+                "summary": "Bulk Transfer Players",
+                "parameters": [
+                    {
+                        "description": "Bulk Transfer Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.BulkTransferRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/categories": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "categories"
+                ],
+                "summary": "List categories",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/internal_presentation_http_handlers.CategoryResponse"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "categories"
+                ],
+                "summary": "Create category",
+                "parameters": [
+                    {
+                        "description": "Category",
+                        "name": "category",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.CreateCategoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.CategoryResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/categories/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "categories"
+                ],
+                "summary": "Get category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Category ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.CategoryResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "categories"
+                ],
+                "summary": "Update category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Category ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Category",
+                        "name": "category",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.UpdateCategoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.CategoryResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "categories"
+                ],
+                "summary": "Delete category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Category ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/disciplines": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "disciplines"
+                ],
+                "summary": "List disciplines",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/internal_presentation_http_handlers.DisciplineResponse"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "disciplines"
+                ],
+                "summary": "Create discipline",
+                "parameters": [
+                    {
+                        "description": "Discipline",
+                        "name": "discipline",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.CreateDisciplineRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.DisciplineResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/disciplines/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "disciplines"
+                ],
+                "summary": "Get discipline",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Discipline ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.DisciplineResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "disciplines"
+                ],
+                "summary": "Update discipline",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Discipline ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Discipline",
+                        "name": "discipline",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.UpdateDisciplineRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.DisciplineResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "disciplines"
+                ],
+                "summary": "Delete discipline",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Discipline ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/divisions/advance": {
             "post": {
                 "security": [
@@ -1300,7 +2090,7 @@ const docTemplate = `{
                 "summary": "Create a new event",
                 "parameters": [
                     {
-                        "description": "Event data",
+                        "description": "Event data, categoryIds as list of UUIDs or slugs",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1419,6 +2209,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/events/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Update an event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Event Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.UpdateEventRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.EventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/events/{id}/divisions": {
             "post": {
                 "security": [
@@ -1461,6 +2321,104 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/internal_presentation_http_handlers.DivisionDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{id}/spirit": {
+            "get": {
+                "description": "Get all spirit scores submitted for all games in an event",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Spirit Scores"
+                ],
+                "summary": "Get spirit scores for an event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.SpiritScoreDTO"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{id}/standings": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get current standings for all divisions in an event",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rankings"
+                ],
+                "summary": "Get event-wide standings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.EventStandingsResponse"
                         }
                     },
                     "400": {
@@ -1688,14 +2646,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/games/{id}/end": {
+        "/games/{id}/complete": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Finalize game submission by scorekeeper",
+                "description": "Finalize game completion by scorekeeper",
                 "produces": [
                     "application/json"
                 ],
@@ -1740,21 +2698,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/games/{id}/finish": {
+        "/games/{id}/end": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Mark game timer as finished (scores can still be edited)",
+                "description": "Mark game timer as ended (scores can still be edited)",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "games"
                 ],
-                "summary": "Finish Game",
+                "summary": "End Game",
                 "parameters": [
                     {
                         "type": "string",
@@ -2365,7 +3323,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "collectionFormat": "csv",
-                        "description": "Filter by categories (outdoor, hat, beach, indoor, league)",
+                        "description": "Filter by category ID or slug (can repeat)",
                         "name": "category",
                         "in": "query"
                     },
@@ -2477,47 +3435,6 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/public/events/{id}/crew": {
-            "get": {
-                "description": "Get tournament admins and scorekeepers for an event",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "events"
-                ],
-                "summary": "Get event crew/staff",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Event ID or slug",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_presentation_http_handlers.EventCrewResponse"
                         }
                     },
                     "404": {
@@ -2659,6 +3576,112 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/players": {
+            "get": {
+                "description": "List all players with pagination and search",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "players"
+                ],
+                "summary": "List all players",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search by player name",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Filter by team ID",
+                        "name": "teamId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Limit results",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/internal_presentation_http_handlers.PlayerResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/players/{id}": {
+            "get": {
+                "description": "Get a player by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "players"
+                ],
+                "summary": "Get a player",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Player ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.PlayerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
                         }
@@ -3184,6 +4207,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/teams/{id}/players/upload": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Import players from a CSV file (columns: Name, Gender, JerseyNumber)",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Bulk import players for a team",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Team ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "CSV file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.BulkImportPlayersResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/teams/{id}/spirit-average": {
             "get": {
                 "description": "Get average spirit scores received by a team across all games",
@@ -3225,9 +4305,2054 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/upload": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upload an image or file and get back a URL",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "media"
+                ],
+                "summary": "Upload a file",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File to upload",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.UploadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_presentation_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "ent.Category": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the CategoryQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.CategoryEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "slug": {
+                    "description": "Slug holds the value of the \"slug\" field.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.CategoryEdges": {
+            "type": "object",
+            "properties": {
+                "events": {
+                    "description": "Events holds the value of the events edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Event"
+                    }
+                }
+            }
+        },
+        "ent.Continent": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the ContinentQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.ContinentEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "slug": {
+                    "description": "Slug holds the value of the \"slug\" field.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                },
+                "world_id": {
+                    "description": "WorldID holds the value of the \"world_id\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.ContinentEdges": {
+            "type": "object",
+            "properties": {
+                "countries": {
+                    "description": "Countries holds the value of the countries edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Country"
+                    }
+                },
+                "managed_by": {
+                    "description": "ManagedBy holds the value of the managed_by edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.User"
+                    }
+                },
+                "world": {
+                    "description": "World holds the value of the world edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.World"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.Country": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "Code holds the value of the \"code\" field.",
+                    "type": "string"
+                },
+                "continent_id": {
+                    "description": "ContinentID holds the value of the \"continent_id\" field.",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the CountryQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.CountryEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "slug": {
+                    "description": "Slug holds the value of the \"slug\" field.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.CountryEdges": {
+            "type": "object",
+            "properties": {
+                "continent": {
+                    "description": "Continent holds the value of the continent edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Continent"
+                        }
+                    ]
+                },
+                "disciplines": {
+                    "description": "Disciplines holds the value of the disciplines edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Discipline"
+                    }
+                },
+                "locations": {
+                    "description": "Locations holds the value of the locations edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Location"
+                    }
+                },
+                "managed_by": {
+                    "description": "ManagedBy holds the value of the managed_by edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.User"
+                    }
+                }
+            }
+        },
+        "ent.Discipline": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the DisciplineQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.DisciplineEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "rules_pdf_url": {
+                    "description": "RulesPdfURL holds the value of the \"rules_pdf_url\" field.",
+                    "type": "string"
+                },
+                "slug": {
+                    "description": "Slug holds the value of the \"slug\" field.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.DisciplineEdges": {
+            "type": "object",
+            "properties": {
+                "country": {
+                    "description": "Country holds the value of the country edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Country"
+                        }
+                    ]
+                },
+                "events": {
+                    "description": "Events holds the value of the events edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Event"
+                    }
+                },
+                "managed_by": {
+                    "description": "ManagedBy holds the value of the managed_by edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.User"
+                    }
+                }
+            }
+        },
+        "ent.DivisionPool": {
+            "type": "object",
+            "properties": {
+                "auto_advance": {
+                    "description": "Whether to automatically advance teams when all games are finished",
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "division_type": {
+                    "description": "DivisionType holds the value of the \"division_type\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the DivisionPoolQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.DivisionPoolEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "max_teams": {
+                    "description": "MaxTeams holds the value of the \"max_teams\" field.",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "ranking_criteria": {
+                    "description": "RankingCriteria holds the value of the \"ranking_criteria\" field.",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "top_n_teams": {
+                    "description": "Number of top teams to advance automatically",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.DivisionPoolEdges": {
+            "type": "object",
+            "properties": {
+                "event": {
+                    "description": "Event holds the value of the event edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Event"
+                        }
+                    ]
+                },
+                "games": {
+                    "description": "Games holds the value of the games edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Game"
+                    }
+                },
+                "target_round": {
+                    "description": "The round to advance teams to automatically",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.GameRound"
+                        }
+                    ]
+                },
+                "teams": {
+                    "description": "Teams holds the value of the teams edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Team"
+                    }
+                }
+            }
+        },
+        "ent.Event": {
+            "type": "object",
+            "properties": {
+                "banner_url": {
+                    "description": "URL to event banner image",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the EventQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.EventEdges"
+                        }
+                    ]
+                },
+                "end_date": {
+                    "description": "EndDate holds the value of the \"end_date\" field.",
+                    "type": "string"
+                },
+                "games_count": {
+                    "description": "Denormalized count of games for efficient queries",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "logo_url": {
+                    "description": "URL to event logo image",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "rules_url": {
+                    "description": "URL to PDF containing event rules",
+                    "type": "string"
+                },
+                "score_edit_approval_role": {
+                    "description": "Role required to approve score edits after game time elapses: event_manager, game_admin",
+                    "type": "string"
+                },
+                "settings": {
+                    "description": "Settings holds the value of the \"settings\" field.",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "slug": {
+                    "description": "Slug holds the value of the \"slug\" field.",
+                    "type": "string"
+                },
+                "start_date": {
+                    "description": "StartDate holds the value of the \"start_date\" field.",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status holds the value of the \"status\" field.",
+                    "type": "string"
+                },
+                "teams_count": {
+                    "description": "Denormalized count of teams for efficient queries",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                },
+                "year": {
+                    "description": "Year holds the value of the \"year\" field.",
+                    "type": "integer"
+                }
+            }
+        },
+        "ent.EventEdges": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "description": "Categories holds the value of the categories edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Category"
+                    }
+                },
+                "discipline": {
+                    "description": "Discipline holds the value of the discipline edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Discipline"
+                        }
+                    ]
+                },
+                "division_pools": {
+                    "description": "DivisionPools holds the value of the division_pools edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.DivisionPool"
+                    }
+                },
+                "game_rounds": {
+                    "description": "GameRounds holds the value of the game_rounds edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.GameRound"
+                    }
+                },
+                "location": {
+                    "description": "Location holds the value of the location edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Location"
+                        }
+                    ]
+                },
+                "managed_by": {
+                    "description": "ManagedBy holds the value of the managed_by edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.User"
+                    }
+                },
+                "participations": {
+                    "description": "Participations holds the value of the participations edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.EventParticipation"
+                    }
+                },
+                "reconciliations": {
+                    "description": "Reconciliations holds the value of the reconciliations edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.EventReconciliation"
+                    }
+                }
+            }
+        },
+        "ent.EventParticipation": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the EventParticipationQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.EventParticipationEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "jersey_number": {
+                    "description": "JerseyNumber holds the value of the \"jersey_number\" field.",
+                    "type": "integer"
+                },
+                "metadata": {
+                    "description": "Metadata holds the value of the \"metadata\" field.",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "role": {
+                    "description": "Role in the event: player, captain, spirit_captain, coach",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status in the event: active, injured, transferred, inactive",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.EventParticipationEdges": {
+            "type": "object",
+            "properties": {
+                "event": {
+                    "description": "Event holds the value of the event edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Event"
+                        }
+                    ]
+                },
+                "player": {
+                    "description": "Player holds the value of the player edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Player"
+                        }
+                    ]
+                },
+                "team": {
+                    "description": "Team holds the value of the team edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Team"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.EventReconciliation": {
+            "type": "object",
+            "properties": {
+                "comments": {
+                    "description": "Comments holds the value of the \"comments\" field.",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the EventReconciliationQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.EventReconciliationEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "reconciled_at": {
+                    "description": "ReconciledAt holds the value of the \"reconciled_at\" field.",
+                    "type": "string"
+                },
+                "reconciled_by": {
+                    "description": "ReconciledBy holds the value of the \"reconciled_by\" field.",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status holds the value of the \"status\" field.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.EventReconciliationEdges": {
+            "type": "object",
+            "properties": {
+                "event": {
+                    "description": "Event holds the value of the event edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Event"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.Field": {
+            "type": "object",
+            "properties": {
+                "capacity": {
+                    "description": "Capacity holds the value of the \"capacity\" field.",
+                    "type": "integer"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the FieldQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.FieldEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "metadata": {
+                    "description": "Metadata holds the value of the \"metadata\" field.",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "surface_type": {
+                    "description": "SurfaceType holds the value of the \"surface_type\" field.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.FieldEdges": {
+            "type": "object",
+            "properties": {
+                "games": {
+                    "description": "Games holds the value of the games edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Game"
+                    }
+                },
+                "location": {
+                    "description": "Location holds the value of the location edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Location"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.Game": {
+            "type": "object",
+            "properties": {
+                "actual_end_time": {
+                    "description": "ActualEndTime holds the value of the \"actual_end_time\" field.",
+                    "type": "string"
+                },
+                "actual_start_time": {
+                    "description": "ActualStartTime holds the value of the \"actual_start_time\" field.",
+                    "type": "string"
+                },
+                "allocated_time_minutes": {
+                    "description": "AllocatedTimeMinutes holds the value of the \"allocated_time_minutes\" field.",
+                    "type": "integer"
+                },
+                "away_team_score": {
+                    "description": "AwayTeamScore holds the value of the \"away_team_score\" field.",
+                    "type": "integer"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the GameQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.GameEdges"
+                        }
+                    ]
+                },
+                "first_pull_by": {
+                    "description": "FirstPullBy holds the value of the \"first_pull_by\" field.",
+                    "type": "string"
+                },
+                "home_team_score": {
+                    "description": "HomeTeamScore holds the value of the \"home_team_score\" field.",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "metadata": {
+                    "description": "Metadata holds the value of the \"metadata\" field.",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "scheduled_time": {
+                    "description": "ScheduledTime holds the value of the \"scheduled_time\" field.",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status holds the value of the \"status\" field.",
+                    "type": "string"
+                },
+                "stoppage_time_seconds": {
+                    "description": "StoppageTimeSeconds holds the value of the \"stoppage_time_seconds\" field.",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                },
+                "version": {
+                    "description": "Version holds the value of the \"version\" field.",
+                    "type": "integer"
+                }
+            }
+        },
+        "ent.GameEdges": {
+            "type": "object",
+            "properties": {
+                "away_team": {
+                    "description": "AwayTeam holds the value of the away_team edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Team"
+                        }
+                    ]
+                },
+                "division_pool": {
+                    "description": "DivisionPool holds the value of the division_pool edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.DivisionPool"
+                        }
+                    ]
+                },
+                "field_location": {
+                    "description": "FieldLocation holds the value of the field_location edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Field"
+                        }
+                    ]
+                },
+                "game_events": {
+                    "description": "GameEvents holds the value of the game_events edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.GameEvent"
+                    }
+                },
+                "game_round": {
+                    "description": "GameRound holds the value of the game_round edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.GameRound"
+                        }
+                    ]
+                },
+                "home_team": {
+                    "description": "HomeTeam holds the value of the home_team edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Team"
+                        }
+                    ]
+                },
+                "score_edit_requests": {
+                    "description": "ScoreEditRequests holds the value of the score_edit_requests edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.ScoreEditRequest"
+                    }
+                },
+                "scorekeeper": {
+                    "description": "Scorekeeper holds the value of the scorekeeper edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.User"
+                        }
+                    ]
+                },
+                "scores": {
+                    "description": "Scores holds the value of the scores edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Scoring"
+                    }
+                },
+                "spirit_scores": {
+                    "description": "SpiritScores holds the value of the spirit_scores edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.SpiritScore"
+                    }
+                }
+            }
+        },
+        "ent.GameEvent": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the GameEventQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.GameEventEdges"
+                        }
+                    ]
+                },
+                "event_type": {
+                    "description": "EventType holds the value of the \"event_type\" field.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "metadata": {
+                    "description": "Metadata holds the value of the \"metadata\" field.",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "minute": {
+                    "description": "Minute holds the value of the \"minute\" field.",
+                    "type": "integer"
+                },
+                "second": {
+                    "description": "Second holds the value of the \"second\" field.",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.GameEventEdges": {
+            "type": "object",
+            "properties": {
+                "game": {
+                    "description": "Game holds the value of the game edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Game"
+                        }
+                    ]
+                },
+                "player": {
+                    "description": "Player holds the value of the player edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Player"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.GameRound": {
+            "type": "object",
+            "properties": {
+                "auto_advance": {
+                    "description": "Whether to automatically advance teams when all games are finished",
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the GameRoundQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.GameRoundEdges"
+                        }
+                    ]
+                },
+                "end_date": {
+                    "description": "EndDate holds the value of the \"end_date\" field.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "round_number": {
+                    "description": "RoundNumber holds the value of the \"round_number\" field.",
+                    "type": "integer"
+                },
+                "round_type": {
+                    "description": "RoundType holds the value of the \"round_type\" field.",
+                    "type": "string"
+                },
+                "start_date": {
+                    "description": "StartDate holds the value of the \"start_date\" field.",
+                    "type": "string"
+                },
+                "top_n_teams": {
+                    "description": "Number of top teams to advance automatically",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.GameRoundEdges": {
+            "type": "object",
+            "properties": {
+                "event": {
+                    "description": "Event holds the value of the event edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Event"
+                        }
+                    ]
+                },
+                "games": {
+                    "description": "Games holds the value of the games edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Game"
+                    }
+                },
+                "target_round": {
+                    "description": "The round to advance teams to automatically",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.GameRound"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.Location": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "description": "Address holds the value of the \"address\" field.",
+                    "type": "string"
+                },
+                "city": {
+                    "description": "City holds the value of the \"city\" field.",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the LocationQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.LocationEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "latitude": {
+                    "description": "Latitude holds the value of the \"latitude\" field.",
+                    "type": "number"
+                },
+                "longitude": {
+                    "description": "Longitude holds the value of the \"longitude\" field.",
+                    "type": "number"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "slug": {
+                    "description": "Slug holds the value of the \"slug\" field.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.LocationEdges": {
+            "type": "object",
+            "properties": {
+                "country": {
+                    "description": "Country holds the value of the country edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Country"
+                        }
+                    ]
+                },
+                "events": {
+                    "description": "Events holds the value of the events edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Event"
+                    }
+                },
+                "fields": {
+                    "description": "Fields holds the value of the fields edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Field"
+                    }
+                },
+                "teams": {
+                    "description": "Teams holds the value of the teams edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Team"
+                    }
+                }
+            }
+        },
+        "ent.MVP_Nomination": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "description": "Category holds the value of the \"category\" field.",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the MVP_NominationQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.MVP_NominationEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.MVP_NominationEdges": {
+            "type": "object",
+            "properties": {
+                "player": {
+                    "description": "Player holds the value of the player edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Player"
+                        }
+                    ]
+                },
+                "spirit_score": {
+                    "description": "SpiritScore holds the value of the spirit_score edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.SpiritScore"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.Player": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "date_of_birth": {
+                    "description": "DateOfBirth holds the value of the \"date_of_birth\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the PlayerQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.PlayerEdges"
+                        }
+                    ]
+                },
+                "email": {
+                    "description": "Email holds the value of the \"email\" field.",
+                    "type": "string"
+                },
+                "gender": {
+                    "description": "Gender holds the value of the \"gender\" field.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "is_captain": {
+                    "description": "Whether this player is the team captain",
+                    "type": "boolean"
+                },
+                "is_spirit_captain": {
+                    "description": "Whether this player is the spirit captain",
+                    "type": "boolean"
+                },
+                "jersey_number": {
+                    "description": "JerseyNumber holds the value of the \"jersey_number\" field.",
+                    "type": "integer"
+                },
+                "metadata": {
+                    "description": "Metadata holds the value of the \"metadata\" field.",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "Phone holds the value of the \"phone\" field.",
+                    "type": "string"
+                },
+                "position": {
+                    "description": "Position holds the value of the \"position\" field.",
+                    "type": "string"
+                },
+                "profile_image_url": {
+                    "description": "ProfileImageURL holds the value of the \"profile_image_url\" field.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.PlayerEdges": {
+            "type": "object",
+            "properties": {
+                "game_events": {
+                    "description": "GameEvents holds the value of the game_events edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.GameEvent"
+                    }
+                },
+                "mvp_nominations": {
+                    "description": "MvpNominations holds the value of the mvp_nominations edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.MVP_Nomination"
+                    }
+                },
+                "participations": {
+                    "description": "Participations holds the value of the participations edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.EventParticipation"
+                    }
+                },
+                "scores": {
+                    "description": "Scores holds the value of the scores edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Scoring"
+                    }
+                },
+                "spirit_nominations": {
+                    "description": "SpiritNominations holds the value of the spirit_nominations edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.SpiritNomination"
+                    }
+                },
+                "team": {
+                    "description": "Team holds the value of the team edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Team"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.ScopedRole": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the ScopedRoleQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.ScopedRoleEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "permissions": {
+                    "description": "Permissions holds the value of the \"permissions\" field.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "role": {
+                    "description": "role name: event_manager, game_admin, scorekeeper, etc.",
+                    "type": "string"
+                },
+                "scope_id": {
+                    "description": "ScopeID holds the value of the \"scope_id\" field.",
+                    "type": "string"
+                },
+                "scope_type": {
+                    "description": "event, game, team, division",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "UserID holds the value of the \"user_id\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.ScopedRoleEdges": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "description": "User holds the value of the user edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.User"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.ScoreEditRequest": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the ScoreEditRequestQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.ScoreEditRequestEdges"
+                        }
+                    ]
+                },
+                "game_id": {
+                    "description": "GameID holds the value of the \"game_id\" field.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "new_away_score": {
+                    "description": "NewAwayScore holds the value of the \"new_away_score\" field.",
+                    "type": "integer"
+                },
+                "new_home_score": {
+                    "description": "NewHomeScore holds the value of the \"new_home_score\" field.",
+                    "type": "integer"
+                },
+                "player_scores": {
+                    "description": "PlayerScores holds the value of the \"player_scores\" field.",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                },
+                "previous_away_score": {
+                    "description": "PreviousAwayScore holds the value of the \"previous_away_score\" field.",
+                    "type": "integer"
+                },
+                "previous_home_score": {
+                    "description": "PreviousHomeScore holds the value of the \"previous_home_score\" field.",
+                    "type": "integer"
+                },
+                "reason": {
+                    "description": "Reason holds the value of the \"reason\" field.",
+                    "type": "string"
+                },
+                "rejection_reason": {
+                    "description": "RejectionReason holds the value of the \"rejection_reason\" field.",
+                    "type": "string"
+                },
+                "requested_by_id": {
+                    "description": "RequestedByID holds the value of the \"requested_by_id\" field.",
+                    "type": "string"
+                },
+                "reviewed_at": {
+                    "description": "ReviewedAt holds the value of the \"reviewed_at\" field.",
+                    "type": "string"
+                },
+                "reviewed_by_id": {
+                    "description": "ReviewedByID holds the value of the \"reviewed_by_id\" field.",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "pending, approved, rejected",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.ScoreEditRequestEdges": {
+            "type": "object",
+            "properties": {
+                "game": {
+                    "description": "Game holds the value of the game edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Game"
+                        }
+                    ]
+                },
+                "requested_by": {
+                    "description": "RequestedBy holds the value of the requested_by edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.User"
+                        }
+                    ]
+                },
+                "reviewed_by": {
+                    "description": "ReviewedBy holds the value of the reviewed_by edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.User"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.Scoring": {
+            "type": "object",
+            "properties": {
+                "assists": {
+                    "description": "Assists holds the value of the \"assists\" field.",
+                    "type": "integer"
+                },
+                "blocks": {
+                    "description": "Blocks holds the value of the \"blocks\" field.",
+                    "type": "integer"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the ScoringQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.ScoringEdges"
+                        }
+                    ]
+                },
+                "goals": {
+                    "description": "Goals holds the value of the \"goals\" field.",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "turns": {
+                    "description": "Turns holds the value of the \"turns\" field.",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                },
+                "version": {
+                    "description": "Version holds the value of the \"version\" field.",
+                    "type": "integer"
+                }
+            }
+        },
+        "ent.ScoringEdges": {
+            "type": "object",
+            "properties": {
+                "game": {
+                    "description": "Game holds the value of the game edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Game"
+                        }
+                    ]
+                },
+                "player": {
+                    "description": "Player holds the value of the player edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Player"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.SpiritNomination": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "description": "Category holds the value of the \"category\" field.",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the SpiritNominationQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.SpiritNominationEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.SpiritNominationEdges": {
+            "type": "object",
+            "properties": {
+                "player": {
+                    "description": "Player holds the value of the player edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Player"
+                        }
+                    ]
+                },
+                "spirit_score": {
+                    "description": "SpiritScore holds the value of the spirit_score edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.SpiritScore"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.SpiritScore": {
+            "type": "object",
+            "properties": {
+                "attitude": {
+                    "description": "Attitude holds the value of the \"attitude\" field.",
+                    "type": "integer"
+                },
+                "comments": {
+                    "description": "Comments holds the value of the \"comments\" field.",
+                    "type": "string"
+                },
+                "communication": {
+                    "description": "Communication holds the value of the \"communication\" field.",
+                    "type": "integer"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the SpiritScoreQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.SpiritScoreEdges"
+                        }
+                    ]
+                },
+                "fair_mindedness": {
+                    "description": "FairMindedness holds the value of the \"fair_mindedness\" field.",
+                    "type": "integer"
+                },
+                "fouls_body_contact": {
+                    "description": "FoulsBodyContact holds the value of the \"fouls_body_contact\" field.",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "rules_knowledge": {
+                    "description": "RulesKnowledge holds the value of the \"rules_knowledge\" field.",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.SpiritScoreEdges": {
+            "type": "object",
+            "properties": {
+                "game": {
+                    "description": "Game holds the value of the game edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Game"
+                        }
+                    ]
+                },
+                "mvp_nominations": {
+                    "description": "MvpNominations holds the value of the mvp_nominations edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.MVP_Nomination"
+                    }
+                },
+                "scored_by_team": {
+                    "description": "ScoredByTeam holds the value of the scored_by_team edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Team"
+                        }
+                    ]
+                },
+                "spirit_nominations": {
+                    "description": "SpiritNominations holds the value of the spirit_nominations edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.SpiritNomination"
+                    }
+                },
+                "submitted_by": {
+                    "description": "SubmittedBy holds the value of the submitted_by edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.User"
+                        }
+                    ]
+                },
+                "team": {
+                    "description": "Team holds the value of the team edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Team"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.Team": {
+            "type": "object",
+            "properties": {
+                "contact_email": {
+                    "description": "ContactEmail holds the value of the \"contact_email\" field.",
+                    "type": "string"
+                },
+                "contact_phone": {
+                    "description": "ContactPhone holds the value of the \"contact_phone\" field.",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the TeamQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.TeamEdges"
+                        }
+                    ]
+                },
+                "final_placement": {
+                    "description": "FinalPlacement holds the value of the \"final_placement\" field.",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "initial_seed": {
+                    "description": "InitialSeed holds the value of the \"initial_seed\" field.",
+                    "type": "integer"
+                },
+                "logo_url": {
+                    "description": "LogoURL holds the value of the \"logo_url\" field.",
+                    "type": "string"
+                },
+                "metadata": {
+                    "description": "Metadata holds the value of the \"metadata\" field.",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "primary_color": {
+                    "description": "PrimaryColor holds the value of the \"primary_color\" field.",
+                    "type": "string"
+                },
+                "secondary_color": {
+                    "description": "SecondaryColor holds the value of the \"secondary_color\" field.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.TeamEdges": {
+            "type": "object",
+            "properties": {
+                "away_games": {
+                    "description": "AwayGames holds the value of the away_games edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Game"
+                    }
+                },
+                "division_pool": {
+                    "description": "DivisionPool holds the value of the division_pool edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.DivisionPool"
+                        }
+                    ]
+                },
+                "home_games": {
+                    "description": "HomeGames holds the value of the home_games edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Game"
+                    }
+                },
+                "home_location": {
+                    "description": "HomeLocation holds the value of the home_location edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Location"
+                        }
+                    ]
+                },
+                "managed_by": {
+                    "description": "ManagedBy holds the value of the managed_by edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.User"
+                    }
+                },
+                "participations": {
+                    "description": "Participations holds the value of the participations edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.EventParticipation"
+                    }
+                },
+                "players": {
+                    "description": "Players holds the value of the players edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Player"
+                    }
+                },
+                "spirit_scores_given": {
+                    "description": "SpiritScoresGiven holds the value of the spirit_scores_given edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.SpiritScore"
+                    }
+                },
+                "spirit_scores_received": {
+                    "description": "SpiritScoresReceived holds the value of the spirit_scores_received edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.SpiritScore"
+                    }
+                }
+            }
+        },
+        "ent.User": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "description": "AvatarURL holds the value of the \"avatar_url\" field.",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the UserQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.UserEdges"
+                        }
+                    ]
+                },
+                "email": {
+                    "description": "Email holds the value of the \"email\" field.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "is_active": {
+                    "description": "IsActive holds the value of the \"is_active\" field.",
+                    "type": "boolean"
+                },
+                "last_login_at": {
+                    "description": "LastLoginAt holds the value of the \"last_login_at\" field.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "role": {
+                    "description": "Role holds the value of the \"role\" field.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.UserEdges": {
+            "type": "object",
+            "properties": {
+                "managed_continent": {
+                    "description": "ManagedContinent holds the value of the managed_continent edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Continent"
+                    }
+                },
+                "managed_country": {
+                    "description": "ManagedCountry holds the value of the managed_country edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Country"
+                    }
+                },
+                "managed_discipline": {
+                    "description": "ManagedDiscipline holds the value of the managed_discipline edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Discipline"
+                    }
+                },
+                "managed_event": {
+                    "description": "ManagedEvent holds the value of the managed_event edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Event"
+                    }
+                },
+                "managed_team": {
+                    "description": "ManagedTeam holds the value of the managed_team edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Team"
+                    }
+                },
+                "officiated_games": {
+                    "description": "OfficiatedGames holds the value of the officiated_games edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Game"
+                    }
+                },
+                "scoped_roles": {
+                    "description": "ScopedRoles holds the value of the scoped_roles edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.ScopedRole"
+                    }
+                },
+                "score_edit_requests": {
+                    "description": "ScoreEditRequests holds the value of the score_edit_requests edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.ScoreEditRequest"
+                    }
+                },
+                "submitted_spirit_scores": {
+                    "description": "SubmittedSpiritScores holds the value of the submitted_spirit_scores edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.SpiritScore"
+                    }
+                }
+            }
+        },
+        "ent.World": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the WorldQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.WorldEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "slug": {
+                    "description": "Slug holds the value of the \"slug\" field.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.WorldEdges": {
+            "type": "object",
+            "properties": {
+                "continents": {
+                    "description": "Continents holds the value of the continents edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Continent"
+                    }
+                }
+            }
+        },
         "github_com_bengobox_game-stats-api_internal_application_admin.UpdateGameScoreResponse": {
             "type": "object",
             "properties": {
@@ -3680,38 +6805,56 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.BulkTransferRequest": {
+            "type": "object",
+            "required": [
+                "event_id",
+                "transfers"
+            ],
+            "properties": {
+                "event_id": {
+                    "type": "string"
+                },
+                "transfers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.PlayerTransfer"
+                    }
+                }
+            }
+        },
         "github_com_bengobox_game-stats-api_internal_application_gamemanagement.CreateGameRequest": {
             "type": "object",
             "required": [
-                "allocated_time_minutes",
-                "away_team_id",
-                "division_pool_id",
-                "field_location_id",
-                "home_team_id",
+                "allocatedTimeMinutes",
+                "awayTeamId",
+                "divisionPoolId",
+                "fieldLocationId",
+                "homeTeamId",
                 "name",
-                "scheduled_time"
+                "scheduledTime"
             ],
             "properties": {
-                "allocated_time_minutes": {
+                "allocatedTimeMinutes": {
                     "type": "integer",
                     "minimum": 1
                 },
-                "away_team_id": {
+                "awayTeamId": {
                     "type": "string"
                 },
-                "division_pool_id": {
+                "divisionPoolId": {
                     "type": "string"
                 },
-                "field_location_id": {
+                "fieldLocationId": {
                     "type": "string"
                 },
-                "first_pull_by": {
+                "firstPullBy": {
                     "type": "string"
                 },
-                "game_round_id": {
+                "gameRoundId": {
                     "type": "string"
                 },
-                "home_team_id": {
+                "homeTeamId": {
                     "type": "string"
                 },
                 "metadata": {
@@ -3722,10 +6865,10 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 100
                 },
-                "scheduled_time": {
+                "scheduledTime": {
                     "type": "string"
                 },
-                "scorekeeper_id": {
+                "scorekeeperId": {
                     "type": "string"
                 }
             }
@@ -3779,37 +6922,37 @@ const docTemplate = `{
         "github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO": {
             "type": "object",
             "properties": {
-                "actual_end_time": {
+                "actualEndTime": {
                     "type": "string"
                 },
-                "actual_start_time": {
+                "actualStartTime": {
                     "type": "string"
                 },
-                "allocated_time_minutes": {
+                "allocatedTimeMinutes": {
                     "type": "integer"
                 },
-                "away_team": {
+                "awayTeam": {
                     "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO"
                 },
-                "away_team_score": {
+                "awayTeamScore": {
                     "type": "integer"
                 },
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
-                "field_location": {
+                "fieldLocation": {
                     "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.FieldSummaryDTO"
                 },
-                "first_pull_by": {
+                "firstPullBy": {
                     "type": "string"
                 },
-                "game_round": {
+                "gameRound": {
                     "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundSummaryDTO"
                 },
-                "home_team": {
+                "homeTeam": {
                     "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO"
                 },
-                "home_team_score": {
+                "homeTeamScore": {
                     "type": "integer"
                 },
                 "id": {
@@ -3822,7 +6965,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "scheduled_time": {
+                "scheduledTime": {
                     "type": "string"
                 },
                 "scorekeeper": {
@@ -3831,10 +6974,10 @@ const docTemplate = `{
                 "status": {
                     "type": "string"
                 },
-                "stoppage_time_seconds": {
+                "stoppageTimeSeconds": {
                     "type": "integer"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 },
                 "version": {
@@ -3845,13 +6988,13 @@ const docTemplate = `{
         "github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameEventDTO": {
             "type": "object",
             "properties": {
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
                 "description": {
                     "type": "string"
                 },
-                "event_type": {
+                "eventType": {
                     "type": "string"
                 },
                 "id": {
@@ -3872,16 +7015,16 @@ const docTemplate = `{
         "github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundDTO": {
             "type": "object",
             "properties": {
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
-                "end_date": {
+                "endDate": {
                     "type": "string"
                 },
-                "event_id": {
+                "eventId": {
                     "type": "string"
                 },
-                "games_count": {
+                "gamesCount": {
                     "type": "integer"
                 },
                 "id": {
@@ -3890,16 +7033,16 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "round_number": {
+                "roundNumber": {
                     "type": "integer"
                 },
-                "round_type": {
+                "roundType": {
                     "type": "string"
                 },
-                "start_date": {
+                "startDate": {
                     "type": "string"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -3913,7 +7056,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "round_type": {
+                "roundType": {
                     "type": "string"
                 }
             }
@@ -3929,10 +7072,82 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.ImportPlayer": {
+            "type": "object",
+            "required": [
+                "gender",
+                "name"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string",
+                    "enum": [
+                        "M",
+                        "F",
+                        "X"
+                    ]
+                },
+                "jerseyNumber": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.MassImportPlayersRequest": {
+            "type": "object",
+            "required": [
+                "players",
+                "team_id"
+            ],
+            "properties": {
+                "event_id": {
+                    "type": "string"
+                },
+                "players": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.ImportPlayer"
+                    }
+                },
+                "team_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_bengobox_game-stats-api_internal_application_gamemanagement.PlayerTransfer": {
+            "type": "object",
+            "required": [
+                "fromTeamId",
+                "playerId",
+                "toTeamId"
+            ],
+            "properties": {
+                "fromTeamId": {
+                    "type": "string"
+                },
+                "playerId": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "toTeamId": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_bengobox_game-stats-api_internal_application_gamemanagement.RecordScoreRequest": {
             "type": "object",
             "required": [
-                "player_id"
+                "playerId"
             ],
             "properties": {
                 "assists": {
@@ -3950,7 +7165,7 @@ const docTemplate = `{
                 "minute": {
                     "type": "integer"
                 },
-                "player_id": {
+                "playerId": {
                     "type": "string"
                 },
                 "second": {
@@ -3988,7 +7203,7 @@ const docTemplate = `{
                 "blocks": {
                     "type": "integer"
                 },
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
                 "goals": {
@@ -3997,25 +7212,25 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "player_id": {
+                "playerId": {
                     "type": "string"
                 },
-                "player_name": {
+                "playerName": {
                     "type": "string"
                 },
-                "player_number": {
+                "playerNumber": {
                     "type": "integer"
                 },
-                "team_id": {
+                "teamId": {
                     "type": "string"
                 },
-                "team_name": {
+                "teamName": {
                     "type": "string"
                 },
                 "turns": {
                     "type": "integer"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -4032,37 +7247,37 @@ const docTemplate = `{
                 "communication": {
                     "type": "integer"
                 },
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
-                "fair_mindedness": {
+                "fairMindedness": {
                     "type": "integer"
                 },
-                "fouls_body_contact": {
+                "foulsBodyContact": {
                     "type": "integer"
                 },
-                "game_id": {
+                "gameId": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
-                "rules_knowledge": {
+                "rulesKnowledge": {
                     "type": "integer"
                 },
-                "scored_by_team": {
+                "scoredByTeam": {
                     "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO"
                 },
-                "submitted_by": {
+                "submittedBy": {
                     "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.UserSummaryDTO"
                 },
                 "team": {
                     "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO"
                 },
-                "total_score": {
+                "totalScore": {
                     "type": "integer"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -4080,11 +7295,11 @@ const docTemplate = `{
             "required": [
                 "attitude",
                 "communication",
-                "fair_mindedness",
-                "fouls_body_contact",
-                "rules_knowledge",
-                "scored_by_team_id",
-                "team_id"
+                "fairMindedness",
+                "foulsBodyContact",
+                "rulesKnowledge",
+                "scoredByTeamId",
+                "teamId"
             ],
             "properties": {
                 "attitude": {
@@ -4100,31 +7315,31 @@ const docTemplate = `{
                     "maximum": 4,
                     "minimum": 0
                 },
-                "fair_mindedness": {
+                "fairMindedness": {
                     "type": "integer",
                     "maximum": 4,
                     "minimum": 0
                 },
-                "fouls_body_contact": {
+                "foulsBodyContact": {
                     "type": "integer",
                     "maximum": 4,
                     "minimum": 0
                 },
-                "mvp_nomination": {
+                "mvpNomination": {
                     "type": "string"
                 },
-                "rules_knowledge": {
+                "rulesKnowledge": {
                     "type": "integer",
                     "maximum": 4,
                     "minimum": 0
                 },
-                "scored_by_team_id": {
+                "scoredByTeamId": {
                     "type": "string"
                 },
-                "spirit_nomination": {
+                "spiritNomination": {
                     "type": "string"
                 },
-                "team_id": {
+                "teamId": {
                     "type": "string"
                 }
             }
@@ -4135,28 +7350,28 @@ const docTemplate = `{
                 "attitude": {
                     "type": "number"
                 },
-                "average_total": {
+                "averageTotal": {
                     "type": "number"
                 },
                 "communication": {
                     "type": "number"
                 },
-                "fair_mindedness": {
+                "fairMindedness": {
                     "type": "number"
                 },
-                "fouls_body_contact": {
+                "foulsBodyContact": {
                     "type": "number"
                 },
-                "games_played": {
+                "gamesPlayed": {
                     "type": "integer"
                 },
-                "rules_knowledge": {
+                "rulesKnowledge": {
                     "type": "number"
                 },
-                "team_id": {
+                "teamId": {
                     "type": "string"
                 },
-                "team_name": {
+                "teamName": {
                     "type": "string"
                 }
             }
@@ -4167,10 +7382,16 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "logo_url": {
+                "logoUrl": {
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "primaryColor": {
+                    "type": "string"
+                },
+                "secondaryColor": {
                     "type": "string"
                 }
             }
@@ -4204,17 +7425,17 @@ const docTemplate = `{
         "github_com_bengobox_game-stats-api_internal_application_gamemanagement.UpdateGameRoundRequest": {
             "type": "object",
             "properties": {
-                "end_date": {
+                "endDate": {
                     "type": "string"
                 },
                 "name": {
                     "type": "string",
                     "maxLength": 100
                 },
-                "round_number": {
+                "roundNumber": {
                     "type": "integer"
                 },
-                "round_type": {
+                "roundType": {
                     "type": "string",
                     "enum": [
                         "pool",
@@ -4223,7 +7444,7 @@ const docTemplate = `{
                         "final"
                     ]
                 },
-                "start_date": {
+                "startDate": {
                     "type": "string"
                 }
             }
@@ -4361,9 +7582,6 @@ const docTemplate = `{
                 "division_name": {
                     "type": "string"
                 },
-                "last_updated": {
-                    "type": "string"
-                },
                 "ranking_criteria": {
                     "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.RankingCriteria"
                 },
@@ -4372,6 +7590,29 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.TeamStanding"
                     }
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_bengobox_game-stats-api_internal_application_ranking.EventStandingsResponse": {
+            "type": "object",
+            "properties": {
+                "divisions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.DivisionStandingsResponse"
+                    }
+                },
+                "event_id": {
+                    "type": "string"
+                },
+                "event_name": {
+                    "type": "string"
+                },
+                "last_updated": {
+                    "type": "string"
                 }
             }
         },
@@ -4409,22 +7650,19 @@ const docTemplate = `{
                 "games_played": {
                     "type": "integer"
                 },
-                "goal_difference": {
-                    "type": "integer"
-                },
-                "goals_against": {
-                    "type": "integer"
-                },
-                "goals_for": {
-                    "type": "integer"
-                },
-                "last_updated": {
-                    "type": "string"
-                },
                 "losses": {
                     "type": "integer"
                 },
+                "point_differential": {
+                    "type": "integer"
+                },
                 "points": {
+                    "type": "integer"
+                },
+                "points_against": {
+                    "type": "integer"
+                },
+                "points_for": {
                     "type": "integer"
                 },
                 "rank": {
@@ -4437,6 +7675,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "team_name": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 },
                 "win_percentage": {
@@ -4483,6 +7724,14 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime": {
+            "type": "object",
+            "properties": {
+                "time.Time": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_presentation_http_handlers.AdminUserDTO": {
             "type": "object",
             "properties": {
@@ -4511,6 +7760,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.AssignScopedRoleRequestDTO": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "string"
+                },
+                "scopeId": {
+                    "type": "string"
+                },
+                "scopeType": {
+                    "type": "string"
+                },
+                "userId": {
                     "type": "string"
                 }
             }
@@ -4564,6 +7830,37 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_presentation_http_handlers.BulkImportPlayersResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "internal_presentation_http_handlers.CategoryResponse": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_presentation_http_handlers.ChangePasswordRequestDTO": {
             "type": "object",
             "properties": {
@@ -4589,6 +7886,49 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_presentation_http_handlers.CreateCategoryRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "slug"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.CreateDisciplineRequest": {
+            "type": "object",
+            "required": [
+                "countryId",
+                "name",
+                "slug"
+            ],
+            "properties": {
+                "countryId": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rulesPdfUrl": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_presentation_http_handlers.CreateDivisionRequest": {
             "type": "object",
             "required": [
@@ -4600,7 +7940,8 @@ const docTemplate = `{
                     "type": "string",
                     "enum": [
                         "pool",
-                        "bracket"
+                        "bracket",
+                        "mixed"
                     ]
                 },
                 "name": {
@@ -4618,7 +7959,8 @@ const docTemplate = `{
                 "bannerUrl": {
                     "type": "string"
                 },
-                "categories": {
+                "categoryIds": {
+                    "description": "category IDs (uuid) that should be associated with the event",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -4627,8 +7969,11 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "endDate": {
+                "disciplineId": {
                     "type": "string"
+                },
+                "endDate": {
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime"
                 },
                 "locationId": {
                     "type": "string"
@@ -4636,14 +7981,21 @@ const docTemplate = `{
                 "logoUrl": {
                     "type": "string"
                 },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
                 "name": {
+                    "type": "string"
+                },
+                "rulesUrl": {
                     "type": "string"
                 },
                 "slug": {
                     "type": "string"
                 },
                 "startDate": {
-                    "type": "string"
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime"
                 },
                 "status": {
                     "type": "string"
@@ -4662,6 +8014,9 @@ const docTemplate = `{
                 "teamId"
             ],
             "properties": {
+                "email": {
+                    "type": "string"
+                },
                 "eventId": {
                     "type": "string"
                 },
@@ -4685,6 +8040,12 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "phone": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
                 "profileImageUrl": {
                     "type": "string"
                 },
@@ -4701,6 +8062,12 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
+                "contactEmail": {
+                    "type": "string"
+                },
+                "contactPhone": {
+                    "type": "string"
+                },
                 "divisionPoolId": {
                     "type": "string"
                 },
@@ -4713,6 +8080,9 @@ const docTemplate = `{
                 "initialSeed": {
                     "type": "integer"
                 },
+                "locationName": {
+                    "type": "string"
+                },
                 "logoUrl": {
                     "type": "string"
                 },
@@ -4721,6 +8091,12 @@ const docTemplate = `{
                     "additionalProperties": true
                 },
                 "name": {
+                    "type": "string"
+                },
+                "primaryColor": {
+                    "type": "string"
+                },
+                "secondaryColor": {
                     "type": "string"
                 }
             }
@@ -4742,10 +8118,13 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_presentation_http_handlers.CrewMemberDTO": {
+        "internal_presentation_http_handlers.DisciplineResponse": {
             "type": "object",
             "properties": {
-                "avatarUrl": {
+                "countryId": {
+                    "type": "string"
+                },
+                "description": {
                     "type": "string"
                 },
                 "id": {
@@ -4754,7 +8133,10 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "role": {
+                "rulesPdfUrl": {
+                    "type": "string"
+                },
+                "slug": {
                     "type": "string"
                 }
             }
@@ -4786,29 +8168,6 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_presentation_http_handlers.EventCrewResponse": {
-            "type": "object",
-            "properties": {
-                "admins": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_presentation_http_handlers.CrewMemberDTO"
-                    }
-                },
-                "eventId": {
-                    "type": "string"
-                },
-                "eventName": {
-                    "type": "string"
-                },
-                "scorekeepers": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_presentation_http_handlers.CrewMemberDTO"
-                    }
-                }
-            }
-        },
         "internal_presentation_http_handlers.EventResponse": {
             "type": "object",
             "properties": {
@@ -4818,7 +8177,7 @@ const docTemplate = `{
                 "categories": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/internal_presentation_http_handlers.RefDTO"
                     }
                 },
                 "description": {
@@ -4849,6 +8208,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "rulesUrl": {
                     "type": "string"
                 },
                 "slug": {
@@ -4906,6 +8268,27 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_presentation_http_handlers.ListAuditLogsParams": {
+            "description": "Audit log filter parameters",
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "entityType": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_presentation_http_handlers.LocationDTO": {
             "type": "object",
             "properties": {
@@ -4947,6 +8330,9 @@ const docTemplate = `{
         "internal_presentation_http_handlers.PlayerResponse": {
             "type": "object",
             "properties": {
+                "email": {
+                    "type": "string"
+                },
                 "gender": {
                     "type": "string"
                 },
@@ -4965,7 +8351,30 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "phone": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
                 "profileImageUrl": {
+                    "type": "string"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "teamName": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.PlayerScoreDTO": {
+            "type": "object",
+            "properties": {
+                "goals": {
+                    "type": "integer"
+                },
+                "player_id": {
                     "type": "string"
                 }
             }
@@ -5027,6 +8436,17 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_presentation_http_handlers.ReviewScoreEditRequestDTO": {
+            "type": "object",
+            "properties": {
+                "approve": {
+                    "type": "boolean"
+                },
+                "rejection_reason": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_presentation_http_handlers.SpiritBreakdownAverage": {
             "type": "object",
             "properties": {
@@ -5067,6 +8487,16 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_presentation_http_handlers.SuccessResponse": {
+            "description": "Success response structure",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "operation successful"
+                }
+            }
+        },
         "internal_presentation_http_handlers.TeamPreviewDTO": {
             "type": "object",
             "properties": {
@@ -5087,10 +8517,19 @@ const docTemplate = `{
                 "captain": {
                     "$ref": "#/definitions/internal_presentation_http_handlers.PlayerResponse"
                 },
+                "contactEmail": {
+                    "type": "string"
+                },
+                "contactPhone": {
+                    "type": "string"
+                },
                 "divisionName": {
                     "type": "string"
                 },
                 "divisionPoolId": {
+                    "type": "string"
+                },
+                "eventId": {
                     "type": "string"
                 },
                 "finalPlacement": {
@@ -5127,8 +8566,96 @@ const docTemplate = `{
                 "playersCount": {
                     "type": "integer"
                 },
+                "primaryColor": {
+                    "type": "string"
+                },
+                "secondaryColor": {
+                    "type": "string"
+                },
                 "spiritCaptain": {
                     "$ref": "#/definitions/internal_presentation_http_handlers.PlayerResponse"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.UpdateCategoryRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.UpdateDisciplineRequest": {
+            "type": "object",
+            "properties": {
+                "countryId": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rulesPdfUrl": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_presentation_http_handlers.UpdateEventRequest": {
+            "type": "object",
+            "properties": {
+                "bannerUrl": {
+                    "type": "string"
+                },
+                "categoryIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "disciplineId": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime"
+                },
+                "locationId": {
+                    "type": "string"
+                },
+                "logoUrl": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rulesUrl": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "$ref": "#/definitions/github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime"
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },
@@ -5145,6 +8672,12 @@ const docTemplate = `{
                 "home_score": {
                     "type": "integer",
                     "minimum": 0
+                },
+                "player_scores": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_presentation_http_handlers.PlayerScoreDTO"
+                    }
                 },
                 "reason": {
                     "type": "string",
@@ -5213,6 +8746,20 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "internal_presentation_http_handlers.UploadResponse": {
+            "type": "object",
+            "properties": {
+                "filename": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
         }
     },
     "securityDefinitions": {
@@ -5229,7 +8776,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "",
 	BasePath:         "",
-	Schemes:          []string{},
+	Schemes:          []string{"http", "https"},
 	Title:            "DigiGameStats API",
 	Description:      "API for DigiGameStats reimplementation.",
 	InfoInstanceName: "swagger",

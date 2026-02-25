@@ -44,9 +44,7 @@ func (Event) Fields() []ent.Field {
 		field.JSON("settings", map[string]interface{}{}).
 			Optional(),
 		// New fields for enhanced events
-		field.Strings("categories").
-			Optional().
-			Comment("Event categories: outdoor, hat, beach, indoor, league"),
+		// categories migrated to relation
 		field.String("logo_url").
 			MaxLen(500).
 			Optional().
@@ -57,6 +55,11 @@ func (Event) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("URL to event banner image"),
+		field.String("rules_url").
+			MaxLen(500).
+			Optional().
+			Nillable().
+			Comment("URL to PDF containing event rules"),
 		field.Int("teams_count").
 			Default(0).
 			Comment("Denormalized count of teams for efficient queries"),
@@ -92,5 +95,8 @@ func (Event) Edges() []ent.Edge {
 		edge.To("game_rounds", GameRound.Type),
 		edge.To("managed_by", User.Type),
 		edge.To("participations", EventParticipation.Type),
+		// many-to-many with categories
+		edge.To("categories", Category.Type).
+			StorageKey(edge.Table("event_categories")),
 	}
 }

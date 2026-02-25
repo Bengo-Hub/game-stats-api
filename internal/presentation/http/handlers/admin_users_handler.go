@@ -31,6 +31,16 @@ func NewAdminUsersHandler(userRepo user.Repository, client *ent.Client) *AdminUs
 	}
 }
 
+// ListAuditLogsParams represents the filters for exporting audit logs
+// @Description Audit log filter parameters
+type ListAuditLogsParams struct {
+	UserID     *uuid.UUID `json:"userId"`
+	Action     *string    `json:"action"`
+	EntityType *string    `json:"entityType"`
+	StartDate  *time.Time `json:"startDate"`
+	EndDate    *time.Time `json:"endDate"`
+}
+
 // AdminUserDTO is the response DTO for admin user management
 type AdminUserDTO struct {
 	ID          string  `json:"id"`
@@ -542,13 +552,7 @@ func (h *AdminUsersHandler) ResetUserPassword(w http.ResponseWriter, r *http.Req
 // @Router /admin/audit-logs/export [post]
 // @Security BearerAuth
 func (h *AdminUsersHandler) ExportAuditLogs(w http.ResponseWriter, r *http.Request) {
-	var params struct {
-		UserID     *uuid.UUID `json:"userId"`
-		Action     *string    `json:"action"`
-		EntityType *string    `json:"entityType"`
-		StartDate  *time.Time `json:"startDate"`
-		EndDate    *time.Time `json:"endDate"`
-	}
+	var params ListAuditLogsParams
 
 	if r.Body != http.NoBody {
 		json.NewDecoder(r.Body).Decode(&params)

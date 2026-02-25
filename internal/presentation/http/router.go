@@ -32,8 +32,10 @@ type RouterOptions struct {
 	TeamHandler        *handlers.TeamHandler
 	LeaderboardHandler *handlers.LeaderboardHandler
 	EventHandler       *handlers.EventHandler
+	DisciplineHandler  *handlers.DisciplineHandler
 	MediaHandler       *handlers.MediaHandler
 	BulkHandler        *handlers.BulkHandler
+	CategoryHandler    *handlers.CategoryHandler
 }
 
 func NewRouter(opts RouterOptions) chi.Router {
@@ -136,9 +138,9 @@ func NewRouter(opts RouterOptions) chi.Router {
 				r.Get("/geographic/continents", opts.GeographicHandler.ListContinents)
 				r.Get("/geographic/countries", opts.GeographicHandler.ListCountries)
 
-				// Players
-				r.Get("/players", opts.TeamHandler.ListPlayers)
-				r.Get("/players/{id}", opts.TeamHandler.GetPlayer)
+				// Discipline metadata (used when creating/editing events)
+				r.Get("/disciplines", opts.DisciplineHandler.ListDisciplines)
+				r.Get("/disciplines/{id}", opts.DisciplineHandler.GetDiscipline)
 			})
 		})
 
@@ -243,37 +245,31 @@ func NewRouter(opts RouterOptions) chi.Router {
 				})
 			})
 
-			// Division ranking routes
-			r.Route("/divisions", func(r chi.Router) {
-				// Read operations
-				r.Group(func(r chi.Router) {
-					r.Use(middleware.RequirePermission(middleware.PermViewGames))
-					r.Get("/{id}/standings", opts.RankingHandler.GetDivisionStandings)
-				})
-
-				// Manage operations
-				r.Group(func(r chi.Router) {
-					r.Use(middleware.RequirePermission(middleware.PermManageGames))
-					r.Put("/{id}/criteria", opts.RankingHandler.UpdateRankingCriteria)
-					r.Post("/advance", opts.RankingHandler.AdvanceTeams)
-				})
+			// Discipline management (requires manage_events permission for mutating operations)
+			r.Route("/disciplines", func(r chi.Router) {
+				// read is open to any viewer of events
+				r.With(middleware.RequirePermission(middleware.PermViewEvents)).Get("/", opts.DisciplineHandler.ListDisciplines)
+				r.With(middleware.RequirePermission(middleware.PermViewEvents)).Get("/{id}", opts.DisciplineHandler.GetDiscipline)
+				// management
+				r.With(middleware.RequirePermission(middleware.PermManageEvents)).Post("/", opts.DisciplineHandler.CreateDiscipline)
+				r.With(middleware.RequirePermission(middleware.PermManageEvents)).Put("/{id}", opts.DisciplineHandler.UpdateDiscipline)
+				r.With(middleware.RequirePermission(middleware.PermManageEvents)).Delete("/{id}", opts.DisciplineHandler.DeleteDiscipline)
 			})
-
-			// Round routes (game rounds and brackets)
+			// Category management
+			r.Route("/categories", func(r chi.Router) {
+				// read allowed for viewers too
+				r.With(middleware.RequirePermission(middleware.PermViewEvents)).Get("/", opts.CategoryHandler.ListCategories)
+				r.With(middleware.RequirePermission(middleware.PermViewEvents)).Get("/{id}", opts.CategoryHandler.GetCategory)
+				// management
+				r.With(middleware.RequirePermission(middleware.PermManageEvents)).Post("/", opts.CategoryHandler.CreateCategory)
+				r.With(middleware.RequirePermission(middleware.PermManageEvents)).Put("/{id}", opts.CategoryHandler.UpdateCategory)
+				r.With(middleware.RequirePermission(middleware.PermManageEvents)).Delete("/{id}", opts.CategoryHandler.DeleteCategory)
+			})
+			// Game round management
 			r.Route("/rounds", func(r chi.Router) {
-				// Read operations
-				r.Group(func(r chi.Router) {
-					r.Use(middleware.RequirePermission(middleware.PermViewGames))
-					r.Get("/{id}", opts.GameRoundHandler.GetGameRound)
-					r.Get("/{id}/bracket", opts.BracketHandler.GetRoundBracket)
-				})
-
-				// Create/Update operations
-				r.Group(func(r chi.Router) {
-					r.Use(middleware.RequirePermission(middleware.PermManageGames))
-					r.Post("/", opts.GameRoundHandler.CreateGameRound)
-					r.Put("/{id}", opts.GameRoundHandler.UpdateGameRound)
-				})
+				r.Use(middleware.RequirePermission(middleware.PermManageGames))
+				r.Post("/", opts.GameRoundHandler.CreateGameRound)
+				r.Put("/{id}", opts.GameRoundHandler.UpdateGameRound)
 			})
 
 			// Analytics routes

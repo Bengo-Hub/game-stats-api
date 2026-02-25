@@ -5,6 +5,12 @@ import (
 	"net/http"
 )
 
+// SuccessResponse represents a generic success response for swagger documentation
+// @Description Success response structure
+type SuccessResponse struct {
+	Message string `json:"message" example:"operation successful"`
+}
+
 // ErrorResponse represents an error response for swagger documentation
 // @Description Error response structure
 type ErrorResponse struct {

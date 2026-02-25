@@ -15,6 +15,8 @@ import (
 	"github.com/bengobox/game-stats-api/internal/application/analytics"
 	"github.com/bengobox/game-stats-api/internal/application/auth"
 	"github.com/bengobox/game-stats-api/internal/application/bracket"
+	"github.com/bengobox/game-stats-api/internal/application/category"
+	"github.com/bengobox/game-stats-api/internal/application/discipline"
 	"github.com/bengobox/game-stats-api/internal/application/gamemanagement"
 	"github.com/bengobox/game-stats-api/internal/application/metadata"
 	"github.com/bengobox/game-stats-api/internal/application/ranking"
@@ -32,14 +34,15 @@ import (
 )
 
 // @title DigiGameStats API
+// @server http://localhost:4000 local
+// @server https://ultistatsapi.ultichange.org production
 // @version 1.0
 // @description API for DigiGameStats reimplementation.
 // @termsOfService http://swagger.io/terms/
-
 // @contact.name API Support
 // @contact.url http://www.swagger.io/support
 // @contact.email support@swagger.io
-
+// @schemes http https
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
@@ -56,12 +59,9 @@ func main() {
 	defer logger.Log.Sync()
 
 	// 2.1 Setup Swagger Info
-	docs.SwaggerInfo.Host = cfg.SwaggerHost
-	if cfg.IsProduction() {
-		docs.SwaggerInfo.Schemes = []string{"https"}
-	} else {
-		docs.SwaggerInfo.Schemes = []string{"http"}
-	}
+	docs.SwaggerInfo.Host = ""
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
 	logger.Info("Starting DigiGameStats API",
 		logger.String("env", cfg.Env),
@@ -136,9 +136,18 @@ func main() {
 
 	// Instantiate other repositories to ensure they are valid and compiled
 	_ = repository.NewLocationRepository(client)
-	_ = repository.NewDisciplineRepository(client)
+	disciplineRepo := repository.NewDisciplineRepository(client)
 	_ = repository.NewEventReconciliationRepository(client)
 	_ = repository.NewAnalyticsEmbeddingRepository(client)
+
+	// 5.0 category repository/service/handler
+	categoryRepo := repository.NewCategoryRepository(client)
+	categoryService := category.NewService(categoryRepo)
+	categoryHandler := handlers.NewCategoryHandler(categoryService)
+
+	// 5.1 discipline service and handler
+	disciplineService := discipline.NewService(disciplineRepo)
+	disciplineHandler := handlers.NewDisciplineHandler(disciplineService)
 
 	// Initialize ranking service with cache
 	rankingService := ranking.NewService(
@@ -249,8 +258,10 @@ func main() {
 		TeamHandler:        teamHandler,
 		LeaderboardHandler: leaderboardHandler,
 		EventHandler:       eventHandler,
+		DisciplineHandler:  disciplineHandler,
 		MediaHandler:       mediaHandler,
 		BulkHandler:        bulkHandler,
+		CategoryHandler:    categoryHandler,
 	})
 
 	// 8. Start server

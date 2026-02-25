@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/game-stats-api/ent/category"
 	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
@@ -134,12 +135,6 @@ func (_c *EventCreate) SetSettings(v map[string]interface{}) *EventCreate {
 	return _c
 }
 
-// SetCategories sets the "categories" field.
-func (_c *EventCreate) SetCategories(v []string) *EventCreate {
-	_c.mutation.SetCategories(v)
-	return _c
-}
-
 // SetLogoURL sets the "logo_url" field.
 func (_c *EventCreate) SetLogoURL(v string) *EventCreate {
 	_c.mutation.SetLogoURL(v)
@@ -164,6 +159,20 @@ func (_c *EventCreate) SetBannerURL(v string) *EventCreate {
 func (_c *EventCreate) SetNillableBannerURL(v *string) *EventCreate {
 	if v != nil {
 		_c.SetBannerURL(*v)
+	}
+	return _c
+}
+
+// SetRulesURL sets the "rules_url" field.
+func (_c *EventCreate) SetRulesURL(v string) *EventCreate {
+	_c.mutation.SetRulesURL(v)
+	return _c
+}
+
+// SetNillableRulesURL sets the "rules_url" field if the given value is not nil.
+func (_c *EventCreate) SetNillableRulesURL(v *string) *EventCreate {
+	if v != nil {
+		_c.SetRulesURL(*v)
 	}
 	return _c
 }
@@ -321,6 +330,21 @@ func (_c *EventCreate) AddParticipations(v ...*EventParticipation) *EventCreate 
 	return _c.AddParticipationIDs(ids...)
 }
 
+// AddCategoryIDs adds the "categories" edge to the Category entity by IDs.
+func (_c *EventCreate) AddCategoryIDs(ids ...uuid.UUID) *EventCreate {
+	_c.mutation.AddCategoryIDs(ids...)
+	return _c
+}
+
+// AddCategories adds the "categories" edges to the Category entity.
+func (_c *EventCreate) AddCategories(v ...*Category) *EventCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddCategoryIDs(ids...)
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (_c *EventCreate) Mutation() *EventMutation {
 	return _c.mutation
@@ -437,6 +461,11 @@ func (_c *EventCreate) check() error {
 			return &ValidationError{Name: "banner_url", err: fmt.Errorf(`ent: validator failed for field "Event.banner_url": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.RulesURL(); ok {
+		if err := event.RulesURLValidator(v); err != nil {
+			return &ValidationError{Name: "rules_url", err: fmt.Errorf(`ent: validator failed for field "Event.rules_url": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.TeamsCount(); !ok {
 		return &ValidationError{Name: "teams_count", err: errors.New(`ent: missing required field "Event.teams_count"`)}
 	}
@@ -536,10 +565,6 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 		_spec.SetField(event.FieldSettings, field.TypeJSON, value)
 		_node.Settings = value
 	}
-	if value, ok := _c.mutation.Categories(); ok {
-		_spec.SetField(event.FieldCategories, field.TypeJSON, value)
-		_node.Categories = value
-	}
 	if value, ok := _c.mutation.LogoURL(); ok {
 		_spec.SetField(event.FieldLogoURL, field.TypeString, value)
 		_node.LogoURL = &value
@@ -547,6 +572,10 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.BannerURL(); ok {
 		_spec.SetField(event.FieldBannerURL, field.TypeString, value)
 		_node.BannerURL = &value
+	}
+	if value, ok := _c.mutation.RulesURL(); ok {
+		_spec.SetField(event.FieldRulesURL, field.TypeString, value)
+		_node.RulesURL = &value
 	}
 	if value, ok := _c.mutation.TeamsCount(); ok {
 		_spec.SetField(event.FieldTeamsCount, field.TypeInt, value)
@@ -667,6 +696,22 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(eventparticipation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.CategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   event.CategoriesTable,
+			Columns: event.CategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

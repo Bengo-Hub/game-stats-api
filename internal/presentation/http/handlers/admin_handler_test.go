@@ -124,6 +124,10 @@ func (m *MockSpiritScoreRepository) ListByTeam(ctx context.Context, teamID uuid.
 	return nil, nil
 }
 
+func (m *MockSpiritScoreRepository) ListByEvent(ctx context.Context, eventID uuid.UUID, limit, offset int) ([]*ent.SpiritScore, int, error) {
+	return nil, 0, nil
+}
+
 func (m *MockSpiritScoreRepository) Update(ctx context.Context, s *ent.SpiritScore) (*ent.SpiritScore, error) {
 	args := m.Called(ctx, s)
 	if args.Get(0) == nil {
@@ -136,6 +140,51 @@ func (m *MockSpiritScoreRepository) Delete(ctx context.Context, id uuid.UUID) er
 	return nil
 }
 
+// MockScoringRepository is a mock for scoring repository
+type MockScoringRepository struct {
+	mock.Mock
+}
+
+func (m *MockScoringRepository) Create(ctx context.Context, s *ent.Scoring) (*ent.Scoring, error) {
+	return nil, nil
+}
+
+func (m *MockScoringRepository) GetByID(ctx context.Context, id uuid.UUID) (*ent.Scoring, error) {
+	return nil, nil
+}
+
+func (m *MockScoringRepository) ListByGame(ctx context.Context, gameID uuid.UUID) ([]*ent.Scoring, error) {
+	return nil, nil
+}
+
+func (m *MockScoringRepository) ListByPlayer(ctx context.Context, playerID uuid.UUID) ([]*ent.Scoring, error) {
+	return nil, nil
+}
+
+func (m *MockScoringRepository) Update(ctx context.Context, s *ent.Scoring) (*ent.Scoring, error) {
+	return nil, nil
+}
+
+func (m *MockScoringRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	return nil
+}
+
+func (m *MockScoringRepository) CreateScoreEditRequest(ctx context.Context, req *ent.ScoreEditRequest) (*ent.ScoreEditRequest, error) {
+	return nil, nil
+}
+
+func (m *MockScoringRepository) GetScoreEditRequestByID(ctx context.Context, id uuid.UUID) (*ent.ScoreEditRequest, error) {
+	return nil, nil
+}
+
+func (m *MockScoringRepository) ListScoreEditRequests(ctx context.Context, status string) ([]*ent.ScoreEditRequest, error) {
+	return nil, nil
+}
+
+func (m *MockScoringRepository) UpdateScoreEditRequest(ctx context.Context, req *ent.ScoreEditRequest) (*ent.ScoreEditRequest, error) {
+	return nil, nil
+}
+
 func TestAdminHandler_UpdateGameScore(t *testing.T) {
 	// Setup
 	gameID := uuid.New()
@@ -144,11 +193,12 @@ func TestAdminHandler_UpdateGameScore(t *testing.T) {
 
 	mockGameRepo := new(MockGameRepository)
 	mockSpiritScoreRepo := new(MockSpiritScoreRepository)
+	mockScoringRepo := new(MockScoringRepository)
 	auditRepo := repository.NewInMemoryAuditRepository()
 	cacheClient, _ := cache.NewRedisClient("redis://localhost:6379/0")
 
 	// Create service and handler
-	adminService := admin.NewScoreAdminService(mockGameRepo, mockSpiritScoreRepo, auditRepo, cacheClient)
+	adminService := admin.NewScoreAdminService(mockGameRepo, mockSpiritScoreRepo, mockScoringRepo, auditRepo, cacheClient)
 	handler := NewAdminHandler(adminService)
 
 	t.Run("successful game score update", func(t *testing.T) {
@@ -264,6 +314,7 @@ func TestAdminHandler_GetGameAuditHistory(t *testing.T) {
 
 	mockGameRepo := new(MockGameRepository)
 	mockSpiritScoreRepo := new(MockSpiritScoreRepository)
+	mockScoringRepo := new(MockScoringRepository)
 	auditRepo := repository.NewInMemoryAuditRepository()
 	cacheClient, _ := cache.NewRedisClient("redis://localhost:6379/0")
 
@@ -279,7 +330,7 @@ func TestAdminHandler_GetGameAuditHistory(t *testing.T) {
 	log2.SetMetadata("127.0.0.1", "Chrome")
 	auditRepo.Create(ctx, log2)
 
-	adminService := admin.NewScoreAdminService(mockGameRepo, mockSpiritScoreRepo, auditRepo, cacheClient)
+	adminService := admin.NewScoreAdminService(mockGameRepo, mockSpiritScoreRepo, mockScoringRepo, auditRepo, cacheClient)
 	handler := NewAdminHandler(adminService)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin/games/"+gameID.String()+"/audit", nil)

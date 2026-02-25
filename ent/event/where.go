@@ -116,6 +116,11 @@ func BannerURL(v string) predicate.Event {
 	return predicate.Event(sql.FieldEQ(FieldBannerURL, v))
 }
 
+// RulesURL applies equality check predicate on the "rules_url" field. It's identical to RulesURLEQ.
+func RulesURL(v string) predicate.Event {
+	return predicate.Event(sql.FieldEQ(FieldRulesURL, v))
+}
+
 // TeamsCount applies equality check predicate on the "teams_count" field. It's identical to TeamsCountEQ.
 func TeamsCount(v int) predicate.Event {
 	return predicate.Event(sql.FieldEQ(FieldTeamsCount, v))
@@ -661,16 +666,6 @@ func SettingsNotNil() predicate.Event {
 	return predicate.Event(sql.FieldNotNull(FieldSettings))
 }
 
-// CategoriesIsNil applies the IsNil predicate on the "categories" field.
-func CategoriesIsNil() predicate.Event {
-	return predicate.Event(sql.FieldIsNull(FieldCategories))
-}
-
-// CategoriesNotNil applies the NotNil predicate on the "categories" field.
-func CategoriesNotNil() predicate.Event {
-	return predicate.Event(sql.FieldNotNull(FieldCategories))
-}
-
 // LogoURLEQ applies the EQ predicate on the "logo_url" field.
 func LogoURLEQ(v string) predicate.Event {
 	return predicate.Event(sql.FieldEQ(FieldLogoURL, v))
@@ -819,6 +814,81 @@ func BannerURLEqualFold(v string) predicate.Event {
 // BannerURLContainsFold applies the ContainsFold predicate on the "banner_url" field.
 func BannerURLContainsFold(v string) predicate.Event {
 	return predicate.Event(sql.FieldContainsFold(FieldBannerURL, v))
+}
+
+// RulesURLEQ applies the EQ predicate on the "rules_url" field.
+func RulesURLEQ(v string) predicate.Event {
+	return predicate.Event(sql.FieldEQ(FieldRulesURL, v))
+}
+
+// RulesURLNEQ applies the NEQ predicate on the "rules_url" field.
+func RulesURLNEQ(v string) predicate.Event {
+	return predicate.Event(sql.FieldNEQ(FieldRulesURL, v))
+}
+
+// RulesURLIn applies the In predicate on the "rules_url" field.
+func RulesURLIn(vs ...string) predicate.Event {
+	return predicate.Event(sql.FieldIn(FieldRulesURL, vs...))
+}
+
+// RulesURLNotIn applies the NotIn predicate on the "rules_url" field.
+func RulesURLNotIn(vs ...string) predicate.Event {
+	return predicate.Event(sql.FieldNotIn(FieldRulesURL, vs...))
+}
+
+// RulesURLGT applies the GT predicate on the "rules_url" field.
+func RulesURLGT(v string) predicate.Event {
+	return predicate.Event(sql.FieldGT(FieldRulesURL, v))
+}
+
+// RulesURLGTE applies the GTE predicate on the "rules_url" field.
+func RulesURLGTE(v string) predicate.Event {
+	return predicate.Event(sql.FieldGTE(FieldRulesURL, v))
+}
+
+// RulesURLLT applies the LT predicate on the "rules_url" field.
+func RulesURLLT(v string) predicate.Event {
+	return predicate.Event(sql.FieldLT(FieldRulesURL, v))
+}
+
+// RulesURLLTE applies the LTE predicate on the "rules_url" field.
+func RulesURLLTE(v string) predicate.Event {
+	return predicate.Event(sql.FieldLTE(FieldRulesURL, v))
+}
+
+// RulesURLContains applies the Contains predicate on the "rules_url" field.
+func RulesURLContains(v string) predicate.Event {
+	return predicate.Event(sql.FieldContains(FieldRulesURL, v))
+}
+
+// RulesURLHasPrefix applies the HasPrefix predicate on the "rules_url" field.
+func RulesURLHasPrefix(v string) predicate.Event {
+	return predicate.Event(sql.FieldHasPrefix(FieldRulesURL, v))
+}
+
+// RulesURLHasSuffix applies the HasSuffix predicate on the "rules_url" field.
+func RulesURLHasSuffix(v string) predicate.Event {
+	return predicate.Event(sql.FieldHasSuffix(FieldRulesURL, v))
+}
+
+// RulesURLIsNil applies the IsNil predicate on the "rules_url" field.
+func RulesURLIsNil() predicate.Event {
+	return predicate.Event(sql.FieldIsNull(FieldRulesURL))
+}
+
+// RulesURLNotNil applies the NotNil predicate on the "rules_url" field.
+func RulesURLNotNil() predicate.Event {
+	return predicate.Event(sql.FieldNotNull(FieldRulesURL))
+}
+
+// RulesURLEqualFold applies the EqualFold predicate on the "rules_url" field.
+func RulesURLEqualFold(v string) predicate.Event {
+	return predicate.Event(sql.FieldEqualFold(FieldRulesURL, v))
+}
+
+// RulesURLContainsFold applies the ContainsFold predicate on the "rules_url" field.
+func RulesURLContainsFold(v string) predicate.Event {
+	return predicate.Event(sql.FieldContainsFold(FieldRulesURL, v))
 }
 
 // TeamsCountEQ applies the EQ predicate on the "teams_count" field.
@@ -1119,6 +1189,29 @@ func HasParticipations() predicate.Event {
 func HasParticipationsWith(preds ...predicate.EventParticipation) predicate.Event {
 	return predicate.Event(func(s *sql.Selector) {
 		step := newParticipationsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasCategories applies the HasEdge predicate on the "categories" edge.
+func HasCategories() predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, CategoriesTable, CategoriesPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCategoriesWith applies the HasEdge predicate on the "categories" edge with a given conditions (other predicates).
+func HasCategoriesWith(preds ...predicate.Category) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		step := newCategoriesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

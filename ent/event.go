@@ -43,12 +43,12 @@ type Event struct {
 	Description *string `json:"description,omitempty"`
 	// Settings holds the value of the "settings" field.
 	Settings map[string]interface{} `json:"settings,omitempty"`
-	// Event categories: outdoor, hat, beach, indoor, league
-	Categories []string `json:"categories,omitempty"`
 	// URL to event logo image
 	LogoURL *string `json:"logo_url,omitempty"`
 	// URL to event banner image
 	BannerURL *string `json:"banner_url,omitempty"`
+	// URL to PDF containing event rules
+	RulesURL *string `json:"rules_url,omitempty"`
 	// Denormalized count of teams for efficient queries
 	TeamsCount int `json:"teams_count,omitempty"`
 	// Denormalized count of games for efficient queries
@@ -79,9 +79,11 @@ type EventEdges struct {
 	ManagedBy []*User `json:"managed_by,omitempty"`
 	// Participations holds the value of the participations edge.
 	Participations []*EventParticipation `json:"participations,omitempty"`
+	// Categories holds the value of the categories edge.
+	Categories []*Category `json:"categories,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [7]bool
+	loadedTypes [8]bool
 }
 
 // DisciplineOrErr returns the Discipline value or an error if the edge
@@ -151,16 +153,25 @@ func (e EventEdges) ParticipationsOrErr() ([]*EventParticipation, error) {
 	return nil, &NotLoadedError{edge: "participations"}
 }
 
+// CategoriesOrErr returns the Categories value or an error if the edge
+// was not loaded in eager-loading.
+func (e EventEdges) CategoriesOrErr() ([]*Category, error) {
+	if e.loadedTypes[7] {
+		return e.Categories, nil
+	}
+	return nil, &NotLoadedError{edge: "categories"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Event) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case event.FieldSettings, event.FieldCategories:
+		case event.FieldSettings:
 			values[i] = new([]byte)
 		case event.FieldYear, event.FieldTeamsCount, event.FieldGamesCount:
 			values[i] = new(sql.NullInt64)
-		case event.FieldName, event.FieldSlug, event.FieldStatus, event.FieldDescription, event.FieldLogoURL, event.FieldBannerURL, event.FieldScoreEditApprovalRole:
+		case event.FieldName, event.FieldSlug, event.FieldStatus, event.FieldDescription, event.FieldLogoURL, event.FieldBannerURL, event.FieldRulesURL, event.FieldScoreEditApprovalRole:
 			values[i] = new(sql.NullString)
 		case event.FieldCreatedAt, event.FieldUpdatedAt, event.FieldDeletedAt, event.FieldStartDate, event.FieldEndDate:
 			values[i] = new(sql.NullTime)
@@ -261,14 +272,6 @@ func (_m *Event) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field settings: %w", err)
 				}
 			}
-		case event.FieldCategories:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field categories", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.Categories); err != nil {
-					return fmt.Errorf("unmarshal field categories: %w", err)
-				}
-			}
 		case event.FieldLogoURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field logo_url", values[i])
@@ -282,6 +285,13 @@ func (_m *Event) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.BannerURL = new(string)
 				*_m.BannerURL = value.String
+			}
+		case event.FieldRulesURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field rules_url", values[i])
+			} else if value.Valid {
+				_m.RulesURL = new(string)
+				*_m.RulesURL = value.String
 			}
 		case event.FieldTeamsCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -363,6 +373,11 @@ func (_m *Event) QueryParticipations() *EventParticipationQuery {
 	return NewEventClient(_m.config).QueryParticipations(_m)
 }
 
+// QueryCategories queries the "categories" edge of the Event entity.
+func (_m *Event) QueryCategories() *CategoryQuery {
+	return NewEventClient(_m.config).QueryCategories(_m)
+}
+
 // Update returns a builder for updating this Event.
 // Note that you need to call Event.Unwrap() before calling this method if this Event
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -423,9 +438,6 @@ func (_m *Event) String() string {
 	builder.WriteString("settings=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Settings))
 	builder.WriteString(", ")
-	builder.WriteString("categories=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Categories))
-	builder.WriteString(", ")
 	if v := _m.LogoURL; v != nil {
 		builder.WriteString("logo_url=")
 		builder.WriteString(*v)
@@ -433,6 +445,11 @@ func (_m *Event) String() string {
 	builder.WriteString(", ")
 	if v := _m.BannerURL; v != nil {
 		builder.WriteString("banner_url=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.RulesURL; v != nil {
+		builder.WriteString("rules_url=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")

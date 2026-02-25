@@ -1,4 +1,1387 @@
 definitions:
+  ent.Category:
+    properties:
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.CategoryEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the CategoryQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      slug:
+        description: Slug holds the value of the "slug" field.
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.CategoryEdges:
+    properties:
+      events:
+        description: Events holds the value of the events edge.
+        items:
+          $ref: '#/definitions/ent.Event'
+        type: array
+    type: object
+  ent.Continent:
+    properties:
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.ContinentEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the ContinentQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      slug:
+        description: Slug holds the value of the "slug" field.
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+      world_id:
+        description: WorldID holds the value of the "world_id" field.
+        type: string
+    type: object
+  ent.ContinentEdges:
+    properties:
+      countries:
+        description: Countries holds the value of the countries edge.
+        items:
+          $ref: '#/definitions/ent.Country'
+        type: array
+      managed_by:
+        description: ManagedBy holds the value of the managed_by edge.
+        items:
+          $ref: '#/definitions/ent.User'
+        type: array
+      world:
+        allOf:
+        - $ref: '#/definitions/ent.World'
+        description: World holds the value of the world edge.
+    type: object
+  ent.Country:
+    properties:
+      code:
+        description: Code holds the value of the "code" field.
+        type: string
+      continent_id:
+        description: ContinentID holds the value of the "continent_id" field.
+        type: string
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.CountryEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the CountryQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      slug:
+        description: Slug holds the value of the "slug" field.
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.CountryEdges:
+    properties:
+      continent:
+        allOf:
+        - $ref: '#/definitions/ent.Continent'
+        description: Continent holds the value of the continent edge.
+      disciplines:
+        description: Disciplines holds the value of the disciplines edge.
+        items:
+          $ref: '#/definitions/ent.Discipline'
+        type: array
+      locations:
+        description: Locations holds the value of the locations edge.
+        items:
+          $ref: '#/definitions/ent.Location'
+        type: array
+      managed_by:
+        description: ManagedBy holds the value of the managed_by edge.
+        items:
+          $ref: '#/definitions/ent.User'
+        type: array
+    type: object
+  ent.Discipline:
+    properties:
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.DisciplineEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the DisciplineQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      rules_pdf_url:
+        description: RulesPdfURL holds the value of the "rules_pdf_url" field.
+        type: string
+      slug:
+        description: Slug holds the value of the "slug" field.
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.DisciplineEdges:
+    properties:
+      country:
+        allOf:
+        - $ref: '#/definitions/ent.Country'
+        description: Country holds the value of the country edge.
+      events:
+        description: Events holds the value of the events edge.
+        items:
+          $ref: '#/definitions/ent.Event'
+        type: array
+      managed_by:
+        description: ManagedBy holds the value of the managed_by edge.
+        items:
+          $ref: '#/definitions/ent.User'
+        type: array
+    type: object
+  ent.DivisionPool:
+    properties:
+      auto_advance:
+        description: Whether to automatically advance teams when all games are finished
+        type: boolean
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      division_type:
+        description: DivisionType holds the value of the "division_type" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.DivisionPoolEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the DivisionPoolQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      max_teams:
+        description: MaxTeams holds the value of the "max_teams" field.
+        type: integer
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      ranking_criteria:
+        additionalProperties: true
+        description: RankingCriteria holds the value of the "ranking_criteria" field.
+        type: object
+      top_n_teams:
+        description: Number of top teams to advance automatically
+        type: integer
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.DivisionPoolEdges:
+    properties:
+      event:
+        allOf:
+        - $ref: '#/definitions/ent.Event'
+        description: Event holds the value of the event edge.
+      games:
+        description: Games holds the value of the games edge.
+        items:
+          $ref: '#/definitions/ent.Game'
+        type: array
+      target_round:
+        allOf:
+        - $ref: '#/definitions/ent.GameRound'
+        description: The round to advance teams to automatically
+      teams:
+        description: Teams holds the value of the teams edge.
+        items:
+          $ref: '#/definitions/ent.Team'
+        type: array
+    type: object
+  ent.Event:
+    properties:
+      banner_url:
+        description: URL to event banner image
+        type: string
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.EventEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the EventQuery when eager-loading is set.
+      end_date:
+        description: EndDate holds the value of the "end_date" field.
+        type: string
+      games_count:
+        description: Denormalized count of games for efficient queries
+        type: integer
+      id:
+        description: ID of the ent.
+        type: string
+      logo_url:
+        description: URL to event logo image
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      rules_url:
+        description: URL to PDF containing event rules
+        type: string
+      score_edit_approval_role:
+        description: 'Role required to approve score edits after game time elapses:
+          event_manager, game_admin'
+        type: string
+      settings:
+        additionalProperties: true
+        description: Settings holds the value of the "settings" field.
+        type: object
+      slug:
+        description: Slug holds the value of the "slug" field.
+        type: string
+      start_date:
+        description: StartDate holds the value of the "start_date" field.
+        type: string
+      status:
+        description: Status holds the value of the "status" field.
+        type: string
+      teams_count:
+        description: Denormalized count of teams for efficient queries
+        type: integer
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+      year:
+        description: Year holds the value of the "year" field.
+        type: integer
+    type: object
+  ent.EventEdges:
+    properties:
+      categories:
+        description: Categories holds the value of the categories edge.
+        items:
+          $ref: '#/definitions/ent.Category'
+        type: array
+      discipline:
+        allOf:
+        - $ref: '#/definitions/ent.Discipline'
+        description: Discipline holds the value of the discipline edge.
+      division_pools:
+        description: DivisionPools holds the value of the division_pools edge.
+        items:
+          $ref: '#/definitions/ent.DivisionPool'
+        type: array
+      game_rounds:
+        description: GameRounds holds the value of the game_rounds edge.
+        items:
+          $ref: '#/definitions/ent.GameRound'
+        type: array
+      location:
+        allOf:
+        - $ref: '#/definitions/ent.Location'
+        description: Location holds the value of the location edge.
+      managed_by:
+        description: ManagedBy holds the value of the managed_by edge.
+        items:
+          $ref: '#/definitions/ent.User'
+        type: array
+      participations:
+        description: Participations holds the value of the participations edge.
+        items:
+          $ref: '#/definitions/ent.EventParticipation'
+        type: array
+      reconciliations:
+        description: Reconciliations holds the value of the reconciliations edge.
+        items:
+          $ref: '#/definitions/ent.EventReconciliation'
+        type: array
+    type: object
+  ent.EventParticipation:
+    properties:
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.EventParticipationEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the EventParticipationQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      jersey_number:
+        description: JerseyNumber holds the value of the "jersey_number" field.
+        type: integer
+      metadata:
+        additionalProperties: true
+        description: Metadata holds the value of the "metadata" field.
+        type: object
+      role:
+        description: 'Role in the event: player, captain, spirit_captain, coach'
+        type: string
+      status:
+        description: 'Status in the event: active, injured, transferred, inactive'
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.EventParticipationEdges:
+    properties:
+      event:
+        allOf:
+        - $ref: '#/definitions/ent.Event'
+        description: Event holds the value of the event edge.
+      player:
+        allOf:
+        - $ref: '#/definitions/ent.Player'
+        description: Player holds the value of the player edge.
+      team:
+        allOf:
+        - $ref: '#/definitions/ent.Team'
+        description: Team holds the value of the team edge.
+    type: object
+  ent.EventReconciliation:
+    properties:
+      comments:
+        description: Comments holds the value of the "comments" field.
+        type: string
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.EventReconciliationEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the EventReconciliationQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      reconciled_at:
+        description: ReconciledAt holds the value of the "reconciled_at" field.
+        type: string
+      reconciled_by:
+        description: ReconciledBy holds the value of the "reconciled_by" field.
+        type: string
+      status:
+        description: Status holds the value of the "status" field.
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.EventReconciliationEdges:
+    properties:
+      event:
+        allOf:
+        - $ref: '#/definitions/ent.Event'
+        description: Event holds the value of the event edge.
+    type: object
+  ent.Field:
+    properties:
+      capacity:
+        description: Capacity holds the value of the "capacity" field.
+        type: integer
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.FieldEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the FieldQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      metadata:
+        additionalProperties: true
+        description: Metadata holds the value of the "metadata" field.
+        type: object
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      surface_type:
+        description: SurfaceType holds the value of the "surface_type" field.
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.FieldEdges:
+    properties:
+      games:
+        description: Games holds the value of the games edge.
+        items:
+          $ref: '#/definitions/ent.Game'
+        type: array
+      location:
+        allOf:
+        - $ref: '#/definitions/ent.Location'
+        description: Location holds the value of the location edge.
+    type: object
+  ent.Game:
+    properties:
+      actual_end_time:
+        description: ActualEndTime holds the value of the "actual_end_time" field.
+        type: string
+      actual_start_time:
+        description: ActualStartTime holds the value of the "actual_start_time" field.
+        type: string
+      allocated_time_minutes:
+        description: AllocatedTimeMinutes holds the value of the "allocated_time_minutes"
+          field.
+        type: integer
+      away_team_score:
+        description: AwayTeamScore holds the value of the "away_team_score" field.
+        type: integer
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.GameEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the GameQuery when eager-loading is set.
+      first_pull_by:
+        description: FirstPullBy holds the value of the "first_pull_by" field.
+        type: string
+      home_team_score:
+        description: HomeTeamScore holds the value of the "home_team_score" field.
+        type: integer
+      id:
+        description: ID of the ent.
+        type: string
+      metadata:
+        additionalProperties: true
+        description: Metadata holds the value of the "metadata" field.
+        type: object
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      scheduled_time:
+        description: ScheduledTime holds the value of the "scheduled_time" field.
+        type: string
+      status:
+        description: Status holds the value of the "status" field.
+        type: string
+      stoppage_time_seconds:
+        description: StoppageTimeSeconds holds the value of the "stoppage_time_seconds"
+          field.
+        type: integer
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+      version:
+        description: Version holds the value of the "version" field.
+        type: integer
+    type: object
+  ent.GameEdges:
+    properties:
+      away_team:
+        allOf:
+        - $ref: '#/definitions/ent.Team'
+        description: AwayTeam holds the value of the away_team edge.
+      division_pool:
+        allOf:
+        - $ref: '#/definitions/ent.DivisionPool'
+        description: DivisionPool holds the value of the division_pool edge.
+      field_location:
+        allOf:
+        - $ref: '#/definitions/ent.Field'
+        description: FieldLocation holds the value of the field_location edge.
+      game_events:
+        description: GameEvents holds the value of the game_events edge.
+        items:
+          $ref: '#/definitions/ent.GameEvent'
+        type: array
+      game_round:
+        allOf:
+        - $ref: '#/definitions/ent.GameRound'
+        description: GameRound holds the value of the game_round edge.
+      home_team:
+        allOf:
+        - $ref: '#/definitions/ent.Team'
+        description: HomeTeam holds the value of the home_team edge.
+      score_edit_requests:
+        description: ScoreEditRequests holds the value of the score_edit_requests
+          edge.
+        items:
+          $ref: '#/definitions/ent.ScoreEditRequest'
+        type: array
+      scorekeeper:
+        allOf:
+        - $ref: '#/definitions/ent.User'
+        description: Scorekeeper holds the value of the scorekeeper edge.
+      scores:
+        description: Scores holds the value of the scores edge.
+        items:
+          $ref: '#/definitions/ent.Scoring'
+        type: array
+      spirit_scores:
+        description: SpiritScores holds the value of the spirit_scores edge.
+        items:
+          $ref: '#/definitions/ent.SpiritScore'
+        type: array
+    type: object
+  ent.GameEvent:
+    properties:
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.GameEventEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the GameEventQuery when eager-loading is set.
+      event_type:
+        description: EventType holds the value of the "event_type" field.
+        type: string
+      id:
+        description: ID of the ent.
+        type: string
+      metadata:
+        additionalProperties: true
+        description: Metadata holds the value of the "metadata" field.
+        type: object
+      minute:
+        description: Minute holds the value of the "minute" field.
+        type: integer
+      second:
+        description: Second holds the value of the "second" field.
+        type: integer
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.GameEventEdges:
+    properties:
+      game:
+        allOf:
+        - $ref: '#/definitions/ent.Game'
+        description: Game holds the value of the game edge.
+      player:
+        allOf:
+        - $ref: '#/definitions/ent.Player'
+        description: Player holds the value of the player edge.
+    type: object
+  ent.GameRound:
+    properties:
+      auto_advance:
+        description: Whether to automatically advance teams when all games are finished
+        type: boolean
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.GameRoundEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the GameRoundQuery when eager-loading is set.
+      end_date:
+        description: EndDate holds the value of the "end_date" field.
+        type: string
+      id:
+        description: ID of the ent.
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      round_number:
+        description: RoundNumber holds the value of the "round_number" field.
+        type: integer
+      round_type:
+        description: RoundType holds the value of the "round_type" field.
+        type: string
+      start_date:
+        description: StartDate holds the value of the "start_date" field.
+        type: string
+      top_n_teams:
+        description: Number of top teams to advance automatically
+        type: integer
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.GameRoundEdges:
+    properties:
+      event:
+        allOf:
+        - $ref: '#/definitions/ent.Event'
+        description: Event holds the value of the event edge.
+      games:
+        description: Games holds the value of the games edge.
+        items:
+          $ref: '#/definitions/ent.Game'
+        type: array
+      target_round:
+        allOf:
+        - $ref: '#/definitions/ent.GameRound'
+        description: The round to advance teams to automatically
+    type: object
+  ent.Location:
+    properties:
+      address:
+        description: Address holds the value of the "address" field.
+        type: string
+      city:
+        description: City holds the value of the "city" field.
+        type: string
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.LocationEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the LocationQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      latitude:
+        description: Latitude holds the value of the "latitude" field.
+        type: number
+      longitude:
+        description: Longitude holds the value of the "longitude" field.
+        type: number
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      slug:
+        description: Slug holds the value of the "slug" field.
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.LocationEdges:
+    properties:
+      country:
+        allOf:
+        - $ref: '#/definitions/ent.Country'
+        description: Country holds the value of the country edge.
+      events:
+        description: Events holds the value of the events edge.
+        items:
+          $ref: '#/definitions/ent.Event'
+        type: array
+      fields:
+        description: Fields holds the value of the fields edge.
+        items:
+          $ref: '#/definitions/ent.Field'
+        type: array
+      teams:
+        description: Teams holds the value of the teams edge.
+        items:
+          $ref: '#/definitions/ent.Team'
+        type: array
+    type: object
+  ent.MVP_Nomination:
+    properties:
+      category:
+        description: Category holds the value of the "category" field.
+        type: string
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.MVP_NominationEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the MVP_NominationQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+    type: object
+  ent.MVP_NominationEdges:
+    properties:
+      player:
+        allOf:
+        - $ref: '#/definitions/ent.Player'
+        description: Player holds the value of the player edge.
+      spirit_score:
+        allOf:
+        - $ref: '#/definitions/ent.SpiritScore'
+        description: SpiritScore holds the value of the spirit_score edge.
+    type: object
+  ent.Player:
+    properties:
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      date_of_birth:
+        description: DateOfBirth holds the value of the "date_of_birth" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.PlayerEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the PlayerQuery when eager-loading is set.
+      email:
+        description: Email holds the value of the "email" field.
+        type: string
+      gender:
+        description: Gender holds the value of the "gender" field.
+        type: string
+      id:
+        description: ID of the ent.
+        type: string
+      is_captain:
+        description: Whether this player is the team captain
+        type: boolean
+      is_spirit_captain:
+        description: Whether this player is the spirit captain
+        type: boolean
+      jersey_number:
+        description: JerseyNumber holds the value of the "jersey_number" field.
+        type: integer
+      metadata:
+        additionalProperties: true
+        description: Metadata holds the value of the "metadata" field.
+        type: object
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      phone:
+        description: Phone holds the value of the "phone" field.
+        type: string
+      position:
+        description: Position holds the value of the "position" field.
+        type: string
+      profile_image_url:
+        description: ProfileImageURL holds the value of the "profile_image_url" field.
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.PlayerEdges:
+    properties:
+      game_events:
+        description: GameEvents holds the value of the game_events edge.
+        items:
+          $ref: '#/definitions/ent.GameEvent'
+        type: array
+      mvp_nominations:
+        description: MvpNominations holds the value of the mvp_nominations edge.
+        items:
+          $ref: '#/definitions/ent.MVP_Nomination'
+        type: array
+      participations:
+        description: Participations holds the value of the participations edge.
+        items:
+          $ref: '#/definitions/ent.EventParticipation'
+        type: array
+      scores:
+        description: Scores holds the value of the scores edge.
+        items:
+          $ref: '#/definitions/ent.Scoring'
+        type: array
+      spirit_nominations:
+        description: SpiritNominations holds the value of the spirit_nominations edge.
+        items:
+          $ref: '#/definitions/ent.SpiritNomination'
+        type: array
+      team:
+        allOf:
+        - $ref: '#/definitions/ent.Team'
+        description: Team holds the value of the team edge.
+    type: object
+  ent.ScopedRole:
+    properties:
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.ScopedRoleEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the ScopedRoleQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      permissions:
+        description: Permissions holds the value of the "permissions" field.
+        items:
+          type: string
+        type: array
+      role:
+        description: 'role name: event_manager, game_admin, scorekeeper, etc.'
+        type: string
+      scope_id:
+        description: ScopeID holds the value of the "scope_id" field.
+        type: string
+      scope_type:
+        description: event, game, team, division
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+      user_id:
+        description: UserID holds the value of the "user_id" field.
+        type: string
+    type: object
+  ent.ScopedRoleEdges:
+    properties:
+      user:
+        allOf:
+        - $ref: '#/definitions/ent.User'
+        description: User holds the value of the user edge.
+    type: object
+  ent.ScoreEditRequest:
+    properties:
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.ScoreEditRequestEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the ScoreEditRequestQuery when eager-loading is set.
+      game_id:
+        description: GameID holds the value of the "game_id" field.
+        type: string
+      id:
+        description: ID of the ent.
+        type: string
+      new_away_score:
+        description: NewAwayScore holds the value of the "new_away_score" field.
+        type: integer
+      new_home_score:
+        description: NewHomeScore holds the value of the "new_home_score" field.
+        type: integer
+      player_scores:
+        description: PlayerScores holds the value of the "player_scores" field.
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+      previous_away_score:
+        description: PreviousAwayScore holds the value of the "previous_away_score"
+          field.
+        type: integer
+      previous_home_score:
+        description: PreviousHomeScore holds the value of the "previous_home_score"
+          field.
+        type: integer
+      reason:
+        description: Reason holds the value of the "reason" field.
+        type: string
+      rejection_reason:
+        description: RejectionReason holds the value of the "rejection_reason" field.
+        type: string
+      requested_by_id:
+        description: RequestedByID holds the value of the "requested_by_id" field.
+        type: string
+      reviewed_at:
+        description: ReviewedAt holds the value of the "reviewed_at" field.
+        type: string
+      reviewed_by_id:
+        description: ReviewedByID holds the value of the "reviewed_by_id" field.
+        type: string
+      status:
+        description: pending, approved, rejected
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.ScoreEditRequestEdges:
+    properties:
+      game:
+        allOf:
+        - $ref: '#/definitions/ent.Game'
+        description: Game holds the value of the game edge.
+      requested_by:
+        allOf:
+        - $ref: '#/definitions/ent.User'
+        description: RequestedBy holds the value of the requested_by edge.
+      reviewed_by:
+        allOf:
+        - $ref: '#/definitions/ent.User'
+        description: ReviewedBy holds the value of the reviewed_by edge.
+    type: object
+  ent.Scoring:
+    properties:
+      assists:
+        description: Assists holds the value of the "assists" field.
+        type: integer
+      blocks:
+        description: Blocks holds the value of the "blocks" field.
+        type: integer
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.ScoringEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the ScoringQuery when eager-loading is set.
+      goals:
+        description: Goals holds the value of the "goals" field.
+        type: integer
+      id:
+        description: ID of the ent.
+        type: string
+      turns:
+        description: Turns holds the value of the "turns" field.
+        type: integer
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+      version:
+        description: Version holds the value of the "version" field.
+        type: integer
+    type: object
+  ent.ScoringEdges:
+    properties:
+      game:
+        allOf:
+        - $ref: '#/definitions/ent.Game'
+        description: Game holds the value of the game edge.
+      player:
+        allOf:
+        - $ref: '#/definitions/ent.Player'
+        description: Player holds the value of the player edge.
+    type: object
+  ent.SpiritNomination:
+    properties:
+      category:
+        description: Category holds the value of the "category" field.
+        type: string
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.SpiritNominationEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the SpiritNominationQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+    type: object
+  ent.SpiritNominationEdges:
+    properties:
+      player:
+        allOf:
+        - $ref: '#/definitions/ent.Player'
+        description: Player holds the value of the player edge.
+      spirit_score:
+        allOf:
+        - $ref: '#/definitions/ent.SpiritScore'
+        description: SpiritScore holds the value of the spirit_score edge.
+    type: object
+  ent.SpiritScore:
+    properties:
+      attitude:
+        description: Attitude holds the value of the "attitude" field.
+        type: integer
+      comments:
+        description: Comments holds the value of the "comments" field.
+        type: string
+      communication:
+        description: Communication holds the value of the "communication" field.
+        type: integer
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.SpiritScoreEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the SpiritScoreQuery when eager-loading is set.
+      fair_mindedness:
+        description: FairMindedness holds the value of the "fair_mindedness" field.
+        type: integer
+      fouls_body_contact:
+        description: FoulsBodyContact holds the value of the "fouls_body_contact"
+          field.
+        type: integer
+      id:
+        description: ID of the ent.
+        type: string
+      rules_knowledge:
+        description: RulesKnowledge holds the value of the "rules_knowledge" field.
+        type: integer
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.SpiritScoreEdges:
+    properties:
+      game:
+        allOf:
+        - $ref: '#/definitions/ent.Game'
+        description: Game holds the value of the game edge.
+      mvp_nominations:
+        description: MvpNominations holds the value of the mvp_nominations edge.
+        items:
+          $ref: '#/definitions/ent.MVP_Nomination'
+        type: array
+      scored_by_team:
+        allOf:
+        - $ref: '#/definitions/ent.Team'
+        description: ScoredByTeam holds the value of the scored_by_team edge.
+      spirit_nominations:
+        description: SpiritNominations holds the value of the spirit_nominations edge.
+        items:
+          $ref: '#/definitions/ent.SpiritNomination'
+        type: array
+      submitted_by:
+        allOf:
+        - $ref: '#/definitions/ent.User'
+        description: SubmittedBy holds the value of the submitted_by edge.
+      team:
+        allOf:
+        - $ref: '#/definitions/ent.Team'
+        description: Team holds the value of the team edge.
+    type: object
+  ent.Team:
+    properties:
+      contact_email:
+        description: ContactEmail holds the value of the "contact_email" field.
+        type: string
+      contact_phone:
+        description: ContactPhone holds the value of the "contact_phone" field.
+        type: string
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.TeamEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the TeamQuery when eager-loading is set.
+      final_placement:
+        description: FinalPlacement holds the value of the "final_placement" field.
+        type: integer
+      id:
+        description: ID of the ent.
+        type: string
+      initial_seed:
+        description: InitialSeed holds the value of the "initial_seed" field.
+        type: integer
+      logo_url:
+        description: LogoURL holds the value of the "logo_url" field.
+        type: string
+      metadata:
+        additionalProperties: true
+        description: Metadata holds the value of the "metadata" field.
+        type: object
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      primary_color:
+        description: PrimaryColor holds the value of the "primary_color" field.
+        type: string
+      secondary_color:
+        description: SecondaryColor holds the value of the "secondary_color" field.
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.TeamEdges:
+    properties:
+      away_games:
+        description: AwayGames holds the value of the away_games edge.
+        items:
+          $ref: '#/definitions/ent.Game'
+        type: array
+      division_pool:
+        allOf:
+        - $ref: '#/definitions/ent.DivisionPool'
+        description: DivisionPool holds the value of the division_pool edge.
+      home_games:
+        description: HomeGames holds the value of the home_games edge.
+        items:
+          $ref: '#/definitions/ent.Game'
+        type: array
+      home_location:
+        allOf:
+        - $ref: '#/definitions/ent.Location'
+        description: HomeLocation holds the value of the home_location edge.
+      managed_by:
+        description: ManagedBy holds the value of the managed_by edge.
+        items:
+          $ref: '#/definitions/ent.User'
+        type: array
+      participations:
+        description: Participations holds the value of the participations edge.
+        items:
+          $ref: '#/definitions/ent.EventParticipation'
+        type: array
+      players:
+        description: Players holds the value of the players edge.
+        items:
+          $ref: '#/definitions/ent.Player'
+        type: array
+      spirit_scores_given:
+        description: SpiritScoresGiven holds the value of the spirit_scores_given
+          edge.
+        items:
+          $ref: '#/definitions/ent.SpiritScore'
+        type: array
+      spirit_scores_received:
+        description: SpiritScoresReceived holds the value of the spirit_scores_received
+          edge.
+        items:
+          $ref: '#/definitions/ent.SpiritScore'
+        type: array
+    type: object
+  ent.User:
+    properties:
+      avatar_url:
+        description: AvatarURL holds the value of the "avatar_url" field.
+        type: string
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.UserEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the UserQuery when eager-loading is set.
+      email:
+        description: Email holds the value of the "email" field.
+        type: string
+      id:
+        description: ID of the ent.
+        type: string
+      is_active:
+        description: IsActive holds the value of the "is_active" field.
+        type: boolean
+      last_login_at:
+        description: LastLoginAt holds the value of the "last_login_at" field.
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      role:
+        description: Role holds the value of the "role" field.
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.UserEdges:
+    properties:
+      managed_continent:
+        description: ManagedContinent holds the value of the managed_continent edge.
+        items:
+          $ref: '#/definitions/ent.Continent'
+        type: array
+      managed_country:
+        description: ManagedCountry holds the value of the managed_country edge.
+        items:
+          $ref: '#/definitions/ent.Country'
+        type: array
+      managed_discipline:
+        description: ManagedDiscipline holds the value of the managed_discipline edge.
+        items:
+          $ref: '#/definitions/ent.Discipline'
+        type: array
+      managed_event:
+        description: ManagedEvent holds the value of the managed_event edge.
+        items:
+          $ref: '#/definitions/ent.Event'
+        type: array
+      managed_team:
+        description: ManagedTeam holds the value of the managed_team edge.
+        items:
+          $ref: '#/definitions/ent.Team'
+        type: array
+      officiated_games:
+        description: OfficiatedGames holds the value of the officiated_games edge.
+        items:
+          $ref: '#/definitions/ent.Game'
+        type: array
+      scoped_roles:
+        description: ScopedRoles holds the value of the scoped_roles edge.
+        items:
+          $ref: '#/definitions/ent.ScopedRole'
+        type: array
+      score_edit_requests:
+        description: ScoreEditRequests holds the value of the score_edit_requests
+          edge.
+        items:
+          $ref: '#/definitions/ent.ScoreEditRequest'
+        type: array
+      submitted_spirit_scores:
+        description: SubmittedSpiritScores holds the value of the submitted_spirit_scores
+          edge.
+        items:
+          $ref: '#/definitions/ent.SpiritScore'
+        type: array
+    type: object
+  ent.World:
+    properties:
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deleted_at:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.WorldEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the WorldQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      slug:
+        description: Slug holds the value of the "slug" field.
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+    type: object
+  ent.WorldEdges:
+    properties:
+      continents:
+        description: Continents holds the value of the continents edge.
+        items:
+          $ref: '#/definitions/ent.Continent'
+        type: array
+    type: object
   github_com_bengobox_game-stats-api_internal_application_admin.UpdateGameScoreResponse:
     properties:
       audit_log_id:
@@ -298,22 +1681,34 @@ definitions:
     - team_id
     - team_name
     type: object
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.BulkTransferRequest:
+    properties:
+      event_id:
+        type: string
+      transfers:
+        items:
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.PlayerTransfer'
+        type: array
+    required:
+    - event_id
+    - transfers
+    type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.CreateGameRequest:
     properties:
-      allocated_time_minutes:
+      allocatedTimeMinutes:
         minimum: 1
         type: integer
-      away_team_id:
+      awayTeamId:
         type: string
-      division_pool_id:
+      divisionPoolId:
         type: string
-      field_location_id:
+      fieldLocationId:
         type: string
-      first_pull_by:
+      firstPullBy:
         type: string
-      game_round_id:
+      gameRoundId:
         type: string
-      home_team_id:
+      homeTeamId:
         type: string
       metadata:
         additionalProperties: true
@@ -321,18 +1716,18 @@ definitions:
       name:
         maxLength: 100
         type: string
-      scheduled_time:
+      scheduledTime:
         type: string
-      scorekeeper_id:
+      scorekeeperId:
         type: string
     required:
-    - allocated_time_minutes
-    - away_team_id
-    - division_pool_id
-    - field_location_id
-    - home_team_id
+    - allocatedTimeMinutes
+    - awayTeamId
+    - divisionPoolId
+    - fieldLocationId
+    - homeTeamId
     - name
-    - scheduled_time
+    - scheduledTime
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.CreateGameRoundRequest:
     properties:
@@ -368,27 +1763,27 @@ definitions:
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameDTO:
     properties:
-      actual_end_time:
+      actualEndTime:
         type: string
-      actual_start_time:
+      actualStartTime:
         type: string
-      allocated_time_minutes:
+      allocatedTimeMinutes:
         type: integer
-      away_team:
+      awayTeam:
         $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO'
-      away_team_score:
+      awayTeamScore:
         type: integer
-      created_at:
+      createdAt:
         type: string
-      field_location:
+      fieldLocation:
         $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.FieldSummaryDTO'
-      first_pull_by:
+      firstPullBy:
         type: string
-      game_round:
+      gameRound:
         $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundSummaryDTO'
-      home_team:
+      homeTeam:
         $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO'
-      home_team_score:
+      homeTeamScore:
         type: integer
       id:
         type: string
@@ -397,26 +1792,26 @@ definitions:
         type: object
       name:
         type: string
-      scheduled_time:
+      scheduledTime:
         type: string
       scorekeeper:
         $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.UserSummaryDTO'
       status:
         type: string
-      stoppage_time_seconds:
+      stoppageTimeSeconds:
         type: integer
-      updated_at:
+      updatedAt:
         type: string
       version:
         type: integer
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameEventDTO:
     properties:
-      created_at:
+      createdAt:
         type: string
       description:
         type: string
-      event_type:
+      eventType:
         type: string
       id:
         type: string
@@ -430,25 +1825,25 @@ definitions:
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundDTO:
     properties:
-      created_at:
+      createdAt:
         type: string
-      end_date:
+      endDate:
         type: string
-      event_id:
+      eventId:
         type: string
-      games_count:
+      gamesCount:
         type: integer
       id:
         type: string
       name:
         type: string
-      round_number:
+      roundNumber:
         type: integer
-      round_type:
+      roundType:
         type: string
-      start_date:
+      startDate:
         type: string
-      updated_at:
+      updatedAt:
         type: string
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameRoundSummaryDTO:
@@ -457,7 +1852,7 @@ definitions:
         type: string
       name:
         type: string
-      round_type:
+      roundType:
         type: string
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameTimelineDTO:
@@ -466,6 +1861,55 @@ definitions:
         items:
           $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.GameEventDTO'
         type: array
+    type: object
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.ImportPlayer:
+    properties:
+      email:
+        type: string
+      gender:
+        enum:
+        - M
+        - F
+        - X
+        type: string
+      jerseyNumber:
+        type: integer
+      name:
+        type: string
+    required:
+    - gender
+    - name
+    type: object
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.MassImportPlayersRequest:
+    properties:
+      event_id:
+        type: string
+      players:
+        items:
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.ImportPlayer'
+        type: array
+      team_id:
+        type: string
+    required:
+    - players
+    - team_id
+    type: object
+  github_com_bengobox_game-stats-api_internal_application_gamemanagement.PlayerTransfer:
+    properties:
+      fromTeamId:
+        type: string
+      playerId:
+        type: string
+      role:
+        type: string
+      status:
+        type: string
+      toTeamId:
+        type: string
+    required:
+    - fromTeamId
+    - playerId
+    - toTeamId
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.RecordScoreRequest:
     properties:
@@ -480,7 +1924,7 @@ definitions:
         type: integer
       minute:
         type: integer
-      player_id:
+      playerId:
         type: string
       second:
         type: integer
@@ -488,7 +1932,7 @@ definitions:
         minimum: 0
         type: integer
     required:
-    - player_id
+    - playerId
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.RecordStoppageRequest:
     properties:
@@ -508,25 +1952,25 @@ definitions:
         type: integer
       blocks:
         type: integer
-      created_at:
+      createdAt:
         type: string
       goals:
         type: integer
       id:
         type: string
-      player_id:
+      playerId:
         type: string
-      player_name:
+      playerName:
         type: string
-      player_number:
+      playerNumber:
         type: integer
-      team_id:
+      teamId:
         type: string
-      team_name:
+      teamName:
         type: string
       turns:
         type: integer
-      updated_at:
+      updatedAt:
         type: string
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.SpiritScoreDTO:
@@ -537,27 +1981,27 @@ definitions:
         type: string
       communication:
         type: integer
-      created_at:
+      createdAt:
         type: string
-      fair_mindedness:
+      fairMindedness:
         type: integer
-      fouls_body_contact:
+      foulsBodyContact:
         type: integer
-      game_id:
+      gameId:
         type: string
       id:
         type: string
-      rules_knowledge:
+      rulesKnowledge:
         type: integer
-      scored_by_team:
+      scoredByTeam:
         $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO'
-      submitted_by:
+      submittedBy:
         $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.UserSummaryDTO'
       team:
         $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO'
-      total_score:
+      totalScore:
         type: integer
-      updated_at:
+      updatedAt:
         type: string
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.StartGameRequest:
@@ -577,63 +2021,67 @@ definitions:
         maximum: 4
         minimum: 0
         type: integer
-      fair_mindedness:
+      fairMindedness:
         maximum: 4
         minimum: 0
         type: integer
-      fouls_body_contact:
+      foulsBodyContact:
         maximum: 4
         minimum: 0
         type: integer
-      mvp_nomination:
+      mvpNomination:
         type: string
-      rules_knowledge:
+      rulesKnowledge:
         maximum: 4
         minimum: 0
         type: integer
-      scored_by_team_id:
+      scoredByTeamId:
         type: string
-      spirit_nomination:
+      spiritNomination:
         type: string
-      team_id:
+      teamId:
         type: string
     required:
     - attitude
     - communication
-    - fair_mindedness
-    - fouls_body_contact
-    - rules_knowledge
-    - scored_by_team_id
-    - team_id
+    - fairMindedness
+    - foulsBodyContact
+    - rulesKnowledge
+    - scoredByTeamId
+    - teamId
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSpiritAverageDTO:
     properties:
       attitude:
         type: number
-      average_total:
+      averageTotal:
         type: number
       communication:
         type: number
-      fair_mindedness:
+      fairMindedness:
         type: number
-      fouls_body_contact:
+      foulsBodyContact:
         type: number
-      games_played:
+      gamesPlayed:
         type: integer
-      rules_knowledge:
+      rulesKnowledge:
         type: number
-      team_id:
+      teamId:
         type: string
-      team_name:
+      teamName:
         type: string
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.TeamSummaryDTO:
     properties:
       id:
         type: string
-      logo_url:
+      logoUrl:
         type: string
       name:
+        type: string
+      primaryColor:
+        type: string
+      secondaryColor:
         type: string
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.UpdateGameRequest:
@@ -656,21 +2104,21 @@ definitions:
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.UpdateGameRoundRequest:
     properties:
-      end_date:
+      endDate:
         type: string
       name:
         maxLength: 100
         type: string
-      round_number:
+      roundNumber:
         type: integer
-      round_type:
+      roundType:
         enum:
         - pool
         - bracket
         - semifinal
         - final
         type: string
-      start_date:
+      startDate:
         type: string
     type: object
   github_com_bengobox_game-stats-api_internal_application_gamemanagement.UserSummaryDTO:
@@ -761,14 +2209,27 @@ definitions:
         type: string
       division_name:
         type: string
-      last_updated:
-        type: string
       ranking_criteria:
         $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.RankingCriteria'
       standings:
         items:
           $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.TeamStanding'
         type: array
+      updated_at:
+        type: string
+    type: object
+  github_com_bengobox_game-stats-api_internal_application_ranking.EventStandingsResponse:
+    properties:
+      divisions:
+        items:
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.DivisionStandingsResponse'
+        type: array
+      event_id:
+        type: string
+      event_name:
+        type: string
+      last_updated:
+        type: string
     type: object
   github_com_bengobox_game-stats-api_internal_application_ranking.RankingCriteria:
     properties:
@@ -793,17 +2254,15 @@ definitions:
         type: integer
       games_played:
         type: integer
-      goal_difference:
-        type: integer
-      goals_against:
-        type: integer
-      goals_for:
-        type: integer
-      last_updated:
-        type: string
       losses:
         type: integer
+      point_differential:
+        type: integer
       points:
+        type: integer
+      points_against:
+        type: integer
+      points_for:
         type: integer
       rank:
         type: integer
@@ -812,6 +2271,8 @@ definitions:
       team_id:
         type: string
       team_name:
+        type: string
+      updated_at:
         type: string
       win_percentage:
         type: number
@@ -844,6 +2305,11 @@ definitions:
     - points_per_win
     - primary_sort
     type: object
+  github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime:
+    properties:
+      time.Time:
+        type: string
+    type: object
   internal_presentation_http_handlers.AdminUserDTO:
     properties:
       avatarUrl:
@@ -863,6 +2329,17 @@ definitions:
       role:
         type: string
       updatedAt:
+        type: string
+    type: object
+  internal_presentation_http_handlers.AssignScopedRoleRequestDTO:
+    properties:
+      role:
+        type: string
+      scopeId:
+        type: string
+      scopeType:
+        type: string
+      userId:
         type: string
     type: object
   internal_presentation_http_handlers.AuditLogDTO:
@@ -901,6 +2378,26 @@ definitions:
         example: admin@example.com
         type: string
     type: object
+  internal_presentation_http_handlers.BulkImportPlayersResponse:
+    properties:
+      count:
+        type: integer
+      errors:
+        items:
+          type: string
+        type: array
+    type: object
+  internal_presentation_http_handlers.CategoryResponse:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
   internal_presentation_http_handlers.ChangePasswordRequestDTO:
     properties:
       currentPassword:
@@ -917,12 +2414,42 @@ definitions:
       name:
         type: string
     type: object
+  internal_presentation_http_handlers.CreateCategoryRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+    required:
+    - name
+    - slug
+    type: object
+  internal_presentation_http_handlers.CreateDisciplineRequest:
+    properties:
+      countryId:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      rulesPdfUrl:
+        type: string
+      slug:
+        type: string
+    required:
+    - countryId
+    - name
+    - slug
+    type: object
   internal_presentation_http_handlers.CreateDivisionRequest:
     properties:
       divisionType:
         enum:
         - pool
         - bracket
+        - mixed
         type: string
       name:
         type: string
@@ -934,24 +2461,32 @@ definitions:
     properties:
       bannerUrl:
         type: string
-      categories:
+      categoryIds:
+        description: category IDs (uuid) that should be associated with the event
         items:
           type: string
         type: array
       description:
         type: string
-      endDate:
+      disciplineId:
         type: string
+      endDate:
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime'
       locationId:
         type: string
       logoUrl:
         type: string
+      metadata:
+        additionalProperties: true
+        type: object
       name:
+        type: string
+      rulesUrl:
         type: string
       slug:
         type: string
       startDate:
-        type: string
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime'
       status:
         type: string
       year:
@@ -962,6 +2497,8 @@ definitions:
     type: object
   internal_presentation_http_handlers.CreatePlayerRequest:
     properties:
+      email:
+        type: string
       eventId:
         type: string
       gender:
@@ -978,6 +2515,10 @@ definitions:
         type: integer
       name:
         type: string
+      phone:
+        type: string
+      position:
+        type: string
       profileImageUrl:
         type: string
       teamId:
@@ -990,6 +2531,10 @@ definitions:
     type: object
   internal_presentation_http_handlers.CreateTeamRequest:
     properties:
+      contactEmail:
+        type: string
+      contactPhone:
+        type: string
       divisionPoolId:
         type: string
       eventId:
@@ -998,12 +2543,18 @@ definitions:
         type: string
       initialSeed:
         type: integer
+      locationName:
+        type: string
       logoUrl:
         type: string
       metadata:
         additionalProperties: true
         type: object
       name:
+        type: string
+      primaryColor:
+        type: string
+      secondaryColor:
         type: string
     required:
     - divisionPoolId
@@ -1021,15 +2572,19 @@ definitions:
       role:
         type: string
     type: object
-  internal_presentation_http_handlers.CrewMemberDTO:
+  internal_presentation_http_handlers.DisciplineResponse:
     properties:
-      avatarUrl:
+      countryId:
+        type: string
+      description:
         type: string
       id:
         type: string
       name:
         type: string
-      role:
+      rulesPdfUrl:
+        type: string
+      slug:
         type: string
     type: object
   internal_presentation_http_handlers.DivisionDTO:
@@ -1050,28 +2605,13 @@ definitions:
         example: error message
         type: string
     type: object
-  internal_presentation_http_handlers.EventCrewResponse:
-    properties:
-      admins:
-        items:
-          $ref: '#/definitions/internal_presentation_http_handlers.CrewMemberDTO'
-        type: array
-      eventId:
-        type: string
-      eventName:
-        type: string
-      scorekeepers:
-        items:
-          $ref: '#/definitions/internal_presentation_http_handlers.CrewMemberDTO'
-        type: array
-    type: object
   internal_presentation_http_handlers.EventResponse:
     properties:
       bannerUrl:
         type: string
       categories:
         items:
-          type: string
+          $ref: '#/definitions/internal_presentation_http_handlers.RefDTO'
         type: array
       description:
         type: string
@@ -1092,6 +2632,8 @@ definitions:
       logoUrl:
         type: string
       name:
+        type: string
+      rulesUrl:
         type: string
       slug:
         type: string
@@ -1130,6 +2672,20 @@ definitions:
     - user_id
     - username
     type: object
+  internal_presentation_http_handlers.ListAuditLogsParams:
+    description: Audit log filter parameters
+    properties:
+      action:
+        type: string
+      endDate:
+        type: string
+      entityType:
+        type: string
+      startDate:
+        type: string
+      userId:
+        type: string
+    type: object
   internal_presentation_http_handlers.LocationDTO:
     properties:
       city:
@@ -1157,6 +2713,8 @@ definitions:
     type: object
   internal_presentation_http_handlers.PlayerResponse:
     properties:
+      email:
+        type: string
       gender:
         type: string
       id:
@@ -1169,7 +2727,22 @@ definitions:
         type: integer
       name:
         type: string
+      phone:
+        type: string
+      position:
+        type: string
       profileImageUrl:
+        type: string
+      teamId:
+        type: string
+      teamName:
+        type: string
+    type: object
+  internal_presentation_http_handlers.PlayerScoreDTO:
+    properties:
+      goals:
+        type: integer
+      player_id:
         type: string
     type: object
   internal_presentation_http_handlers.PlayerStatResponse:
@@ -1209,6 +2782,13 @@ definitions:
       name:
         type: string
     type: object
+  internal_presentation_http_handlers.ReviewScoreEditRequestDTO:
+    properties:
+      approve:
+        type: boolean
+      rejection_reason:
+        type: string
+    type: object
   internal_presentation_http_handlers.SpiritBreakdownAverage:
     properties:
       attitude:
@@ -1235,6 +2815,13 @@ definitions:
       teamName:
         type: string
     type: object
+  internal_presentation_http_handlers.SuccessResponse:
+    description: Success response structure
+    properties:
+      message:
+        example: operation successful
+        type: string
+    type: object
   internal_presentation_http_handlers.TeamPreviewDTO:
     properties:
       id:
@@ -1248,9 +2835,15 @@ definitions:
     properties:
       captain:
         $ref: '#/definitions/internal_presentation_http_handlers.PlayerResponse'
+      contactEmail:
+        type: string
+      contactPhone:
+        type: string
       divisionName:
         type: string
       divisionPoolId:
+        type: string
+      eventId:
         type: string
       finalPlacement:
         type: integer
@@ -1275,8 +2868,66 @@ definitions:
         type: array
       playersCount:
         type: integer
+      primaryColor:
+        type: string
+      secondaryColor:
+        type: string
       spiritCaptain:
         $ref: '#/definitions/internal_presentation_http_handlers.PlayerResponse'
+    type: object
+  internal_presentation_http_handlers.UpdateCategoryRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
+  internal_presentation_http_handlers.UpdateDisciplineRequest:
+    properties:
+      countryId:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      rulesPdfUrl:
+        type: string
+      slug:
+        type: string
+    type: object
+  internal_presentation_http_handlers.UpdateEventRequest:
+    properties:
+      bannerUrl:
+        type: string
+      categoryIds:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      disciplineId:
+        type: string
+      endDate:
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime'
+      locationId:
+        type: string
+      logoUrl:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        type: string
+      rulesUrl:
+        type: string
+      slug:
+        type: string
+      startDate:
+        $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_pkg_types.JSONTime'
+      status:
+        type: string
     type: object
   internal_presentation_http_handlers.UpdateGameScoreRequestDTO:
     properties:
@@ -1286,6 +2937,10 @@ definitions:
       home_score:
         minimum: 0
         type: integer
+      player_scores:
+        items:
+          $ref: '#/definitions/internal_presentation_http_handlers.PlayerScoreDTO'
+        type: array
       reason:
         minLength: 10
         type: string
@@ -1336,6 +2991,15 @@ definitions:
       role:
         type: string
     type: object
+  internal_presentation_http_handlers.UploadResponse:
+    properties:
+      filename:
+        type: string
+      size:
+        type: integer
+      url:
+        type: string
+    type: object
 info:
   contact:
     email: support@swagger.io
@@ -1379,6 +3043,53 @@ paths:
       security:
       - BearerAuth: []
       summary: Get audit logs (Admin only)
+      tags:
+      - admin
+  /admin/audit-logs/export:
+    post:
+      consumes:
+      - application/json
+      description: Returns a CSV file containing audit logs based on filters
+      parameters:
+      - description: Audit log filter parameters
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.ListAuditLogsParams'
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: CSV data
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Export audit logs to CSV (Admin only)
+      tags:
+      - admin
+  /admin/export/{type}:
+    get:
+      description: Exports events, games, teams, or users in CSV or JSON format
+      parameters:
+      - description: Data type (events, games, teams, users)
+        in: path
+        name: type
+        required: true
+        type: string
+      - default: csv
+        description: Export format (csv, json)
+        in: query
+        name: format
+        type: string
+      responses:
+        "200":
+          description: Export data
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Export system data (Admin only)
       tags:
       - admin
   /admin/games/{id}/audit:
@@ -1447,6 +3158,116 @@ paths:
       security:
       - BearerAuth: []
       summary: Update game score (Admin only)
+      tags:
+      - admin
+  /admin/games/{id}/sync:
+    post:
+      description: Re-calculates game scores by summing individual player goals
+      parameters:
+      - description: Game ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_admin.UpdateGameScoreResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Sync game scores from player goals (Admin only)
+      tags:
+      - admin
+  /admin/score-edits:
+    get:
+      description: Retrieves all historical score edits across all games
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_presentation_http_handlers.AuditLogDTO'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all score edits (Admin only)
+      tags:
+      - admin
+  /admin/score-edits/{id}/review:
+    post:
+      consumes:
+      - application/json
+      description: Approves or rejects a pending score edit request
+      parameters:
+      - description: Request ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Review request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.ReviewScoreEditRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Review a score edit request (Admin only)
+      tags:
+      - admin
+  /admin/score-edits/pending:
+    get:
+      description: Retrieves all pending score edit requests for approval
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ent.ScoreEditRequest'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List pending score edit requests (Admin only)
       tags:
       - admin
   /admin/spirit-scores/{id}:
@@ -1665,6 +3486,105 @@ paths:
       security:
       - BearerAuth: []
       summary: Update a user (Admin only)
+      tags:
+      - admin
+  /admin/users/{id}/reset-password:
+    post:
+      description: Resets a user's password to a temporary one
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Reset a user's password (Admin only)
+      tags:
+      - admin
+  /admin/users/{id}/roles/scoped:
+    get:
+      description: List all granular role assignments for a specific user
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ent.ScopedRole'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List scoped roles for a user (Admin only)
+      tags:
+      - admin
+  /admin/users/roles/scoped:
+    post:
+      consumes:
+      - application/json
+      description: Assigns a role (scorekeeper, manager, etc) tied to a specific scope
+        (event, game)
+      parameters:
+      - description: Role assignment request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.AssignScopedRoleRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/ent.ScopedRole'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Assign a scoped role to a user (Admin only)
       tags:
       - admin
   /analytics/dashboards:
@@ -2010,6 +3930,254 @@ paths:
       summary: Refresh Token
       tags:
       - auth
+  /bulk/players/import:
+    post:
+      consumes:
+      - application/json
+      description: Import multiple players into a specific team for an event
+      parameters:
+      - description: Mass Import Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.MassImportPlayersRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: bad request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Mass Import Players
+      tags:
+      - bulk
+  /bulk/players/transfer:
+    post:
+      consumes:
+      - application/json
+      description: Transfer multiple players from different teams to new destinations
+      parameters:
+      - description: Bulk Transfer Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.BulkTransferRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+        "400":
+          description: bad request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Bulk Transfer Players
+      tags:
+      - bulk
+  /categories:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_presentation_http_handlers.CategoryResponse'
+            type: array
+      summary: List categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.CategoryResponse'
+      summary: Create category
+      tags:
+      - categories
+  /categories/{id}:
+    delete:
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      summary: Delete category
+      tags:
+      - categories
+    get:
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.CategoryResponse'
+        "404":
+          description: not found
+          schema:
+            type: string
+      summary: Get category
+      tags:
+      - categories
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.UpdateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.CategoryResponse'
+      summary: Update category
+      tags:
+      - categories
+  /disciplines:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_presentation_http_handlers.DisciplineResponse'
+            type: array
+      summary: List disciplines
+      tags:
+      - disciplines
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Discipline
+        in: body
+        name: discipline
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.CreateDisciplineRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.DisciplineResponse'
+      summary: Create discipline
+      tags:
+      - disciplines
+  /disciplines/{id}:
+    delete:
+      parameters:
+      - description: Discipline ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      summary: Delete discipline
+      tags:
+      - disciplines
+    get:
+      parameters:
+      - description: Discipline ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.DisciplineResponse'
+        "404":
+          description: not found
+          schema:
+            type: string
+      summary: Get discipline
+      tags:
+      - disciplines
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Discipline ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Discipline
+        in: body
+        name: discipline
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.UpdateDisciplineRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.DisciplineResponse'
+      summary: Update discipline
+      tags:
+      - disciplines
   /divisions/{id}/criteria:
     put:
       consumes:
@@ -2162,7 +4330,7 @@ paths:
       - application/json
       description: Create a new tournament or event
       parameters:
-      - description: Event data
+      - description: Event data, categoryIds as list of UUIDs or slugs
         in: body
         name: request
         required: true
@@ -2245,6 +4413,51 @@ paths:
       summary: Create Game Round
       tags:
       - game-rounds
+  /events/{id}:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Event ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Event Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_presentation_http_handlers.UpdateEventRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.EventResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update an event
+      tags:
+      - events
   /events/{id}/divisions:
     post:
       consumes:
@@ -2287,6 +4500,70 @@ paths:
       summary: Create a new division pool
       tags:
       - events
+  /events/{id}/spirit:
+    get:
+      description: Get all spirit scores submitted for all games in an event
+      parameters:
+      - description: Event ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_gamemanagement.SpiritScoreDTO'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      summary: Get spirit scores for an event
+      tags:
+      - Spirit Scores
+  /events/{id}/standings:
+    get:
+      description: Get current standings for all divisions in an event
+      parameters:
+      - description: Event ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_bengobox_game-stats-api_internal_application_ranking.EventStandingsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get event-wide standings
+      tags:
+      - rankings
   /games:
     get:
       description: List games with optional filters
@@ -2420,9 +4697,9 @@ paths:
       summary: Update Game
       tags:
       - games
-  /games/{id}/end:
+  /games/{id}/complete:
     post:
-      description: Finalize game submission by scorekeeper
+      description: Finalize game completion by scorekeeper
       parameters:
       - description: Game ID
         in: path
@@ -2453,9 +4730,9 @@ paths:
       summary: End Game
       tags:
       - games
-  /games/{id}/finish:
+  /games/{id}/end:
     post:
-      description: Mark game timer as finished (scores can still be edited)
+      description: Mark game timer as ended (scores can still be edited)
       parameters:
       - description: Game ID
         in: path
@@ -2483,7 +4760,7 @@ paths:
             type: string
       security:
       - BearerAuth: []
-      summary: Finish Game
+      summary: End Game
       tags:
       - games
   /games/{id}/scores:
@@ -2853,7 +5130,7 @@ paths:
         name: temporal
         type: string
       - collectionFormat: csv
-        description: Filter by categories (outdoor, hat, beach, indoor, league)
+        description: Filter by category ID or slug (can repeat)
         in: query
         items:
           type: string
@@ -2944,33 +5221,6 @@ paths:
           schema:
             $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
       summary: Get an event
-      tags:
-      - events
-  /public/events/{id}/crew:
-    get:
-      description: Get tournament admins and scorekeepers for an event
-      parameters:
-      - description: Event ID or slug
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/internal_presentation_http_handlers.EventCrewResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
-      summary: Get event crew/staff
       tags:
       - events
   /public/leaderboards/players:
@@ -3066,6 +5316,77 @@ paths:
       summary: Get spirit leaderboard
       tags:
       - leaderboards
+  /public/players:
+    get:
+      description: List all players with pagination and search
+      parameters:
+      - description: Search by player name
+        in: query
+        name: search
+        type: string
+      - description: Filter by team ID
+        format: uuid
+        in: query
+        name: teamId
+        type: string
+      - default: 50
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_presentation_http_handlers.PlayerResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      summary: List all players
+      tags:
+      - players
+  /public/players/{id}:
+    get:
+      description: Get a player by ID
+      parameters:
+      - description: Player ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.PlayerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      summary: Get a player
+      tags:
+      - players
   /public/teams:
     get:
       description: List all teams with optional filtering
@@ -3396,6 +5717,43 @@ paths:
       summary: Add a player to a team
       tags:
       - teams
+  /teams/{id}/players/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 'Import players from a CSV file (columns: Name, Gender, JerseyNumber)'
+      parameters:
+      - description: Team ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: CSV file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.BulkImportPlayersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Bulk import players for a team
+      tags:
+      - teams
   /teams/{id}/spirit-average:
     get:
       description: Get average spirit scores received by a team across all games
@@ -3424,6 +5782,40 @@ paths:
       summary: Get team spirit average
       tags:
       - Spirit Scores
+  /upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload an image or file and get back a URL
+      parameters:
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.UploadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_presentation_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload a file
+      tags:
+      - media
+schemes:
+- http
+- https
 securityDefinitions:
   BearerAuth:
     in: header

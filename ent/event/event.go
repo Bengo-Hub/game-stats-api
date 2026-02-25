@@ -37,12 +37,12 @@ const (
 	FieldDescription = "description"
 	// FieldSettings holds the string denoting the settings field in the database.
 	FieldSettings = "settings"
-	// FieldCategories holds the string denoting the categories field in the database.
-	FieldCategories = "categories"
 	// FieldLogoURL holds the string denoting the logo_url field in the database.
 	FieldLogoURL = "logo_url"
 	// FieldBannerURL holds the string denoting the banner_url field in the database.
 	FieldBannerURL = "banner_url"
+	// FieldRulesURL holds the string denoting the rules_url field in the database.
+	FieldRulesURL = "rules_url"
 	// FieldTeamsCount holds the string denoting the teams_count field in the database.
 	FieldTeamsCount = "teams_count"
 	// FieldGamesCount holds the string denoting the games_count field in the database.
@@ -63,6 +63,8 @@ const (
 	EdgeManagedBy = "managed_by"
 	// EdgeParticipations holds the string denoting the participations edge name in mutations.
 	EdgeParticipations = "participations"
+	// EdgeCategories holds the string denoting the categories edge name in mutations.
+	EdgeCategories = "categories"
 	// Table holds the table name of the event in the database.
 	Table = "events"
 	// DisciplineTable is the table that holds the discipline relation/edge.
@@ -112,6 +114,11 @@ const (
 	ParticipationsInverseTable = "event_participations"
 	// ParticipationsColumn is the table column denoting the participations relation/edge.
 	ParticipationsColumn = "event_participations"
+	// CategoriesTable is the table that holds the categories relation/edge. The primary key declared below.
+	CategoriesTable = "event_categories"
+	// CategoriesInverseTable is the table name for the Category entity.
+	// It exists in this package in order to avoid circular dependency with the "category" package.
+	CategoriesInverseTable = "categories"
 )
 
 // Columns holds all SQL columns for event fields.
@@ -128,9 +135,9 @@ var Columns = []string{
 	FieldStatus,
 	FieldDescription,
 	FieldSettings,
-	FieldCategories,
 	FieldLogoURL,
 	FieldBannerURL,
+	FieldRulesURL,
 	FieldTeamsCount,
 	FieldGamesCount,
 	FieldScoreEditApprovalRole,
@@ -147,6 +154,9 @@ var (
 	// ManagedByPrimaryKey and ManagedByColumn2 are the table columns denoting the
 	// primary key for the managed_by relation (M2M).
 	ManagedByPrimaryKey = []string{"event_id", "user_id"}
+	// CategoriesPrimaryKey and CategoriesColumn2 are the table columns denoting the
+	// primary key for the categories relation (M2M).
+	CategoriesPrimaryKey = []string{"event_id", "category_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -183,6 +193,8 @@ var (
 	LogoURLValidator func(string) error
 	// BannerURLValidator is a validator for the "banner_url" field. It is called by the builders before save.
 	BannerURLValidator func(string) error
+	// RulesURLValidator is a validator for the "rules_url" field. It is called by the builders before save.
+	RulesURLValidator func(string) error
 	// DefaultTeamsCount holds the default value on creation for the "teams_count" field.
 	DefaultTeamsCount int
 	// DefaultGamesCount holds the default value on creation for the "games_count" field.
@@ -261,6 +273,11 @@ func ByLogoURL(opts ...sql.OrderTermOption) OrderOption {
 // ByBannerURL orders the results by the banner_url field.
 func ByBannerURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBannerURL, opts...).ToFunc()
+}
+
+// ByRulesURL orders the results by the rules_url field.
+func ByRulesURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRulesURL, opts...).ToFunc()
 }
 
 // ByTeamsCount orders the results by the teams_count field.
@@ -361,6 +378,20 @@ func ByParticipations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newParticipationsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByCategoriesCount orders the results by categories count.
+func ByCategoriesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCategoriesStep(), opts...)
+	}
+}
+
+// ByCategories orders the results by categories terms.
+func ByCategories(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCategoriesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newDisciplineStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -408,5 +439,12 @@ func newParticipationsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ParticipationsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ParticipationsTable, ParticipationsColumn),
+	)
+}
+func newCategoriesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CategoriesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, CategoriesTable, CategoriesPrimaryKey...),
 	)
 }

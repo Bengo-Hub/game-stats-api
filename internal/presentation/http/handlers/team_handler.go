@@ -12,6 +12,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/team"
 	"github.com/go-chi/chi/v5"
@@ -354,6 +355,15 @@ func (h *TeamHandler) CreateTeam(w http.ResponseWriter, r *http.Request) {
 
 	if req.HomeLocationID != nil {
 		builder.SetHomeLocationID(*req.HomeLocationID)
+	} else if req.LocationName != nil && *req.LocationName != "" {
+		// Try to resolve location by name or slug
+		l, err := h.client.Location.Query().Where(location.SlugEQ(*req.LocationName)).Only(ctx)
+		if err != nil {
+			l, _ = h.client.Location.Query().Where(location.NameEQ(*req.LocationName)).Only(ctx)
+		}
+		if l != nil {
+			builder.SetHomeLocation(l)
+		}
 	}
 	if req.LogoURL != nil {
 		builder.SetLogoURL(*req.LogoURL)

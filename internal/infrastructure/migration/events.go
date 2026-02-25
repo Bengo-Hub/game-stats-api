@@ -141,8 +141,7 @@ func (m *Migrator) migrateEvents(ctx context.Context, fixturesDir string) error 
 			SetYear(parseInt(fix.Fields["year"])).
 			SetStartDate(parseTime(fix.Fields["start_date"])).
 			SetEndDate(parseTime(fix.Fields["end_date"])).
-			SetStatus("published").
-			SetCategories([]string{"outdoor"})
+			SetStatus("published")
 
 		if disc != nil {
 			creator.SetDiscipline(disc)

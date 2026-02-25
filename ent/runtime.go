@@ -8,6 +8,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/analyticsearch"
 	"github.com/bengobox/game-stats-api/ent/analyticsembedding"
 	"github.com/bengobox/game-stats-api/ent/auditlog"
+	"github.com/bengobox/game-stats-api/ent/category"
 	"github.com/bengobox/game-stats-api/ent/continent"
 	"github.com/bengobox/game-stats-api/ent/country"
 	"github.com/bengobox/game-stats-api/ent/discipline"
@@ -110,6 +111,61 @@ func init() {
 	auditlogDescID := auditlogFields[0].Descriptor()
 	// auditlog.DefaultID holds the default value on creation for the id field.
 	auditlog.DefaultID = auditlogDescID.Default.(func() uuid.UUID)
+	categoryMixin := schema.Category{}.Mixin()
+	categoryMixinFields0 := categoryMixin[0].Fields()
+	_ = categoryMixinFields0
+	categoryFields := schema.Category{}.Fields()
+	_ = categoryFields
+	// categoryDescCreatedAt is the schema descriptor for created_at field.
+	categoryDescCreatedAt := categoryMixinFields0[0].Descriptor()
+	// category.DefaultCreatedAt holds the default value on creation for the created_at field.
+	category.DefaultCreatedAt = categoryDescCreatedAt.Default.(func() time.Time)
+	// categoryDescUpdatedAt is the schema descriptor for updated_at field.
+	categoryDescUpdatedAt := categoryMixinFields0[1].Descriptor()
+	// category.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	category.DefaultUpdatedAt = categoryDescUpdatedAt.Default.(func() time.Time)
+	// category.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	category.UpdateDefaultUpdatedAt = categoryDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// categoryDescName is the schema descriptor for name field.
+	categoryDescName := categoryFields[1].Descriptor()
+	// category.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	category.NameValidator = func() func(string) error {
+		validators := categoryDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// categoryDescSlug is the schema descriptor for slug field.
+	categoryDescSlug := categoryFields[2].Descriptor()
+	// category.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	category.SlugValidator = func() func(string) error {
+		validators := categoryDescSlug.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(slug string) error {
+			for _, fn := range fns {
+				if err := fn(slug); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// categoryDescID is the schema descriptor for id field.
+	categoryDescID := categoryFields[0].Descriptor()
+	// category.DefaultID holds the default value on creation for the id field.
+	category.DefaultID = categoryDescID.Default.(func() uuid.UUID)
 	continentMixin := schema.Continent{}.Mixin()
 	continentMixinFields0 := continentMixin[0].Fields()
 	_ = continentMixinFields0
@@ -410,13 +466,17 @@ func init() {
 	// event.StatusValidator is a validator for the "status" field. It is called by the builders before save.
 	event.StatusValidator = eventDescStatus.Validators[0].(func(string) error)
 	// eventDescLogoURL is the schema descriptor for logo_url field.
-	eventDescLogoURL := eventFields[10].Descriptor()
+	eventDescLogoURL := eventFields[9].Descriptor()
 	// event.LogoURLValidator is a validator for the "logo_url" field. It is called by the builders before save.
 	event.LogoURLValidator = eventDescLogoURL.Validators[0].(func(string) error)
 	// eventDescBannerURL is the schema descriptor for banner_url field.
-	eventDescBannerURL := eventFields[11].Descriptor()
+	eventDescBannerURL := eventFields[10].Descriptor()
 	// event.BannerURLValidator is a validator for the "banner_url" field. It is called by the builders before save.
 	event.BannerURLValidator = eventDescBannerURL.Validators[0].(func(string) error)
+	// eventDescRulesURL is the schema descriptor for rules_url field.
+	eventDescRulesURL := eventFields[11].Descriptor()
+	// event.RulesURLValidator is a validator for the "rules_url" field. It is called by the builders before save.
+	event.RulesURLValidator = eventDescRulesURL.Validators[0].(func(string) error)
 	// eventDescTeamsCount is the schema descriptor for teams_count field.
 	eventDescTeamsCount := eventFields[12].Descriptor()
 	// event.DefaultTeamsCount holds the default value on creation for the teams_count field.
