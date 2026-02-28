@@ -31,6 +31,7 @@ type Service struct {
 // BracketService interface to avoid circular dependency
 type BracketService interface {
 	GenerateBracket(ctx context.Context, req bracket.GenerateBracketRequest) (*bracket.GenerateBracketResponse, error)
+	GetEventBracketAll(ctx context.Context, eventID uuid.UUID) (*bracket.GetBracketResponse, error)
 }
 
 func NewService(
@@ -585,26 +586,70 @@ func (s *Service) handlePoolGameEnded(ctx context.Context, poolID uuid.UUID) err
 	if !pool.AutoAdvance || pool.Edges.TargetRound == nil {
 		return nil
 	}
+	targetRound := pool.Edges.TargetRound
 
-	// 2. Check if all games in pool are ended
-	games, err := s.gameRepo.ListByDivision(ctx, poolID)
+	// 2. We need to check if ALL pools that target this round have finished their games.
+	// First, find all pools targeting the same round.
+	if len(pool.Edges.Events) == 0 {
+		return fmt.Errorf("pool is not associated with an event")
+	}
+	allPools, err := s.divisionRepo.ListByEvent(ctx, pool.Edges.Events[0].ID)
 	if err != nil {
 		return err
 	}
 
-	allEnded := true
-	for _, g := range games {
-		if g.Status != "ended" {
-			allEnded = false
-			break
+	var feederPools []*ent.DivisionPool
+	for _, p := range allPools {
+		if p.Edges.TargetRound != nil && p.Edges.TargetRound.ID == targetRound.ID {
+			feederPools = append(feederPools, p)
 		}
 	}
 
-	if !allEnded {
-		return nil
+	// 3. For each feeder pool, check if all its games are completed AND every team has played at least 1 game
+	for _, fp := range feederPools {
+		games, err := s.gameRepo.ListByDivision(ctx, fp.ID)
+		if err != nil {
+			return err
+		}
+
+		teamGamesCount := make(map[uuid.UUID]int)
+
+		for _, g := range games {
+			// A game is only considered complete for standings if it's ended or completed
+			if g.Status == "ended" || g.Status == "completed" {
+				if g.Edges.HomeTeam != nil {
+					teamGamesCount[g.Edges.HomeTeam.ID]++
+				}
+				if g.Edges.AwayTeam != nil {
+					teamGamesCount[g.Edges.AwayTeam.ID]++
+				}
+			} else if g.Status != "canceled" {
+				// If there's an active or scheduled game, the pool is not done
+				return nil
+			}
+		}
+
+		// Enforce that every team in the pool has played at least 1 completed game
+		teamsInPool, err := s.teamRepo.ListByDivision(ctx, fp.ID)
+		if err != nil {
+			return err
+		}
+
+		for _, t := range teamsInPool {
+			if teamGamesCount[t.ID] < 1 {
+				// Wait until every team has played at least 1 game
+				return nil
+			}
+		}
 	}
 
-	// 3. Advance teams
+	// 4. If we reach here, ALL feeder pools are complete and have met the threshold.
+	// Cross-scheduling kicks in.
+	if targetRound.RoundType == "crossover" || targetRound.RoundType == "bracket" {
+		return s.generateCrossoverMatchups(ctx, feederPools, targetRound)
+	}
+
+	// Legacy behavior for isolated pools advancing teams to a non-crossover target
 	topN := 2 // Default
 	if pool.TopNTeams != nil {
 		topN = *pool.TopNTeams
@@ -613,23 +658,215 @@ func (s *Service) handlePoolGameEnded(ctx context.Context, poolID uuid.UUID) err
 	_, err = s.AdvanceTeams(ctx, AdvanceTeamsRequest{
 		DivisionID:    poolID,
 		TopN:          topN,
-		TargetRoundID: pool.Edges.TargetRound.ID,
+		TargetRoundID: targetRound.ID,
 		NotifyTeams:   true,
 	})
 
 	return err
 }
 
-func (s *Service) handleBracketGameEnded(ctx context.Context, g *ent.Game) error {
-	// Brackets usually advance winners immediately to the next node
-	// In digitournament/mosuon, we use a tree structure or scheduled games with codes.
-	// For now, let's assume if it's a bracket, we refresh the bracket cache.
-
-	cacheKey := cache.CacheKey("bracket", "round", g.Edges.GameRound.ID.String())
-	if s.cache != nil {
-		s.cache.Delete(ctx, cacheKey)
+func (s *Service) generateCrossoverMatchups(ctx context.Context, pools []*ent.DivisionPool, targetRound *ent.GameRound) error {
+	if s.bracketService == nil {
+		return fmt.Errorf("bracket service is not configured")
 	}
 
-	// In a full implementation, we would identify the "next game" in the bracket and set the winner.
+	// 1. Get current standings for all feeder pools
+	var poolStandings []DivisionStandingsResponse
+	for _, pool := range pools {
+		standings, err := s.CalculateStandings(ctx, pool.ID)
+		if err != nil {
+			return fmt.Errorf("failed to calculate standings for pool %s: %w", pool.ID, err)
+		}
+		poolStandings = append(poolStandings, *standings)
+	}
+
+	// 2. Prepare teams for bracket generation.
+	// If it's a crossover, we pair top seeds against lower seeds from opposite pools.
+	// For simplicity, we just aggregate all qualifying teams and pass them to the bracket service,
+	// which builds the bracket based on seed.
+	var teamSeeds []bracket.TeamSeed
+
+	// Example Crossover Assignment:
+	// A1, A2 from Pool 1; B1, B2 from Pool 2
+	// For standard bracket seeding (1v4, 2v3):
+	// Make Pool 1's #1 -> Overall Seed 1
+	// Make Pool 2's #1 -> Overall Seed 2
+	// Make Pool 1's #2 -> Overall Seed 3
+	// Make Pool 2's #2 -> Overall Seed 4
+	for rankIdx := 0; rankIdx < 4; rankIdx++ { // Assume we take up to 4 teams per pool max
+		for poolIdx, standings := range poolStandings {
+			// Check if pool requires advancing this many teams
+			topNForPool := 2
+			if pools[poolIdx].TopNTeams != nil {
+				topNForPool = *pools[poolIdx].TopNTeams
+			}
+
+			if rankIdx < topNForPool && rankIdx < len(standings.Standings) {
+				team := standings.Standings[rankIdx]
+				// Calculate an overall seed
+				overallSeed := (rankIdx * len(pools)) + poolIdx + 1
+
+				teamSeeds = append(teamSeeds, bracket.TeamSeed{
+					TeamID:   team.TeamID,
+					TeamName: team.TeamName,
+					Seed:     overallSeed,
+				})
+			}
+		}
+	}
+
+	if len(teamSeeds) == 0 {
+		return nil
+	}
+
+	// 3. Generate the Bracket for the crossover round
+	now := time.Now().Add(1 * time.Hour) // Schedule the first game an hour from now
+
+	// Create a dummy field or pick a default one for the bracket auto-gen
+	// In reality, admins would assign fields, or the bracket generator assigns TBA fields
+
+	req := bracket.GenerateBracketRequest{
+		EventID:        pools[0].Edges.Events[0].ID,
+		RoundID:        targetRound.ID,
+		BracketType:    bracket.BracketTypeSingleElimination,
+		Teams:          teamSeeds,
+		DivisionPoolID: targetRound.ID, // Often brackets live in their own pseudo-division or use the round ID
+		StartTime:      now,
+		GameDuration:   60,
+	}
+
+	_, err := s.bracketService.GenerateBracket(ctx, req)
+	if err != nil {
+		fmt.Printf("Failed to generate crossover bracket: %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *Service) handleBracketGameEnded(ctx context.Context, g *ent.Game) error {
+	// 1. Invalidate cache
+	if g.Edges.GameRound != nil {
+		cacheKey := cache.CacheKey("bracket", "round", g.Edges.GameRound.ID.String())
+		if s.cache != nil {
+			s.cache.Delete(ctx, cacheKey)
+		}
+	}
+
+	// 2. Check if game is completed
+	if g.Status != "ended" && g.Status != "completed" {
+		return nil
+	}
+
+	// 3. Determine winner
+	var winnerID *uuid.UUID
+	if g.HomeTeamScore > g.AwayTeamScore && g.Edges.HomeTeam != nil {
+		winnerID = &g.Edges.HomeTeam.ID
+	} else if g.AwayTeamScore > g.HomeTeamScore && g.Edges.AwayTeam != nil {
+		winnerID = &g.Edges.AwayTeam.ID
+	}
+
+	if winnerID == nil {
+		// Tie or no bracket teams, can't advance in single elimination
+		return nil
+	}
+
+	// 4. Find Event ID to get the full bracket tree across rounds
+	var eventID uuid.UUID
+	if g.Edges.DivisionPool != nil {
+		pools, err := s.divisionRepo.GetByID(ctx, g.Edges.DivisionPool.ID)
+		if err == nil && pools != nil && len(pools.Edges.Events) > 0 {
+			eventID = pools.Edges.Events[0].ID
+		}
+	} else if g.Edges.GameRound != nil {
+		rounds, err := s.gameRoundRepo.GetByID(ctx, g.Edges.GameRound.ID)
+		if err == nil && rounds != nil && len(rounds.Edges.Events) > 0 {
+			eventID = rounds.Edges.Events[0].ID
+		}
+	}
+
+	if eventID == uuid.Nil || s.bracketService == nil {
+		return nil
+	}
+
+	// 5. Fetch full tree
+	bracketReq, err := s.bracketService.GetEventBracketAll(ctx, eventID)
+	if err != nil || bracketReq == nil || bracketReq.BracketTree == nil {
+		return nil
+	}
+
+	// 6. DFS to find the parent node of current game (i.e. the next game the winner plays in)
+	var parentNode *bracket.BracketNode
+	var isLeftChild bool
+
+	var findParent func(node *bracket.BracketNode) bool
+	findParent = func(node *bracket.BracketNode) bool {
+		if node == nil {
+			return false
+		}
+		if node.LeftChildNode != nil && node.LeftChildNode.GameID != nil && *node.LeftChildNode.GameID == g.ID {
+			parentNode = node
+			isLeftChild = true
+			return true
+		}
+		if node.RightChildNode != nil && node.RightChildNode.GameID != nil && *node.RightChildNode.GameID == g.ID {
+			parentNode = node
+			isLeftChild = false
+			return true
+		}
+		if findParent(node.LeftChildNode) {
+			return true
+		}
+		if findParent(node.RightChildNode) {
+			return true
+		}
+		return false
+	}
+
+	findParent(bracketReq.BracketTree)
+
+	// 7. Advance winner into next match
+	if parentNode != nil && parentNode.GameID != nil {
+		nextGame, err := s.gameRepo.GetByIDWithRelations(ctx, *parentNode.GameID)
+		if err == nil {
+			team, err := s.teamRepo.GetByID(ctx, *winnerID)
+			if err == nil && team != nil {
+				updateNeeded := false
+				if isLeftChild {
+					if nextGame.Edges.HomeTeam == nil || nextGame.Edges.HomeTeam.ID != team.ID {
+						nextGame.Edges.HomeTeam = team
+						updateNeeded = true
+					}
+				} else {
+					if nextGame.Edges.AwayTeam == nil || nextGame.Edges.AwayTeam.ID != team.ID {
+						nextGame.Edges.AwayTeam = team
+						updateNeeded = true
+					}
+				}
+
+				if updateNeeded {
+					t1Name := "TBD"
+					t2Name := "TBD"
+
+					if nextGame.Edges.HomeTeam != nil {
+						t1Name = nextGame.Edges.HomeTeam.Name
+					}
+					if nextGame.Edges.AwayTeam != nil {
+						t2Name = nextGame.Edges.AwayTeam.Name
+					}
+
+					if t1Name != "TBD" || t2Name != "TBD" {
+						nextGame.Name = fmt.Sprintf("%s vs %s", t1Name, t2Name)
+					}
+
+					_, err = s.gameRepo.Update(ctx, nextGame)
+					if err != nil {
+						fmt.Printf("Failed to advance team %s to game %s: %v\n", team.Name, nextGame.ID, err)
+					}
+				}
+			}
+		}
+	}
+
 	return nil
 }

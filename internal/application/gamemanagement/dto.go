@@ -28,6 +28,8 @@ type UpdateGameRequest struct {
 	ScorekeeperID        *uuid.UUID             `json:"scorekeeper_id,omitempty"`
 	FieldLocationID      *uuid.UUID             `json:"field_location_id,omitempty"`
 	GameRoundID          *uuid.UUID             `json:"game_round_id,omitempty"`
+	HomeTeamID           *uuid.UUID             `json:"home_team_id,omitempty"`
+	AwayTeamID           *uuid.UUID             `json:"away_team_id,omitempty"`
 	FirstPullBy          *string                `json:"first_pull_by,omitempty"`
 	Metadata             map[string]interface{} `json:"metadata,omitempty"`
 }

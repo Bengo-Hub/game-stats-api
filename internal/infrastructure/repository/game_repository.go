@@ -32,8 +32,11 @@ func (r *gameRepository) Create(ctx context.Context, g *ent.Game) (*ent.Game, er
 		SetStatus(g.Status).
 		SetHomeTeamID(g.Edges.HomeTeam.ID).
 		SetAwayTeamID(g.Edges.AwayTeam.ID).
-		SetDivisionPoolID(g.Edges.DivisionPool.ID).
-		SetFieldLocationID(g.Edges.FieldLocation.ID)
+		SetDivisionPoolID(g.Edges.DivisionPool.ID)
+
+	if g.Edges.FieldLocation != nil {
+		query.SetFieldLocationID(g.Edges.FieldLocation.ID)
+	}
 
 	if g.Edges.GameRound != nil {
 		query.SetGameRoundID(g.Edges.GameRound.ID)

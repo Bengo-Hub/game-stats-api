@@ -52,9 +52,18 @@ func (h *AdminHandler) UpdateGameScore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get user info from context (set by auth middleware)
 	userID, _ := ctx.Value("user_id").(uuid.UUID)
-	username, _ := ctx.Value("username").(string)
+
+	adminName := dto.AdminName
+	if adminName == "" {
+		adminName, _ = ctx.Value("username").(string)
+		if adminName == "" {
+			adminName, _ = ctx.Value("email").(string)
+			if adminName == "" {
+				adminName = "System Admin"
+			}
+		}
+	}
 
 	playerScores := make([]admin.PlayerScore, len(dto.PlayerScores))
 	for i, ps := range dto.PlayerScores {
@@ -75,7 +84,7 @@ func (h *AdminHandler) UpdateGameScore(w http.ResponseWriter, r *http.Request) {
 		Reason:       dto.Reason,
 		PlayerScores: playerScores,
 		AdminUserID:  userID,
-		AdminName:    username,
+		AdminName:    adminName,
 		IPAddress:    r.RemoteAddr,
 		UserAgent:    r.UserAgent(),
 	}
@@ -317,6 +326,7 @@ type UpdateGameScoreRequestDTO struct {
 	HomeScore    int              `json:"home_score" validate:"min=0"`
 	AwayScore    int              `json:"away_score" validate:"min=0"`
 	Reason       string           `json:"reason" validate:"required,min=10"`
+	AdminName    string           `json:"admin_name,omitempty"`
 	PlayerScores []PlayerScoreDTO `json:"player_scores,omitempty"`
 }
 

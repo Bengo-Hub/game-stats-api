@@ -299,6 +299,41 @@ func (s *Service) UpdateGame(ctx context.Context, id uuid.UUID, req UpdateGameRe
 	if req.FirstPullBy != nil {
 		game.FirstPullBy = req.FirstPullBy
 	}
+
+	if req.HomeTeamID != nil {
+		team, err := s.teamRepo.GetByID(ctx, *req.HomeTeamID)
+		if err != nil {
+			return nil, fmt.Errorf("home team not found: %w", err)
+		}
+
+		// If both are provided, update both at once. Otherwise, ensure they aren't the same as existing.
+		awayID := game.Edges.AwayTeam.ID
+		if req.AwayTeamID != nil {
+			awayID = *req.AwayTeamID
+		}
+		if team.ID == awayID {
+			return nil, fmt.Errorf("home and away teams must be different")
+		}
+
+		game.Edges.HomeTeam = team
+	}
+
+	if req.AwayTeamID != nil {
+		team, err := s.teamRepo.GetByID(ctx, *req.AwayTeamID)
+		if err != nil {
+			return nil, fmt.Errorf("away team not found: %w", err)
+		}
+
+		homeID := game.Edges.HomeTeam.ID
+		if req.HomeTeamID != nil {
+			homeID = *req.HomeTeamID
+		}
+		if team.ID == homeID {
+			return nil, fmt.Errorf("home and away teams must be different")
+		}
+
+		game.Edges.AwayTeam = team
+	}
 	if req.Metadata != nil {
 		game.Metadata = req.Metadata
 	}

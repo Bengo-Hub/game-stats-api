@@ -50,16 +50,22 @@ type CreateEventRequest struct {
 }
 
 type CreateDivisionRequest struct {
-	ID           *string `json:"id,omitempty"`
-	Name         string  `json:"name" validate:"required"`
-	DivisionType string  `json:"divisionType" validate:"required,oneof=pool bracket mixed"`
-	Description  *string `json:"description,omitempty"`
+	ID            *string    `json:"id,omitempty"`
+	Name          string     `json:"name" validate:"required"`
+	DivisionType  string     `json:"divisionType" validate:"required,oneof=pool bracket mixed"`
+	Description   *string    `json:"description,omitempty"`
+	AutoAdvance   bool       `json:"auto_advance,omitempty"`
+	TargetRoundID *uuid.UUID `json:"target_round_id,omitempty"`
+	TopNTeams     *int       `json:"top_n_teams,omitempty"`
 }
 
 type UpdateDivisionRequest struct {
-	Name         *string `json:"name"`
-	DivisionType *string `json:"divisionType" validate:"omitempty,oneof=pool bracket mixed"`
-	Description  *string `json:"description"`
+	Name          *string    `json:"name"`
+	DivisionType  *string    `json:"divisionType" validate:"omitempty,oneof=pool bracket mixed"`
+	Description   *string    `json:"description"`
+	AutoAdvance   *bool      `json:"auto_advance,omitempty"`
+	TargetRoundID *uuid.UUID `json:"target_round_id,omitempty"`
+	TopNTeams     *int       `json:"top_n_teams,omitempty"`
 }
 
 type AddCrewMemberRequest struct {
@@ -700,12 +706,22 @@ func (h *EventHandler) CreateDivisionPool(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	dp, err := h.client.DivisionPool.Create().
+	builder := h.client.DivisionPool.Create().
 		SetName(req.Name).
 		SetDivisionType(req.DivisionType).
 		SetNillableDescription(req.Description).
 		AddEventIDs(eventID).
-		Save(ctx)
+		SetAutoAdvance(req.AutoAdvance)
+
+	if req.TopNTeams != nil {
+		builder.SetTopNTeams(*req.TopNTeams)
+	}
+
+	if req.TargetRoundID != nil {
+		builder.SetTargetRoundID(*req.TargetRoundID)
+	}
+
+	dp, err := builder.Save(ctx)
 
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to create division pool")
@@ -758,6 +774,15 @@ func (h *EventHandler) UpdateDivisionPool(w http.ResponseWriter, r *http.Request
 	}
 	if req.Description != nil {
 		updater.SetNillableDescription(req.Description)
+	}
+	if req.AutoAdvance != nil {
+		updater.SetAutoAdvance(*req.AutoAdvance)
+	}
+	if req.TopNTeams != nil {
+		updater.SetTopNTeams(*req.TopNTeams)
+	}
+	if req.TargetRoundID != nil {
+		updater.SetTargetRoundID(*req.TargetRoundID)
 	}
 
 	dp, err := updater.Save(ctx)
