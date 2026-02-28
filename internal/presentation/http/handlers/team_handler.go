@@ -630,6 +630,50 @@ func (h *TeamHandler) UpdateTeam(w http.ResponseWriter, r *http.Request) {
 }
 
 // ============================================
+// Delete Team Handler
+// ============================================
+
+// DeleteTeam godoc
+// @Summary Delete a team
+// @Description Delete an existing team by ID
+// @Tags teams
+// @Param id path string true "Team ID" format(uuid)
+// @Success 204
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Security BearerAuth
+// @Router /teams/{id} [delete]
+func (h *TeamHandler) DeleteTeam(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	teamID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid team ID")
+		return
+	}
+
+	// Check team exists
+	exists, err := h.client.Team.Query().Where(team.IDEQ(teamID)).Exist(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to check team")
+		return
+	}
+	if !exists {
+		respondError(w, http.StatusNotFound, "Team not found")
+		return
+	}
+
+	// Delete team (cascades will remove edges)
+	err = h.client.Team.DeleteOneID(teamID).Exec(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to delete team")
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// ============================================
 // Create Player Handler
 // ============================================
 

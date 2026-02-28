@@ -246,6 +246,7 @@ func NewRouter(opts RouterOptions) chi.Router {
 
 				r.With(middleware.RequirePermission(middleware.PermViewTeams)).Get("/{id}", opts.TeamHandler.GetTeam)
 				r.With(middleware.RequirePermission(middleware.PermManageTeams)).Put("/{id}", opts.TeamHandler.UpdateTeam)
+				r.With(middleware.RequirePermission(middleware.PermDeleteTeams)).Delete("/{id}", opts.TeamHandler.DeleteTeam)
 				r.With(middleware.RequirePermission(middleware.PermViewTeams)).Get("/{id}/spirit-average", opts.SpiritScoreHandler.GetTeamSpiritAverage)
 
 				r.Route("/{id}/players", func(r chi.Router) {
