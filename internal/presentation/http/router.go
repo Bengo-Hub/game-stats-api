@@ -161,17 +161,10 @@ func NewRouter(opts RouterOptions) chi.Router {
 			r.Get("/me", opts.AuthHandler.Me)
 
 			// Game management routes (with permission checks)
+			// NOTE: Read-only game operations (list, get, timeline, scores, stream, spirit)
+			// are served from the public /public/games/* routes — no auth required.
+			// Only mutation operations require authentication below.
 			r.Route("/games", func(r chi.Router) {
-				// Read operations - require view_games permission
-				r.Group(func(r chi.Router) {
-					r.Use(middleware.RequirePermission(middleware.PermViewGames))
-					r.Get("/", opts.GameHandler.ListGames)
-					r.Get("/{id}", opts.GameHandler.GetGame)
-					r.Get("/{id}/timeline", opts.GameHandler.GetGameTimeline)
-					r.Get("/{id}/scores", opts.GameHandler.GetGameScores)
-					r.Get("/{id}/stream", opts.GameHandler.StreamGame)
-					r.Get("/{id}/spirit", opts.SpiritScoreHandler.GetGameSpiritScores)
-				})
 
 				// Create operations - require add_games permission
 				r.Group(func(r chi.Router) {
