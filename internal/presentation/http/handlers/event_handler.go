@@ -12,9 +12,11 @@ import (
 	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	entGame "github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/predicate"
 	"github.com/bengobox/game-stats-api/ent/scopedrole"
+	entUser "github.com/bengobox/game-stats-api/ent/user"
 	"github.com/bengobox/game-stats-api/internal/pkg/logger"
 	"github.com/bengobox/game-stats-api/internal/pkg/types"
 	"github.com/go-chi/chi/v5"
@@ -1039,19 +1041,45 @@ func (h *EventHandler) GetEventCrew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	roles, err := h.client.ScopedRole.Query().
-		Where(
+	// Filtering by division
+	divisionIDStr := r.URL.Query().Get("division_pool_id")
+	var divisionID *uuid.UUID
+	if divisionIDStr != "" {
+		if id, err := uuid.Parse(divisionIDStr); err == nil {
+			divisionID = &id
+		}
+	}
+
+	// 1. Get explicitly scoped roles
+	rolesQuery := h.client.ScopedRole.Query()
+
+	if divisionID != nil {
+		rolesQuery = rolesQuery.Where(
+			scopedrole.Or(
+				scopedrole.And(
+					scopedrole.ScopeTypeEQ("event"),
+					scopedrole.ScopeIDEQ(eventID),
+				),
+				scopedrole.And(
+					scopedrole.ScopeTypeEQ("division"),
+					scopedrole.ScopeIDEQ(*divisionID),
+				),
+			),
+		)
+	} else {
+		rolesQuery = rolesQuery.Where(
 			scopedrole.ScopeTypeEQ("event"),
 			scopedrole.ScopeIDEQ(eventID),
-		).
-		WithUser().
-		All(ctx)
+		)
+	}
 
+	roles, err := rolesQuery.WithUser().All(ctx)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to fetch event crew")
 		return
 	}
 
+	userMap := make(map[uuid.UUID]UserResponse)
 	admins := []UserResponse{}
 	scorekeepers := []UserResponse{}
 
@@ -1067,11 +1095,49 @@ func (h *EventHandler) GetEventCrew(w http.ResponseWriter, r *http.Request) {
 			Role:      sr.Edges.User.Role,
 			IsActive:  sr.Edges.User.IsActive,
 		}
-
+		userMap[sr.Edges.User.ID] = u
 		if sr.Role == "admin" || sr.Role == "event_manager" {
 			admins = append(admins, u)
 		} else {
 			scorekeepers = append(scorekeepers, u)
+		}
+	}
+
+	// 2. Get scorekeepers assigned to games in this event/division
+	var skUserQuery *ent.UserQuery
+	if divisionID != nil {
+		skUserQuery = h.client.User.Query().
+			Where(
+				entUser.HasOfficiatedGamesWith(
+					entGame.HasDivisionPoolWith(divisionpool.IDEQ(*divisionID)),
+				),
+			)
+	} else {
+		skUserQuery = h.client.User.Query().
+			Where(
+				entUser.HasOfficiatedGamesWith(
+					entGame.HasDivisionPoolWith(
+						divisionpool.HasEventWith(event.IDEQ(eventID)),
+					),
+				),
+			)
+	}
+
+	skUsers, err := skUserQuery.All(ctx)
+	if err == nil {
+		for _, u := range skUsers {
+			if _, exists := userMap[u.ID]; !exists {
+				resp := UserResponse{
+					ID:        u.ID.String(),
+					Name:      u.Name,
+					Email:     u.Email,
+					AvatarURL: u.AvatarURL,
+					Role:      u.Role,
+					IsActive:  u.IsActive,
+				}
+				scorekeepers = append(scorekeepers, resp)
+				userMap[u.ID] = resp
+			}
 		}
 	}
 

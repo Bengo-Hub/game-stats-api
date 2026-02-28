@@ -16,7 +16,7 @@ type CreateGameRequest struct {
 	DivisionPoolID       uuid.UUID              `json:"division_pool_id" validate:"required"`
 	FieldLocationID      uuid.UUID              `json:"field_location_id" validate:"required"`
 	GameRoundID          uuid.UUID              `json:"game_round_id" validate:"required"` // Ensure required
-	ScorekeeperID        *uuid.UUID             `json:"scorekeeper_id,omitempty"`
+	ScorekeeperID        uuid.UUID              `json:"scorekeeper_id" validate:"required"`
 	FirstPullBy          *string                `json:"first_pull_by,omitempty"`
 	Metadata             map[string]interface{} `json:"metadata,omitempty"`
 }
@@ -165,6 +165,21 @@ type ScoringDTO struct {
 	Turns        int        `json:"turns"`
 	CreatedAt    time.Time  `json:"createdAt"`
 	UpdatedAt    time.Time  `json:"updatedAt"`
+}
+
+type PlayerScore struct {
+	PlayerID uuid.UUID `json:"player_id"`
+	Goals    int       `json:"goals" validate:"min=0"`
+	Assists  int       `json:"assists" validate:"min=0"`
+	Blocks   int       `json:"blocks" validate:"min=0"`
+	Turns    int       `json:"turns" validate:"min=0"`
+}
+
+type UpdateGameScoreRequest struct {
+	HomeScore    int           `json:"home_score" validate:"min=0"`
+	AwayScore    int           `json:"away_score" validate:"min=0"`
+	PlayerScores []PlayerScore `json:"player_scores" validate:"dive"`
+	Reason       string        `json:"reason" validate:"required,min=10"`
 }
 
 // Spirit Score DTOs

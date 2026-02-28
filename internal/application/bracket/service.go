@@ -149,109 +149,124 @@ func (s *Service) generateSingleElimination(ctx context.Context, teams []TeamSee
 	// Generate matchups using standard seeding
 	matchups := generateMatchups(teams, totalRounds)
 
-	// Create games for first round
+	// Create games for all rounds
 	gamesCreated := []uuid.UUID{}
 	gameNodes := make(map[string]*BracketNode)
 
 	currentTime := req.StartTime
 
-	// Create first round games
-	firstRoundMatchups := filterMatchupsByRound(matchups, 1)
-	for _, matchup := range firstRoundMatchups {
-		nodeKey := fmt.Sprintf("r%d-p%d", matchup.Round, matchup.Position)
+	// Create nodes for all rounds
+	for r := 1; r <= totalRounds; r++ {
+		numGames := 1 << (totalRounds - r)
 
-		node := &BracketNode{
-			ID:       uuid.New(),
-			Round:    matchup.Round,
-			Position: matchup.Position,
-			Status:   "scheduled",
-		}
+		for p := 1; p <= numGames; p++ {
+			nodeKey := fmt.Sprintf("r%d-p%d", r, p)
 
-		// Set team 1 (higher seed)
-		if matchup.Team1ID != uuid.Nil {
-			team1, err := s.teamRepo.GetByID(ctx, matchup.Team1ID)
-			if err != nil {
-				return nil, nil, fmt.Errorf("team1 not found: %w", err)
-			}
-			node.Team1ID = &matchup.Team1ID
-			node.Team1Name = team1.Name
-			node.Team1Seed = &matchup.Team1Seed
-		} else {
-			// Bye - team advances automatically
-			node.Team1Name = "BYE"
-		}
-
-		// Set team 2 (lower seed)
-		if matchup.Team2ID != uuid.Nil {
-			team2, err := s.teamRepo.GetByID(ctx, matchup.Team2ID)
-			if err != nil {
-				return nil, nil, fmt.Errorf("team2 not found: %w", err)
-			}
-			node.Team2ID = &matchup.Team2ID
-			node.Team2Name = team2.Name
-			node.Team2Seed = &matchup.Team2Seed
-		} else {
-			// Bye - team1 advances automatically
-			node.Team2Name = "BYE"
-			if node.Team1ID != nil {
-				node.WinnerID = node.Team1ID
-				node.Status = "completed"
-			}
-		}
-
-		// Create game only if both teams are real (no byes)
-		if node.Team1ID != nil && node.Team2ID != nil {
-			game, err := s.createBracketGame(ctx, req, *node.Team1ID, *node.Team2ID, currentTime)
-			if err != nil {
-				return nil, nil, fmt.Errorf("failed to create game: %w", err)
+			node := &BracketNode{
+				ID:       uuid.New(),
+				Round:    r,
+				Position: p,
+				Status:   "scheduled",
 			}
 
-			node.GameID = &game.ID
-			node.ScheduledTime = &currentTime
-			gamesCreated = append(gamesCreated, game.ID)
+			// Find team assignments for round 1
+			if r == 1 {
+				matchFound := false
+				for _, m := range matchups {
+					if m.Round == 1 && m.Position == p {
+						matchFound = true
+						if m.Team1ID != uuid.Nil {
+							team1, err := s.teamRepo.GetByID(ctx, m.Team1ID)
+							if err == nil {
+								node.Team1ID = &m.Team1ID
+								node.Team1Name = team1.Name
+								node.Team1Seed = &m.Team1Seed
+							}
+						} else {
+							node.Team1Name = "BYE"
+						}
 
-			// Increment time for next game
-			currentTime = currentTime.Add(time.Duration(req.GameDuration+15) * time.Minute)
+						if m.Team2ID != uuid.Nil {
+							team2, err := s.teamRepo.GetByID(ctx, m.Team2ID)
+							if err == nil {
+								node.Team2ID = &m.Team2ID
+								node.Team2Name = team2.Name
+								node.Team2Seed = &m.Team2Seed
+							}
+						} else {
+							node.Team2Name = "BYE"
+							// Bye logic: if team1 exists, they win
+							if node.Team1ID != nil {
+								node.WinnerID = node.Team1ID
+							}
+						}
+						break
+					}
+				}
+				if !matchFound {
+					node.Team1Name = "TBD"
+					node.Team2Name = "TBD"
+				}
+			} else {
+				node.Team1Name = "TBD"
+				node.Team2Name = "TBD"
+				node.Status = "pending"
+			}
+
+			// Create bracket game entity if not a bye-win already
+			// For later rounds, we create them as "pending" or "scheduled" TBD games
+			game, err := s.createBracketGameEntity(ctx, req, node, currentTime)
+			if err == nil && game != nil {
+				node.GameID = &game.ID
+				node.ScheduledTime = &currentTime
+				gamesCreated = append(gamesCreated, game.ID)
+
+				// Increment time for next game
+				currentTime = currentTime.Add(time.Duration(req.GameDuration+15) * time.Minute)
+			}
+
+			gameNodes[nodeKey] = node
 		}
-
-		gameNodes[nodeKey] = node
 	}
 
-	// Build bracket tree structure (placeholder nodes for future rounds)
+	// Build bracket tree structure
 	root := s.buildBracketTree(gameNodes, totalRounds)
 
 	return root, gamesCreated, nil
 }
 
-// createBracketGame creates a game entity for a bracket match
-func (s *Service) createBracketGame(ctx context.Context, req GenerateBracketRequest, team1ID, team2ID uuid.UUID, scheduledTime time.Time) (*ent.Game, error) {
-	team1, err := s.teamRepo.GetByID(ctx, team1ID)
-	if err != nil {
-		return nil, err
+// createBracketGameEntity creates a game record for any round
+func (s *Service) createBracketGameEntity(ctx context.Context, req GenerateBracketRequest, node *BracketNode, scheduledTime time.Time) (*ent.Game, error) {
+	gameName := fmt.Sprintf("Round %d, Match %d", node.Round, node.Position)
+	if node.Team1Name != "" && node.Team2Name != "" && node.Team1Name != "TBD" && node.Team2Name != "TBD" {
+		gameName = fmt.Sprintf("%s vs %s", node.Team1Name, node.Team2Name)
 	}
-
-	team2, err := s.teamRepo.GetByID(ctx, team2ID)
-	if err != nil {
-		return nil, err
-	}
-
-	gameName := fmt.Sprintf("%s vs %s", team1.Name, team2.Name)
 
 	game := &ent.Game{
 		Name:                 gameName,
 		ScheduledTime:        scheduledTime,
 		AllocatedTimeMinutes: req.GameDuration,
-		Status:               "scheduled",
+		Status:               node.Status,
 		HomeTeamScore:        0,
 		AwayTeamScore:        0,
 		Version:              1,
 		Edges: ent.GameEdges{
-			HomeTeam:      &ent.Team{ID: team1ID},
-			AwayTeam:      &ent.Team{ID: team2ID},
 			DivisionPool:  &ent.DivisionPool{ID: req.DivisionPoolID},
 			FieldLocation: &ent.Field{ID: req.FieldID},
 			GameRound:     &ent.GameRound{ID: req.RoundID},
 		},
+	}
+
+	if node.Team1ID != nil {
+		game.Edges.HomeTeam = &ent.Team{ID: *node.Team1ID}
+	}
+	if node.Team2ID != nil {
+		game.Edges.AwayTeam = &ent.Team{ID: *node.Team2ID}
+	}
+
+	// Skip if it's a bye
+	if node.Team1Name == "BYE" || node.Team2Name == "BYE" {
+		return nil, nil
 	}
 
 	createdGame, err := s.gameRepo.Create(ctx, game)
@@ -383,64 +398,70 @@ func (s *Service) GetBracket(ctx context.Context, roundID uuid.UUID) (*GetBracke
 }
 
 // buildBracketFromGames constructs bracket tree from existing games
-// Uses game scheduled times to determine bracket structure
 func (s *Service) buildBracketFromGames(games []*ent.Game) *BracketNode {
 	if len(games) == 0 {
 		return nil
 	}
 
-	// Sort games by scheduled time to determine rounds
+	totalRounds := calculateTotalRounds(len(games))
+	nodes := make(map[string]*BracketNode)
+
+	// Build all nodes from games first
+	// We need to determine the round and position for each game.
+	// In a single elimination bracket with N games (N+1 teams),
+	// round R has 2^(totalRounds-R) games.
+	// We'll sort by scheduled time and assign rounds/positions based on a standard progression.
 	sort.Slice(games, func(i, j int) bool {
 		return games[i].ScheduledTime.Before(games[j].ScheduledTime)
 	})
 
-	// Build nodes from games
-	nodes := make([]*BracketNode, len(games))
-	for i, game := range games {
-		node := &BracketNode{
-			ID:            uuid.New(),
-			GameID:        &game.ID,
-			Round:         i + 1, // Simplified - should calculate based on bracket structure
-			Position:      i + 1,
-			Status:        game.Status,
-			ScheduledTime: &game.ScheduledTime,
+	// Assign games to rounds based on power-of-2 counts
+	remainingGames := games
+	for r := 1; r <= totalRounds; r++ {
+		gamesInRound := 1 << (totalRounds - r)
+		if gamesInRound > len(remainingGames) {
+			gamesInRound = len(remainingGames)
 		}
 
-		// Set teams if available
-		if game.Edges.HomeTeam != nil {
-			node.Team1ID = &game.Edges.HomeTeam.ID
-			node.Team1Name = game.Edges.HomeTeam.Name
-		}
+		roundGames := remainingGames[:gamesInRound]
+		remainingGames = remainingGames[gamesInRound:]
 
-		if game.Edges.AwayTeam != nil {
-			node.Team2ID = &game.Edges.AwayTeam.ID
-			node.Team2Name = game.Edges.AwayTeam.Name
-		}
-
-		// Set scores
-		if game.Status == "completed" {
-			team1Score := game.HomeTeamScore
-			team2Score := game.AwayTeamScore
-			node.Team1Score = &team1Score
-			node.Team2Score = &team2Score
-
-			// Determine winner
-			if team1Score > team2Score {
-				node.WinnerID = node.Team1ID
-			} else if team2Score > team1Score {
-				node.WinnerID = node.Team2ID
+		for p, game := range roundGames {
+			node := &BracketNode{
+				ID:            uuid.New(),
+				GameID:        &game.ID,
+				Round:         r,
+				Position:      p + 1,
+				Status:        game.Status,
+				ScheduledTime: &game.ScheduledTime,
 			}
+
+			if game.Edges.HomeTeam != nil {
+				node.Team1ID = &game.Edges.HomeTeam.ID
+				node.Team1Name = game.Edges.HomeTeam.Name
+			}
+			if game.Edges.AwayTeam != nil {
+				node.Team2ID = &game.Edges.AwayTeam.ID
+				node.Team2Name = game.Edges.AwayTeam.Name
+			}
+
+			if game.Status == "completed" {
+				t1, t2 := game.HomeTeamScore, game.AwayTeamScore
+				node.Team1Score, node.Team2Score = &t1, &t2
+				if t1 > t2 {
+					node.WinnerID = node.Team1ID
+				} else if t2 > t1 {
+					node.WinnerID = node.Team2ID
+				}
+			}
+
+			key := fmt.Sprintf("r%d-p%d", r, p+1)
+			nodes[key] = node
 		}
-
-		nodes[i] = node
 	}
 
-	// Return first node as root - tree structure built from game order
-	if len(nodes) > 0 {
-		return nodes[0]
-	}
-
-	return nil
+	// Connect the nodes into a tree
+	return s.buildBracketTree(nodes, totalRounds)
 }
 
 // Helper functions

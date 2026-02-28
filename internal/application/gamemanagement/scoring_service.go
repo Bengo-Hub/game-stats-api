@@ -197,7 +197,10 @@ func (s *Service) RecordScore(ctx context.Context, gameID uuid.UUID, userID uuid
 		return nil, err
 	}
 
-	return mapGameToDTO(result), nil
+	s.invalidateGameCache(ctx, gameID)
+	dto := mapGameToDTO(result)
+	s.cacheGame(ctx, dto)
+	return dto, nil
 }
 
 func (s *Service) GetGameScores(ctx context.Context, gameID uuid.UUID) ([]*ScoringDTO, error) {
@@ -275,4 +278,114 @@ func mapScoringToDTO(s *ent.Scoring) *ScoringDTO {
 	}
 
 	return dto
+}
+
+func (s *Service) UpdateBulkScores(ctx context.Context, gameID uuid.UUID, userID uuid.UUID, req UpdateGameScoreRequest) (*GameDTO, error) {
+	game, err := s.gameRepo.GetByIDWithRelations(ctx, gameID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, ErrGameNotFound
+		}
+		return nil, err
+	}
+
+	// Verify authorization
+	// Admins and Event Managers can update any game
+	// Scorekeepers can only update games assigned to them
+	authorized := false
+	role, _ := ctx.Value("user_role").(string)
+	if role == "admin" || role == "event_manager" {
+		authorized = true
+	} else if game.Edges.Scorekeeper != nil && game.Edges.Scorekeeper.ID == userID {
+		authorized = true
+	}
+
+	if !authorized {
+		return nil, ErrUnauthorized
+	}
+
+	// Update individual player scores
+	if len(req.PlayerScores) > 0 {
+		existingScores, err := s.scoringRepo.ListByGame(ctx, gameID)
+		if err != nil {
+			return nil, err
+		}
+
+		scoreMap := make(map[uuid.UUID]*ent.Scoring)
+		for _, es := range existingScores {
+			if es.Edges.Player != nil {
+				scoreMap[es.Edges.Player.ID] = es
+			}
+		}
+
+		for _, ps := range req.PlayerScores {
+			if existing, ok := scoreMap[ps.PlayerID]; ok {
+				existing.Goals = ps.Goals
+				existing.Assists = ps.Assists
+				existing.Blocks = ps.Blocks
+				existing.Turns = ps.Turns
+				_, err = s.scoringRepo.Update(ctx, existing)
+			} else {
+				_, err = s.scoringRepo.Create(ctx, &ent.Scoring{
+					Goals:   ps.Goals,
+					Assists: ps.Assists,
+					Blocks:  ps.Blocks,
+					Turns:   ps.Turns,
+					Edges: ent.ScoringEdges{
+						Game:   game,
+						Player: &ent.Player{ID: ps.PlayerID},
+					},
+				})
+			}
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	// Recalculate game totals
+	homeScore, awayScore, err := s.scoreDomainService.RecalculateTotals(ctx, gameID, game.Edges.HomeTeam.ID, game.Edges.AwayTeam.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Update game scores
+	updatedGame, err := s.gameRepo.UpdateWithVersion(ctx, gameID, game.Version, func(update *ent.GameUpdateOne) *ent.GameUpdateOne {
+		return update.
+			SetHomeTeamScore(homeScore).
+			SetAwayTeamScore(awayScore)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Log bulk update event
+	_, err = s.gameEventRepo.Create(ctx, &ent.GameEvent{
+		EventType:   "bulk_score_update",
+		Minute:      0, // Or current game minute
+		Second:      0,
+		Description: fmt.Sprintf("Bulk score update: %s", req.Reason),
+		Metadata: map[string]interface{}{
+			"reason":     req.Reason,
+			"home_score": homeScore,
+			"away_score": awayScore,
+			"player_cnt": len(req.PlayerScores),
+			"updated_by": userID,
+		},
+		Edges: ent.GameEventEdges{
+			Game: updatedGame,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	s.invalidateGameCache(ctx, gameID)
+	result, err := s.gameRepo.GetByIDWithRelations(ctx, updatedGame.ID)
+	if err != nil {
+		return nil, err
+	}
+	dto := mapGameToDTO(result)
+	s.cacheGame(ctx, dto)
+	return dto, nil
 }

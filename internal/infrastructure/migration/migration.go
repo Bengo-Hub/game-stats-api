@@ -12,6 +12,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/scoring"
 	"github.com/bengobox/game-stats-api/ent/world"
+	"github.com/bengobox/game-stats-api/internal/infrastructure/cache"
 	"github.com/bengobox/game-stats-api/internal/pkg/logger"
 	"github.com/google/uuid"
 )
@@ -21,13 +22,15 @@ type Migrator struct {
 	client    *ent.Client
 	idMapping *IDMapping
 	loader    *FixtureLoader
+	cache     *cache.RedisClient
 }
 
 // NewMigrator creates a new migrator instance
-func NewMigrator(client *ent.Client) *Migrator {
+func NewMigrator(client *ent.Client, cache *cache.RedisClient) *Migrator {
 	return &Migrator{
 		client:    client,
 		idMapping: NewIDMapping(),
+		cache:     cache,
 	}
 }
 

@@ -3,6 +3,7 @@ package gamemanagement
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/bengobox/game-stats-api/ent"
@@ -21,6 +22,7 @@ import (
 	"github.com/bengobox/game-stats-api/internal/domain/spiritscore"
 	"github.com/bengobox/game-stats-api/internal/domain/team"
 	"github.com/bengobox/game-stats-api/internal/domain/user"
+	"github.com/bengobox/game-stats-api/internal/infrastructure/cache"
 	"github.com/google/uuid"
 )
 
@@ -57,6 +59,7 @@ type Service struct {
 	scoreDomainService   *scoring.ScoreService
 	permissionService    *auth.PermissionService
 	advancementService   AdvancementService
+	cache                *cache.RedisClient
 }
 
 func NewService(
@@ -76,6 +79,7 @@ func NewService(
 	participationRepo eventparticipation.Repository,
 	permissionService *auth.PermissionService,
 	advancementService AdvancementService,
+	cacheClient *cache.RedisClient,
 ) *Service {
 	return &Service{
 		gameRepo:             gameRepo,
@@ -95,6 +99,7 @@ func NewService(
 		scoreDomainService:   scoring.NewScoreService(scoringRepo),
 		permissionService:    permissionService,
 		advancementService:   advancementService,
+		cache:                cacheClient,
 	}
 }
 
@@ -136,9 +141,15 @@ func (s *Service) ScheduleGame(ctx context.Context, req CreateGameRequest) (*Gam
 		return nil, err
 	}
 
+	// Auto-generate game name if not provided
+	gameName := req.Name
+	if gameName == "" {
+		gameName = fmt.Sprintf("%s vs %s", homeTeam.Name, awayTeam.Name)
+	}
+
 	// Create game entity
 	gameEntity := &ent.Game{
-		Name:                 req.Name,
+		Name:                 gameName,
 		ScheduledTime:        req.ScheduledTime,
 		AllocatedTimeMinutes: req.AllocatedTimeMinutes,
 		Status:               "scheduled",
@@ -158,13 +169,12 @@ func (s *Service) ScheduleGame(ctx context.Context, req CreateGameRequest) (*Gam
 	}
 	gameEntity.Edges.GameRound = round
 
-	if req.ScorekeeperID != nil {
-		scorekeeper, err := s.userRepo.GetByID(ctx, *req.ScorekeeperID)
-		if err != nil {
-			return nil, err
-		}
-		gameEntity.Edges.Scorekeeper = scorekeeper
+	// Get scorekeeper
+	scorekeeper, err := s.userRepo.GetByID(ctx, req.ScorekeeperID)
+	if err != nil {
+		return nil, fmt.Errorf("scorekeeper not found: %w", err)
 	}
+	gameEntity.Edges.Scorekeeper = scorekeeper
 
 	created, err := s.gameRepo.Create(ctx, gameEntity)
 	if err != nil {
@@ -177,10 +187,21 @@ func (s *Service) ScheduleGame(ctx context.Context, req CreateGameRequest) (*Gam
 		return nil, err
 	}
 
-	return mapGameToDTO(game), nil
+	dto := mapGameToDTO(game)
+	s.cacheGame(ctx, dto)
+	return dto, nil
 }
 
 func (s *Service) GetGame(ctx context.Context, id uuid.UUID) (*GameDTO, error) {
+	// Try cache first
+	if s.cache != nil {
+		cacheKey := cache.CacheKey("game", id.String())
+		var cached GameDTO
+		if err := s.cache.GetJSON(ctx, cacheKey, &cached); err == nil && cached.ID != uuid.Nil {
+			return &cached, nil
+		}
+	}
+
 	game, err := s.gameRepo.GetByIDWithRelations(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -189,7 +210,12 @@ func (s *Service) GetGame(ctx context.Context, id uuid.UUID) (*GameDTO, error) {
 		return nil, err
 	}
 
-	return mapGameToDTO(game), nil
+	dto := mapGameToDTO(game)
+
+	// Cache the result with status-based TTL
+	s.cacheGame(ctx, dto)
+
+	return dto, nil
 }
 
 func (s *Service) ListGames(ctx context.Context, filter ListGamesFilter) ([]*GameDTO, error) {
@@ -226,7 +252,12 @@ func (s *Service) ListGames(ctx context.Context, filter ListGamesFilter) ([]*Gam
 
 	result := make([]*GameDTO, len(games))
 	for i, g := range games {
-		result[i] = mapGameToDTO(g)
+		// Automatic cancellation check for list view
+		g, _ = s.checkAndCancelExpiredGame(ctx, g)
+		dto := mapGameToDTO(g)
+		// Cache individual games as we list them
+		s.cacheGame(ctx, dto)
+		result[i] = dto
 	}
 
 	return result, nil
@@ -241,8 +272,8 @@ func (s *Service) UpdateGame(ctx context.Context, id uuid.UUID, req UpdateGameRe
 		return nil, err
 	}
 
-	// Only allow updates to scheduled games
-	if game.Status != "scheduled" {
+	// Allow updates to scheduled or in-progress games for rescheduling
+	if game.Status != "scheduled" && game.Status != "in_progress" {
 		return nil, ErrInvalidGameStatus
 	}
 
@@ -293,12 +324,36 @@ func (s *Service) CancelGame(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	// Can only cancel scheduled or in-progress games
-	if game.Status != "scheduled" && game.Status != "in_progress" {
-		return ErrInvalidGameStatus
+	// Update status to canceled instead of deleting
+	_, err = s.gameRepo.UpdateWithVersion(ctx, id, game.Version, func(u *ent.GameUpdateOne) *ent.GameUpdateOne {
+		return u.SetStatus("canceled")
+	})
+	return err
+}
+
+func (s *Service) checkAndCancelExpiredGame(ctx context.Context, g *ent.Game) (*ent.Game, error) {
+	if g.Status != "scheduled" {
+		return g, nil
 	}
 
-	return s.gameRepo.Delete(ctx, id)
+	now := time.Now()
+	y, m, d := now.Date()
+	startOfToday := time.Date(y, m, d, 0, 0, 0, 0, now.Location())
+
+	// If scheduled date is before today, it's expired
+	if g.ScheduledTime.Before(startOfToday) {
+		updated, err := s.gameRepo.UpdateWithVersion(ctx, g.ID, g.Version, func(u *ent.GameUpdateOne) *ent.GameUpdateOne {
+			return u.SetStatus("canceled")
+		})
+		if err != nil {
+			return g, err
+		}
+		// Clear cache if exists
+		s.invalidateGameCache(ctx, g.ID)
+		return updated, nil
+	}
+
+	return g, nil
 }
 
 // Game Timer System
@@ -311,9 +366,14 @@ func (s *Service) StartGame(ctx context.Context, id uuid.UUID, userID uuid.UUID,
 		return nil, err
 	}
 
-	// Verify scorekeeper or admin permission
-	if game.Edges.Scorekeeper == nil || game.Edges.Scorekeeper.ID != userID {
-		// Admin check handled by middleware - only scorekeeper can proceed here
+	// Verify scorekeeper or higher privilege (admin/event_manager)
+	isScorekeeper := game.Edges.Scorekeeper != nil && game.Edges.Scorekeeper.ID == userID
+
+	// Get role from context
+	userRole, _ := ctx.Value("user_role").(string)
+	isAdminOrEventManager := userRole == "admin" || userRole == "event_manager"
+
+	if !isScorekeeper && !isAdminOrEventManager {
 		return nil, ErrUnauthorized
 	}
 
@@ -323,6 +383,11 @@ func (s *Service) StartGame(ctx context.Context, id uuid.UUID, userID uuid.UUID,
 	}
 
 	now := time.Now()
+	// Validation: scheduled time must be less than or equal to the current time
+	if now.Before(game.ScheduledTime) {
+		return nil, fmt.Errorf("cannot start game before scheduled time: %s", game.ScheduledTime.Format(time.Kitchen))
+	}
+
 	expectedEnd := now.Add(time.Duration(game.AllocatedTimeMinutes) * time.Minute)
 
 	// Update game
@@ -358,7 +423,10 @@ func (s *Service) StartGame(ctx context.Context, id uuid.UUID, userID uuid.UUID,
 		return nil, err
 	}
 
-	return mapGameToDTO(result), nil
+	s.invalidateGameCache(ctx, id)
+	dto := mapGameToDTO(result)
+	s.cacheGame(ctx, dto)
+	return dto, nil
 }
 
 func (s *Service) EndGame(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*GameDTO, error) {
@@ -413,7 +481,10 @@ func (s *Service) EndGame(ctx context.Context, id uuid.UUID, userID uuid.UUID) (
 		return nil, err
 	}
 
-	return mapGameToDTO(result), nil
+	s.invalidateGameCache(ctx, id)
+	dto := mapGameToDTO(result)
+	s.cacheGame(ctx, dto)
+	return dto, nil
 }
 
 func (s *Service) CompleteGame(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*GameDTO, error) {
@@ -473,7 +544,10 @@ func (s *Service) CompleteGame(ctx context.Context, id uuid.UUID, userID uuid.UU
 		return nil, err
 	}
 
-	return mapGameToDTO(result), nil
+	s.invalidateGameCache(ctx, id)
+	dto := mapGameToDTO(result)
+	s.cacheGame(ctx, dto)
+	return dto, nil
 }
 
 func (s *Service) RecordStoppage(ctx context.Context, id uuid.UUID, userID uuid.UUID, req RecordStoppageRequest) (*GameDTO, error) {
@@ -629,6 +703,29 @@ func mapGameToDTO(g *ent.Game) *GameDTO {
 	}
 
 	return dto
+}
+
+// cacheGame stores a game DTO in Redis with a TTL based on its status.
+func (s *Service) cacheGame(ctx context.Context, dto *GameDTO) {
+	if s.cache == nil || dto == nil {
+		return
+	}
+	cacheKey := cache.CacheKey("game", dto.ID.String())
+
+	ttl := cache.TTLGameLive // default for scheduled / in_progress / ended
+	if dto.Status == "completed" || dto.Status == "canceled" {
+		ttl = cache.TTLGameCompleted
+	}
+	_ = s.cache.SetJSON(ctx, cacheKey, dto, ttl)
+}
+
+// invalidateGameCache removes a game's cached DTO from Redis.
+func (s *Service) invalidateGameCache(ctx context.Context, id uuid.UUID) {
+	if s.cache == nil {
+		return
+	}
+	cacheKey := cache.CacheKey("game", id.String())
+	_ = s.cache.Delete(ctx, cacheKey)
 }
 
 // Bulk Operations

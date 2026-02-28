@@ -93,7 +93,7 @@ func main() {
 	// 3.2. Run data migration from legacy system (idempotent)
 	if cfg.RunMigration {
 		logger.Info("Running data migration from legacy Django fixtures...")
-		migrator := migration.NewMigrator(client)
+		migrator := migration.NewMigrator(client, redisClient)
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 		defer cancel()
 
@@ -196,7 +196,13 @@ func main() {
 		participationRepo,
 		permissionService,
 		rankingService,
+		redisClient,
 	)
+
+	// Start background score sync worker
+	scoreSyncWorker := gamemanagement.NewScoreSyncWorker(gameRepo, redisClient, 5*time.Minute)
+	scoreSyncCtx, scoreSyncCancel := context.WithCancel(context.Background())
+	go scoreSyncWorker.Start(scoreSyncCtx)
 
 	// Initialize SSE broker for real-time updates
 	sseBroker := sse.NewBroker()
@@ -290,6 +296,9 @@ func main() {
 	<-stop
 
 	logger.Info("Shutting down server...")
+
+	// Stop background workers
+	scoreSyncCancel()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

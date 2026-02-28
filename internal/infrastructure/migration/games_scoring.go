@@ -2,6 +2,7 @@ package migration
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/scoring"
 	"github.com/bengobox/game-stats-api/ent/user"
 	"github.com/bengobox/game-stats-api/internal/pkg/logger"
+	"github.com/google/uuid"
 )
 
 // migrateGames migrates games from games_game.json
@@ -36,21 +38,9 @@ func (m *Migrator) migrateGames(ctx context.Context, fixturesDir string) error {
 			return err
 		}
 
-		// Extract team IDs - handle both old and new field names
-		var homeTeamLegacyID, awayTeamLegacyID int
-
-		// Try both field name formats
-		if val, ok := fix.Fields["team1"]; ok {
-			homeTeamLegacyID = parseInt(val)
-		} else if val, ok := fix.Fields["home_team"]; ok {
-			homeTeamLegacyID = parseInt(val)
-		}
-
-		if val, ok := fix.Fields["team2"]; ok {
-			awayTeamLegacyID = parseInt(val)
-		} else if val, ok := fix.Fields["away_team"]; ok {
-			awayTeamLegacyID = parseInt(val)
-		}
+		// Extract team IDs
+		homeTeamLegacyID := parseInt(fix.Fields["home_team"])
+		awayTeamLegacyID := parseInt(fix.Fields["away_team"])
 
 		homeTeamUUID, ok1 := m.idMapping.GetTeam(homeTeamLegacyID)
 		awayTeamUUID, ok2 := m.idMapping.GetTeam(awayTeamLegacyID)
@@ -75,37 +65,18 @@ func (m *Migrator) migrateGames(ctx context.Context, fixturesDir string) error {
 			continue
 		}
 
-		// Extract scores - handle both field name formats
-		var homeScore, awayScore int
-		if val, ok := fix.Fields["team1_score"]; ok {
-			homeScore = parseInt(val)
-		} else if val, ok := fix.Fields["home_team_score"]; ok {
-			homeScore = parseInt(val)
-		}
+		// Extract scores
+		homeScore := parseInt(fix.Fields["home_team_score"])
+		awayScore := parseInt(fix.Fields["away_team_score"])
 
-		if val, ok := fix.Fields["team2_score"]; ok {
-			awayScore = parseInt(val)
-		} else if val, ok := fix.Fields["away_team_score"]; ok {
-			awayScore = parseInt(val)
-		}
-
-		// Parse scheduled time - handle multiple field names
-		var scheduledTime time.Time
-		if val, ok := fix.Fields["start_time"]; ok {
-			scheduledTime = parseTime(val)
-		} else if val, ok := fix.Fields["date"]; ok {
-			scheduledTime = parseTime(val)
-		} else {
+		// Parse scheduled time
+		scheduledTime := parseTime(fix.Fields["date"])
+		if scheduledTime.IsZero() {
 			scheduledTime = time.Now()
 		}
 
 		// Get required relationships: division_pool and field_location
-		divisionLegacyID := 0
-		if val, ok := fix.Fields["pool"]; ok {
-			divisionLegacyID = parseInt(val)
-		} else if val, ok := fix.Fields["division_pool"]; ok {
-			divisionLegacyID = parseInt(val)
-		}
+		divisionLegacyID := parseInt(fix.Fields["division_pool"])
 
 		var division *ent.DivisionPool
 		if divisionLegacyID > 0 {
@@ -256,6 +227,98 @@ func (m *Migrator) migrateScoring(ctx context.Context, fixturesDir string) error
 	logger.Info("Scoring migration complete",
 		logger.Int("migrated", migrated),
 		logger.Int("skipped", skipped))
+
+	logger.Info("Recalculating game scores based on player goals...")
+	recalcCtx := context.Background()
+
+	// Recalculate all game scores
+	games, err := m.client.Game.Query().
+		WithHomeTeam().
+		WithAwayTeam().
+		WithScores(func(q *ent.ScoringQuery) {
+			q.WithPlayer(func(pq *ent.PlayerQuery) {
+				pq.WithTeams()
+			})
+		}).
+		All(recalcCtx)
+
+	if err != nil {
+		logger.Error("Failed to fetch games for score recalculation", logger.Err(err))
+		return err
+	}
+
+	recalculated := 0
+	for _, g := range games {
+		if g.Edges.HomeTeam == nil || g.Edges.AwayTeam == nil {
+			continue
+		}
+
+		homeScore := 0
+		awayScore := 0
+
+		for _, s := range g.Edges.Scores {
+			if s.Edges.Player == nil {
+				continue
+			}
+
+			// Figure out which team the player was scoring for
+			isHome := false
+			isAway := false
+			if s.TeamID != uuid.Nil {
+				if s.TeamID == g.Edges.HomeTeam.ID {
+					isHome = true
+				} else if s.TeamID == g.Edges.AwayTeam.ID {
+					isAway = true
+				}
+			} else {
+				for _, pt := range s.Edges.Player.Edges.Teams {
+					if pt.ID == g.Edges.HomeTeam.ID {
+						isHome = true
+						break
+					}
+					if pt.ID == g.Edges.AwayTeam.ID {
+						isAway = true
+						break
+					}
+				}
+			}
+
+			if isHome {
+				homeScore += s.Goals
+			} else if isAway {
+				awayScore += s.Goals
+			}
+		}
+
+		// Update game if scores changed or were initially 0
+		if g.HomeTeamScore != homeScore || g.AwayTeamScore != awayScore || (g.HomeTeamScore == 0 && g.AwayTeamScore == 0 && (homeScore > 0 || awayScore > 0)) {
+			updatedGame, err := m.client.Game.UpdateOne(g).
+				SetHomeTeamScore(homeScore).
+				SetAwayTeamScore(awayScore).
+				Save(recalcCtx)
+			if err != nil {
+				logger.Error("Failed to update game score during recalculation", logger.Err(err), logger.String("game_id", g.ID.String()))
+			} else {
+				recalculated++
+
+				// Cache the updated game score data if redis is available
+				if m.cache != nil {
+					cacheKey := fmt.Sprintf("game-stats:game:%s", updatedGame.ID.String())
+					ttl := 5 * time.Minute // Default live game cache
+
+					if updatedGame.Status == "completed" || updatedGame.Status == "final" {
+						ttl = 24 * time.Hour
+					}
+
+					if err := m.cache.SetJSON(recalcCtx, cacheKey, updatedGame, ttl); err != nil {
+						logger.Warn("Failed to cache recalculated game", logger.Err(err), logger.String("game_id", updatedGame.ID.String()))
+					}
+				}
+			}
+		}
+	}
+
+	logger.Info("Game score recalculation complete", logger.Int("games_updated", recalculated))
 
 	return nil
 }

@@ -199,6 +199,7 @@ func NewRouter(opts RouterOptions) chi.Router {
 					r.Post("/{id}/complete", opts.GameHandler.CompleteGame)
 					r.Post("/{id}/stoppage", opts.GameHandler.RecordStoppage)
 					r.Post("/{id}/score", opts.GameHandler.RecordScore)
+					r.Put("/{id}/score", opts.GameHandler.UpdateBulkScores)
 				})
 
 				// Spirit scores - require submit_spirit permission
@@ -216,7 +217,6 @@ func NewRouter(opts RouterOptions) chi.Router {
 					r.Get("/{id}", opts.EventHandler.GetEvent)
 					r.Get("/{id}/divisions", opts.EventHandler.ListDivisionsByEvent)
 					r.Get("/{event_id}/rounds", opts.GameRoundHandler.ListGameRounds)
-					r.Post("/{event_id}/rounds/seed", opts.GameRoundHandler.SeedDefaultRounds)
 					r.Get("/{id}/bracket", opts.BracketHandler.GetEventBracket)
 					r.Get("/{id}/spirit", opts.SpiritScoreHandler.GetEventSpiritScores)
 				})
@@ -230,6 +230,8 @@ func NewRouter(opts RouterOptions) chi.Router {
 					r.Put("/{id}/divisions/{divisionId}", opts.EventHandler.UpdateDivisionPool)
 					r.Delete("/{id}/divisions/{divisionId}", opts.EventHandler.DeleteDivisionPool)
 					r.Post("/{id}/generate-bracket", opts.BracketHandler.GenerateBracket)
+					r.Post("/{event_id}/rounds", opts.GameRoundHandler.CreateGameRound)
+					r.Post("/{event_id}/rounds/seed", opts.GameRoundHandler.SeedDefaultRounds)
 
 					// Crew management
 					r.Get("/{id}/crew", opts.EventHandler.GetEventCrew)
@@ -302,7 +304,7 @@ func NewRouter(opts RouterOptions) chi.Router {
 			// Game round management
 			r.Route("/rounds", func(r chi.Router) {
 				r.Use(middleware.RequirePermission(middleware.PermManageGames))
-				r.Post("/", opts.GameRoundHandler.CreateGameRound)
+
 				r.Put("/{id}", opts.GameRoundHandler.UpdateGameRound)
 				r.Delete("/{id}", opts.GameRoundHandler.DeleteGameRound)
 			})

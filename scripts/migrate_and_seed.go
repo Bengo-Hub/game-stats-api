@@ -30,7 +30,7 @@ func main() {
 
 	// 4. Run data migration from legacy system (seeding)
 	logger.Info("Starting data seeding from legacy fixtures...")
-	migrator := migration.NewMigrator(client)
+	migrator := migration.NewMigrator(client, nil)
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Minute)
 	defer cancel()
 

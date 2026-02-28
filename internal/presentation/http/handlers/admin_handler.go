@@ -61,6 +61,9 @@ func (h *AdminHandler) UpdateGameScore(w http.ResponseWriter, r *http.Request) {
 		playerScores[i] = admin.PlayerScore{
 			PlayerID: ps.PlayerID,
 			Goals:    ps.Goals,
+			Assists:  ps.Assists,
+			Blocks:   ps.Blocks,
+			Turns:    ps.Turns,
 		}
 	}
 
@@ -304,6 +307,9 @@ func (h *AdminHandler) UpdateSpiritScore(w http.ResponseWriter, r *http.Request)
 type PlayerScoreDTO struct {
 	PlayerID uuid.UUID `json:"player_id"`
 	Goals    int       `json:"goals"`
+	Assists  int       `json:"assists"`
+	Blocks   int       `json:"blocks"`
+	Turns    int       `json:"turns"`
 }
 
 // UpdateGameScoreRequestDTO is the DTO for game score updates

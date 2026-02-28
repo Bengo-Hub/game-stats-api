@@ -188,6 +188,8 @@ const (
 	TTLStandings     = 5 * time.Minute  // Division standings
 	TTLBracket       = 10 * time.Minute // Tournament brackets
 	TTLGameStats     = 2 * time.Minute  // Individual game stats
+	TTLGameCompleted = 24 * time.Hour   // Completed game responses
+	TTLGameLive      = 5 * time.Minute  // Live/in-progress game responses
 	TTLSpiritScores  = 5 * time.Minute  // Spirit score averages
 	TTLOllamaQuery   = 1 * time.Hour    // LLM-generated SQL
 	TTLSupersetToken = 4 * time.Minute  // Superset guest tokens

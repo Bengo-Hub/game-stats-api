@@ -612,6 +612,44 @@ func (h *GameHandler) GetGameScores(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(scores)
 }
 
+// UpdateBulkScores updates scores for multiple players at once.
+func (h *GameHandler) UpdateBulkScores(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	gameID, err := uuid.Parse(idStr)
+	if err != nil {
+		http.Error(w, "invalid game ID", http.StatusBadRequest)
+		return
+	}
+
+	userID := getUserIDFromContext(r)
+
+	var req gamemanagement.UpdateGameScoreRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	game, err := h.service.UpdateBulkScores(r.Context(), gameID, userID, req)
+	if err != nil {
+		if err == gamemanagement.ErrGameNotFound {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		if err == gamemanagement.ErrUnauthorized {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Broadcast SSE event
+	h.sseBroker.Broadcast(gameID, sse.EventScoreUpdated, game)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(game)
+}
+
 // Helper function to get user ID from context (set by auth middleware)
 func getUserIDFromContext(r *http.Request) uuid.UUID {
 	userIDValue := r.Context().Value("user_id")

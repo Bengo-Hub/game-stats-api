@@ -47,6 +47,9 @@ func NewScoreAdminService(
 type PlayerScore struct {
 	PlayerID uuid.UUID `json:"player_id"`
 	Goals    int       `json:"goals"`
+	Assists  int       `json:"assists"`
+	Blocks   int       `json:"blocks"`
+	Turns    int       `json:"turns"`
 }
 
 // UpdateGameScoreRequest contains score update parameters
@@ -164,10 +167,16 @@ func (s *ScoreAdminService) UpdateGameScore(
 		for _, ps := range req.PlayerScores {
 			if existing, ok := scoreMap[ps.PlayerID]; ok {
 				existing.Goals = ps.Goals
+				existing.Assists = ps.Assists
+				existing.Blocks = ps.Blocks
+				existing.Turns = ps.Turns
 				_, err = s.scoringRepo.Update(ctx, existing)
 			} else {
 				_, err = s.scoringRepo.Create(ctx, &ent.Scoring{
-					Goals: ps.Goals,
+					Goals:   ps.Goals,
+					Assists: ps.Assists,
+					Blocks:  ps.Blocks,
+					Turns:   ps.Turns,
 					Edges: ent.ScoringEdges{
 						Game:   &ent.Game{ID: req.GameID},
 						Player: &ent.Player{ID: ps.PlayerID},

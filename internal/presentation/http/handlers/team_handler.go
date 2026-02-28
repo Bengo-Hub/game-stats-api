@@ -268,18 +268,28 @@ func (h *TeamHandler) toTeamResponse(t *ent.Team, contextEventID *uuid.UUID) Tea
 	}
 
 	// Process players if loaded
-	if t.Edges.Players != nil {
+	if t.Edges.Participations != nil && contextEventID != nil {
+		count := 0
+		for _, ep := range t.Edges.Participations {
+			if ep.Edges.Event != nil && ep.Edges.Event.ID == *contextEventID {
+				count++
+			}
+		}
+		resp.PlayersCount = count
+	} else if t.Edges.Players != nil {
 		resp.PlayersCount = len(t.Edges.Players)
-		resp.Players = make([]PlayerResponse, len(t.Edges.Players))
-		for i, p := range t.Edges.Players {
-			resp.Players[i] = h.toPlayerResponse(p)
+	}
+
+	if t.Edges.Players != nil {
+		resp.Players = make([]PlayerResponse, 0, len(t.Edges.Players))
+		for _, p := range t.Edges.Players {
+			playerResp := h.toPlayerResponse(p)
+			resp.Players = append(resp.Players, playerResp)
 			// Identify captain and spirit captain
 			if p.IsCaptain {
-				playerResp := h.toPlayerResponse(p)
 				resp.Captain = &playerResp
 			}
 			if p.IsSpiritCaptain {
-				playerResp := h.toPlayerResponse(p)
 				resp.SpiritCaptain = &playerResp
 			}
 		}
@@ -312,7 +322,10 @@ func (h *TeamHandler) ListTeams(w http.ResponseWriter, r *http.Request) {
 			dpq.WithEvent()
 		}).
 		WithHomeLocation().
-		WithPlayers()
+		WithPlayers().
+		WithParticipations(func(epq *ent.EventParticipationQuery) {
+			epq.WithEvent()
+		})
 
 	// Filter by event ID (teams in any division pool of this event)
 	if eventIDStr := r.URL.Query().Get("eventId"); eventIDStr != "" {
@@ -334,6 +347,11 @@ func (h *TeamHandler) ListTeams(w http.ResponseWriter, r *http.Request) {
 		query = query.Where(team.HasDivisionPoolsWith(divisionpool.ID(divisionPoolID)))
 	}
 
+	// NEW: Filter by division type
+	if divType := r.URL.Query().Get("division"); divType != "" && divType != "All Divisions" {
+		query = query.Where(team.HasDivisionPoolsWith(divisionpool.DivisionTypeEqualFold(divType)))
+	}
+
 	// Search by name
 	if search := r.URL.Query().Get("search"); search != "" {
 		query = query.Where(team.NameContainsFold(search))
@@ -342,10 +360,18 @@ func (h *TeamHandler) ListTeams(w http.ResponseWriter, r *http.Request) {
 	// Pagination
 	pagination := ParsePagination(r)
 
+	// Get total count BEFORE limit/offset
+	total, err := query.Clone().Count(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to count teams")
+		return
+	}
+
 	teams, err := query.
 		Limit(pagination.Limit).
 		Offset(pagination.Offset).
 		Order(ent.Asc(team.FieldName)).
+		Unique(true).
 		All(ctx)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to list teams")
@@ -365,7 +391,7 @@ func (h *TeamHandler) ListTeams(w http.ResponseWriter, r *http.Request) {
 		response[i] = h.toTeamResponse(t, eventID)
 	}
 
-	respondJSON(w, http.StatusOK, response)
+	respondJSON(w, http.StatusOK, NewPaginatedResponse(response, total, pagination.Limit, pagination.Offset))
 }
 
 // GetTeam godoc

@@ -100,78 +100,9 @@ func normalizeBool(v interface{}) bool {
 	}
 }
 
-// GameFixtureNormalizer normalizes game fixture field names to match new schema
-type GameFixtureNormalizer struct{}
-
-// NormalizeGameFixture normalizes field names in a game fixture
-func (gfn *GameFixtureNormalizer) NormalizeGameFixture(fix *DjangoFixture) {
-	if fix.Model != "games.game" {
-		return
-	}
-
-	fields := fix.Fields
-
-	// Normalize time field names
-	if val, ok := fields["start_time"]; ok && fields["date"] == nil {
-		fields["date"] = val
-		delete(fields, "start_time")
-	}
-
-	// Normalize team field names
-	if val, ok := fields["team1"]; ok && fields["home_team"] == nil {
-		fields["home_team"] = val
-		delete(fields, "team1")
-	}
-	if val, ok := fields["team2"]; ok && fields["away_team"] == nil {
-		fields["away_team"] = val
-		delete(fields, "team2")
-	}
-
-	// Normalize score field names
-	if val, ok := fields["team1_score"]; ok && fields["home_team_score"] == nil {
-		fields["home_team_score"] = val
-		delete(fields, "team1_score")
-	}
-	if val, ok := fields["team2_score"]; ok && fields["away_team_score"] == nil {
-		fields["away_team_score"] = val
-		delete(fields, "team2_score")
-	}
-
-	// Normalize pool field name
-	if val, ok := fields["pool"]; ok && fields["division_pool"] == nil {
-		fields["division_pool"] = val
-		delete(fields, "pool")
-	}
-
-	// Ensure date format is ISO
-	if date, ok := fields["date"].(string); ok && !strings.Contains(date, "T") {
-		fields["date"] = strings.Replace(date, " ", "T", 1)
-	}
-
-	// Add default status if missing
-	if fields["status"] == nil {
-		fields["status"] = "completed"
-	}
-
-	// Add default location if missing
-	if fields["location"] == nil {
-		fields["location"] = 1
-	}
-}
-
-// LoadGamesNormalized loads and normalizes game fixtures
+// LoadGamesNormalized loads game fixtures (legacy name kept for compatibility with callers)
 func (fl *FixtureLoader) LoadGamesNormalized() ([]DjangoFixture, error) {
-	fixtures, err := fl.LoadAndValidate("games_game.json")
-	if err != nil {
-		return nil, err
-	}
-
-	normalizer := &GameFixtureNormalizer{}
-	for i := range fixtures {
-		normalizer.NormalizeGameFixture(&fixtures[i])
-	}
-
-	return fixtures, nil
+	return fl.LoadAndValidate("games_game.json")
 }
 
 // ValidateFixtures validates all fixture files and logs any issues
