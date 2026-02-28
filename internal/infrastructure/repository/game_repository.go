@@ -69,6 +69,7 @@ func (r *gameRepository) GetByIDWithRelations(ctx context.Context, id uuid.UUID)
 		WithFieldLocation().
 		WithGameRound().
 		WithScorekeeper().
+		WithEvent().
 		WithScores(func(q *ent.ScoringQuery) {
 			q.WithPlayer()
 		}).

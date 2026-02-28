@@ -51,6 +51,7 @@ type GameDTO struct {
 	FieldLocation        *FieldSummaryDTO       `json:"fieldLocation,omitempty"`
 	GameRound            *GameRoundSummaryDTO   `json:"gameRound,omitempty"`
 	Scorekeeper          *UserSummaryDTO        `json:"scorekeeper,omitempty"`
+	EventID              uuid.UUID              `json:"eventId"`
 	CreatedAt            time.Time              `json:"createdAt"`
 	UpdatedAt            time.Time              `json:"updatedAt"`
 }

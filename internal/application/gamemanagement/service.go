@@ -644,6 +644,10 @@ func mapGameToDTO(g *ent.Game) *GameDTO {
 		UpdatedAt:            g.UpdatedAt,
 	}
 
+	if g.Edges.Event != nil {
+		dto.EventID = g.Edges.Event.ID
+	}
+
 	if g.Edges.HomeTeam != nil {
 		dto.HomeTeam = &TeamSummaryDTO{
 			ID:             g.Edges.HomeTeam.ID,
