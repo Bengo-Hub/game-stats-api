@@ -49,7 +49,7 @@ func (h *SpiritScoreHandler) SubmitSpiritScore(w http.ResponseWriter, r *http.Re
 	}
 
 	// Get user ID from context (set by auth middleware)
-	userID, ok := r.Context().Value("userID").(uuid.UUID)
+	userID, ok := r.Context().Value("user_id").(uuid.UUID)
 	if !ok {
 		respondError(w, http.StatusUnauthorized, "User not authenticated")
 		return

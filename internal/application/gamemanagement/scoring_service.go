@@ -319,11 +319,34 @@ func (s *Service) UpdateBulkScores(ctx context.Context, gameID uuid.UUID, userID
 		}
 
 		for _, ps := range req.PlayerScores {
+			// Determine which team the player belongs to by fetching with relations or checking existing edges
+			// To be safe and efficient, we'll check the player's team memberships
+			playerEntity, err := s.playerRepo.GetByID(ctx, ps.PlayerID)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get player %s: %w", ps.PlayerID, err)
+			}
+
+			var teamID uuid.UUID
+			for _, t := range playerEntity.Edges.Teams {
+				if t.ID == game.Edges.HomeTeam.ID {
+					teamID = game.Edges.HomeTeam.ID
+					break
+				} else if t.ID == game.Edges.AwayTeam.ID {
+					teamID = game.Edges.AwayTeam.ID
+					break
+				}
+			}
+
+			if teamID == uuid.Nil {
+				return nil, fmt.Errorf("player %s does not belong to either team in this game", ps.PlayerID)
+			}
+
 			if existing, ok := scoreMap[ps.PlayerID]; ok {
 				existing.Goals = ps.Goals
 				existing.Assists = ps.Assists
 				existing.Blocks = ps.Blocks
 				existing.Turns = ps.Turns
+				existing.TeamID = teamID
 				_, err = s.scoringRepo.Update(ctx, existing)
 			} else {
 				_, err = s.scoringRepo.Create(ctx, &ent.Scoring{
@@ -331,6 +354,7 @@ func (s *Service) UpdateBulkScores(ctx context.Context, gameID uuid.UUID, userID
 					Assists: ps.Assists,
 					Blocks:  ps.Blocks,
 					Turns:   ps.Turns,
+					TeamID:  teamID,
 					Edges: ent.ScoringEdges{
 						Game:   game,
 						Player: &ent.Player{ID: ps.PlayerID},

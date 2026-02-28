@@ -9,6 +9,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/internal/domain/audit"
 	"github.com/bengobox/game-stats-api/internal/domain/game"
+	"github.com/bengobox/game-stats-api/internal/domain/player"
 	"github.com/bengobox/game-stats-api/internal/domain/scoring"
 	"github.com/bengobox/game-stats-api/internal/domain/spiritscore"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/cache"
@@ -20,6 +21,7 @@ type ScoreAdminService struct {
 	gameRepo        game.Repository
 	spiritScoreRepo spiritscore.Repository
 	scoringRepo     scoring.Repository
+	playerRepo      player.Repository
 	scoreService    *scoring.ScoreService
 	auditRepo       audit.Repository
 	cache           *cache.RedisClient
@@ -30,6 +32,7 @@ func NewScoreAdminService(
 	gameRepo game.Repository,
 	spiritScoreRepo spiritscore.Repository,
 	scoringRepo scoring.Repository,
+	playerRepo player.Repository,
 	auditRepo audit.Repository,
 	cacheClient *cache.RedisClient,
 ) *ScoreAdminService {
@@ -37,6 +40,7 @@ func NewScoreAdminService(
 		gameRepo:        gameRepo,
 		spiritScoreRepo: spiritScoreRepo,
 		scoringRepo:     scoringRepo,
+		playerRepo:      playerRepo,
 		scoreService:    scoring.NewScoreService(scoringRepo),
 		auditRepo:       auditRepo,
 		cache:           cacheClient,
@@ -165,11 +169,33 @@ func (s *ScoreAdminService) UpdateGameScore(
 		}
 
 		for _, ps := range req.PlayerScores {
+			// Determine which team the player belongs to
+			playerEntity, err := s.playerRepo.GetByID(ctx, ps.PlayerID)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get player %s: %w", ps.PlayerID, err)
+			}
+
+			var teamID uuid.UUID
+			for _, t := range playerEntity.Edges.Teams {
+				if t.ID == currentGame.Edges.HomeTeam.ID {
+					teamID = currentGame.Edges.HomeTeam.ID
+					break
+				} else if t.ID == currentGame.Edges.AwayTeam.ID {
+					teamID = currentGame.Edges.AwayTeam.ID
+					break
+				}
+			}
+
+			if teamID == uuid.Nil {
+				return nil, fmt.Errorf("player %s does not belong to either team in this game", ps.PlayerID)
+			}
+
 			if existing, ok := scoreMap[ps.PlayerID]; ok {
 				existing.Goals = ps.Goals
 				existing.Assists = ps.Assists
 				existing.Blocks = ps.Blocks
 				existing.Turns = ps.Turns
+				existing.TeamID = teamID
 				_, err = s.scoringRepo.Update(ctx, existing)
 			} else {
 				_, err = s.scoringRepo.Create(ctx, &ent.Scoring{
@@ -177,6 +203,7 @@ func (s *ScoreAdminService) UpdateGameScore(
 					Assists: ps.Assists,
 					Blocks:  ps.Blocks,
 					Turns:   ps.Turns,
+					TeamID:  teamID,
 					Edges: ent.ScoringEdges{
 						Game:   &ent.Game{ID: req.GameID},
 						Player: &ent.Player{ID: ps.PlayerID},

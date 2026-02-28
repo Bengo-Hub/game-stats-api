@@ -8,15 +8,15 @@ import (
 
 // Game DTOs
 type CreateGameRequest struct {
-	Name                 string                 `json:"name" validate:"required,max=100"`
+	Name                 *string                `json:"name,omitempty" validate:"omitempty,max=100"`
 	ScheduledTime        time.Time              `json:"scheduled_time" validate:"required"`
 	AllocatedTimeMinutes int                    `json:"allocated_time_minutes" validate:"required,min=1"`
 	HomeTeamID           uuid.UUID              `json:"home_team_id" validate:"required"`
 	AwayTeamID           uuid.UUID              `json:"away_team_id" validate:"required"`
 	DivisionPoolID       uuid.UUID              `json:"division_pool_id" validate:"required"`
-	FieldLocationID      uuid.UUID              `json:"field_location_id" validate:"required"`
-	GameRoundID          uuid.UUID              `json:"game_round_id" validate:"required"` // Ensure required
-	ScorekeeperID        uuid.UUID              `json:"scorekeeper_id" validate:"required"`
+	FieldLocationID      *uuid.UUID             `json:"field_location_id,omitempty"`
+	GameRoundID          *uuid.UUID             `json:"game_round_id,omitempty"`
+	ScorekeeperID        *uuid.UUID             `json:"scorekeeper_id,omitempty"`
 	FirstPullBy          *string                `json:"first_pull_by,omitempty"`
 	Metadata             map[string]interface{} `json:"metadata,omitempty"`
 }
@@ -26,6 +26,8 @@ type UpdateGameRequest struct {
 	ScheduledTime        *time.Time             `json:"scheduled_time,omitempty"`
 	AllocatedTimeMinutes *int                   `json:"allocated_time_minutes,omitempty" validate:"omitempty,min=1"`
 	ScorekeeperID        *uuid.UUID             `json:"scorekeeper_id,omitempty"`
+	FieldLocationID      *uuid.UUID             `json:"field_location_id,omitempty"`
+	GameRoundID          *uuid.UUID             `json:"game_round_id,omitempty"`
 	FirstPullBy          *string                `json:"first_pull_by,omitempty"`
 	Metadata             map[string]interface{} `json:"metadata,omitempty"`
 }
@@ -102,12 +104,12 @@ type CreateGameRoundRequest struct {
 
 type UpdateGameRoundRequest struct {
 	Name        *string    `json:"name,omitempty" validate:"omitempty,max=100"`
-	RoundType   *string    `json:"roundType,omitempty" validate:"omitempty,oneof=pool crossover bracket semifinal final"`
-	RoundNumber *int       `json:"roundNumber,omitempty"`
-	StartDate   *time.Time `json:"startDate,omitempty"`
-	EndDate     *time.Time `json:"endDate,omitempty"`
-	AutoAdvance *bool      `json:"autoAdvance,omitempty"`
-	TopNTeams   *int       `json:"topNTeams,omitempty"`
+	RoundType   *string    `json:"round_type,omitempty" validate:"omitempty,oneof=pool crossover bracket semifinal final"`
+	RoundNumber *int       `json:"round_number,omitempty"`
+	StartDate   *time.Time `json:"start_date,omitempty"`
+	EndDate     *time.Time `json:"end_date,omitempty"`
+	AutoAdvance *bool      `json:"auto_advance,omitempty"`
+	TopNTeams   *int       `json:"top_n_teams,omitempty"`
 }
 
 type GameRoundDTO struct {
@@ -142,8 +144,8 @@ type GameEventDTO struct {
 
 // Scoring DTOs
 type RecordScoreRequest struct {
-	PlayerID uuid.UUID `json:"playerId" validate:"required"`
-	TeamID   uuid.UUID `json:"teamId" validate:"required"`
+	PlayerID uuid.UUID `json:"player_id" validate:"required"`
+	TeamID   uuid.UUID `json:"team_id" validate:"required"`
 	Goals    int       `json:"goals" validate:"min=0"`
 	Assists  int       `json:"assists" validate:"min=0"`
 	Blocks   int       `json:"blocks" validate:"min=0"`
@@ -184,16 +186,16 @@ type UpdateGameScoreRequest struct {
 
 // Spirit Score DTOs
 type SubmitSpiritScoreRequest struct {
-	ScoredByTeamID   uuid.UUID  `json:"scoredByTeamId" validate:"required"`
-	TeamID           uuid.UUID  `json:"teamId" validate:"required"`
-	RulesKnowledge   int        `json:"rulesKnowledge" validate:"required,min=0,max=4"`
-	FoulsBodyContact int        `json:"foulsBodyContact" validate:"required,min=0,max=4"`
-	FairMindedness   int        `json:"fairMindedness" validate:"required,min=0,max=4"`
+	ScoredByTeamID   uuid.UUID  `json:"scored_by_team_id" validate:"required"`
+	TeamID           uuid.UUID  `json:"team_id" validate:"required"`
+	RulesKnowledge   int        `json:"rules_knowledge" validate:"required,min=0,max=4"`
+	FoulsBodyContact int        `json:"fouls_body_contact" validate:"required,min=0,max=4"`
+	FairMindedness   int        `json:"fair_mindedness" validate:"required,min=0,max=4"`
 	Attitude         int        `json:"attitude" validate:"required,min=0,max=4"`
 	Communication    int        `json:"communication" validate:"required,min=0,max=4"`
 	Comments         *string    `json:"comments,omitempty"`
-	MVPNomination    *uuid.UUID `json:"mvpNomination,omitempty"`
-	SpiritNomination *uuid.UUID `json:"spiritNomination,omitempty"`
+	MVPNomination    *uuid.UUID `json:"mvp_nomination,omitempty"`
+	SpiritNomination *uuid.UUID `json:"spirit_nomination,omitempty"`
 }
 
 type SpiritScoreDTO struct {

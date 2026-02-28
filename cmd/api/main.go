@@ -200,7 +200,7 @@ func main() {
 	)
 
 	// Start background score sync worker
-	scoreSyncWorker := gamemanagement.NewScoreSyncWorker(gameRepo, redisClient, 5*time.Minute)
+	scoreSyncWorker := gamemanagement.NewScoreSyncWorker(gameManagementService, 5*time.Minute)
 	scoreSyncCtx, scoreSyncCancel := context.WithCancel(context.Background())
 	go scoreSyncWorker.Start(scoreSyncCtx)
 
@@ -227,7 +227,7 @@ func main() {
 	auditRepo := repository.NewInMemoryAuditRepository()
 
 	// Initialize admin service
-	adminService := admin.NewScoreAdminService(gameRepo, spiritScoreRepo, scoringRepo, auditRepo, redisClient)
+	adminService := admin.NewScoreAdminService(gameRepo, spiritScoreRepo, scoringRepo, playerRepo, auditRepo, redisClient)
 
 	// 6. Initialize HTTP handlers
 	authHandler := handlers.NewAuthHandler(authService, cfg.JWTSecret)

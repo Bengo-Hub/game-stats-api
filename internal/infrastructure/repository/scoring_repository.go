@@ -68,6 +68,7 @@ func (r *scoringRepository) Update(ctx context.Context, s *ent.Scoring) (*ent.Sc
 		SetAssists(s.Assists).
 		SetBlocks(s.Blocks).
 		SetTurns(s.Turns).
+		SetTeamID(s.TeamID).
 		SetVersion(s.Version).
 		SetUpdatedAt(time.Now()).
 		Save(ctx)

@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/bengobox/game-stats-api/internal/domain/game"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/cache"
 	"github.com/bengobox/game-stats-api/internal/pkg/logger"
 )
@@ -12,18 +11,16 @@ import (
 // ScoreSyncWorker periodically syncs stale game scores from individual Scoring
 // entries back into the denormalised home_team_score / away_team_score columns.
 type ScoreSyncWorker struct {
-	gameRepo game.Repository
-	cache    *cache.RedisClient
+	service  *Service
 	interval time.Duration
 	done     chan struct{}
 }
 
 // NewScoreSyncWorker creates a new score sync worker.
 // interval controls how often the sync runs (e.g. 5*time.Minute).
-func NewScoreSyncWorker(gameRepo game.Repository, cacheClient *cache.RedisClient, interval time.Duration) *ScoreSyncWorker {
+func NewScoreSyncWorker(service *Service, interval time.Duration) *ScoreSyncWorker {
 	return &ScoreSyncWorker{
-		gameRepo: gameRepo,
-		cache:    cacheClient,
+		service:  service,
 		interval: interval,
 		done:     make(chan struct{}),
 	}
@@ -36,6 +33,7 @@ func (w *ScoreSyncWorker) Start(ctx context.Context) {
 
 	// Run immediately on startup
 	w.syncStaleScores(ctx)
+	w.service.AutoEndExpiredGames(ctx)
 
 	ticker := time.NewTicker(w.interval)
 	defer ticker.Stop()
@@ -50,6 +48,12 @@ func (w *ScoreSyncWorker) Start(ctx context.Context) {
 			return
 		case <-ticker.C:
 			w.syncStaleScores(ctx)
+			count, err := w.service.AutoEndExpiredGames(ctx)
+			if err != nil {
+				logger.Error("ScoreSyncWorker: failed to auto-end games", logger.Err(err))
+			} else if count > 0 {
+				logger.Info("ScoreSyncWorker: auto-ended expired games", logger.Int("count", count))
+			}
 		}
 	}
 }
@@ -65,7 +69,7 @@ func (w *ScoreSyncWorker) syncStaleScores(ctx context.Context) {
 	synced := 0
 
 	for _, status := range statuses {
-		games, err := w.gameRepo.ListByStatus(ctx, status)
+		games, err := w.service.gameRepo.ListByStatus(ctx, status)
 		if err != nil {
 			logger.Error("ScoreSyncWorker: failed to list games",
 				logger.String("status", status),
@@ -79,7 +83,7 @@ func (w *ScoreSyncWorker) syncStaleScores(ctx context.Context) {
 				continue
 			}
 
-			updated, err := w.gameRepo.SyncGameScores(ctx, g.ID)
+			updated, err := w.service.gameRepo.SyncGameScores(ctx, g.ID)
 			if err != nil {
 				logger.Error("ScoreSyncWorker: failed to sync game scores",
 					logger.String("gameID", g.ID.String()),
@@ -92,9 +96,9 @@ func (w *ScoreSyncWorker) syncStaleScores(ctx context.Context) {
 				synced++
 
 				// Invalidate cache so next read picks up new scores
-				if w.cache != nil {
+				if w.service.cache != nil {
 					cacheKey := cache.CacheKey("game", g.ID.String())
-					_ = w.cache.Delete(ctx, cacheKey)
+					_ = w.service.cache.Delete(ctx, cacheKey)
 				}
 			}
 		}

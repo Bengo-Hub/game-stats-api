@@ -5,6 +5,9 @@ import (
 	"strings"
 
 	"github.com/bengobox/game-stats-api/ent"
+	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/player"
 	"github.com/bengobox/game-stats-api/ent/predicate"
 	"github.com/bengobox/game-stats-api/ent/scoring"
@@ -73,6 +76,10 @@ func (h *LeaderboardHandler) GetPlayerLeaderboard(w http.ResponseWriter, r *http
 	}
 	teamIdStr := r.URL.Query().Get("teamId")
 	gender := r.URL.Query().Get("gender")
+	eventIdStr := r.URL.Query().Get("eventId")
+	if eventIdStr == "" {
+		eventIdStr = r.URL.Query().Get("event_id")
+	}
 
 	pagination := ParsePagination(r)
 
@@ -102,7 +109,17 @@ func (h *LeaderboardHandler) GetPlayerLeaderboard(w http.ResponseWriter, r *http
 		WithPlayer(func(pq *ent.PlayerQuery) {
 			pq.WithTeams()
 		}).
-		WithGame()
+		WithGame(func(gq *ent.GameQuery) {
+			gq.WithDivisionPool(func(dpq *ent.DivisionPoolQuery) {
+				dpq.WithEvents()
+			})
+		})
+
+	if eventIdStr != "" {
+		if eventId, err := uuid.Parse(eventIdStr); err == nil {
+			query = query.Where(scoring.HasGameWith(game.HasDivisionPoolWith(divisionpool.HasEventsWith(event.IDEQ(eventId)))))
+		}
+	}
 
 	if len(playerPreds) > 0 {
 		query = query.Where(scoring.HasPlayerWith(playerPreds...))
@@ -224,12 +241,28 @@ func (h *LeaderboardHandler) GetSpiritLeaderboard(w http.ResponseWriter, r *http
 
 	pagination := ParsePagination(r)
 
+	eventIdStr := r.URL.Query().Get("eventId")
+	if eventIdStr == "" {
+		eventIdStr = r.URL.Query().Get("event_id")
+	}
+
 	// Query all spirit scores with team info
-	scores, err := h.client.SpiritScore.Query().
+	query := h.client.SpiritScore.Query().
 		Where(spiritscore.DeletedAtIsNil()).
 		WithTeam().
-		WithGame().
-		All(ctx)
+		WithGame(func(gq *ent.GameQuery) {
+			gq.WithDivisionPool(func(dpq *ent.DivisionPoolQuery) {
+				dpq.WithEvents()
+			})
+		})
+
+	if eventIdStr != "" {
+		if eventId, err := uuid.Parse(eventIdStr); err == nil {
+			query = query.Where(spiritscore.HasGameWith(game.HasDivisionPoolWith(divisionpool.HasEventsWith(event.IDEQ(eventId)))))
+		}
+	}
+
+	scores, err := query.All(ctx)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to fetch spirit leaderboard")
 		return

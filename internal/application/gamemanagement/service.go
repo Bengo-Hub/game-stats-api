@@ -120,19 +120,23 @@ func (s *Service) ScheduleGame(ctx context.Context, req CreateGameRequest) (*Gam
 		return nil, err
 	}
 
-	// Validate field exists
-	field, err := s.fieldRepo.GetByID(ctx, req.FieldLocationID)
-	if err != nil {
-		return nil, err
-	}
+	// Validate field exists if provided
+	var field *ent.Field
+	if req.FieldLocationID != nil {
+		f, err := s.fieldRepo.GetByID(ctx, *req.FieldLocationID)
+		if err != nil {
+			return nil, err
+		}
+		field = f
 
-	// Check field conflict
-	hasConflict, err := s.gameRepo.CheckFieldConflict(ctx, req.FieldLocationID, req.ScheduledTime, req.AllocatedTimeMinutes)
-	if err != nil {
-		return nil, err
-	}
-	if hasConflict {
-		return nil, ErrFieldConflict
+		// Check field conflict
+		hasConflict, err := s.gameRepo.CheckFieldConflict(ctx, *req.FieldLocationID, req.ScheduledTime, req.AllocatedTimeMinutes)
+		if err != nil {
+			return nil, err
+		}
+		if hasConflict {
+			return nil, ErrFieldConflict
+		}
 	}
 
 	// Validate division pool
@@ -142,9 +146,11 @@ func (s *Service) ScheduleGame(ctx context.Context, req CreateGameRequest) (*Gam
 	}
 
 	// Auto-generate game name if not provided
-	gameName := req.Name
-	if gameName == "" {
+	var gameName string
+	if req.Name == nil || *req.Name == "" {
 		gameName = fmt.Sprintf("%s vs %s", homeTeam.Name, awayTeam.Name)
+	} else {
+		gameName = *req.Name
 	}
 
 	// Create game entity
@@ -163,18 +169,22 @@ func (s *Service) ScheduleGame(ctx context.Context, req CreateGameRequest) (*Gam
 		},
 	}
 
-	round, err := s.gameRoundRepo.GetByID(ctx, req.GameRoundID)
-	if err != nil {
-		return nil, err
+	if req.GameRoundID != nil {
+		round, err := s.gameRoundRepo.GetByID(ctx, *req.GameRoundID)
+		if err != nil {
+			return nil, err
+		}
+		gameEntity.Edges.GameRound = round
 	}
-	gameEntity.Edges.GameRound = round
 
-	// Get scorekeeper
-	scorekeeper, err := s.userRepo.GetByID(ctx, req.ScorekeeperID)
-	if err != nil {
-		return nil, fmt.Errorf("scorekeeper not found: %w", err)
+	// Get scorekeeper if provided
+	if req.ScorekeeperID != nil {
+		scorekeeper, err := s.userRepo.GetByID(ctx, *req.ScorekeeperID)
+		if err != nil {
+			return nil, fmt.Errorf("scorekeeper not found: %w", err)
+		}
+		gameEntity.Edges.Scorekeeper = scorekeeper
 	}
-	gameEntity.Edges.Scorekeeper = scorekeeper
 
 	created, err := s.gameRepo.Create(ctx, gameEntity)
 	if err != nil {
@@ -299,6 +309,22 @@ func (s *Service) UpdateGame(ctx context.Context, id uuid.UUID, req UpdateGameRe
 			return nil, err
 		}
 		game.Edges.Scorekeeper = scorekeeper
+	}
+
+	if req.FieldLocationID != nil {
+		field, err := s.fieldRepo.GetByID(ctx, *req.FieldLocationID)
+		if err != nil {
+			return nil, err
+		}
+		game.Edges.FieldLocation = field
+	}
+
+	if req.GameRoundID != nil {
+		round, err := s.gameRoundRepo.GetByID(ctx, *req.GameRoundID)
+		if err != nil {
+			return nil, err
+		}
+		game.Edges.GameRound = round
 	}
 
 	updated, err := s.gameRepo.Update(ctx, game)
@@ -430,7 +456,7 @@ func (s *Service) StartGame(ctx context.Context, id uuid.UUID, userID uuid.UUID,
 }
 
 func (s *Service) EndGame(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*GameDTO, error) {
-	game, err := s.gameRepo.GetByIDWithRelations(ctx, id)
+	game, err := s.gameRepo.GetByID(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, ErrGameNotFound
@@ -443,48 +469,7 @@ func (s *Service) EndGame(ctx context.Context, id uuid.UUID, userID uuid.UUID) (
 		return nil, ErrUnauthorized
 	}
 
-	// Can only end in-progress games
-	if game.Status != "in_progress" {
-		return nil, ErrInvalidGameStatus
-	}
-
-	// Update to ended status (scores can still be edited)
-	updated, err := s.gameRepo.UpdateWithVersion(ctx, id, game.Version, func(update *ent.GameUpdateOne) *ent.GameUpdateOne {
-		return update.SetStatus("ended")
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	// Create game ended event
-	elapsed := time.Since(*game.ActualStartTime)
-	minute := int(elapsed.Minutes())
-	second := int(elapsed.Seconds()) % 60
-
-	_, err = s.gameEventRepo.Create(ctx, &ent.GameEvent{
-		EventType:   "game_ended",
-		Minute:      minute,
-		Second:      second,
-		Description: "Game time expired",
-		Edges: ent.GameEventEdges{
-			Game: updated,
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	// SSE events are broadcast via the stream handler when clients poll for updates
-
-	result, err := s.gameRepo.GetByIDWithRelations(ctx, updated.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	s.invalidateGameCache(ctx, id)
-	dto := mapGameToDTO(result)
-	s.cacheGame(ctx, dto)
-	return dto, nil
+	return s.endGameInternal(ctx, id, "Game time expired")
 }
 
 func (s *Service) CompleteGame(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*GameDTO, error) {
@@ -852,6 +837,89 @@ func (s *Service) DeleteGameRound(ctx context.Context, id uuid.UUID) error {
 func (s *Service) ListAllDivisions(ctx context.Context) ([]*ent.DivisionPool, error) {
 	return s.divisionRepo.ListAll(ctx)
 }
+
+func (s *Service) AutoEndExpiredGames(ctx context.Context) (int, error) {
+	games, err := s.gameRepo.ListByStatus(ctx, "in_progress")
+	if err != nil {
+		return 0, err
+	}
+
+	endedCount := 0
+	now := time.Now()
+
+	for _, g := range games {
+		if g.ActualStartTime == nil {
+			continue
+		}
+
+		// Calculate expiration: StartTime + AllocatedMin + StoppageSec + 5min Grace
+		allocatedDuration := time.Duration(g.AllocatedTimeMinutes) * time.Minute
+		stoppageDuration := time.Duration(g.StoppageTimeSeconds) * time.Second
+		gracePeriod := 5 * time.Minute
+
+		expirationTime := g.ActualStartTime.Add(allocatedDuration).Add(stoppageDuration).Add(gracePeriod)
+
+		if now.After(expirationTime) {
+			// Auto-end the game
+			_, err := s.endGameInternal(ctx, g.ID, "Game automatically ended by system (grace period expired)")
+			if err != nil {
+				// Log error but continue with other games
+				continue
+			}
+			endedCount++
+		}
+	}
+
+	return endedCount, nil
+}
+
+// endGameInternal is the core logic of EndGame without the auth check
+func (s *Service) endGameInternal(ctx context.Context, id uuid.UUID, description string) (*GameDTO, error) {
+	game, err := s.gameRepo.GetByIDWithRelations(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if game.Status != "in_progress" {
+		return nil, ErrInvalidGameStatus
+	}
+
+	updated, err := s.gameRepo.UpdateWithVersion(ctx, id, game.Version, func(update *ent.GameUpdateOne) *ent.GameUpdateOne {
+		return update.SetStatus("ended")
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Create game ended event
+	elapsed := time.Since(*game.ActualStartTime)
+	minute := int(elapsed.Minutes())
+	second := int(elapsed.Seconds()) % 60
+
+	_, err = s.gameEventRepo.Create(ctx, &ent.GameEvent{
+		EventType:   "game_ended",
+		Minute:      minute,
+		Second:      second,
+		Description: description,
+		Edges: ent.GameEventEdges{
+			Game: updated,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := s.gameRepo.GetByIDWithRelations(ctx, updated.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	s.invalidateGameCache(ctx, id)
+	dto := mapGameToDTO(result)
+	s.cacheGame(ctx, dto)
+	return dto, nil
+}
+
 func (s *Service) ListDivisionsByEvent(ctx context.Context, eventID uuid.UUID) ([]*ent.DivisionPool, error) {
 	return s.divisionRepo.ListByEvent(ctx, eventID)
 }

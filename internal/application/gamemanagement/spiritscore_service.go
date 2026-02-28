@@ -25,8 +25,8 @@ func (s *Service) SubmitSpiritScore(ctx context.Context, gameID uuid.UUID, userI
 		return nil, err
 	}
 
-	// Can only submit spirit scores for ended or completed games
-	if game.Status != "ended" && game.Status != "completed" {
+	// Can only submit spirit scores for in_progress, ended or completed games
+	if game.Status != "in_progress" && game.Status != "ended" && game.Status != "completed" {
 		return nil, ErrInvalidGameStatus
 	}
 
