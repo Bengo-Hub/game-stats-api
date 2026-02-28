@@ -499,8 +499,14 @@ func (s *Service) EndGame(ctx context.Context, id uuid.UUID, userID uuid.UUID) (
 		return nil, err
 	}
 
+	// Get role from context
+	userRole, _ := ctx.Value("user_role").(string)
+	isAdminOrEventManager := userRole == "admin" || userRole == "event_manager"
+
 	// Verify scorekeeper or admin
-	if game.Edges.Scorekeeper == nil || game.Edges.Scorekeeper.ID != userID {
+	isScorekeeper := game.Edges.Scorekeeper != nil && game.Edges.Scorekeeper.ID == userID
+
+	if !isScorekeeper && !isAdminOrEventManager {
 		return nil, ErrUnauthorized
 	}
 
@@ -516,8 +522,14 @@ func (s *Service) CompleteGame(ctx context.Context, id uuid.UUID, userID uuid.UU
 		return nil, err
 	}
 
+	// Get role from context
+	userRole, _ := ctx.Value("user_role").(string)
+	isAdminOrEventManager := userRole == "admin" || userRole == "event_manager"
+
 	// Verify scorekeeper or admin
-	if game.Edges.Scorekeeper == nil || game.Edges.Scorekeeper.ID != userID {
+	isScorekeeper := game.Edges.Scorekeeper != nil && game.Edges.Scorekeeper.ID == userID
+
+	if !isScorekeeper && !isAdminOrEventManager {
 		return nil, ErrUnauthorized
 	}
 

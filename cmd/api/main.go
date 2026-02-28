@@ -227,7 +227,7 @@ func main() {
 	auditRepo := repository.NewInMemoryAuditRepository()
 
 	// Initialize admin service
-	adminService := admin.NewScoreAdminService(gameRepo, spiritScoreRepo, scoringRepo, playerRepo, auditRepo, redisClient)
+	adminService := admin.NewScoreAdminService(gameRepo, spiritScoreRepo, scoringRepo, playerRepo, mvpNominationRepo, spiritNominationRepo, auditRepo, redisClient)
 
 	// 6. Initialize HTTP handlers
 	authHandler := handlers.NewAuthHandler(authService, cfg.JWTSecret)

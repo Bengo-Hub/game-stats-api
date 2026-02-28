@@ -9,8 +9,10 @@ import (
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/internal/domain/audit"
 	"github.com/bengobox/game-stats-api/internal/domain/game"
+	"github.com/bengobox/game-stats-api/internal/domain/mvpnomination"
 	"github.com/bengobox/game-stats-api/internal/domain/player"
 	"github.com/bengobox/game-stats-api/internal/domain/scoring"
+	"github.com/bengobox/game-stats-api/internal/domain/spiritnomination"
 	"github.com/bengobox/game-stats-api/internal/domain/spiritscore"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/cache"
 	"github.com/google/uuid"
@@ -18,13 +20,15 @@ import (
 
 // ScoreAdminService handles administrative score modifications
 type ScoreAdminService struct {
-	gameRepo        game.Repository
-	spiritScoreRepo spiritscore.Repository
-	scoringRepo     scoring.Repository
-	playerRepo      player.Repository
-	scoreService    *scoring.ScoreService
-	auditRepo       audit.Repository
-	cache           *cache.RedisClient
+	gameRepo             game.Repository
+	spiritScoreRepo      spiritscore.Repository
+	scoringRepo          scoring.Repository
+	playerRepo           player.Repository
+	mvpNominationRepo    mvpnomination.Repository
+	spiritNominationRepo spiritnomination.Repository
+	scoreService         *scoring.ScoreService
+	auditRepo            audit.Repository
+	cache                *cache.RedisClient
 }
 
 // NewScoreAdminService creates a new admin service
@@ -33,17 +37,21 @@ func NewScoreAdminService(
 	spiritScoreRepo spiritscore.Repository,
 	scoringRepo scoring.Repository,
 	playerRepo player.Repository,
+	mvpNominationRepo mvpnomination.Repository,
+	spiritNominationRepo spiritnomination.Repository,
 	auditRepo audit.Repository,
 	cacheClient *cache.RedisClient,
 ) *ScoreAdminService {
 	return &ScoreAdminService{
-		gameRepo:        gameRepo,
-		spiritScoreRepo: spiritScoreRepo,
-		scoringRepo:     scoringRepo,
-		playerRepo:      playerRepo,
-		scoreService:    scoring.NewScoreService(scoringRepo),
-		auditRepo:       auditRepo,
-		cache:           cacheClient,
+		gameRepo:             gameRepo,
+		spiritScoreRepo:      spiritScoreRepo,
+		scoringRepo:          scoringRepo,
+		playerRepo:           playerRepo,
+		mvpNominationRepo:    mvpNominationRepo,
+		spiritNominationRepo: spiritNominationRepo,
+		scoreService:         scoring.NewScoreService(scoringRepo),
+		auditRepo:            auditRepo,
+		cache:                cacheClient,
 	}
 }
 
@@ -371,17 +379,21 @@ func (s *ScoreAdminService) SyncGameScores(ctx context.Context, gameID uuid.UUID
 
 // UpdateSpiritScoreRequest contains spirit score update parameters
 type UpdateSpiritScoreRequest struct {
-	SpiritScoreID  uuid.UUID `json:"spirit_score_id" validate:"required"`
-	RulesKnowledge int       `json:"rules_knowledge" validate:"min=0,max=4"`
-	Fouls          int       `json:"fouls" validate:"min=0,max=4"`
-	FairMindedness int       `json:"fair_mindedness" validate:"min=0,max=4"`
-	Attitude       int       `json:"attitude" validate:"min=0,max=4"`
-	Communication  int       `json:"communication" validate:"min=0,max=4"`
-	Reason         string    `json:"reason" validate:"required,min=10"`
-	AdminUserID    uuid.UUID `json:"admin_user_id" validate:"required"`
-	AdminName      string    `json:"admin_name" validate:"required"`
-	IPAddress      string    `json:"ip_address,omitempty"`
-	UserAgent      string    `json:"user_agent,omitempty"`
+	SpiritScoreID          uuid.UUID  `json:"spirit_score_id" validate:"required"`
+	RulesKnowledge         int        `json:"rules_knowledge" validate:"min=0,max=4"`
+	Fouls                  int        `json:"fouls" validate:"min=0,max=4"`
+	FairMindedness         int        `json:"fair_mindedness" validate:"min=0,max=4"`
+	Attitude               int        `json:"attitude" validate:"min=0,max=4"`
+	Communication          int        `json:"communication" validate:"min=0,max=4"`
+	Reason                 string     `json:"reason" validate:"required,min=10"`
+	AdminUserID            uuid.UUID  `json:"admin_user_id" validate:"required"`
+	AdminName              string     `json:"admin_name" validate:"required"`
+	IPAddress              string     `json:"ip_address,omitempty"`
+	UserAgent              string     `json:"user_agent,omitempty"`
+	MVPMaleNomination      *uuid.UUID `json:"mvp_male_id,omitempty"`
+	MVPFemaleNomination    *uuid.UUID `json:"mvp_female_id,omitempty"`
+	SpiritMaleNomination   *uuid.UUID `json:"spirit_male_id,omitempty"`
+	SpiritFemaleNomination *uuid.UUID `json:"spirit_female_id,omitempty"`
 }
 
 // UpdateSpiritScoreResponse contains the updated spirit score
@@ -516,6 +528,20 @@ func (s *ScoreAdminService) UpdateSpiritScore(
 	totalScore := updatedScore.RulesKnowledge + updatedScore.FoulsBodyContact +
 		updatedScore.FairMindedness + updatedScore.Attitude + updatedScore.Communication
 
+	// Update nominations if provided
+	if req.MVPMaleNomination != nil {
+		s.handleMVPNomination(ctx, updatedScore, *req.MVPMaleNomination, "mvp_male")
+	}
+	if req.MVPFemaleNomination != nil {
+		s.handleMVPNomination(ctx, updatedScore, *req.MVPFemaleNomination, "mvp_female")
+	}
+	if req.SpiritMaleNomination != nil {
+		s.handleSpiritNomination(ctx, updatedScore, *req.SpiritMaleNomination, "spirit_male")
+	}
+	if req.SpiritFemaleNomination != nil {
+		s.handleSpiritNomination(ctx, updatedScore, *req.SpiritFemaleNomination, "spirit_female")
+	}
+
 	// Invalidate spirit-related caches
 	if s.cache != nil {
 		if currentScore.Edges.Team != nil {
@@ -551,4 +577,35 @@ func (s *ScoreAdminService) GetSpiritScoreAuditHistory(
 		return nil, fmt.Errorf("failed to get audit history: %w", err)
 	}
 	return logs, nil
+}
+func (s *ScoreAdminService) handleMVPNomination(ctx context.Context, spiritScore *ent.SpiritScore, playerID uuid.UUID, category string) {
+	player, err := s.playerRepo.GetByID(ctx, playerID)
+	if err != nil {
+		return
+	}
+
+	mvpNomination := &ent.MVP_Nomination{
+		Category: category,
+		Edges: ent.MVP_NominationEdges{
+			SpiritScore: spiritScore,
+			Player:      player,
+		},
+	}
+	_, _ = s.mvpNominationRepo.Create(ctx, mvpNomination)
+}
+
+func (s *ScoreAdminService) handleSpiritNomination(ctx context.Context, spiritScore *ent.SpiritScore, playerID uuid.UUID, category string) {
+	player, err := s.playerRepo.GetByID(ctx, playerID)
+	if err != nil {
+		return
+	}
+
+	spiritNomination := &ent.SpiritNomination{
+		Category: category,
+		Edges: ent.SpiritNominationEdges{
+			SpiritScore: spiritScore,
+			Player:      player,
+		},
+	}
+	_, _ = s.spiritNominationRepo.Create(ctx, spiritNomination)
 }

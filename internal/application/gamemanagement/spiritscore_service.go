@@ -103,44 +103,26 @@ func (s *Service) SubmitSpiritScore(ctx context.Context, gameID uuid.UUID, userI
 		return nil, err
 	}
 
-	// Handle MVP nomination if provided
-	if req.MVPNomination != nil {
-		player, err := s.playerRepo.GetByID(ctx, *req.MVPNomination)
-		if err != nil {
+	// Handle MVP nominations
+	if req.MVPMaleNomination != nil {
+		if err := s.createMVPNomination(ctx, created, *req.MVPMaleNomination, "mvp_male"); err != nil {
 			return nil, err
 		}
-
-		mvpNomination := &ent.MVP_Nomination{
-			Category: "mvp",
-			Edges: ent.MVP_NominationEdges{
-				SpiritScore: created,
-				Player:      player,
-			},
-		}
-
-		_, err = s.mvpNominationRepo.Create(ctx, mvpNomination)
-		if err != nil {
+	}
+	if req.MVPFemaleNomination != nil {
+		if err := s.createMVPNomination(ctx, created, *req.MVPFemaleNomination, "mvp_female"); err != nil {
 			return nil, err
 		}
 	}
 
-	// Handle Spirit nomination if provided
-	if req.SpiritNomination != nil {
-		player, err := s.playerRepo.GetByID(ctx, *req.SpiritNomination)
-		if err != nil {
+	// Handle Spirit nominations
+	if req.SpiritMaleNomination != nil {
+		if err := s.createSpiritNomination(ctx, created, *req.SpiritMaleNomination, "spirit_male"); err != nil {
 			return nil, err
 		}
-
-		spiritNomination := &ent.SpiritNomination{
-			Category: "spirit",
-			Edges: ent.SpiritNominationEdges{
-				SpiritScore: created,
-				Player:      player,
-			},
-		}
-
-		_, err = s.spiritNominationRepo.Create(ctx, spiritNomination)
-		if err != nil {
+	}
+	if req.SpiritFemaleNomination != nil {
+		if err := s.createSpiritNomination(ctx, created, *req.SpiritFemaleNomination, "spirit_female"); err != nil {
 			return nil, err
 		}
 	}
@@ -292,5 +274,75 @@ func mapSpiritScoreToDTO(s *ent.SpiritScore) *SpiritScoreDTO {
 		}
 	}
 
+	// Map nominations
+	for _, nom := range s.Edges.MvpNominations {
+		if nom.Edges.Player != nil {
+			playerDTO := &PlayerSummaryDTO{
+				ID:           nom.Edges.Player.ID,
+				Name:         nom.Edges.Player.Name,
+				Gender:       nom.Edges.Player.Gender,
+				JerseyNumber: nom.Edges.Player.JerseyNumber,
+			}
+			switch nom.Category {
+			case "mvp_male":
+				dto.MVPMaleNomination = playerDTO
+			case "mvp_female":
+				dto.MVPFemaleNomination = playerDTO
+			}
+		}
+	}
+
+	for _, nom := range s.Edges.SpiritNominations {
+		if nom.Edges.Player != nil {
+			playerDTO := &PlayerSummaryDTO{
+				ID:           nom.Edges.Player.ID,
+				Name:         nom.Edges.Player.Name,
+				Gender:       nom.Edges.Player.Gender,
+				JerseyNumber: nom.Edges.Player.JerseyNumber,
+			}
+			switch nom.Category {
+			case "spirit_male":
+				dto.SpiritMaleNomination = playerDTO
+			case "spirit_female":
+				dto.SpiritFemaleNomination = playerDTO
+			}
+		}
+	}
+
 	return dto
+}
+func (s *Service) createMVPNomination(ctx context.Context, spiritScore *ent.SpiritScore, playerID uuid.UUID, category string) error {
+	player, err := s.playerRepo.GetByID(ctx, playerID)
+	if err != nil {
+		return err
+	}
+
+	mvpNomination := &ent.MVP_Nomination{
+		Category: category,
+		Edges: ent.MVP_NominationEdges{
+			SpiritScore: spiritScore,
+			Player:      player,
+		},
+	}
+
+	_, err = s.mvpNominationRepo.Create(ctx, mvpNomination)
+	return err
+}
+
+func (s *Service) createSpiritNomination(ctx context.Context, spiritScore *ent.SpiritScore, playerID uuid.UUID, category string) error {
+	player, err := s.playerRepo.GetByID(ctx, playerID)
+	if err != nil {
+		return err
+	}
+
+	spiritNomination := &ent.SpiritNomination{
+		Category: category,
+		Edges: ent.SpiritNominationEdges{
+			SpiritScore: spiritScore,
+			Player:      player,
+		},
+	}
+
+	_, err = s.spiritNominationRepo.Create(ctx, spiritNomination)
+	return err
 }

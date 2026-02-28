@@ -288,17 +288,21 @@ func (h *AdminHandler) UpdateSpiritScore(w http.ResponseWriter, r *http.Request)
 
 	// Build service request
 	request := admin.UpdateSpiritScoreRequest{
-		SpiritScoreID:  spiritID,
-		RulesKnowledge: dto.RulesKnowledge,
-		Fouls:          dto.Fouls,
-		FairMindedness: dto.FairMindedness,
-		Attitude:       dto.Attitude,
-		Communication:  dto.Communication,
-		Reason:         dto.Reason,
-		AdminUserID:    userID,
-		AdminName:      username,
-		IPAddress:      r.RemoteAddr,
-		UserAgent:      r.UserAgent(),
+		SpiritScoreID:          spiritID,
+		RulesKnowledge:         dto.RulesKnowledge,
+		Fouls:                  dto.Fouls,
+		FairMindedness:         dto.FairMindedness,
+		Attitude:               dto.Attitude,
+		Communication:          dto.Communication,
+		Reason:                 dto.Reason,
+		AdminUserID:            userID,
+		AdminName:              username,
+		IPAddress:              r.RemoteAddr,
+		UserAgent:              r.UserAgent(),
+		MVPMaleNomination:      dto.MVPMaleNomination,
+		MVPFemaleNomination:    dto.MVPFemaleNomination,
+		SpiritMaleNomination:   dto.SpiritMaleNomination,
+		SpiritFemaleNomination: dto.SpiritFemaleNomination,
 	}
 
 	response, err := h.scoreAdminService.UpdateSpiritScore(ctx, request)
@@ -332,12 +336,16 @@ type UpdateGameScoreRequestDTO struct {
 
 // UpdateSpiritScoreRequestDTO is the DTO for spirit score updates
 type UpdateSpiritScoreRequestDTO struct {
-	RulesKnowledge int    `json:"rules_knowledge" validate:"min=0,max=4"`
-	Fouls          int    `json:"fouls" validate:"min=0,max=4"`
-	FairMindedness int    `json:"fair_mindedness" validate:"min=0,max=4"`
-	Attitude       int    `json:"attitude" validate:"min=0,max=4"`
-	Communication  int    `json:"communication" validate:"min=0,max=4"`
-	Reason         string `json:"reason" validate:"required,min=10"`
+	RulesKnowledge         int        `json:"rules_knowledge" validate:"min=0,max=4"`
+	Fouls                  int        `json:"fouls" validate:"min=0,max=4"`
+	FairMindedness         int        `json:"fair_mindedness" validate:"min=0,max=4"`
+	Attitude               int        `json:"attitude" validate:"min=0,max=4"`
+	Communication          int        `json:"communication" validate:"min=0,max=4"`
+	Reason                 string     `json:"reason" validate:"required,min=10"`
+	MVPMaleNomination      *uuid.UUID `json:"mvp_male_id,omitempty"`
+	MVPFemaleNomination    *uuid.UUID `json:"mvp_female_id,omitempty"`
+	SpiritMaleNomination   *uuid.UUID `json:"spirit_male_id,omitempty"`
+	SpiritFemaleNomination *uuid.UUID `json:"spirit_female_id,omitempty"`
 }
 
 // ReviewScoreEditRequestDTO for reviewing pending edits

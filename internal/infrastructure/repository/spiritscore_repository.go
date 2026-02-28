@@ -44,6 +44,12 @@ func (r *spiritScoreRepository) GetByID(ctx context.Context, id uuid.UUID) (*ent
 		WithScoredByTeam().
 		WithTeam().
 		WithSubmittedBy().
+		WithMvpNominations(func(q *ent.MVPNominationQuery) {
+			q.WithPlayer()
+		}).
+		WithSpiritNominations(func(q *ent.SpiritNominationQuery) {
+			q.WithPlayer()
+		}).
 		Only(ctx)
 }
 
@@ -53,6 +59,12 @@ func (r *spiritScoreRepository) ListByGame(ctx context.Context, gameID uuid.UUID
 		Where(spiritscore.DeletedAtIsNil()).
 		WithScoredByTeam().
 		WithTeam().
+		WithMvpNominations(func(q *ent.MVPNominationQuery) {
+			q.WithPlayer()
+		}).
+		WithSpiritNominations(func(q *ent.SpiritNominationQuery) {
+			q.WithPlayer()
+		}).
 		All(ctx)
 }
 
@@ -62,6 +74,12 @@ func (r *spiritScoreRepository) ListByTeam(ctx context.Context, teamID uuid.UUID
 		Where(spiritscore.DeletedAtIsNil()).
 		WithGame().
 		WithScoredByTeam().
+		WithMvpNominations(func(q *ent.MVPNominationQuery) {
+			q.WithPlayer()
+		}).
+		WithSpiritNominations(func(q *ent.SpiritNominationQuery) {
+			q.WithPlayer()
+		}).
 		All(ctx)
 }
 
@@ -83,6 +101,12 @@ func (r *spiritScoreRepository) ListByEvent(ctx context.Context, eventID uuid.UU
 		WithGame().
 		WithScoredByTeam().
 		WithTeam().
+		WithMvpNominations(func(q *ent.MVPNominationQuery) {
+			q.WithPlayer()
+		}).
+		WithSpiritNominations(func(q *ent.SpiritNominationQuery) {
+			q.WithPlayer()
+		}).
 		Limit(limit).
 		Offset(offset).
 		All(ctx)

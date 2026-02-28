@@ -83,6 +83,13 @@ type UserSummaryDTO struct {
 	Email string    `json:"email"`
 }
 
+type PlayerSummaryDTO struct {
+	ID           uuid.UUID `json:"id"`
+	Name         string    `json:"name"`
+	Gender       string    `json:"gender"`
+	JerseyNumber *int      `json:"jerseyNumber,omitempty"`
+}
+
 // Game Timer DTOs
 type StartGameRequest struct {
 	FirstPullBy *string `json:"first_pull_by,omitempty"`
@@ -189,33 +196,39 @@ type UpdateGameScoreRequest struct {
 
 // Spirit Score DTOs
 type SubmitSpiritScoreRequest struct {
-	ScoredByTeamID   uuid.UUID  `json:"scored_by_team_id" validate:"required"`
-	TeamID           uuid.UUID  `json:"team_id" validate:"required"`
-	RulesKnowledge   int        `json:"rules_knowledge" validate:"required,min=0,max=4"`
-	FoulsBodyContact int        `json:"fouls_body_contact" validate:"required,min=0,max=4"`
-	FairMindedness   int        `json:"fair_mindedness" validate:"required,min=0,max=4"`
-	Attitude         int        `json:"attitude" validate:"required,min=0,max=4"`
-	Communication    int        `json:"communication" validate:"required,min=0,max=4"`
-	Comments         *string    `json:"comments,omitempty"`
-	MVPNomination    *uuid.UUID `json:"mvp_nomination,omitempty"`
-	SpiritNomination *uuid.UUID `json:"spirit_nomination,omitempty"`
+	ScoredByTeamID         uuid.UUID  `json:"scored_by_team_id" validate:"required"`
+	TeamID                 uuid.UUID  `json:"team_id" validate:"required"`
+	RulesKnowledge         int        `json:"rules_knowledge" validate:"required,min=0,max=4"`
+	FoulsBodyContact       int        `json:"fouls_body_contact" validate:"required,min=0,max=4"`
+	FairMindedness         int        `json:"fair_mindedness" validate:"required,min=0,max=4"`
+	Attitude               int        `json:"attitude" validate:"required,min=0,max=4"`
+	Communication          int        `json:"communication" validate:"required,min=0,max=4"`
+	Comments               *string    `json:"comments,omitempty"`
+	MVPMaleNomination      *uuid.UUID `json:"mvp_male_id,omitempty"`
+	MVPFemaleNomination    *uuid.UUID `json:"mvp_female_id,omitempty"`
+	SpiritMaleNomination   *uuid.UUID `json:"spirit_male_id,omitempty"`
+	SpiritFemaleNomination *uuid.UUID `json:"spirit_female_id,omitempty"`
 }
 
 type SpiritScoreDTO struct {
-	ID               uuid.UUID       `json:"id"`
-	GameID           uuid.UUID       `json:"gameId"`
-	ScoredByTeam     *TeamSummaryDTO `json:"scoredByTeam,omitempty"`
-	Team             *TeamSummaryDTO `json:"team,omitempty"`
-	SubmittedBy      *UserSummaryDTO `json:"submittedBy,omitempty"`
-	RulesKnowledge   int             `json:"rulesKnowledge"`
-	FoulsBodyContact int             `json:"foulsBodyContact"`
-	FairMindedness   int             `json:"fairMindedness"`
-	Attitude         int             `json:"attitude"`
-	Communication    int             `json:"communication"`
-	TotalScore       int             `json:"totalScore"`
-	Comments         *string         `json:"comments,omitempty"`
-	CreatedAt        time.Time       `json:"createdAt"`
-	UpdatedAt        time.Time       `json:"updatedAt"`
+	ID                     uuid.UUID         `json:"id"`
+	GameID                 uuid.UUID         `json:"gameId"`
+	ScoredByTeam           *TeamSummaryDTO   `json:"scoredByTeam,omitempty"`
+	Team                   *TeamSummaryDTO   `json:"team,omitempty"`
+	SubmittedBy            *UserSummaryDTO   `json:"submittedBy,omitempty"`
+	RulesKnowledge         int               `json:"rulesKnowledge"`
+	FoulsBodyContact       int               `json:"foulsBodyContact"`
+	FairMindedness         int               `json:"fairMindedness"`
+	Attitude               int               `json:"attitude"`
+	Communication          int               `json:"communication"`
+	TotalScore             int               `json:"totalScore"`
+	Comments               *string           `json:"comments,omitempty"`
+	MVPMaleNomination      *PlayerSummaryDTO `json:"mvpMaleNomination,omitempty"`
+	MVPFemaleNomination    *PlayerSummaryDTO `json:"mvpFemaleNomination,omitempty"`
+	SpiritMaleNomination   *PlayerSummaryDTO `json:"spiritMaleNomination,omitempty"`
+	SpiritFemaleNomination *PlayerSummaryDTO `json:"spiritFemaleNomination,omitempty"`
+	CreatedAt              time.Time         `json:"createdAt"`
+	UpdatedAt              time.Time         `json:"updatedAt"`
 }
 
 type TeamSpiritAverageDTO struct {
