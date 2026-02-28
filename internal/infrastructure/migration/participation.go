@@ -18,7 +18,7 @@ func (m *Migrator) migrateEventParticipation(ctx context.Context, fixturesDir st
 	players, err := m.client.Player.Query().
 		WithTeams(func(q *ent.TeamQuery) {
 			q.WithDivisionPools(func(dq *ent.DivisionPoolQuery) {
-				dq.WithEvent()
+				dq.WithEvents()
 			})
 		}).
 		All(ctx)
@@ -32,8 +32,8 @@ func (m *Migrator) migrateEventParticipation(ctx context.Context, fixturesDir st
 			// Find a division pool that has an event
 			var event *ent.Event
 			for _, pool := range team.Edges.DivisionPools {
-				if pool.Edges.Event != nil {
-					event = pool.Edges.Event
+				if len(pool.Edges.Events) > 0 {
+					event = pool.Edges.Events[0]
 					break
 				}
 			}

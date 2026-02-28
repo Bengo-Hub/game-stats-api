@@ -225,7 +225,14 @@ func (h *TeamHandler) toTeamResponse(t *ent.Team, contextEventID *uuid.UUID) Tea
 		var dp *ent.DivisionPool
 		if contextEventID != nil {
 			for _, pool := range t.Edges.DivisionPools {
-				if pool.Edges.Event != nil && pool.Edges.Event.ID == *contextEventID {
+				hasEvent := false
+				for _, e := range pool.Edges.Events {
+					if e.ID == *contextEventID {
+						hasEvent = true
+						break
+					}
+				}
+				if hasEvent {
 					dp = pool
 					break
 				}
@@ -241,8 +248,8 @@ func (h *TeamHandler) toTeamResponse(t *ent.Team, contextEventID *uuid.UUID) Tea
 		resp.DivisionPoolID = &id
 		resp.DivisionName = &dp.Name
 
-		if dp.Edges.Event != nil {
-			eventID := dp.Edges.Event.ID.String()
+		if len(dp.Edges.Events) > 0 {
+			eventID := dp.Edges.Events[0].ID.String()
 			resp.EventID = &eventID
 
 			// If we have both division and event context, we can calculate rank/seed
@@ -319,7 +326,7 @@ func (h *TeamHandler) ListTeams(w http.ResponseWriter, r *http.Request) {
 	query := h.client.Team.Query().
 		Where(team.DeletedAtIsNil()).
 		WithDivisionPools(func(dpq *ent.DivisionPoolQuery) {
-			dpq.WithEvent()
+			dpq.WithEvents()
 		}).
 		WithHomeLocation().
 		WithPlayers().
@@ -334,7 +341,7 @@ func (h *TeamHandler) ListTeams(w http.ResponseWriter, r *http.Request) {
 			respondError(w, http.StatusBadRequest, "Invalid event ID")
 			return
 		}
-		query = query.Where(team.HasDivisionPoolsWith(divisionpool.HasEventWith(event.ID(eventID))))
+		query = query.Where(team.HasDivisionPoolsWith(divisionpool.HasEventsWith(event.ID(eventID))))
 	}
 
 	// Filter by division pool
@@ -419,7 +426,7 @@ func (h *TeamHandler) GetTeam(w http.ResponseWriter, r *http.Request) {
 		Where(team.ID(teamID)).
 		Where(team.DeletedAtIsNil()).
 		WithDivisionPools(func(dpq *ent.DivisionPoolQuery) {
-			dpq.WithEvent()
+			dpq.WithEvents()
 		}).
 		WithHomeLocation().
 		WithPlayers().
@@ -557,7 +564,7 @@ func (h *TeamHandler) CreateTeam(w http.ResponseWriter, r *http.Request) {
 	tFull, err := h.client.Team.Query().
 		Where(team.ID(t.ID)).
 		WithDivisionPools(func(dpq *ent.DivisionPoolQuery) {
-			dpq.WithEvent()
+			dpq.WithEvents()
 		}).
 		WithHomeLocation().
 		WithPlayers().
@@ -970,6 +977,7 @@ func (h *TeamHandler) GetPlayer(w http.ResponseWriter, r *http.Request) {
 // @Router /public/players [get]
 func (h *TeamHandler) ListPlayers(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	pg := ParsePagination(r)
 
 	query := h.client.Player.Query().
 		Where(player.DeletedAtIsNil()).
@@ -990,7 +998,7 @@ func (h *TeamHandler) ListPlayers(w http.ResponseWriter, r *http.Request) {
 
 	if eventIDStr := r.URL.Query().Get("eventId"); eventIDStr != "" {
 		if eventID, err := uuid.Parse(eventIDStr); err == nil {
-			query = query.Where(player.HasTeamsWith(team.HasDivisionPoolsWith(divisionpool.HasEventWith(event.ID(eventID)))))
+			query = query.Where(player.HasTeamsWith(team.HasDivisionPoolsWith(divisionpool.HasEventsWith(event.ID(eventID)))))
 		} else {
 			respondError(w, http.StatusBadRequest, "Invalid event ID")
 			return
@@ -1010,11 +1018,16 @@ func (h *TeamHandler) ListPlayers(w http.ResponseWriter, r *http.Request) {
 		query = query.Where(player.GenderEQ(gender))
 	}
 
-	pagination := ParsePagination(r)
+	// Get total count BEFORE limit/offset
+	total, err := query.Clone().Count(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to count players")
+		return
+	}
 
 	players, err := query.
-		Limit(pagination.Limit).
-		Offset(pagination.Offset).
+		Limit(pg.Limit).
+		Offset(pg.Offset).
 		Order(ent.Asc(player.FieldName)).
 		All(ctx)
 
@@ -1028,7 +1041,7 @@ func (h *TeamHandler) ListPlayers(w http.ResponseWriter, r *http.Request) {
 		response[i] = h.toPlayerResponse(p)
 	}
 
-	respondJSON(w, http.StatusOK, response)
+	respondJSON(w, http.StatusOK, NewPaginatedResponse(response, total, pg.Limit, pg.Offset))
 }
 
 // BulkImportPlayersResponse represents the result of a bulk import

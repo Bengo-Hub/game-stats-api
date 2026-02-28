@@ -144,6 +144,8 @@ func NewRouter(opts RouterOptions) chi.Router {
 				r.Get("/geographic/countries", opts.GeographicHandler.ListCountries)
 				r.Get("/geographic/locations", opts.LocationHandler.ListLocations)
 				r.Get("/geographic/fields", opts.GeographicHandler.ListFields)
+				r.Get("/divisions", opts.EventHandler.ListAllDivisions)
+				r.Get("/rounds", opts.GameRoundHandler.ListAllRounds)
 
 				// Discipline metadata (used when creating/editing events)
 				r.Get("/disciplines", opts.DisciplineHandler.ListDisciplines)

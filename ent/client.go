@@ -1629,15 +1629,15 @@ func (c *DivisionPoolClient) GetX(ctx context.Context, id uuid.UUID) *DivisionPo
 	return obj
 }
 
-// QueryEvent queries the event edge of a DivisionPool.
-func (c *DivisionPoolClient) QueryEvent(_m *DivisionPool) *EventQuery {
+// QueryEvents queries the events edge of a DivisionPool.
+func (c *DivisionPoolClient) QueryEvents(_m *DivisionPool) *EventQuery {
 	query := (&EventClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(divisionpool.Table, divisionpool.FieldID, id),
 			sqlgraph.To(event.Table, event.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, divisionpool.EventTable, divisionpool.EventColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, divisionpool.EventsTable, divisionpool.EventsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1866,7 +1866,7 @@ func (c *EventClient) QueryDivisionPools(_m *Event) *DivisionPoolQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(event.Table, event.FieldID, id),
 			sqlgraph.To(divisionpool.Table, divisionpool.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, event.DivisionPoolsTable, event.DivisionPoolsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, event.DivisionPoolsTable, event.DivisionPoolsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1898,7 +1898,23 @@ func (c *EventClient) QueryGameRounds(_m *Event) *GameRoundQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(event.Table, event.FieldID, id),
 			sqlgraph.To(gameround.Table, gameround.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, event.GameRoundsTable, event.GameRoundsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, event.GameRoundsTable, event.GameRoundsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGames queries the games edge of a Event.
+func (c *EventClient) QueryGames(_m *Event) *GameQuery {
+	query := (&GameClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, id),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, event.GamesTable, event.GamesColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -2582,6 +2598,22 @@ func (c *GameClient) GetX(ctx context.Context, id uuid.UUID) *Game {
 	return obj
 }
 
+// QueryEvent queries the event edge of a Game.
+func (c *GameClient) QueryEvent(_m *Game) *EventQuery {
+	query := (&EventClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(event.Table, event.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.EventTable, game.EventColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryGameRound queries the game_round edge of a Game.
 func (c *GameClient) QueryGameRound(_m *Game) *GameRoundQuery {
 	query := (&GameRoundClient{config: c.config}).Query()
@@ -3040,15 +3072,15 @@ func (c *GameRoundClient) GetX(ctx context.Context, id uuid.UUID) *GameRound {
 	return obj
 }
 
-// QueryEvent queries the event edge of a GameRound.
-func (c *GameRoundClient) QueryEvent(_m *GameRound) *EventQuery {
+// QueryEvents queries the events edge of a GameRound.
+func (c *GameRoundClient) QueryEvents(_m *GameRound) *EventQuery {
 	query := (&EventClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(gameround.Table, gameround.FieldID, id),
 			sqlgraph.To(event.Table, event.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, gameround.EventTable, gameround.EventColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, gameround.EventsTable, gameround.EventsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil

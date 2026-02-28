@@ -53,11 +53,11 @@ func (s *PermissionService) CheckPermission(ctx context.Context, userID uuid.UUI
 		g, err := s.client.Game.Query().
 			Where(game.ID(scopeID)).
 			WithDivisionPool(func(q *ent.DivisionPoolQuery) {
-				q.WithEvent()
+				q.WithEvents()
 			}).
 			Only(ctx)
-		if err == nil && g.Edges.DivisionPool != nil && g.Edges.DivisionPool.Edges.Event != nil {
-			eventID := g.Edges.DivisionPool.Edges.Event.ID
+		if err == nil && g.Edges.DivisionPool != nil && len(g.Edges.DivisionPool.Edges.Events) > 0 {
+			eventID := g.Edges.DivisionPool.Edges.Events[0].ID
 			isEventManager, _ := s.CheckPermission(ctx, userID, "event_manager", "event", eventID)
 			if isEventManager {
 				return true, nil
@@ -98,11 +98,11 @@ func (s *PermissionService) IsScorekeeperForGame(ctx context.Context, userID uui
 	g, err := s.client.Game.Query().
 		Where(game.ID(gameID)).
 		WithDivisionPool(func(q *ent.DivisionPoolQuery) {
-			q.WithEvent()
+			q.WithEvents()
 		}).
 		Only(ctx)
-	if err == nil && g.Edges.DivisionPool != nil && g.Edges.DivisionPool.Edges.Event != nil {
-		eventID := g.Edges.DivisionPool.Edges.Event.ID
+	if err == nil && g.Edges.DivisionPool != nil && len(g.Edges.DivisionPool.Edges.Events) > 0 {
+		eventID := g.Edges.DivisionPool.Edges.Events[0].ID
 		isEventScorekeeper, _ := s.CheckPermission(ctx, userID, "scorekeeper", "event", eventID)
 		if isEventScorekeeper {
 			return true, nil

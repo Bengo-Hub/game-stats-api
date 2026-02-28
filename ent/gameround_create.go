@@ -161,15 +161,19 @@ func (_c *GameRoundCreate) SetNillableID(v *uuid.UUID) *GameRoundCreate {
 	return _c
 }
 
-// SetEventID sets the "event" edge to the Event entity by ID.
-func (_c *GameRoundCreate) SetEventID(id uuid.UUID) *GameRoundCreate {
-	_c.mutation.SetEventID(id)
+// AddEventIDs adds the "events" edge to the Event entity by IDs.
+func (_c *GameRoundCreate) AddEventIDs(ids ...uuid.UUID) *GameRoundCreate {
+	_c.mutation.AddEventIDs(ids...)
 	return _c
 }
 
-// SetEvent sets the "event" edge to the Event entity.
-func (_c *GameRoundCreate) SetEvent(v *Event) *GameRoundCreate {
-	return _c.SetEventID(v.ID)
+// AddEvents adds the "events" edges to the Event entity.
+func (_c *GameRoundCreate) AddEvents(v ...*Event) *GameRoundCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddEventIDs(ids...)
 }
 
 // AddGameIDs adds the "games" edge to the Game entity by IDs.
@@ -286,9 +290,6 @@ func (_c *GameRoundCreate) check() error {
 	if _, ok := _c.mutation.AutoAdvance(); !ok {
 		return &ValidationError{Name: "auto_advance", err: errors.New(`ent: missing required field "GameRound.auto_advance"`)}
 	}
-	if len(_c.mutation.EventIDs()) == 0 {
-		return &ValidationError{Name: "event", err: errors.New(`ent: missing required edge "GameRound.event"`)}
-	}
 	return nil
 }
 
@@ -364,12 +365,12 @@ func (_c *GameRoundCreate) createSpec() (*GameRound, *sqlgraph.CreateSpec) {
 		_spec.SetField(gameround.FieldTopNTeams, field.TypeInt, value)
 		_node.TopNTeams = &value
 	}
-	if nodes := _c.mutation.EventIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.EventsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   gameround.EventTable,
-			Columns: []string{gameround.EventColumn},
+			Table:   gameround.EventsTable,
+			Columns: gameround.EventsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
@@ -378,7 +379,6 @@ func (_c *GameRoundCreate) createSpec() (*GameRound, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.event_game_rounds = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.GamesIDs(); len(nodes) > 0 {

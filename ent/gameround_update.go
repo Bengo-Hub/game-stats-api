@@ -193,15 +193,19 @@ func (_u *GameRoundUpdate) ClearTopNTeams() *GameRoundUpdate {
 	return _u
 }
 
-// SetEventID sets the "event" edge to the Event entity by ID.
-func (_u *GameRoundUpdate) SetEventID(id uuid.UUID) *GameRoundUpdate {
-	_u.mutation.SetEventID(id)
+// AddEventIDs adds the "events" edge to the Event entity by IDs.
+func (_u *GameRoundUpdate) AddEventIDs(ids ...uuid.UUID) *GameRoundUpdate {
+	_u.mutation.AddEventIDs(ids...)
 	return _u
 }
 
-// SetEvent sets the "event" edge to the Event entity.
-func (_u *GameRoundUpdate) SetEvent(v *Event) *GameRoundUpdate {
-	return _u.SetEventID(v.ID)
+// AddEvents adds the "events" edges to the Event entity.
+func (_u *GameRoundUpdate) AddEvents(v ...*Event) *GameRoundUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddEventIDs(ids...)
 }
 
 // AddGameIDs adds the "games" edge to the Game entity by IDs.
@@ -243,10 +247,25 @@ func (_u *GameRoundUpdate) Mutation() *GameRoundMutation {
 	return _u.mutation
 }
 
-// ClearEvent clears the "event" edge to the Event entity.
-func (_u *GameRoundUpdate) ClearEvent() *GameRoundUpdate {
-	_u.mutation.ClearEvent()
+// ClearEvents clears all "events" edges to the Event entity.
+func (_u *GameRoundUpdate) ClearEvents() *GameRoundUpdate {
+	_u.mutation.ClearEvents()
 	return _u
+}
+
+// RemoveEventIDs removes the "events" edge to Event entities by IDs.
+func (_u *GameRoundUpdate) RemoveEventIDs(ids ...uuid.UUID) *GameRoundUpdate {
+	_u.mutation.RemoveEventIDs(ids...)
+	return _u
+}
+
+// RemoveEvents removes "events" edges to Event entities.
+func (_u *GameRoundUpdate) RemoveEvents(v ...*Event) *GameRoundUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveEventIDs(ids...)
 }
 
 // ClearGames clears all "games" edges to the Game entity.
@@ -324,9 +343,6 @@ func (_u *GameRoundUpdate) check() error {
 			return &ValidationError{Name: "round_type", err: fmt.Errorf(`ent: validator failed for field "GameRound.round_type": %w`, err)}
 		}
 	}
-	if _u.mutation.EventCleared() && len(_u.mutation.EventIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "GameRound.event"`)
-	}
 	return nil
 }
 
@@ -390,12 +406,12 @@ func (_u *GameRoundUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.TopNTeamsCleared() {
 		_spec.ClearField(gameround.FieldTopNTeams, field.TypeInt)
 	}
-	if _u.mutation.EventCleared() {
+	if _u.mutation.EventsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   gameround.EventTable,
-			Columns: []string{gameround.EventColumn},
+			Table:   gameround.EventsTable,
+			Columns: gameround.EventsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
@@ -403,12 +419,28 @@ func (_u *GameRoundUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.EventIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedEventsIDs(); len(nodes) > 0 && !_u.mutation.EventsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   gameround.EventTable,
-			Columns: []string{gameround.EventColumn},
+			Table:   gameround.EventsTable,
+			Columns: gameround.EventsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.EventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   gameround.EventsTable,
+			Columns: gameround.EventsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
@@ -675,15 +707,19 @@ func (_u *GameRoundUpdateOne) ClearTopNTeams() *GameRoundUpdateOne {
 	return _u
 }
 
-// SetEventID sets the "event" edge to the Event entity by ID.
-func (_u *GameRoundUpdateOne) SetEventID(id uuid.UUID) *GameRoundUpdateOne {
-	_u.mutation.SetEventID(id)
+// AddEventIDs adds the "events" edge to the Event entity by IDs.
+func (_u *GameRoundUpdateOne) AddEventIDs(ids ...uuid.UUID) *GameRoundUpdateOne {
+	_u.mutation.AddEventIDs(ids...)
 	return _u
 }
 
-// SetEvent sets the "event" edge to the Event entity.
-func (_u *GameRoundUpdateOne) SetEvent(v *Event) *GameRoundUpdateOne {
-	return _u.SetEventID(v.ID)
+// AddEvents adds the "events" edges to the Event entity.
+func (_u *GameRoundUpdateOne) AddEvents(v ...*Event) *GameRoundUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddEventIDs(ids...)
 }
 
 // AddGameIDs adds the "games" edge to the Game entity by IDs.
@@ -725,10 +761,25 @@ func (_u *GameRoundUpdateOne) Mutation() *GameRoundMutation {
 	return _u.mutation
 }
 
-// ClearEvent clears the "event" edge to the Event entity.
-func (_u *GameRoundUpdateOne) ClearEvent() *GameRoundUpdateOne {
-	_u.mutation.ClearEvent()
+// ClearEvents clears all "events" edges to the Event entity.
+func (_u *GameRoundUpdateOne) ClearEvents() *GameRoundUpdateOne {
+	_u.mutation.ClearEvents()
 	return _u
+}
+
+// RemoveEventIDs removes the "events" edge to Event entities by IDs.
+func (_u *GameRoundUpdateOne) RemoveEventIDs(ids ...uuid.UUID) *GameRoundUpdateOne {
+	_u.mutation.RemoveEventIDs(ids...)
+	return _u
+}
+
+// RemoveEvents removes "events" edges to Event entities.
+func (_u *GameRoundUpdateOne) RemoveEvents(v ...*Event) *GameRoundUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveEventIDs(ids...)
 }
 
 // ClearGames clears all "games" edges to the Game entity.
@@ -819,9 +870,6 @@ func (_u *GameRoundUpdateOne) check() error {
 			return &ValidationError{Name: "round_type", err: fmt.Errorf(`ent: validator failed for field "GameRound.round_type": %w`, err)}
 		}
 	}
-	if _u.mutation.EventCleared() && len(_u.mutation.EventIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "GameRound.event"`)
-	}
 	return nil
 }
 
@@ -902,12 +950,12 @@ func (_u *GameRoundUpdateOne) sqlSave(ctx context.Context) (_node *GameRound, er
 	if _u.mutation.TopNTeamsCleared() {
 		_spec.ClearField(gameround.FieldTopNTeams, field.TypeInt)
 	}
-	if _u.mutation.EventCleared() {
+	if _u.mutation.EventsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   gameround.EventTable,
-			Columns: []string{gameround.EventColumn},
+			Table:   gameround.EventsTable,
+			Columns: gameround.EventsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
@@ -915,12 +963,28 @@ func (_u *GameRoundUpdateOne) sqlSave(ctx context.Context) (_node *GameRound, er
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.EventIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedEventsIDs(); len(nodes) > 0 && !_u.mutation.EventsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   gameround.EventTable,
-			Columns: []string{gameround.EventColumn},
+			Table:   gameround.EventsTable,
+			Columns: gameround.EventsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.EventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   gameround.EventsTable,
+			Columns: gameround.EventsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),

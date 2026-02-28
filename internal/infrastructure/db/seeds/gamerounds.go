@@ -40,7 +40,7 @@ func SeedGameRounds(ctx context.Context, client *ent.Client, eventID uuid.UUID) 
 			SetName(r.Name).
 			SetRoundType(r.RoundType).
 			SetRoundNumber(r.RoundNumber).
-			SetEventID(eventID).
+			AddEventIDs(eventID).
 			Save(ctx)
 		if err != nil {
 			return fmt.Errorf("failed to seed round %s: %w", r.Name, err)

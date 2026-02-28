@@ -69,7 +69,7 @@ func (r *spiritScoreRepository) ListByEvent(ctx context.Context, eventID uuid.UU
 	query := r.client.SpiritScore.Query().
 		Where(spiritscore.HasGameWith(
 			game.HasDivisionPoolWith(
-				divisionpool.HasEventWith(event.ID(eventID)),
+				divisionpool.HasEventsWith(event.ID(eventID)),
 			),
 		)).
 		Where(spiritscore.DeletedAtIsNil())

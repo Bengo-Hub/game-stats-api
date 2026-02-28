@@ -85,14 +85,14 @@ func (Event) Edges() []ent.Edge {
 			Unique().
 			Required(),
 		edge.To("division_pools", DivisionPool.Type).
-			Annotations(entsql.Annotation{
-				OnDelete: entsql.Cascade,
-			}),
+			StorageKey(edge.Table("event_division_pools")),
 		edge.To("reconciliations", EventReconciliation.Type).
 			Annotations(entsql.Annotation{
 				OnDelete: entsql.Cascade,
 			}),
-		edge.To("game_rounds", GameRound.Type),
+		edge.To("game_rounds", GameRound.Type).
+			StorageKey(edge.Table("event_game_rounds")),
+		edge.To("games", Game.Type),
 		edge.To("managed_by", User.Type),
 		edge.To("participations", EventParticipation.Type),
 		// many-to-many with categories

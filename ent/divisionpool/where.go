@@ -556,21 +556,21 @@ func TopNTeamsNotNil() predicate.DivisionPool {
 	return predicate.DivisionPool(sql.FieldNotNull(FieldTopNTeams))
 }
 
-// HasEvent applies the HasEdge predicate on the "event" edge.
-func HasEvent() predicate.DivisionPool {
+// HasEvents applies the HasEdge predicate on the "events" edge.
+func HasEvents() predicate.DivisionPool {
 	return predicate.DivisionPool(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, EventTable, EventColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, EventsTable, EventsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasEventWith applies the HasEdge predicate on the "event" edge with a given conditions (other predicates).
-func HasEventWith(preds ...predicate.Event) predicate.DivisionPool {
+// HasEventsWith applies the HasEdge predicate on the "events" edge with a given conditions (other predicates).
+func HasEventsWith(preds ...predicate.Event) predicate.DivisionPool {
 	return predicate.DivisionPool(func(s *sql.Selector) {
-		step := newEventStep()
+		step := newEventsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -17,6 +17,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/eventparticipation"
 	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
+	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/predicate"
@@ -369,6 +370,21 @@ func (_u *EventUpdate) AddGameRounds(v ...*GameRound) *EventUpdate {
 	return _u.AddGameRoundIDs(ids...)
 }
 
+// AddGameIDs adds the "games" edge to the Game entity by IDs.
+func (_u *EventUpdate) AddGameIDs(ids ...uuid.UUID) *EventUpdate {
+	_u.mutation.AddGameIDs(ids...)
+	return _u
+}
+
+// AddGames adds the "games" edges to the Game entity.
+func (_u *EventUpdate) AddGames(v ...*Game) *EventUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddGameIDs(ids...)
+}
+
 // AddManagedByIDs adds the "managed_by" edge to the User entity by IDs.
 func (_u *EventUpdate) AddManagedByIDs(ids ...uuid.UUID) *EventUpdate {
 	_u.mutation.AddManagedByIDs(ids...)
@@ -492,6 +508,27 @@ func (_u *EventUpdate) RemoveGameRounds(v ...*GameRound) *EventUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveGameRoundIDs(ids...)
+}
+
+// ClearGames clears all "games" edges to the Game entity.
+func (_u *EventUpdate) ClearGames() *EventUpdate {
+	_u.mutation.ClearGames()
+	return _u
+}
+
+// RemoveGameIDs removes the "games" edge to Game entities by IDs.
+func (_u *EventUpdate) RemoveGameIDs(ids ...uuid.UUID) *EventUpdate {
+	_u.mutation.RemoveGameIDs(ids...)
+	return _u
+}
+
+// RemoveGames removes "games" edges to Game entities.
+func (_u *EventUpdate) RemoveGames(v ...*Game) *EventUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveGameIDs(ids...)
 }
 
 // ClearManagedBy clears all "managed_by" edges to the User entity.
@@ -786,10 +823,10 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DivisionPoolsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.DivisionPoolsTable,
-			Columns: []string{event.DivisionPoolsColumn},
+			Columns: event.DivisionPoolsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
@@ -799,10 +836,10 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.RemovedDivisionPoolsIDs(); len(nodes) > 0 && !_u.mutation.DivisionPoolsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.DivisionPoolsTable,
-			Columns: []string{event.DivisionPoolsColumn},
+			Columns: event.DivisionPoolsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
@@ -815,10 +852,10 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.DivisionPoolsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.DivisionPoolsTable,
-			Columns: []string{event.DivisionPoolsColumn},
+			Columns: event.DivisionPoolsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
@@ -876,10 +913,10 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.GameRoundsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.GameRoundsTable,
-			Columns: []string{event.GameRoundsColumn},
+			Columns: event.GameRoundsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
@@ -889,10 +926,10 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.RemovedGameRoundsIDs(); len(nodes) > 0 && !_u.mutation.GameRoundsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.GameRoundsTable,
-			Columns: []string{event.GameRoundsColumn},
+			Columns: event.GameRoundsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
@@ -905,13 +942,58 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.GameRoundsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.GameRoundsTable,
-			Columns: []string{event.GameRoundsColumn},
+			Columns: event.GameRoundsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.GamesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.GamesTable,
+			Columns: []string{event.GamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedGamesIDs(); len(nodes) > 0 && !_u.mutation.GamesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.GamesTable,
+			Columns: []string{event.GamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GamesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.GamesTable,
+			Columns: []string{event.GamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1406,6 +1488,21 @@ func (_u *EventUpdateOne) AddGameRounds(v ...*GameRound) *EventUpdateOne {
 	return _u.AddGameRoundIDs(ids...)
 }
 
+// AddGameIDs adds the "games" edge to the Game entity by IDs.
+func (_u *EventUpdateOne) AddGameIDs(ids ...uuid.UUID) *EventUpdateOne {
+	_u.mutation.AddGameIDs(ids...)
+	return _u
+}
+
+// AddGames adds the "games" edges to the Game entity.
+func (_u *EventUpdateOne) AddGames(v ...*Game) *EventUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddGameIDs(ids...)
+}
+
 // AddManagedByIDs adds the "managed_by" edge to the User entity by IDs.
 func (_u *EventUpdateOne) AddManagedByIDs(ids ...uuid.UUID) *EventUpdateOne {
 	_u.mutation.AddManagedByIDs(ids...)
@@ -1529,6 +1626,27 @@ func (_u *EventUpdateOne) RemoveGameRounds(v ...*GameRound) *EventUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveGameRoundIDs(ids...)
+}
+
+// ClearGames clears all "games" edges to the Game entity.
+func (_u *EventUpdateOne) ClearGames() *EventUpdateOne {
+	_u.mutation.ClearGames()
+	return _u
+}
+
+// RemoveGameIDs removes the "games" edge to Game entities by IDs.
+func (_u *EventUpdateOne) RemoveGameIDs(ids ...uuid.UUID) *EventUpdateOne {
+	_u.mutation.RemoveGameIDs(ids...)
+	return _u
+}
+
+// RemoveGames removes "games" edges to Game entities.
+func (_u *EventUpdateOne) RemoveGames(v ...*Game) *EventUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveGameIDs(ids...)
 }
 
 // ClearManagedBy clears all "managed_by" edges to the User entity.
@@ -1853,10 +1971,10 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if _u.mutation.DivisionPoolsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.DivisionPoolsTable,
-			Columns: []string{event.DivisionPoolsColumn},
+			Columns: event.DivisionPoolsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
@@ -1866,10 +1984,10 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if nodes := _u.mutation.RemovedDivisionPoolsIDs(); len(nodes) > 0 && !_u.mutation.DivisionPoolsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.DivisionPoolsTable,
-			Columns: []string{event.DivisionPoolsColumn},
+			Columns: event.DivisionPoolsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
@@ -1882,10 +2000,10 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if nodes := _u.mutation.DivisionPoolsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.DivisionPoolsTable,
-			Columns: []string{event.DivisionPoolsColumn},
+			Columns: event.DivisionPoolsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
@@ -1943,10 +2061,10 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if _u.mutation.GameRoundsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.GameRoundsTable,
-			Columns: []string{event.GameRoundsColumn},
+			Columns: event.GameRoundsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
@@ -1956,10 +2074,10 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if nodes := _u.mutation.RemovedGameRoundsIDs(); len(nodes) > 0 && !_u.mutation.GameRoundsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.GameRoundsTable,
-			Columns: []string{event.GameRoundsColumn},
+			Columns: event.GameRoundsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
@@ -1972,13 +2090,58 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if nodes := _u.mutation.GameRoundsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.GameRoundsTable,
-			Columns: []string{event.GameRoundsColumn},
+			Columns: event.GameRoundsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.GamesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.GamesTable,
+			Columns: []string{event.GamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedGamesIDs(); len(nodes) > 0 && !_u.mutation.GamesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.GamesTable,
+			Columns: []string{event.GamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GamesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.GamesTable,
+			Columns: []string{event.GamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

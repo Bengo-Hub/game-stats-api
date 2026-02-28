@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
-	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/google/uuid"
 )
@@ -45,14 +44,13 @@ type DivisionPool struct {
 	// The values are being populated by the DivisionPoolQuery when eager-loading is set.
 	Edges                      DivisionPoolEdges `json:"edges"`
 	division_pool_target_round *uuid.UUID
-	event_division_pools       *uuid.UUID
 	selectValues               sql.SelectValues
 }
 
 // DivisionPoolEdges holds the relations/edges for other nodes in the graph.
 type DivisionPoolEdges struct {
-	// Event holds the value of the event edge.
-	Event *Event `json:"event,omitempty"`
+	// Events holds the value of the events edge.
+	Events []*Event `json:"events,omitempty"`
 	// Teams holds the value of the teams edge.
 	Teams []*Team `json:"teams,omitempty"`
 	// Games holds the value of the games edge.
@@ -64,15 +62,13 @@ type DivisionPoolEdges struct {
 	loadedTypes [4]bool
 }
 
-// EventOrErr returns the Event value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e DivisionPoolEdges) EventOrErr() (*Event, error) {
-	if e.Event != nil {
-		return e.Event, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: event.Label}
+// EventsOrErr returns the Events value or an error if the edge
+// was not loaded in eager-loading.
+func (e DivisionPoolEdges) EventsOrErr() ([]*Event, error) {
+	if e.loadedTypes[0] {
+		return e.Events, nil
 	}
-	return nil, &NotLoadedError{edge: "event"}
+	return nil, &NotLoadedError{edge: "events"}
 }
 
 // TeamsOrErr returns the Teams value or an error if the edge
@@ -122,8 +118,6 @@ func (*DivisionPool) scanValues(columns []string) ([]any, error) {
 		case divisionpool.FieldID:
 			values[i] = new(uuid.UUID)
 		case divisionpool.ForeignKeys[0]: // division_pool_target_round
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case divisionpool.ForeignKeys[1]: // event_division_pools
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
@@ -219,13 +213,6 @@ func (_m *DivisionPool) assignValues(columns []string, values []any) error {
 				_m.division_pool_target_round = new(uuid.UUID)
 				*_m.division_pool_target_round = *value.S.(*uuid.UUID)
 			}
-		case divisionpool.ForeignKeys[1]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field event_division_pools", values[i])
-			} else if value.Valid {
-				_m.event_division_pools = new(uuid.UUID)
-				*_m.event_division_pools = *value.S.(*uuid.UUID)
-			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -239,9 +226,9 @@ func (_m *DivisionPool) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryEvent queries the "event" edge of the DivisionPool entity.
-func (_m *DivisionPool) QueryEvent() *EventQuery {
-	return NewDivisionPoolClient(_m.config).QueryEvent(_m)
+// QueryEvents queries the "events" edge of the DivisionPool entity.
+func (_m *DivisionPool) QueryEvents() *EventQuery {
+	return NewDivisionPoolClient(_m.config).QueryEvents(_m)
 }
 
 // QueryTeams queries the "teams" edge of the DivisionPool entity.

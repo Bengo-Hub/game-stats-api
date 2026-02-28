@@ -46,9 +46,11 @@ type CreateEventRequest struct {
 	RulesUrl     *string                 `json:"rulesUrl,omitempty"`
 	Metadata     map[string]interface{}  `json:"metadata,omitempty"`
 	Divisions    []CreateDivisionRequest `json:"divisions,omitempty"`
+	GameRoundIDs []string                `json:"gameRoundIds,omitempty"`
 }
 
 type CreateDivisionRequest struct {
+	ID           *string `json:"id,omitempty"`
 	Name         string  `json:"name" validate:"required"`
 	DivisionType string  `json:"divisionType" validate:"required,oneof=pool bracket mixed"`
 	Description  *string `json:"description,omitempty"`
@@ -66,6 +68,7 @@ type AddCrewMemberRequest struct {
 }
 
 type UpdateEventRequest struct {
+	ID           *string                 `json:"id,omitempty"`
 	Name         *string                 `json:"name"`
 	Slug         *string                 `json:"slug"`
 	Description  *string                 `json:"description"`
@@ -80,6 +83,7 @@ type UpdateEventRequest struct {
 	Status       *string                 `json:"status"`
 	Metadata     map[string]interface{}  `json:"metadata"`
 	Divisions    []CreateDivisionRequest `json:"divisions"`
+	GameRoundIDs []string                `json:"gameRoundIds"`
 }
 
 type EventHandler struct {
@@ -113,6 +117,7 @@ type EventResponse struct {
 	Discipline  *RefDTO          `json:"discipline,omitempty"`
 	Location    *LocationDTO     `json:"location,omitempty"`
 	Divisions   []DivisionDTO    `json:"divisions,omitempty"`
+	GameRounds  []RefDTO         `json:"gameRounds,omitempty"`
 	TeamPreview []TeamPreviewDTO `json:"teamPreview,omitempty"`
 }
 
@@ -159,6 +164,19 @@ type TeamPreviewDTO struct {
 // ============================================
 // DTO Transformers
 // ============================================
+
+func toDivisionDTO(dp *ent.DivisionPool) DivisionDTO {
+	teamsCount := 0
+	if dp.Edges.Teams != nil {
+		teamsCount = len(dp.Edges.Teams)
+	}
+	return DivisionDTO{
+		ID:           dp.ID.String(),
+		Name:         dp.Name,
+		DivisionType: dp.DivisionType,
+		TeamsCount:   teamsCount,
+	}
+}
 
 func toEventResponse(e *ent.Event) EventResponse {
 	// Calculate actual counts from loaded edges
@@ -240,9 +258,7 @@ func toEventResponse(e *ent.Event) EventResponse {
 		var teamPreviews []TeamPreviewDTO
 
 		for i, dp := range e.Edges.DivisionPools {
-			teamsInDivision := 0
 			if dp.Edges.Teams != nil {
-				teamsInDivision = len(dp.Edges.Teams)
 				// Collect team previews (max 5 total)
 				for _, t := range dp.Edges.Teams {
 					if len(teamPreviews) < 5 && !teamPreviewMap[t.ID.String()] {
@@ -255,14 +271,17 @@ func toEventResponse(e *ent.Event) EventResponse {
 					}
 				}
 			}
-			resp.Divisions[i] = DivisionDTO{
-				ID:           dp.ID.String(),
-				Name:         dp.Name,
-				DivisionType: dp.DivisionType,
-				TeamsCount:   teamsInDivision,
-			}
+			resp.Divisions[i] = toDivisionDTO(dp)
 		}
 		resp.TeamPreview = teamPreviews
+	}
+
+	// attach game rounds
+	if len(e.Edges.GameRounds) > 0 {
+		resp.GameRounds = make([]RefDTO, len(e.Edges.GameRounds))
+		for i, r := range e.Edges.GameRounds {
+			resp.GameRounds[i] = RefDTO{ID: r.ID.String(), Name: r.Name}
+		}
 	}
 
 	return resp
@@ -401,30 +420,46 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create nested divisions if provided
+	// Create or Associate nested divisions if provided
 	if len(req.Divisions) > 0 {
 		for _, dReq := range req.Divisions {
-			_, err := h.client.DivisionPool.Create().
-				SetName(dReq.Name).
-				SetDivisionType(dReq.DivisionType).
-				SetNillableDescription(dReq.Description).
-				SetEvent(e).
-				Save(ctx)
-			if err != nil {
-				logger.Error("Failed to create nested division", logger.Err(err), logger.String("event_id", e.ID.String()))
-				// We continue even if one fails, or we could wrap in transaction.
-				// For now, let's keep it simple as the event is already created.
+			if dReq.ID != nil && *dReq.ID != "" {
+				divID, err := uuid.Parse(*dReq.ID)
+				if err == nil {
+					h.client.DivisionPool.UpdateOneID(divID).AddEvents(e).Exec(ctx)
+				}
+			} else {
+				_, err := h.client.DivisionPool.Create().
+					SetName(dReq.Name).
+					SetDivisionType(dReq.DivisionType).
+					SetNillableDescription(dReq.Description).
+					AddEvents(e).
+					Save(ctx)
+				if err != nil {
+					logger.Error("Failed to create nested division", logger.Err(err), logger.String("event_id", e.ID.String()))
+				}
 			}
 		}
-		// Reload event to include division details in response
-		e, _ = h.client.Event.Query().
-			Where(event.ID(e.ID)).
-			WithDiscipline().
-			WithLocation(func(lq *ent.LocationQuery) { lq.WithCountry() }).
-			WithDivisionPools().
-			WithCategories().
-			Only(ctx)
 	}
+
+	// Associate game rounds if provided
+	if len(req.GameRoundIDs) > 0 {
+		for _, rid := range req.GameRoundIDs {
+			if rUUID, err := uuid.Parse(rid); err == nil {
+				h.client.GameRound.UpdateOneID(rUUID).AddEvents(e).Exec(ctx)
+			}
+		}
+	}
+
+	// Reload event to include details in response
+	e, _ = h.client.Event.Query().
+		Where(event.ID(e.ID)).
+		WithDiscipline().
+		WithLocation(func(lq *ent.LocationQuery) { lq.WithCountry() }).
+		WithDivisionPools().
+		WithGameRounds().
+		WithCategories().
+		Only(ctx)
 
 	respondJSON(w, http.StatusCreated, toEventResponse(e))
 }
@@ -577,30 +612,39 @@ func (h *EventHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 
 	// Handle nested divisions if provided
 	if req.Divisions != nil {
-		// For simplicity in the update, we'll assume the request contains the TOTAL set of divisions
-		// if we wanted to replace, or we just add new ones.
-		// The requirement usually implies a full sync or just adding.
-		// Existing logic for divisions is mostly POST to /events/{id}/divisions.
-		// If req.Divisions is provided here, we'll treat it as "Add if not exists" or similar.
-		// However, for nested support in Update, let's just implement ADD logic for now
-		// to avoid accidentally deleting existing divisions if the UI only sends new ones.
 		for _, dReq := range req.Divisions {
-			// check if exists
-			exists, _ := h.client.DivisionPool.Query().
-				Where(
-					divisionpool.HasEventWith(event.ID(eUpdated.ID)),
-					divisionpool.NameEQ(dReq.Name),
-				).Exist(ctx)
-			if !exists {
-				_, err := h.client.DivisionPool.Create().
-					SetName(dReq.Name).
-					SetDivisionType(dReq.DivisionType).
-					SetNillableDescription(dReq.Description).
-					SetEvent(eUpdated).
-					Save(ctx)
-				if err != nil {
-					logger.Error("Failed to create nested division on update", logger.Err(err))
+			if dReq.ID != nil && *dReq.ID != "" {
+				divID, err := uuid.Parse(*dReq.ID)
+				if err == nil {
+					h.client.DivisionPool.UpdateOneID(divID).AddEvents(eUpdated).Exec(ctx)
 				}
+			} else {
+				// check if exists by name for this event
+				exists, _ := h.client.DivisionPool.Query().
+					Where(
+						divisionpool.HasEventsWith(event.ID(eUpdated.ID)),
+						divisionpool.NameEQ(dReq.Name),
+					).Exist(ctx)
+				if !exists {
+					_, err := h.client.DivisionPool.Create().
+						SetName(dReq.Name).
+						SetDivisionType(dReq.DivisionType).
+						SetNillableDescription(dReq.Description).
+						AddEvents(eUpdated).
+						Save(ctx)
+					if err != nil {
+						logger.Error("Failed to create nested division on update", logger.Err(err))
+					}
+				}
+			}
+		}
+	}
+
+	// Associate game rounds if provided
+	if len(req.GameRoundIDs) > 0 {
+		for _, rid := range req.GameRoundIDs {
+			if rUUID, err := uuid.Parse(rid); err == nil {
+				h.client.GameRound.UpdateOneID(rUUID).AddEvents(eUpdated).Exec(ctx)
 			}
 		}
 	}
@@ -609,13 +653,10 @@ func (h *EventHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	eUpdated, err = h.client.Event.Query().
 		Where(event.ID(eUpdated.ID)).
 		WithDiscipline().
-		WithLocation(func(lq *ent.LocationQuery) {
-			lq.WithCountry()
-		}).
-		WithDivisionPools(func(dpq *ent.DivisionPoolQuery) {
-			dpq.WithTeams()
-			dpq.WithGames()
-		}).
+		WithLocation(func(lq *ent.LocationQuery) { lq.WithCountry() }).
+		WithDivisionPools().
+		WithGameRounds().
+		WithCategories().
 		Only(ctx)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to load updated event")
@@ -663,7 +704,7 @@ func (h *EventHandler) CreateDivisionPool(w http.ResponseWriter, r *http.Request
 		SetName(req.Name).
 		SetDivisionType(req.DivisionType).
 		SetNillableDescription(req.Description).
-		SetEventID(eventID).
+		AddEventIDs(eventID).
 		Save(ctx)
 
 	if err != nil {
@@ -913,8 +954,6 @@ func (h *EventHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("X-Total-Count", strconv.Itoa(total))
-
 	events, err := query.
 		Limit(pagination.Limit).
 		Offset(pagination.Offset).
@@ -930,7 +969,7 @@ func (h *EventHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
 		response[i] = toEventResponse(e)
 	}
 
-	respondJSON(w, http.StatusOK, response)
+	respondJSON(w, http.StatusOK, NewPaginatedResponse(response, total, pagination.Limit, pagination.Offset))
 }
 
 // ============================================
@@ -1006,7 +1045,7 @@ func (h *EventHandler) ListDivisionsByEvent(w http.ResponseWriter, r *http.Reque
 	}
 
 	divisions, err := h.client.DivisionPool.Query().
-		Where(divisionpool.HasEventWith(event.ID(id))).
+		Where(divisionpool.HasEventsWith(event.ID(id))).
 		WithTeams().
 		All(ctx)
 
@@ -1117,7 +1156,7 @@ func (h *EventHandler) GetEventCrew(w http.ResponseWriter, r *http.Request) {
 			Where(
 				entUser.HasOfficiatedGamesWith(
 					entGame.HasDivisionPoolWith(
-						divisionpool.HasEventWith(event.IDEQ(eventID)),
+						divisionpool.HasEventsWith(event.IDEQ(eventID)),
 					),
 				),
 			)
@@ -1237,4 +1276,32 @@ func (h *EventHandler) RemoveEventCrewMember(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// ListAllDivisions lists all divisions in the system
+func (h *EventHandler) ListAllDivisions(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	pagination := ParsePagination(r)
+	total, err := h.client.DivisionPool.Query().Where(divisionpool.DeletedAtIsNil()).Count(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to count divisions")
+		return
+	}
+
+	divisions, err := h.client.DivisionPool.Query().
+		Where(divisionpool.DeletedAtIsNil()).
+		Limit(pagination.Limit).
+		Offset(pagination.Offset).
+		All(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to list divisions")
+		return
+	}
+
+	res := make([]DivisionDTO, len(divisions))
+	for i, d := range divisions {
+		res[i] = toDivisionDTO(d)
+	}
+
+	respondJSON(w, http.StatusOK, NewPaginatedResponse(res, total, pagination.Limit, pagination.Offset))
 }

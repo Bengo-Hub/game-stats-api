@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/event"
 	entfield "github.com/bengobox/game-stats-api/ent/field"
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/gameevent"
@@ -33,6 +34,7 @@ type GameQuery struct {
 	order                 []game.OrderOption
 	inters                []Interceptor
 	predicates            []predicate.Game
+	withEvent             *EventQuery
 	withGameRound         *GameRoundQuery
 	withHomeTeam          *TeamQuery
 	withAwayTeam          *TeamQuery
@@ -78,6 +80,28 @@ func (_q *GameQuery) Unique(unique bool) *GameQuery {
 func (_q *GameQuery) Order(o ...game.OrderOption) *GameQuery {
 	_q.order = append(_q.order, o...)
 	return _q
+}
+
+// QueryEvent chains the current query on the "event" edge.
+func (_q *GameQuery) QueryEvent() *EventQuery {
+	query := (&EventClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, selector),
+			sqlgraph.To(event.Table, event.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.EventTable, game.EventColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QueryGameRound chains the current query on the "game_round" edge.
@@ -492,6 +516,7 @@ func (_q *GameQuery) Clone() *GameQuery {
 		order:                 append([]game.OrderOption{}, _q.order...),
 		inters:                append([]Interceptor{}, _q.inters...),
 		predicates:            append([]predicate.Game{}, _q.predicates...),
+		withEvent:             _q.withEvent.Clone(),
 		withGameRound:         _q.withGameRound.Clone(),
 		withHomeTeam:          _q.withHomeTeam.Clone(),
 		withAwayTeam:          _q.withAwayTeam.Clone(),
@@ -506,6 +531,17 @@ func (_q *GameQuery) Clone() *GameQuery {
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
+}
+
+// WithEvent tells the query-builder to eager-load the nodes that are connected to
+// the "event" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *GameQuery) WithEvent(opts ...func(*EventQuery)) *GameQuery {
+	query := (&EventClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withEvent = query
+	return _q
 }
 
 // WithGameRound tells the query-builder to eager-load the nodes that are connected to
@@ -697,7 +733,8 @@ func (_q *GameQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Game, e
 		nodes       = []*Game{}
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [10]bool{
+		loadedTypes = [11]bool{
+			_q.withEvent != nil,
 			_q.withGameRound != nil,
 			_q.withHomeTeam != nil,
 			_q.withAwayTeam != nil,
@@ -710,7 +747,7 @@ func (_q *GameQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Game, e
 			_q.withScoreEditRequests != nil,
 		}
 	)
-	if _q.withGameRound != nil || _q.withHomeTeam != nil || _q.withAwayTeam != nil || _q.withDivisionPool != nil || _q.withFieldLocation != nil || _q.withScorekeeper != nil {
+	if _q.withEvent != nil || _q.withGameRound != nil || _q.withHomeTeam != nil || _q.withAwayTeam != nil || _q.withDivisionPool != nil || _q.withFieldLocation != nil || _q.withScorekeeper != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -733,6 +770,12 @@ func (_q *GameQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Game, e
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
+	}
+	if query := _q.withEvent; query != nil {
+		if err := _q.loadEvent(ctx, query, nodes, nil,
+			func(n *Game, e *Event) { n.Edges.Event = e }); err != nil {
+			return nil, err
+		}
 	}
 	if query := _q.withGameRound; query != nil {
 		if err := _q.loadGameRound(ctx, query, nodes, nil,
@@ -801,6 +844,38 @@ func (_q *GameQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Game, e
 	return nodes, nil
 }
 
+func (_q *GameQuery) loadEvent(ctx context.Context, query *EventQuery, nodes []*Game, init func(*Game), assign func(*Game, *Event)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Game)
+	for i := range nodes {
+		if nodes[i].event_games == nil {
+			continue
+		}
+		fk := *nodes[i].event_games
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(event.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "event_games" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 func (_q *GameQuery) loadGameRound(ctx context.Context, query *GameRoundQuery, nodes []*Game, init func(*Game), assign func(*Game, *GameRound)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Game)

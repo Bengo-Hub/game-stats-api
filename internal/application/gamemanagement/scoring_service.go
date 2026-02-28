@@ -42,9 +42,9 @@ func (s *Service) RecordScore(ctx context.Context, gameID uuid.UUID, userID uuid
 		gameEndTime = *game.ActualEndTime
 	}
 
-	if time.Now().After(gameEndTime) && game.Status != "ended" {
+	if time.Now().After(gameEndTime) && game.Status != "ended" && game.Edges.DivisionPool != nil && len(game.Edges.DivisionPool.Edges.Events) > 0 {
 		// Fetch event to check approval configuration
-		event, err := s.eventRepo.GetByID(ctx, game.Edges.DivisionPool.Edges.Event.ID)
+		event, err := s.eventRepo.GetByID(ctx, game.Edges.DivisionPool.Edges.Events[0].ID)
 		if err == nil {
 			// If approval is required, but user is NOT an admin/manager, we should handle this
 			// For now, we allow admins/managers to bypass, and others might be restricted

@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/event"
 	entfield "github.com/bengobox/game-stats-api/ent/field"
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/gameround"
@@ -58,6 +59,7 @@ type Game struct {
 	// The values are being populated by the GameQuery when eager-loading is set.
 	Edges                 GameEdges `json:"edges"`
 	division_pool_games   *uuid.UUID
+	event_games           *uuid.UUID
 	field_games           *uuid.UUID
 	game_round_games      *uuid.UUID
 	team_home_games       *uuid.UUID
@@ -68,6 +70,8 @@ type Game struct {
 
 // GameEdges holds the relations/edges for other nodes in the graph.
 type GameEdges struct {
+	// Event holds the value of the event edge.
+	Event *Event `json:"event,omitempty"`
 	// GameRound holds the value of the game_round edge.
 	GameRound *GameRound `json:"game_round,omitempty"`
 	// HomeTeam holds the value of the home_team edge.
@@ -90,7 +94,18 @@ type GameEdges struct {
 	ScoreEditRequests []*ScoreEditRequest `json:"score_edit_requests,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [10]bool
+	loadedTypes [11]bool
+}
+
+// EventOrErr returns the Event value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e GameEdges) EventOrErr() (*Event, error) {
+	if e.Event != nil {
+		return e.Event, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: event.Label}
+	}
+	return nil, &NotLoadedError{edge: "event"}
 }
 
 // GameRoundOrErr returns the GameRound value or an error if the edge
@@ -98,7 +113,7 @@ type GameEdges struct {
 func (e GameEdges) GameRoundOrErr() (*GameRound, error) {
 	if e.GameRound != nil {
 		return e.GameRound, nil
-	} else if e.loadedTypes[0] {
+	} else if e.loadedTypes[1] {
 		return nil, &NotFoundError{label: gameround.Label}
 	}
 	return nil, &NotLoadedError{edge: "game_round"}
@@ -109,7 +124,7 @@ func (e GameEdges) GameRoundOrErr() (*GameRound, error) {
 func (e GameEdges) HomeTeamOrErr() (*Team, error) {
 	if e.HomeTeam != nil {
 		return e.HomeTeam, nil
-	} else if e.loadedTypes[1] {
+	} else if e.loadedTypes[2] {
 		return nil, &NotFoundError{label: team.Label}
 	}
 	return nil, &NotLoadedError{edge: "home_team"}
@@ -120,7 +135,7 @@ func (e GameEdges) HomeTeamOrErr() (*Team, error) {
 func (e GameEdges) AwayTeamOrErr() (*Team, error) {
 	if e.AwayTeam != nil {
 		return e.AwayTeam, nil
-	} else if e.loadedTypes[2] {
+	} else if e.loadedTypes[3] {
 		return nil, &NotFoundError{label: team.Label}
 	}
 	return nil, &NotLoadedError{edge: "away_team"}
@@ -131,7 +146,7 @@ func (e GameEdges) AwayTeamOrErr() (*Team, error) {
 func (e GameEdges) DivisionPoolOrErr() (*DivisionPool, error) {
 	if e.DivisionPool != nil {
 		return e.DivisionPool, nil
-	} else if e.loadedTypes[3] {
+	} else if e.loadedTypes[4] {
 		return nil, &NotFoundError{label: divisionpool.Label}
 	}
 	return nil, &NotLoadedError{edge: "division_pool"}
@@ -142,7 +157,7 @@ func (e GameEdges) DivisionPoolOrErr() (*DivisionPool, error) {
 func (e GameEdges) FieldLocationOrErr() (*Field, error) {
 	if e.FieldLocation != nil {
 		return e.FieldLocation, nil
-	} else if e.loadedTypes[4] {
+	} else if e.loadedTypes[5] {
 		return nil, &NotFoundError{label: entfield.Label}
 	}
 	return nil, &NotLoadedError{edge: "field_location"}
@@ -153,7 +168,7 @@ func (e GameEdges) FieldLocationOrErr() (*Field, error) {
 func (e GameEdges) ScorekeeperOrErr() (*User, error) {
 	if e.Scorekeeper != nil {
 		return e.Scorekeeper, nil
-	} else if e.loadedTypes[5] {
+	} else if e.loadedTypes[6] {
 		return nil, &NotFoundError{label: user.Label}
 	}
 	return nil, &NotLoadedError{edge: "scorekeeper"}
@@ -162,7 +177,7 @@ func (e GameEdges) ScorekeeperOrErr() (*User, error) {
 // ScoresOrErr returns the Scores value or an error if the edge
 // was not loaded in eager-loading.
 func (e GameEdges) ScoresOrErr() ([]*Scoring, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[7] {
 		return e.Scores, nil
 	}
 	return nil, &NotLoadedError{edge: "scores"}
@@ -171,7 +186,7 @@ func (e GameEdges) ScoresOrErr() ([]*Scoring, error) {
 // GameEventsOrErr returns the GameEvents value or an error if the edge
 // was not loaded in eager-loading.
 func (e GameEdges) GameEventsOrErr() ([]*GameEvent, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[8] {
 		return e.GameEvents, nil
 	}
 	return nil, &NotLoadedError{edge: "game_events"}
@@ -180,7 +195,7 @@ func (e GameEdges) GameEventsOrErr() ([]*GameEvent, error) {
 // SpiritScoresOrErr returns the SpiritScores value or an error if the edge
 // was not loaded in eager-loading.
 func (e GameEdges) SpiritScoresOrErr() ([]*SpiritScore, error) {
-	if e.loadedTypes[8] {
+	if e.loadedTypes[9] {
 		return e.SpiritScores, nil
 	}
 	return nil, &NotLoadedError{edge: "spirit_scores"}
@@ -189,7 +204,7 @@ func (e GameEdges) SpiritScoresOrErr() ([]*SpiritScore, error) {
 // ScoreEditRequestsOrErr returns the ScoreEditRequests value or an error if the edge
 // was not loaded in eager-loading.
 func (e GameEdges) ScoreEditRequestsOrErr() ([]*ScoreEditRequest, error) {
-	if e.loadedTypes[9] {
+	if e.loadedTypes[10] {
 		return e.ScoreEditRequests, nil
 	}
 	return nil, &NotLoadedError{edge: "score_edit_requests"}
@@ -212,15 +227,17 @@ func (*Game) scanValues(columns []string) ([]any, error) {
 			values[i] = new(uuid.UUID)
 		case game.ForeignKeys[0]: // division_pool_games
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case game.ForeignKeys[1]: // field_games
+		case game.ForeignKeys[1]: // event_games
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case game.ForeignKeys[2]: // game_round_games
+		case game.ForeignKeys[2]: // field_games
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case game.ForeignKeys[3]: // team_home_games
+		case game.ForeignKeys[3]: // game_round_games
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case game.ForeignKeys[4]: // team_away_games
+		case game.ForeignKeys[4]: // team_home_games
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case game.ForeignKeys[5]: // user_officiated_games
+		case game.ForeignKeys[5]: // team_away_games
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case game.ForeignKeys[6]: // user_officiated_games
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
@@ -348,33 +365,40 @@ func (_m *Game) assignValues(columns []string, values []any) error {
 			}
 		case game.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field event_games", values[i])
+			} else if value.Valid {
+				_m.event_games = new(uuid.UUID)
+				*_m.event_games = *value.S.(*uuid.UUID)
+			}
+		case game.ForeignKeys[2]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field field_games", values[i])
 			} else if value.Valid {
 				_m.field_games = new(uuid.UUID)
 				*_m.field_games = *value.S.(*uuid.UUID)
 			}
-		case game.ForeignKeys[2]:
+		case game.ForeignKeys[3]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field game_round_games", values[i])
 			} else if value.Valid {
 				_m.game_round_games = new(uuid.UUID)
 				*_m.game_round_games = *value.S.(*uuid.UUID)
 			}
-		case game.ForeignKeys[3]:
+		case game.ForeignKeys[4]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field team_home_games", values[i])
 			} else if value.Valid {
 				_m.team_home_games = new(uuid.UUID)
 				*_m.team_home_games = *value.S.(*uuid.UUID)
 			}
-		case game.ForeignKeys[4]:
+		case game.ForeignKeys[5]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field team_away_games", values[i])
 			} else if value.Valid {
 				_m.team_away_games = new(uuid.UUID)
 				*_m.team_away_games = *value.S.(*uuid.UUID)
 			}
-		case game.ForeignKeys[5]:
+		case game.ForeignKeys[6]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field user_officiated_games", values[i])
 			} else if value.Valid {
@@ -392,6 +416,11 @@ func (_m *Game) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Game) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryEvent queries the "event" edge of the Game entity.
+func (_m *Game) QueryEvent() *EventQuery {
+	return NewGameClient(_m.config).QueryEvent(_m)
 }
 
 // QueryGameRound queries the "game_round" edge of the Game entity.

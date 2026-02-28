@@ -155,15 +155,19 @@ func (_c *DivisionPoolCreate) SetNillableID(v *uuid.UUID) *DivisionPoolCreate {
 	return _c
 }
 
-// SetEventID sets the "event" edge to the Event entity by ID.
-func (_c *DivisionPoolCreate) SetEventID(id uuid.UUID) *DivisionPoolCreate {
-	_c.mutation.SetEventID(id)
+// AddEventIDs adds the "events" edge to the Event entity by IDs.
+func (_c *DivisionPoolCreate) AddEventIDs(ids ...uuid.UUID) *DivisionPoolCreate {
+	_c.mutation.AddEventIDs(ids...)
 	return _c
 }
 
-// SetEvent sets the "event" edge to the Event entity.
-func (_c *DivisionPoolCreate) SetEvent(v *Event) *DivisionPoolCreate {
-	return _c.SetEventID(v.ID)
+// AddEvents adds the "events" edges to the Event entity.
+func (_c *DivisionPoolCreate) AddEvents(v ...*Event) *DivisionPoolCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddEventIDs(ids...)
 }
 
 // AddTeamIDs adds the "teams" edge to the Team entity by IDs.
@@ -295,9 +299,6 @@ func (_c *DivisionPoolCreate) check() error {
 	if _, ok := _c.mutation.AutoAdvance(); !ok {
 		return &ValidationError{Name: "auto_advance", err: errors.New(`ent: missing required field "DivisionPool.auto_advance"`)}
 	}
-	if len(_c.mutation.EventIDs()) == 0 {
-		return &ValidationError{Name: "event", err: errors.New(`ent: missing required edge "DivisionPool.event"`)}
-	}
 	return nil
 }
 
@@ -373,12 +374,12 @@ func (_c *DivisionPoolCreate) createSpec() (*DivisionPool, *sqlgraph.CreateSpec)
 		_spec.SetField(divisionpool.FieldTopNTeams, field.TypeInt, value)
 		_node.TopNTeams = &value
 	}
-	if nodes := _c.mutation.EventIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.EventsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   divisionpool.EventTable,
-			Columns: []string{divisionpool.EventColumn},
+			Table:   divisionpool.EventsTable,
+			Columns: divisionpool.EventsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
@@ -387,7 +388,6 @@ func (_c *DivisionPoolCreate) createSpec() (*DivisionPool, *sqlgraph.CreateSpec)
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.event_division_pools = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.TeamsIDs(); len(nodes) > 0 {

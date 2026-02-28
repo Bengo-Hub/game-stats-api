@@ -59,6 +59,8 @@ const (
 	EdgeReconciliations = "reconciliations"
 	// EdgeGameRounds holds the string denoting the game_rounds edge name in mutations.
 	EdgeGameRounds = "game_rounds"
+	// EdgeGames holds the string denoting the games edge name in mutations.
+	EdgeGames = "games"
 	// EdgeManagedBy holds the string denoting the managed_by edge name in mutations.
 	EdgeManagedBy = "managed_by"
 	// EdgeParticipations holds the string denoting the participations edge name in mutations.
@@ -81,13 +83,11 @@ const (
 	LocationInverseTable = "locations"
 	// LocationColumn is the table column denoting the location relation/edge.
 	LocationColumn = "location_events"
-	// DivisionPoolsTable is the table that holds the division_pools relation/edge.
-	DivisionPoolsTable = "division_pools"
+	// DivisionPoolsTable is the table that holds the division_pools relation/edge. The primary key declared below.
+	DivisionPoolsTable = "event_division_pools"
 	// DivisionPoolsInverseTable is the table name for the DivisionPool entity.
 	// It exists in this package in order to avoid circular dependency with the "divisionpool" package.
 	DivisionPoolsInverseTable = "division_pools"
-	// DivisionPoolsColumn is the table column denoting the division_pools relation/edge.
-	DivisionPoolsColumn = "event_division_pools"
 	// ReconciliationsTable is the table that holds the reconciliations relation/edge.
 	ReconciliationsTable = "event_reconciliations"
 	// ReconciliationsInverseTable is the table name for the EventReconciliation entity.
@@ -95,13 +95,18 @@ const (
 	ReconciliationsInverseTable = "event_reconciliations"
 	// ReconciliationsColumn is the table column denoting the reconciliations relation/edge.
 	ReconciliationsColumn = "event_reconciliations"
-	// GameRoundsTable is the table that holds the game_rounds relation/edge.
-	GameRoundsTable = "game_rounds"
+	// GameRoundsTable is the table that holds the game_rounds relation/edge. The primary key declared below.
+	GameRoundsTable = "event_game_rounds"
 	// GameRoundsInverseTable is the table name for the GameRound entity.
 	// It exists in this package in order to avoid circular dependency with the "gameround" package.
 	GameRoundsInverseTable = "game_rounds"
-	// GameRoundsColumn is the table column denoting the game_rounds relation/edge.
-	GameRoundsColumn = "event_game_rounds"
+	// GamesTable is the table that holds the games relation/edge.
+	GamesTable = "games"
+	// GamesInverseTable is the table name for the Game entity.
+	// It exists in this package in order to avoid circular dependency with the "game" package.
+	GamesInverseTable = "games"
+	// GamesColumn is the table column denoting the games relation/edge.
+	GamesColumn = "event_games"
 	// ManagedByTable is the table that holds the managed_by relation/edge. The primary key declared below.
 	ManagedByTable = "event_managed_by"
 	// ManagedByInverseTable is the table name for the User entity.
@@ -151,6 +156,12 @@ var ForeignKeys = []string{
 }
 
 var (
+	// DivisionPoolsPrimaryKey and DivisionPoolsColumn2 are the table columns denoting the
+	// primary key for the division_pools relation (M2M).
+	DivisionPoolsPrimaryKey = []string{"event_id", "division_pool_id"}
+	// GameRoundsPrimaryKey and GameRoundsColumn2 are the table columns denoting the
+	// primary key for the game_rounds relation (M2M).
+	GameRoundsPrimaryKey = []string{"event_id", "game_round_id"}
 	// ManagedByPrimaryKey and ManagedByColumn2 are the table columns denoting the
 	// primary key for the managed_by relation (M2M).
 	ManagedByPrimaryKey = []string{"event_id", "user_id"}
@@ -285,8 +296,8 @@ func ByTeamsCount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTeamsCount, opts...).ToFunc()
 }
 
-// ByGamesCount orders the results by the games_count field.
-func ByGamesCount(opts ...sql.OrderTermOption) OrderOption {
+// ByGamesCountField orders the results by the games_count field.
+func ByGamesCountField(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldGamesCount, opts...).ToFunc()
 }
 
@@ -351,6 +362,20 @@ func ByGameRounds(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByGamesCount orders the results by games count.
+func ByGamesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newGamesStep(), opts...)
+	}
+}
+
+// ByGames orders the results by games terms.
+func ByGames(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGamesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByManagedByCount orders the results by managed_by count.
 func ByManagedByCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -410,7 +435,7 @@ func newDivisionPoolsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DivisionPoolsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, DivisionPoolsTable, DivisionPoolsColumn),
+		sqlgraph.Edge(sqlgraph.M2M, false, DivisionPoolsTable, DivisionPoolsPrimaryKey...),
 	)
 }
 func newReconciliationsStep() *sqlgraph.Step {
@@ -424,7 +449,14 @@ func newGameRoundsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(GameRoundsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, GameRoundsTable, GameRoundsColumn),
+		sqlgraph.Edge(sqlgraph.M2M, false, GameRoundsTable, GameRoundsPrimaryKey...),
+	)
+}
+func newGamesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GamesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, GamesTable, GamesColumn),
 	)
 }
 func newManagedByStep() *sqlgraph.Step {

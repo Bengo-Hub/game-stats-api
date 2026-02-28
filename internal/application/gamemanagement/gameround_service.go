@@ -25,7 +25,7 @@ func (s *Service) CreateGameRound(ctx context.Context, req CreateGameRoundReques
 		AutoAdvance: req.AutoAdvance,
 		TopNTeams:   req.TopNTeams,
 		Edges: ent.GameRoundEdges{
-			Event: event,
+			Events: []*ent.Event{event},
 		},
 	}
 
@@ -56,6 +56,20 @@ func (s *Service) GetGameRound(ctx context.Context, id uuid.UUID) (*GameRoundDTO
 
 func (s *Service) ListGameRounds(ctx context.Context, eventID uuid.UUID) ([]*GameRoundDTO, error) {
 	rounds, err := s.gameRoundRepo.ListByEvent(ctx, eventID)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*GameRoundDTO, len(rounds))
+	for i, round := range rounds {
+		result[i] = mapGameRoundToDTO(round)
+	}
+
+	return result, nil
+}
+
+func (s *Service) ListAllGameRounds(ctx context.Context) ([]*GameRoundDTO, error) {
+	rounds, err := s.gameRoundRepo.ListAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -131,8 +145,8 @@ func mapGameRoundToDTO(r *ent.GameRound) *GameRoundDTO {
 		UpdatedAt:   r.UpdatedAt,
 	}
 
-	if r.Edges.Event != nil {
-		dto.EventID = r.Edges.Event.ID
+	if len(r.Edges.Events) > 0 {
+		dto.EventID = r.Edges.Events[0].ID
 	}
 
 	return dto

@@ -18,6 +18,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/eventparticipation"
 	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
+	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/predicate"
@@ -37,6 +38,7 @@ type EventQuery struct {
 	withDivisionPools   *DivisionPoolQuery
 	withReconciliations *EventReconciliationQuery
 	withGameRounds      *GameRoundQuery
+	withGames           *GameQuery
 	withManagedBy       *UserQuery
 	withParticipations  *EventParticipationQuery
 	withCategories      *CategoryQuery
@@ -135,7 +137,7 @@ func (_q *EventQuery) QueryDivisionPools() *DivisionPoolQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(event.Table, event.FieldID, selector),
 			sqlgraph.To(divisionpool.Table, divisionpool.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, event.DivisionPoolsTable, event.DivisionPoolsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, event.DivisionPoolsTable, event.DivisionPoolsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -179,7 +181,29 @@ func (_q *EventQuery) QueryGameRounds() *GameRoundQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(event.Table, event.FieldID, selector),
 			sqlgraph.To(gameround.Table, gameround.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, event.GameRoundsTable, event.GameRoundsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, event.GameRoundsTable, event.GameRoundsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryGames chains the current query on the "games" edge.
+func (_q *EventQuery) QueryGames() *GameQuery {
+	query := (&GameClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, selector),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, event.GamesTable, event.GamesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -450,6 +474,7 @@ func (_q *EventQuery) Clone() *EventQuery {
 		withDivisionPools:   _q.withDivisionPools.Clone(),
 		withReconciliations: _q.withReconciliations.Clone(),
 		withGameRounds:      _q.withGameRounds.Clone(),
+		withGames:           _q.withGames.Clone(),
 		withManagedBy:       _q.withManagedBy.Clone(),
 		withParticipations:  _q.withParticipations.Clone(),
 		withCategories:      _q.withCategories.Clone(),
@@ -511,6 +536,17 @@ func (_q *EventQuery) WithGameRounds(opts ...func(*GameRoundQuery)) *EventQuery 
 		opt(query)
 	}
 	_q.withGameRounds = query
+	return _q
+}
+
+// WithGames tells the query-builder to eager-load the nodes that are connected to
+// the "games" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *EventQuery) WithGames(opts ...func(*GameQuery)) *EventQuery {
+	query := (&GameClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withGames = query
 	return _q
 }
 
@@ -626,12 +662,13 @@ func (_q *EventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Event,
 		nodes       = []*Event{}
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [8]bool{
+		loadedTypes = [9]bool{
 			_q.withDiscipline != nil,
 			_q.withLocation != nil,
 			_q.withDivisionPools != nil,
 			_q.withReconciliations != nil,
 			_q.withGameRounds != nil,
+			_q.withGames != nil,
 			_q.withManagedBy != nil,
 			_q.withParticipations != nil,
 			_q.withCategories != nil,
@@ -691,6 +728,13 @@ func (_q *EventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Event,
 		if err := _q.loadGameRounds(ctx, query, nodes,
 			func(n *Event) { n.Edges.GameRounds = []*GameRound{} },
 			func(n *Event, e *GameRound) { n.Edges.GameRounds = append(n.Edges.GameRounds, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withGames; query != nil {
+		if err := _q.loadGames(ctx, query, nodes,
+			func(n *Event) { n.Edges.Games = []*Game{} },
+			func(n *Event, e *Game) { n.Edges.Games = append(n.Edges.Games, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -783,33 +827,63 @@ func (_q *EventQuery) loadLocation(ctx context.Context, query *LocationQuery, no
 	return nil
 }
 func (_q *EventQuery) loadDivisionPools(ctx context.Context, query *DivisionPoolQuery, nodes []*Event, init func(*Event), assign func(*Event, *DivisionPool)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*Event)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*Event)
+	nids := make(map[uuid.UUID]map[*Event]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
 		if init != nil {
-			init(nodes[i])
+			init(node)
 		}
 	}
-	query.withFKs = true
-	query.Where(predicate.DivisionPool(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(event.DivisionPoolsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(event.DivisionPoolsTable)
+		s.Join(joinT).On(s.C(divisionpool.FieldID), joinT.C(event.DivisionPoolsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(event.DivisionPoolsPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(event.DivisionPoolsPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Event]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*DivisionPool](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.event_division_pools
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "event_division_pools" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "event_division_pools" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected "division_pools" node returned %v`, n.ID)
 		}
-		assign(node, n)
+		for kn := range nodes {
+			assign(kn, n)
+		}
 	}
 	return nil
 }
@@ -845,6 +919,67 @@ func (_q *EventQuery) loadReconciliations(ctx context.Context, query *EventRecon
 	return nil
 }
 func (_q *EventQuery) loadGameRounds(ctx context.Context, query *GameRoundQuery, nodes []*Event, init func(*Event), assign func(*Event, *GameRound)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*Event)
+	nids := make(map[uuid.UUID]map[*Event]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(event.GameRoundsTable)
+		s.Join(joinT).On(s.C(gameround.FieldID), joinT.C(event.GameRoundsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(event.GameRoundsPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(event.GameRoundsPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Event]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*GameRound](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "game_rounds" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
+}
+func (_q *EventQuery) loadGames(ctx context.Context, query *GameQuery, nodes []*Event, init func(*Event), assign func(*Event, *Game)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*Event)
 	for i := range nodes {
@@ -855,21 +990,21 @@ func (_q *EventQuery) loadGameRounds(ctx context.Context, query *GameRoundQuery,
 		}
 	}
 	query.withFKs = true
-	query.Where(predicate.GameRound(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(event.GameRoundsColumn), fks...))
+	query.Where(predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(event.GamesColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.event_game_rounds
+		fk := n.event_games
 		if fk == nil {
-			return fmt.Errorf(`foreign-key "event_game_rounds" is nil for node %v`, n.ID)
+			return fmt.Errorf(`foreign-key "event_games" is nil for node %v`, n.ID)
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "event_game_rounds" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "event_games" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

@@ -23,7 +23,7 @@ func (r *gameRoundRepository) Create(ctx context.Context, round *ent.GameRound) 
 	query := r.client.GameRound.Create().
 		SetName(round.Name).
 		SetRoundType(round.RoundType).
-		SetEventID(round.Edges.Event.ID).
+		AddEventIDs(round.Edges.Events[0].ID).
 		SetAutoAdvance(round.AutoAdvance)
 
 	if round.RoundNumber != nil {
@@ -48,14 +48,14 @@ func (r *gameRoundRepository) Create(ctx context.Context, round *ent.GameRound) 
 func (r *gameRoundRepository) GetByID(ctx context.Context, id uuid.UUID) (*ent.GameRound, error) {
 	return r.client.GameRound.Query().
 		Where(gameround.ID(id)).
-		WithEvent().
+		WithEvents().
 		Only(ctx)
 }
 
 func (r *gameRoundRepository) GetByIDWithGames(ctx context.Context, id uuid.UUID) (*ent.GameRound, error) {
 	return r.client.GameRound.Query().
 		Where(gameround.ID(id)).
-		WithEvent().
+		WithEvents().
 		WithGames(func(q *ent.GameQuery) {
 			q.WithHomeTeam().
 				WithAwayTeam().
@@ -66,9 +66,17 @@ func (r *gameRoundRepository) GetByIDWithGames(ctx context.Context, id uuid.UUID
 
 func (r *gameRoundRepository) ListByEvent(ctx context.Context, eventID uuid.UUID) ([]*ent.GameRound, error) {
 	return r.client.GameRound.Query().
-		Where(gameround.HasEventWith(event.ID(eventID))).
+		Where(gameround.HasEventsWith(event.ID(eventID))).
 		Where(gameround.DeletedAtIsNil()).
-		WithEvent().
+		WithEvents().
+		Order(ent.Asc(gameround.FieldRoundNumber)).
+		All(ctx)
+}
+
+func (r *gameRoundRepository) ListAll(ctx context.Context) ([]*ent.GameRound, error) {
+	return r.client.GameRound.Query().
+		Where(gameround.DeletedAtIsNil()).
+		WithEvents().
 		Order(ent.Asc(gameround.FieldRoundNumber)).
 		All(ctx)
 }

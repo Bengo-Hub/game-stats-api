@@ -16,6 +16,7 @@ import (
 	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/eventparticipation"
 	"github.com/bengobox/game-stats-api/ent/eventreconciliation"
+	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/user"
@@ -298,6 +299,21 @@ func (_c *EventCreate) AddGameRounds(v ...*GameRound) *EventCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddGameRoundIDs(ids...)
+}
+
+// AddGameIDs adds the "games" edge to the Game entity by IDs.
+func (_c *EventCreate) AddGameIDs(ids ...uuid.UUID) *EventCreate {
+	_c.mutation.AddGameIDs(ids...)
+	return _c
+}
+
+// AddGames adds the "games" edges to the Game entity.
+func (_c *EventCreate) AddGames(v ...*Game) *EventCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddGameIDs(ids...)
 }
 
 // AddManagedByIDs adds the "managed_by" edge to the User entity by IDs.
@@ -625,10 +641,10 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 	}
 	if nodes := _c.mutation.DivisionPoolsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.DivisionPoolsTable,
-			Columns: []string{event.DivisionPoolsColumn},
+			Columns: event.DivisionPoolsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(divisionpool.FieldID, field.TypeUUID),
@@ -657,13 +673,29 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 	}
 	if nodes := _c.mutation.GameRoundsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   event.GameRoundsTable,
-			Columns: []string{event.GameRoundsColumn},
+			Columns: event.GameRoundsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(gameround.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.GamesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   event.GamesTable,
+			Columns: []string{event.GamesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -231,7 +231,7 @@ func (m *Migrator) migrateDivisionPools(ctx context.Context, fixturesDir string)
 			SetDescription(parseString(fix.Fields["description"]))
 
 		if parentEvent != nil {
-			creator.SetEvent(parentEvent)
+			creator.AddEvents(parentEvent)
 		}
 
 		newDivision, err := creator.Save(ctx)
@@ -366,7 +366,7 @@ func (m *Migrator) migrateGameRounds(ctx context.Context, fixturesDir string) er
 
 		// Associate with first event if available
 		if firstEvent != nil {
-			creator.SetEvent(firstEvent)
+			creator.AddEvents(firstEvent)
 		}
 
 		newRound, err := creator.Save(ctx)

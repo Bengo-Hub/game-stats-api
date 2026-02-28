@@ -52,10 +52,8 @@ func (GameRound) Fields() []ent.Field {
 // Edges of the GameRound.
 func (GameRound) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("event", Event.Type).
-			Ref("game_rounds").
-			Unique().
-			Required(),
+		edge.From("events", Event.Type).
+			Ref("game_rounds"),
 		edge.To("games", Game.Type),
 		edge.To("target_round", GameRound.Type).
 			Unique().

@@ -51,10 +51,8 @@ func (DivisionPool) Fields() []ent.Field {
 // Edges of the DivisionPool.
 func (DivisionPool) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("event", Event.Type).
-			Ref("division_pools").
-			Unique().
-			Required(),
+		edge.From("events", Event.Type).
+			Ref("division_pools"),
 		edge.To("teams", Team.Type),
 		edge.To("games", Game.Type),
 		edge.To("target_round", GameRound.Type).

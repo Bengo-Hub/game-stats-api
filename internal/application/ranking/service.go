@@ -508,8 +508,13 @@ func (s *Service) AdvanceTeams(ctx context.Context, req AdvanceTeamsRequest) (*A
 		}
 
 		// Call bracket service
+		var eventID uuid.UUID
+		if len(targetRound.Edges.Events) > 0 {
+			eventID = targetRound.Edges.Events[0].ID
+		}
+
 		bracketReq := bracket.GenerateBracketRequest{
-			EventID:        targetRound.Edges.Event.ID,
+			EventID:        eventID,
 			BracketType:    bracket.BracketTypeSingleElimination,
 			Teams:          teamSeeds,
 			RoundID:        req.TargetRoundID,

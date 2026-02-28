@@ -243,8 +243,9 @@ type ListGamesFilter struct {
 
 // Bulk Operations DTOs
 type BulkTransferRequest struct {
-	Transfers []PlayerTransfer `json:"transfers" validate:"required,dive"`
-	EventID   uuid.UUID        `json:"event_id" validate:"required"`
+	Transfers     []PlayerTransfer `json:"transfers" validate:"required,dive"`
+	EventID       uuid.UUID        `json:"event_id" validate:"required"` // Target Event
+	SourceEventID uuid.UUID        `json:"source_event_id"`              // Optional Source Event
 }
 
 type PlayerTransfer struct {

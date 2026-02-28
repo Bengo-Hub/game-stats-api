@@ -75,6 +75,8 @@ type EventEdges struct {
 	Reconciliations []*EventReconciliation `json:"reconciliations,omitempty"`
 	// GameRounds holds the value of the game_rounds edge.
 	GameRounds []*GameRound `json:"game_rounds,omitempty"`
+	// Games holds the value of the games edge.
+	Games []*Game `json:"games,omitempty"`
 	// ManagedBy holds the value of the managed_by edge.
 	ManagedBy []*User `json:"managed_by,omitempty"`
 	// Participations holds the value of the participations edge.
@@ -83,7 +85,7 @@ type EventEdges struct {
 	Categories []*Category `json:"categories,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [8]bool
+	loadedTypes [9]bool
 }
 
 // DisciplineOrErr returns the Discipline value or an error if the edge
@@ -135,10 +137,19 @@ func (e EventEdges) GameRoundsOrErr() ([]*GameRound, error) {
 	return nil, &NotLoadedError{edge: "game_rounds"}
 }
 
+// GamesOrErr returns the Games value or an error if the edge
+// was not loaded in eager-loading.
+func (e EventEdges) GamesOrErr() ([]*Game, error) {
+	if e.loadedTypes[5] {
+		return e.Games, nil
+	}
+	return nil, &NotLoadedError{edge: "games"}
+}
+
 // ManagedByOrErr returns the ManagedBy value or an error if the edge
 // was not loaded in eager-loading.
 func (e EventEdges) ManagedByOrErr() ([]*User, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[6] {
 		return e.ManagedBy, nil
 	}
 	return nil, &NotLoadedError{edge: "managed_by"}
@@ -147,7 +158,7 @@ func (e EventEdges) ManagedByOrErr() ([]*User, error) {
 // ParticipationsOrErr returns the Participations value or an error if the edge
 // was not loaded in eager-loading.
 func (e EventEdges) ParticipationsOrErr() ([]*EventParticipation, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[7] {
 		return e.Participations, nil
 	}
 	return nil, &NotLoadedError{edge: "participations"}
@@ -156,7 +167,7 @@ func (e EventEdges) ParticipationsOrErr() ([]*EventParticipation, error) {
 // CategoriesOrErr returns the Categories value or an error if the edge
 // was not loaded in eager-loading.
 func (e EventEdges) CategoriesOrErr() ([]*Category, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[8] {
 		return e.Categories, nil
 	}
 	return nil, &NotLoadedError{edge: "categories"}
@@ -361,6 +372,11 @@ func (_m *Event) QueryReconciliations() *EventReconciliationQuery {
 // QueryGameRounds queries the "game_rounds" edge of the Event entity.
 func (_m *Event) QueryGameRounds() *GameRoundQuery {
 	return NewEventClient(_m.config).QueryGameRounds(_m)
+}
+
+// QueryGames queries the "games" edge of the Event entity.
+func (_m *Event) QueryGames() *GameQuery {
+	return NewEventClient(_m.config).QueryGames(_m)
 }
 
 // QueryManagedBy queries the "managed_by" edge of the Event entity.

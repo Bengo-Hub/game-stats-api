@@ -45,7 +45,5 @@ func respondWithError(w http.ResponseWriter, status int, message string, err err
 
 // parseJSONBody parses the JSON request body into the provided destination struct
 func parseJSONBody(r *http.Request, dst interface{}) error {
-	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields()
-	return decoder.Decode(dst)
+	return json.NewDecoder(r.Body).Decode(dst)
 }

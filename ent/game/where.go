@@ -811,6 +811,29 @@ func MetadataNotNil() predicate.Game {
 	return predicate.Game(sql.FieldNotNull(FieldMetadata))
 }
 
+// HasEvent applies the HasEdge predicate on the "event" edge.
+func HasEvent() predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, EventTable, EventColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasEventWith applies the HasEdge predicate on the "event" edge with a given conditions (other predicates).
+func HasEventWith(preds ...predicate.Event) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		step := newEventStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasGameRound applies the HasEdge predicate on the "game_round" edge.
 func HasGameRound() predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {

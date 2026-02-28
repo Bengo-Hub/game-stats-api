@@ -1087,7 +1087,7 @@ func HasDivisionPools() predicate.Event {
 	return predicate.Event(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, DivisionPoolsTable, DivisionPoolsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, DivisionPoolsTable, DivisionPoolsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -1133,7 +1133,7 @@ func HasGameRounds() predicate.Event {
 	return predicate.Event(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, GameRoundsTable, GameRoundsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, GameRoundsTable, GameRoundsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -1143,6 +1143,29 @@ func HasGameRounds() predicate.Event {
 func HasGameRoundsWith(preds ...predicate.GameRound) predicate.Event {
 	return predicate.Event(func(s *sql.Selector) {
 		step := newGameRoundsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasGames applies the HasEdge predicate on the "games" edge.
+func HasGames() predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, GamesTable, GamesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGamesWith applies the HasEdge predicate on the "games" edge with a given conditions (other predicates).
+func HasGamesWith(preds ...predicate.Game) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		step := newGamesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

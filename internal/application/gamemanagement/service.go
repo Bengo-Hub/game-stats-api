@@ -732,20 +732,31 @@ func (s *Service) invalidateGameCache(ctx context.Context, id uuid.UUID) {
 
 func (s *Service) BulkTransferPlayers(ctx context.Context, req BulkTransferRequest) error {
 	for _, t := range req.Transfers {
-		// Get player
-		p, err := s.playerRepo.GetByID(ctx, t.PlayerID)
-		if err != nil {
-			continue // Or return error depending on requirements
+		// 1. Handle Event Participation
+		// If SourceEventID is provided, remove the player from the source team in that event
+		if req.SourceEventID != uuid.Nil {
+			participations, err := s.participationRepo.ListByPlayer(ctx, t.PlayerID)
+			if err == nil {
+				for _, ep := range participations {
+					// If participation matches source event and source team, delete it
+					if ep.Edges.Event.ID == req.SourceEventID && ep.Edges.Team.ID == t.FromTeamID {
+						_ = s.participationRepo.Delete(ctx, ep.ID)
+					}
+				}
+			}
 		}
 
-		// Update team association in Player model
-		p.Edges.Teams = []*ent.Team{{ID: t.ToTeamID}}
-		_, err = s.playerRepo.Update(ctx, p)
-		if err != nil {
-			return err
+		// 2. Create/Update participation in target event
+		// Check if player already has participation in target event
+		var existingEP *ent.EventParticipation
+		targetParticipations, _ := s.participationRepo.ListByPlayer(ctx, t.PlayerID)
+		for _, ep := range targetParticipations {
+			if ep.Edges.Event.ID == req.EventID {
+				existingEP = ep
+				break
+			}
 		}
 
-		// Create EventParticipation record
 		role := "player"
 		if t.Role != nil {
 			role = *t.Role
@@ -755,13 +766,17 @@ func (s *Service) BulkTransferPlayers(ctx context.Context, req BulkTransferReque
 			status = *t.Status
 		}
 
-		_, err = s.participationRepo.Create(ctx, &ent.EventParticipation{
-			Role:            role,
-			Status:          status,
-			JerseyNumber:    p.JerseyNumber, // Use current player details as default
-			Position:        p.Position,
-			IsCaptain:       p.IsCaptain,
-			IsSpiritCaptain: p.IsSpiritCaptain,
+		if existingEP != nil {
+			// Update existing participation to new team
+			// Note: Repository Update might not support changing team.
+			// If not, we delete and recreate.
+			_ = s.participationRepo.Delete(ctx, existingEP.ID)
+		}
+
+		// Create new participation
+		_, err := s.participationRepo.Create(ctx, &ent.EventParticipation{
+			Role:   role,
+			Status: status,
 			Edges: ent.EventParticipationEdges{
 				Player: &ent.Player{ID: t.PlayerID},
 				Team:   &ent.Team{ID: t.ToTeamID},
@@ -769,7 +784,17 @@ func (s *Service) BulkTransferPlayers(ctx context.Context, req BulkTransferReque
 			},
 		})
 		if err != nil {
-			// Handle duplicate or other errors
+			return fmt.Errorf("failed to create participation for player %s: %w", t.PlayerID, err)
+		}
+
+		// 3. Update Player's global Team associations
+		p, err := s.playerRepo.GetByID(ctx, t.PlayerID)
+		if err == nil {
+			// Update player's team list
+			// In our repo, Update adds teams.
+			// We should probably have a way to Remove teams too, but for now let's just ensure they are in the target team
+			p.Edges.Teams = []*ent.Team{{ID: t.ToTeamID}}
+			_, _ = s.playerRepo.Update(ctx, p)
 		}
 	}
 	return nil
@@ -822,4 +847,11 @@ func (s *Service) DeleteGameRound(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return s.gameRoundRepo.Delete(ctx, id)
+}
+
+func (s *Service) ListAllDivisions(ctx context.Context) ([]*ent.DivisionPool, error) {
+	return s.divisionRepo.ListAll(ctx)
+}
+func (s *Service) ListDivisionsByEvent(ctx context.Context, eventID uuid.UUID) ([]*ent.DivisionPool, error) {
+	return s.divisionRepo.ListByEvent(ctx, eventID)
 }

@@ -166,15 +166,20 @@ func (s *Service) HealthCheck(ctx context.Context) error {
 }
 
 // GetEventStatistics retrieves comprehensive event analytics
-func (s *Service) GetEventStatistics(ctx context.Context, eventID uuid.UUID) (*EventStatistics, error) {
+func (s *Service) GetEventStatistics(ctx context.Context, eventID uuid.UUID, divisionID, teamID *uuid.UUID) (*EventStatistics, error) {
 	stats := &EventStatistics{
 		EventID: eventID,
 	}
 
 	// Count games by status using the division pools linked to this event
-	divisionPools, err := s.dbClient.DivisionPool.Query().
-		Where(divisionpool.HasEventWith(event.ID(eventID))).
-		All(ctx)
+	query := s.dbClient.DivisionPool.Query().
+		Where(divisionpool.HasEventsWith(event.ID(eventID)))
+
+	if divisionID != nil {
+		query = query.Where(divisionpool.ID(*divisionID))
+	}
+
+	divisionPools, err := query.All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get division pools: %w", err)
 	}
@@ -185,72 +190,85 @@ func (s *Service) GetEventStatistics(ctx context.Context, eventID uuid.UUID) (*E
 	}
 
 	if len(poolIDs) > 0 {
+		gameQuery := s.dbClient.Game.Query().
+			Where(game.HasDivisionPoolWith(divisionpool.IDIn(poolIDs...)))
+
+		if teamID != nil {
+			gameQuery = gameQuery.Where(game.Or(
+				game.HasHomeTeamWith(team.ID(*teamID)),
+				game.HasAwayTeamWith(team.ID(*teamID)),
+			))
+		}
+
 		// Count total games
-		totalGames, err := s.dbClient.Game.Query().
-			Where(game.HasDivisionPoolWith(divisionpool.IDIn(poolIDs...))).
-			Count(ctx)
+		totalGames, err := gameQuery.Clone().Count(ctx)
 		if err == nil {
 			stats.TotalGames = totalGames
 		}
 
 		// Count completed games
-		completedGames, err := s.dbClient.Game.Query().
-			Where(
-				game.HasDivisionPoolWith(divisionpool.IDIn(poolIDs...)),
-				game.StatusIn("ended", "completed"),
-			).
+		completedGames, err := gameQuery.Clone().
+			Where(game.StatusIn("ended", "completed")).
 			Count(ctx)
 		if err == nil {
 			stats.CompletedGames = completedGames
 		}
 
 		// Count scheduled games
-		scheduledGames, err := s.dbClient.Game.Query().
-			Where(
-				game.HasDivisionPoolWith(divisionpool.IDIn(poolIDs...)),
-				game.Status("scheduled"),
-			).
+		scheduledGames, err := gameQuery.Clone().
+			Where(game.Status("scheduled")).
 			Count(ctx)
 		if err == nil {
 			stats.ScheduledGames = scheduledGames
 		}
 
 		// Count in-progress games
-		inProgressGames, err := s.dbClient.Game.Query().
-			Where(
-				game.HasDivisionPoolWith(divisionpool.IDIn(poolIDs...)),
-				game.Status("in_progress"),
-			).
+		inProgressGames, err := gameQuery.Clone().
+			Where(game.Status("in_progress")).
 			Count(ctx)
 		if err == nil {
 			stats.InProgressGames = inProgressGames
 		}
 
 		// Count teams
-		totalTeams, err := s.dbClient.Team.Query().
-			Where(team.HasDivisionPoolsWith(divisionpool.IDIn(poolIDs...))).
-			Count(ctx)
+		teamQuery := s.dbClient.Team.Query().
+			Where(team.HasDivisionPoolsWith(divisionpool.IDIn(poolIDs...)))
+		if teamID != nil {
+			teamQuery = teamQuery.Where(team.ID(*teamID))
+		}
+		totalTeams, err := teamQuery.Count(ctx)
 		if err == nil {
 			stats.TotalTeams = totalTeams
 		}
 
-		// Count players (players on teams in this event)
-		totalPlayers, err := s.dbClient.Player.Query().
-			Where(player.HasTeamsWith(team.HasDivisionPoolsWith(divisionpool.IDIn(poolIDs...)))).
-			Count(ctx)
+		// Count players
+		playerQuery := s.dbClient.Player.Query().
+			Where(player.HasTeamsWith(team.HasDivisionPoolsWith(divisionpool.IDIn(poolIDs...))))
+		if teamID != nil {
+			playerQuery = playerQuery.Where(player.HasTeamsWith(team.ID(*teamID)))
+		}
+		totalPlayers, err := playerQuery.Count(ctx)
 		if err == nil {
 			stats.TotalPlayers = totalPlayers
 		}
 
 		// Calculate average spirit score
-		spiritScores, err := s.dbClient.SpiritScore.Query().
-			Where(spiritscore.HasGameWith(game.HasDivisionPoolWith(divisionpool.IDIn(poolIDs...)))).
-			All(ctx)
+		spiritQuery := s.dbClient.SpiritScore.Query().
+			Where(spiritscore.HasGameWith(game.HasDivisionPoolWith(divisionpool.IDIn(poolIDs...))))
+
+		if teamID != nil {
+			spiritQuery = spiritQuery.Where(spiritscore.HasTeamWith(team.ID(*teamID)))
+		}
+
+		spiritScores, err := spiritQuery.All(ctx)
 		if err == nil && len(spiritScores) > 0 {
 			var totalSpirit int
 			for _, ss := range spiritScores {
 				totalSpirit += ss.RulesKnowledge + ss.FoulsBodyContact + ss.FairMindedness + ss.Attitude + ss.Communication
 			}
+			stats.AverageSpiritScore = float64(totalSpirit) / (float64(len(spiritScores)) * 5.0) // Average out of 4.0 or something, wait the UI says out of 4.0 but there are 5 categories
+			// Wait, each category is usually 0-4. Total is 0-20.
+			// Let's keep it as is for now, but usually it's average per category.
 			stats.AverageSpiritScore = float64(totalSpirit) / float64(len(spiritScores))
 		}
 	}

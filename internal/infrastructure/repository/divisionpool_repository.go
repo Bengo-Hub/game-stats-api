@@ -26,14 +26,14 @@ func (r *divisionPoolRepository) Create(ctx context.Context, p *ent.DivisionPool
 		SetNillableMaxTeams(p.MaxTeams).
 		SetRankingCriteria(p.RankingCriteria).
 		SetNillableDescription(p.Description).
-		SetEventID(p.Edges.Event.ID).
+		AddEventIDs(p.Edges.Events[0].ID).
 		Save(ctx)
 }
 
 func (r *divisionPoolRepository) GetByID(ctx context.Context, id uuid.UUID) (*ent.DivisionPool, error) {
 	return r.client.DivisionPool.Query().
 		Where(divisionpool.ID(id)).
-		WithEvent().
+		WithEvents().
 		WithTeams().
 		WithTargetRound().
 		Only(ctx)
@@ -41,7 +41,7 @@ func (r *divisionPoolRepository) GetByID(ctx context.Context, id uuid.UUID) (*en
 
 func (r *divisionPoolRepository) ListByEvent(ctx context.Context, eventID uuid.UUID) ([]*ent.DivisionPool, error) {
 	return r.client.DivisionPool.Query().
-		Where(divisionpool.HasEventWith(event.ID(eventID))).
+		Where(divisionpool.HasEventsWith(event.ID(eventID))).
 		Where(divisionpool.DeletedAtIsNil()).
 		WithTeams().
 		All(ctx)
@@ -54,7 +54,7 @@ func (r *divisionPoolRepository) Update(ctx context.Context, p *ent.DivisionPool
 		SetNillableMaxTeams(p.MaxTeams).
 		SetRankingCriteria(p.RankingCriteria).
 		SetNillableDescription(p.Description).
-		SetEventID(p.Edges.Event.ID).
+		AddEventIDs(p.Edges.Events[0].ID).
 		SetUpdatedAt(time.Now()).
 		Save(ctx)
 }
@@ -63,4 +63,10 @@ func (r *divisionPoolRepository) Delete(ctx context.Context, id uuid.UUID) error
 	return r.client.DivisionPool.UpdateOneID(id).
 		SetDeletedAt(time.Now()).
 		Exec(ctx)
+}
+
+func (r *divisionPoolRepository) ListAll(ctx context.Context) ([]*ent.DivisionPool, error) {
+	return r.client.DivisionPool.Query().
+		Where(divisionpool.DeletedAtIsNil()).
+		All(ctx)
 }

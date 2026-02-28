@@ -9,7 +9,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/bengobox/game-stats-api/ent/event"
 	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/google/uuid"
 )
@@ -42,15 +41,14 @@ type GameRound struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GameRoundQuery when eager-loading is set.
 	Edges                   GameRoundEdges `json:"edges"`
-	event_game_rounds       *uuid.UUID
 	game_round_target_round *uuid.UUID
 	selectValues            sql.SelectValues
 }
 
 // GameRoundEdges holds the relations/edges for other nodes in the graph.
 type GameRoundEdges struct {
-	// Event holds the value of the event edge.
-	Event *Event `json:"event,omitempty"`
+	// Events holds the value of the events edge.
+	Events []*Event `json:"events,omitempty"`
 	// Games holds the value of the games edge.
 	Games []*Game `json:"games,omitempty"`
 	// The round to advance teams to automatically
@@ -60,15 +58,13 @@ type GameRoundEdges struct {
 	loadedTypes [3]bool
 }
 
-// EventOrErr returns the Event value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e GameRoundEdges) EventOrErr() (*Event, error) {
-	if e.Event != nil {
-		return e.Event, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: event.Label}
+// EventsOrErr returns the Events value or an error if the edge
+// was not loaded in eager-loading.
+func (e GameRoundEdges) EventsOrErr() ([]*Event, error) {
+	if e.loadedTypes[0] {
+		return e.Events, nil
 	}
-	return nil, &NotLoadedError{edge: "event"}
+	return nil, &NotLoadedError{edge: "events"}
 }
 
 // GamesOrErr returns the Games value or an error if the edge
@@ -106,9 +102,7 @@ func (*GameRound) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case gameround.FieldID:
 			values[i] = new(uuid.UUID)
-		case gameround.ForeignKeys[0]: // event_game_rounds
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case gameround.ForeignKeys[1]: // game_round_target_round
+		case gameround.ForeignKeys[0]: // game_round_target_round
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
@@ -198,13 +192,6 @@ func (_m *GameRound) assignValues(columns []string, values []any) error {
 			}
 		case gameround.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field event_game_rounds", values[i])
-			} else if value.Valid {
-				_m.event_game_rounds = new(uuid.UUID)
-				*_m.event_game_rounds = *value.S.(*uuid.UUID)
-			}
-		case gameround.ForeignKeys[1]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field game_round_target_round", values[i])
 			} else if value.Valid {
 				_m.game_round_target_round = new(uuid.UUID)
@@ -223,9 +210,9 @@ func (_m *GameRound) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryEvent queries the "event" edge of the GameRound entity.
-func (_m *GameRound) QueryEvent() *EventQuery {
-	return NewGameRoundClient(_m.config).QueryEvent(_m)
+// QueryEvents queries the "events" edge of the GameRound entity.
+func (_m *GameRound) QueryEvents() *EventQuery {
+	return NewGameRoundClient(_m.config).QueryEvents(_m)
 }
 
 // QueryGames queries the "games" edge of the GameRound entity.

@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/event"
 	entfield "github.com/bengobox/game-stats-api/ent/field"
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/gameevent"
@@ -283,6 +284,25 @@ func (_u *GameUpdate) ClearMetadata() *GameUpdate {
 	return _u
 }
 
+// SetEventID sets the "event" edge to the Event entity by ID.
+func (_u *GameUpdate) SetEventID(id uuid.UUID) *GameUpdate {
+	_u.mutation.SetEventID(id)
+	return _u
+}
+
+// SetNillableEventID sets the "event" edge to the Event entity by ID if the given value is not nil.
+func (_u *GameUpdate) SetNillableEventID(id *uuid.UUID) *GameUpdate {
+	if id != nil {
+		_u = _u.SetEventID(*id)
+	}
+	return _u
+}
+
+// SetEvent sets the "event" edge to the Event entity.
+func (_u *GameUpdate) SetEvent(v *Event) *GameUpdate {
+	return _u.SetEventID(v.ID)
+}
+
 // SetGameRoundID sets the "game_round" edge to the GameRound entity by ID.
 func (_u *GameUpdate) SetGameRoundID(id uuid.UUID) *GameUpdate {
 	_u.mutation.SetGameRoundID(id)
@@ -428,6 +448,12 @@ func (_u *GameUpdate) AddScoreEditRequests(v ...*ScoreEditRequest) *GameUpdate {
 // Mutation returns the GameMutation object of the builder.
 func (_u *GameUpdate) Mutation() *GameMutation {
 	return _u.mutation
+}
+
+// ClearEvent clears the "event" edge to the Event entity.
+func (_u *GameUpdate) ClearEvent() *GameUpdate {
+	_u.mutation.ClearEvent()
+	return _u
 }
 
 // ClearGameRound clears the "game_round" edge to the GameRound entity.
@@ -696,6 +722,35 @@ func (_u *GameUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(game.FieldMetadata, field.TypeJSON)
+	}
+	if _u.mutation.EventCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.EventTable,
+			Columns: []string{game.EventColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.EventIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.EventTable,
+			Columns: []string{game.EventColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _u.mutation.GameRoundCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1316,6 +1371,25 @@ func (_u *GameUpdateOne) ClearMetadata() *GameUpdateOne {
 	return _u
 }
 
+// SetEventID sets the "event" edge to the Event entity by ID.
+func (_u *GameUpdateOne) SetEventID(id uuid.UUID) *GameUpdateOne {
+	_u.mutation.SetEventID(id)
+	return _u
+}
+
+// SetNillableEventID sets the "event" edge to the Event entity by ID if the given value is not nil.
+func (_u *GameUpdateOne) SetNillableEventID(id *uuid.UUID) *GameUpdateOne {
+	if id != nil {
+		_u = _u.SetEventID(*id)
+	}
+	return _u
+}
+
+// SetEvent sets the "event" edge to the Event entity.
+func (_u *GameUpdateOne) SetEvent(v *Event) *GameUpdateOne {
+	return _u.SetEventID(v.ID)
+}
+
 // SetGameRoundID sets the "game_round" edge to the GameRound entity by ID.
 func (_u *GameUpdateOne) SetGameRoundID(id uuid.UUID) *GameUpdateOne {
 	_u.mutation.SetGameRoundID(id)
@@ -1461,6 +1535,12 @@ func (_u *GameUpdateOne) AddScoreEditRequests(v ...*ScoreEditRequest) *GameUpdat
 // Mutation returns the GameMutation object of the builder.
 func (_u *GameUpdateOne) Mutation() *GameMutation {
 	return _u.mutation
+}
+
+// ClearEvent clears the "event" edge to the Event entity.
+func (_u *GameUpdateOne) ClearEvent() *GameUpdateOne {
+	_u.mutation.ClearEvent()
+	return _u
 }
 
 // ClearGameRound clears the "game_round" edge to the GameRound entity.
@@ -1759,6 +1839,35 @@ func (_u *GameUpdateOne) sqlSave(ctx context.Context) (_node *Game, err error) {
 	}
 	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(game.FieldMetadata, field.TypeJSON)
+	}
+	if _u.mutation.EventCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.EventTable,
+			Columns: []string{game.EventColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.EventIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.EventTable,
+			Columns: []string{game.EventColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _u.mutation.GameRoundCleared() {
 		edge := &sqlgraph.EdgeSpec{

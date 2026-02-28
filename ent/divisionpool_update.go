@@ -187,15 +187,19 @@ func (_u *DivisionPoolUpdate) ClearTopNTeams() *DivisionPoolUpdate {
 	return _u
 }
 
-// SetEventID sets the "event" edge to the Event entity by ID.
-func (_u *DivisionPoolUpdate) SetEventID(id uuid.UUID) *DivisionPoolUpdate {
-	_u.mutation.SetEventID(id)
+// AddEventIDs adds the "events" edge to the Event entity by IDs.
+func (_u *DivisionPoolUpdate) AddEventIDs(ids ...uuid.UUID) *DivisionPoolUpdate {
+	_u.mutation.AddEventIDs(ids...)
 	return _u
 }
 
-// SetEvent sets the "event" edge to the Event entity.
-func (_u *DivisionPoolUpdate) SetEvent(v *Event) *DivisionPoolUpdate {
-	return _u.SetEventID(v.ID)
+// AddEvents adds the "events" edges to the Event entity.
+func (_u *DivisionPoolUpdate) AddEvents(v ...*Event) *DivisionPoolUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddEventIDs(ids...)
 }
 
 // AddTeamIDs adds the "teams" edge to the Team entity by IDs.
@@ -252,10 +256,25 @@ func (_u *DivisionPoolUpdate) Mutation() *DivisionPoolMutation {
 	return _u.mutation
 }
 
-// ClearEvent clears the "event" edge to the Event entity.
-func (_u *DivisionPoolUpdate) ClearEvent() *DivisionPoolUpdate {
-	_u.mutation.ClearEvent()
+// ClearEvents clears all "events" edges to the Event entity.
+func (_u *DivisionPoolUpdate) ClearEvents() *DivisionPoolUpdate {
+	_u.mutation.ClearEvents()
 	return _u
+}
+
+// RemoveEventIDs removes the "events" edge to Event entities by IDs.
+func (_u *DivisionPoolUpdate) RemoveEventIDs(ids ...uuid.UUID) *DivisionPoolUpdate {
+	_u.mutation.RemoveEventIDs(ids...)
+	return _u
+}
+
+// RemoveEvents removes "events" edges to Event entities.
+func (_u *DivisionPoolUpdate) RemoveEvents(v ...*Event) *DivisionPoolUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveEventIDs(ids...)
 }
 
 // ClearTeams clears all "teams" edges to the Team entity.
@@ -354,9 +373,6 @@ func (_u *DivisionPoolUpdate) check() error {
 			return &ValidationError{Name: "division_type", err: fmt.Errorf(`ent: validator failed for field "DivisionPool.division_type": %w`, err)}
 		}
 	}
-	if _u.mutation.EventCleared() && len(_u.mutation.EventIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "DivisionPool.event"`)
-	}
 	return nil
 }
 
@@ -420,12 +436,12 @@ func (_u *DivisionPoolUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if _u.mutation.TopNTeamsCleared() {
 		_spec.ClearField(divisionpool.FieldTopNTeams, field.TypeInt)
 	}
-	if _u.mutation.EventCleared() {
+	if _u.mutation.EventsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   divisionpool.EventTable,
-			Columns: []string{divisionpool.EventColumn},
+			Table:   divisionpool.EventsTable,
+			Columns: divisionpool.EventsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
@@ -433,12 +449,28 @@ func (_u *DivisionPoolUpdate) sqlSave(ctx context.Context) (_node int, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.EventIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedEventsIDs(); len(nodes) > 0 && !_u.mutation.EventsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   divisionpool.EventTable,
-			Columns: []string{divisionpool.EventColumn},
+			Table:   divisionpool.EventsTable,
+			Columns: divisionpool.EventsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.EventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   divisionpool.EventsTable,
+			Columns: divisionpool.EventsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
@@ -742,15 +774,19 @@ func (_u *DivisionPoolUpdateOne) ClearTopNTeams() *DivisionPoolUpdateOne {
 	return _u
 }
 
-// SetEventID sets the "event" edge to the Event entity by ID.
-func (_u *DivisionPoolUpdateOne) SetEventID(id uuid.UUID) *DivisionPoolUpdateOne {
-	_u.mutation.SetEventID(id)
+// AddEventIDs adds the "events" edge to the Event entity by IDs.
+func (_u *DivisionPoolUpdateOne) AddEventIDs(ids ...uuid.UUID) *DivisionPoolUpdateOne {
+	_u.mutation.AddEventIDs(ids...)
 	return _u
 }
 
-// SetEvent sets the "event" edge to the Event entity.
-func (_u *DivisionPoolUpdateOne) SetEvent(v *Event) *DivisionPoolUpdateOne {
-	return _u.SetEventID(v.ID)
+// AddEvents adds the "events" edges to the Event entity.
+func (_u *DivisionPoolUpdateOne) AddEvents(v ...*Event) *DivisionPoolUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddEventIDs(ids...)
 }
 
 // AddTeamIDs adds the "teams" edge to the Team entity by IDs.
@@ -807,10 +843,25 @@ func (_u *DivisionPoolUpdateOne) Mutation() *DivisionPoolMutation {
 	return _u.mutation
 }
 
-// ClearEvent clears the "event" edge to the Event entity.
-func (_u *DivisionPoolUpdateOne) ClearEvent() *DivisionPoolUpdateOne {
-	_u.mutation.ClearEvent()
+// ClearEvents clears all "events" edges to the Event entity.
+func (_u *DivisionPoolUpdateOne) ClearEvents() *DivisionPoolUpdateOne {
+	_u.mutation.ClearEvents()
 	return _u
+}
+
+// RemoveEventIDs removes the "events" edge to Event entities by IDs.
+func (_u *DivisionPoolUpdateOne) RemoveEventIDs(ids ...uuid.UUID) *DivisionPoolUpdateOne {
+	_u.mutation.RemoveEventIDs(ids...)
+	return _u
+}
+
+// RemoveEvents removes "events" edges to Event entities.
+func (_u *DivisionPoolUpdateOne) RemoveEvents(v ...*Event) *DivisionPoolUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveEventIDs(ids...)
 }
 
 // ClearTeams clears all "teams" edges to the Team entity.
@@ -922,9 +973,6 @@ func (_u *DivisionPoolUpdateOne) check() error {
 			return &ValidationError{Name: "division_type", err: fmt.Errorf(`ent: validator failed for field "DivisionPool.division_type": %w`, err)}
 		}
 	}
-	if _u.mutation.EventCleared() && len(_u.mutation.EventIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "DivisionPool.event"`)
-	}
 	return nil
 }
 
@@ -1005,12 +1053,12 @@ func (_u *DivisionPoolUpdateOne) sqlSave(ctx context.Context) (_node *DivisionPo
 	if _u.mutation.TopNTeamsCleared() {
 		_spec.ClearField(divisionpool.FieldTopNTeams, field.TypeInt)
 	}
-	if _u.mutation.EventCleared() {
+	if _u.mutation.EventsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   divisionpool.EventTable,
-			Columns: []string{divisionpool.EventColumn},
+			Table:   divisionpool.EventsTable,
+			Columns: divisionpool.EventsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
@@ -1018,12 +1066,28 @@ func (_u *DivisionPoolUpdateOne) sqlSave(ctx context.Context) (_node *DivisionPo
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.EventIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedEventsIDs(); len(nodes) > 0 && !_u.mutation.EventsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   divisionpool.EventTable,
-			Columns: []string{divisionpool.EventColumn},
+			Table:   divisionpool.EventsTable,
+			Columns: divisionpool.EventsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.EventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   divisionpool.EventsTable,
+			Columns: divisionpool.EventsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),

@@ -7,6 +7,7 @@ import (
 	"sort"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/game-stats-api/ent"
 	"github.com/bengobox/game-stats-api/internal/infrastructure/cache"
 	"github.com/google/uuid"
@@ -139,6 +140,21 @@ func (s *Service) GenerateBracket(ctx context.Context, req GenerateBracketReques
 		BracketTree:  bracketTree,
 		CreatedAt:    time.Now(),
 	}, nil
+}
+
+// GetEventRounds retrieves all game rounds for an event
+func (s *Service) GetEventRounds(ctx context.Context, eventID uuid.UUID) ([]*ent.GameRound, error) {
+	// Need to query via ent.Client since GameRoundRepository doesn't have ListByEvent
+	return s.client.GameRound.Query().
+		Where(func(s *sql.Selector) {
+			s.Where(sql.In(
+				s.C("id"),
+				sql.Select("game_round_id").
+					From(sql.Table("event_game_rounds")).
+					Where(sql.EQ("event_id", eventID)),
+			))
+		}).
+		All(ctx)
 }
 
 // generateSingleElimination creates a single elimination bracket
@@ -376,8 +392,13 @@ func (s *Service) GetBracket(ctx context.Context, roundID uuid.UUID) (*GetBracke
 	// Calculate total rounds
 	totalRounds := calculateTotalRounds(len(games))
 
+	var eventID uuid.UUID
+	if len(round.Edges.Events) > 0 {
+		eventID = round.Edges.Events[0].ID
+	}
+
 	response := &GetBracketResponse{
-		EventID:     round.Edges.Event.ID,
+		EventID:     eventID,
 		RoundID:     roundID,
 		BracketType: BracketTypeSingleElimination,
 		TotalRounds: totalRounds,
@@ -395,6 +416,59 @@ func (s *Service) GetBracket(ctx context.Context, roundID uuid.UUID) (*GetBracke
 	}
 
 	return response, nil
+}
+
+// GetEventBracketAll retrieves a combined bracket structure for an entire event
+func (s *Service) GetEventBracketAll(ctx context.Context, eventID uuid.UUID) (*GetBracketResponse, error) {
+	// 1. Get all rounds for the event
+	rounds, err := s.GetEventRounds(ctx, eventID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get event rounds: %w", err)
+	}
+
+	// 2. Filter for bracket-type rounds and collect their IDs
+	var roundIDs []uuid.UUID
+	for _, r := range rounds {
+		if r.RoundType == "bracket" || r.RoundType == "semifinal" || r.RoundType == "final" {
+			roundIDs = append(roundIDs, r.ID)
+		}
+	}
+
+	if len(roundIDs) == 0 {
+		return nil, fmt.Errorf("no bracket rounds found for event")
+	}
+
+	// 3. Get all games for all bracket rounds
+	var allGames []*ent.Game
+	for _, rid := range roundIDs {
+		games, err := s.gameRepo.ListByRound(ctx, rid)
+		if err == nil && len(games) > 0 {
+			allGames = append(allGames, games...)
+		}
+	}
+
+	if len(allGames) == 0 {
+		return &GetBracketResponse{
+			EventID:     eventID,
+			BracketType: BracketTypeSingleElimination,
+			TotalRounds: 0,
+			TotalGames:  0,
+			UpdatedAt:   time.Now(),
+		}, nil
+	}
+
+	// 4. Build single bracket tree from all games
+	bracketTree := s.buildBracketFromGames(allGames)
+	totalRounds := calculateTotalRounds(len(allGames))
+
+	return &GetBracketResponse{
+		EventID:     eventID,
+		BracketType: BracketTypeSingleElimination,
+		TotalRounds: totalRounds,
+		TotalGames:  len(allGames),
+		BracketTree: bracketTree,
+		UpdatedAt:   time.Now(),
+	}, nil
 }
 
 // buildBracketFromGames constructs bracket tree from existing games

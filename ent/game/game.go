@@ -45,6 +45,8 @@ const (
 	FieldVersion = "version"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
+	// EdgeEvent holds the string denoting the event edge name in mutations.
+	EdgeEvent = "event"
 	// EdgeGameRound holds the string denoting the game_round edge name in mutations.
 	EdgeGameRound = "game_round"
 	// EdgeHomeTeam holds the string denoting the home_team edge name in mutations.
@@ -67,6 +69,13 @@ const (
 	EdgeScoreEditRequests = "score_edit_requests"
 	// Table holds the table name of the game in the database.
 	Table = "games"
+	// EventTable is the table that holds the event relation/edge.
+	EventTable = "games"
+	// EventInverseTable is the table name for the Event entity.
+	// It exists in this package in order to avoid circular dependency with the "event" package.
+	EventInverseTable = "events"
+	// EventColumn is the table column denoting the event relation/edge.
+	EventColumn = "event_games"
 	// GameRoundTable is the table that holds the game_round relation/edge.
 	GameRoundTable = "games"
 	// GameRoundInverseTable is the table name for the GameRound entity.
@@ -163,6 +172,7 @@ var Columns = []string{
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
 	"division_pool_games",
+	"event_games",
 	"field_games",
 	"game_round_games",
 	"team_home_games",
@@ -288,6 +298,13 @@ func ByVersion(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldVersion, opts...).ToFunc()
 }
 
+// ByEventField orders the results by event field.
+func ByEventField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newEventStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByGameRoundField orders the results by game_round field.
 func ByGameRoundField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -384,6 +401,13 @@ func ByScoreEditRequests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newScoreEditRequestsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
+}
+func newEventStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(EventInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, EventTable, EventColumn),
+	)
 }
 func newGameRoundStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(

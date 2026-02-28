@@ -153,7 +153,20 @@ func (h *AnalyticsHandler) GetEventStatistics(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	stats, err := h.analyticsService.GetEventStatistics(ctx, eventUUID)
+	// Parse optional filters
+	var divisionID, teamID *uuid.UUID
+	if dID := r.URL.Query().Get("division_id"); dID != "" {
+		if id, err := uuid.Parse(dID); err == nil {
+			divisionID = &id
+		}
+	}
+	if tID := r.URL.Query().Get("team_id"); tID != "" {
+		if id, err := uuid.Parse(tID); err == nil {
+			teamID = &id
+		}
+	}
+
+	stats, err := h.analyticsService.GetEventStatistics(ctx, eventUUID, divisionID, teamID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Failed to get event statistics", err)
 		return

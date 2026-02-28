@@ -30,8 +30,8 @@ func InvalidateCaches(ctx context.Context, c *cache.RedisClient, gameID uuid.UUI
 		}
 
 		// Delete event stats cache if this is tournament game
-		if g.Edges.GameRound != nil && g.Edges.GameRound.Edges.Event != nil {
-			eventStatsPattern := cache.CacheKey("event", "stats", g.Edges.GameRound.Edges.Event.ID.String(), "*")
+		if g.Edges.GameRound != nil && len(g.Edges.GameRound.Edges.Events) > 0 {
+			eventStatsPattern := cache.CacheKey("event", "stats", g.Edges.GameRound.Edges.Events[0].ID.String(), "*")
 			if err := c.DeletePattern(ctx, eventStatsPattern); err != nil {
 				return fmt.Errorf("failed to delete event stats cache: %w", err)
 			}

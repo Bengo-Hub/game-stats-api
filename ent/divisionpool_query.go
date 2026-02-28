@@ -28,7 +28,7 @@ type DivisionPoolQuery struct {
 	order           []divisionpool.OrderOption
 	inters          []Interceptor
 	predicates      []predicate.DivisionPool
-	withEvent       *EventQuery
+	withEvents      *EventQuery
 	withTeams       *TeamQuery
 	withGames       *GameQuery
 	withTargetRound *GameRoundQuery
@@ -69,8 +69,8 @@ func (_q *DivisionPoolQuery) Order(o ...divisionpool.OrderOption) *DivisionPoolQ
 	return _q
 }
 
-// QueryEvent chains the current query on the "event" edge.
-func (_q *DivisionPoolQuery) QueryEvent() *EventQuery {
+// QueryEvents chains the current query on the "events" edge.
+func (_q *DivisionPoolQuery) QueryEvents() *EventQuery {
 	query := (&EventClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
@@ -83,7 +83,7 @@ func (_q *DivisionPoolQuery) QueryEvent() *EventQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(divisionpool.Table, divisionpool.FieldID, selector),
 			sqlgraph.To(event.Table, event.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, divisionpool.EventTable, divisionpool.EventColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, divisionpool.EventsTable, divisionpool.EventsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -349,7 +349,7 @@ func (_q *DivisionPoolQuery) Clone() *DivisionPoolQuery {
 		order:           append([]divisionpool.OrderOption{}, _q.order...),
 		inters:          append([]Interceptor{}, _q.inters...),
 		predicates:      append([]predicate.DivisionPool{}, _q.predicates...),
-		withEvent:       _q.withEvent.Clone(),
+		withEvents:      _q.withEvents.Clone(),
 		withTeams:       _q.withTeams.Clone(),
 		withGames:       _q.withGames.Clone(),
 		withTargetRound: _q.withTargetRound.Clone(),
@@ -359,14 +359,14 @@ func (_q *DivisionPoolQuery) Clone() *DivisionPoolQuery {
 	}
 }
 
-// WithEvent tells the query-builder to eager-load the nodes that are connected to
-// the "event" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *DivisionPoolQuery) WithEvent(opts ...func(*EventQuery)) *DivisionPoolQuery {
+// WithEvents tells the query-builder to eager-load the nodes that are connected to
+// the "events" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *DivisionPoolQuery) WithEvents(opts ...func(*EventQuery)) *DivisionPoolQuery {
 	query := (&EventClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withEvent = query
+	_q.withEvents = query
 	return _q
 }
 
@@ -483,13 +483,13 @@ func (_q *DivisionPoolQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
 		loadedTypes = [4]bool{
-			_q.withEvent != nil,
+			_q.withEvents != nil,
 			_q.withTeams != nil,
 			_q.withGames != nil,
 			_q.withTargetRound != nil,
 		}
 	)
-	if _q.withEvent != nil || _q.withTargetRound != nil {
+	if _q.withTargetRound != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -513,9 +513,10 @@ func (_q *DivisionPoolQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withEvent; query != nil {
-		if err := _q.loadEvent(ctx, query, nodes, nil,
-			func(n *DivisionPool, e *Event) { n.Edges.Event = e }); err != nil {
+	if query := _q.withEvents; query != nil {
+		if err := _q.loadEvents(ctx, query, nodes,
+			func(n *DivisionPool) { n.Edges.Events = []*Event{} },
+			func(n *DivisionPool, e *Event) { n.Edges.Events = append(n.Edges.Events, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -542,34 +543,63 @@ func (_q *DivisionPoolQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	return nodes, nil
 }
 
-func (_q *DivisionPoolQuery) loadEvent(ctx context.Context, query *EventQuery, nodes []*DivisionPool, init func(*DivisionPool), assign func(*DivisionPool, *Event)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*DivisionPool)
-	for i := range nodes {
-		if nodes[i].event_division_pools == nil {
-			continue
+func (_q *DivisionPoolQuery) loadEvents(ctx context.Context, query *EventQuery, nodes []*DivisionPool, init func(*DivisionPool), assign func(*DivisionPool, *Event)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*DivisionPool)
+	nids := make(map[uuid.UUID]map[*DivisionPool]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
 		}
-		fk := *nodes[i].event_division_pools
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(divisionpool.EventsTable)
+		s.Join(joinT).On(s.C(event.FieldID), joinT.C(divisionpool.EventsPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(divisionpool.EventsPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(divisionpool.EventsPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
 	}
-	query.Where(event.IDIn(ids...))
-	neighbors, err := query.All(ctx)
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*DivisionPool]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Event](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "event_division_pools" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "events" node returned %v`, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
+		for kn := range nodes {
+			assign(kn, n)
 		}
 	}
 	return nil

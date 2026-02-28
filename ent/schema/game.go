@@ -58,6 +58,9 @@ func (Game) Fields() []ent.Field {
 // Edges of the Game.
 func (Game) Edges() []ent.Edge {
 	return []ent.Edge{
+		edge.From("event", Event.Type).
+			Ref("games").
+			Unique(),
 		edge.From("game_round", GameRound.Type).
 			Ref("games").
 			Unique(),

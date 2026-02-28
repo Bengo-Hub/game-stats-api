@@ -102,21 +102,53 @@ func (h *GameRoundHandler) ListGameRounds(w http.ResponseWriter, r *http.Request
 	eventIDStr := chi.URLParam(r, "event_id")
 	eventID, err := uuid.Parse(eventIDStr)
 	if err != nil {
-		http.Error(w, "invalid event ID", http.StatusBadRequest)
+		respondError(w, http.StatusBadRequest, "invalid event ID")
 		return
 	}
 
+	pagination := ParsePagination(r)
 	rounds, err := h.service.ListGameRounds(r.Context(), eventID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(rounds)
+	total := len(rounds)
+	start := pagination.Offset
+	if start > total {
+		start = total
+	}
+	end := start + pagination.Limit
+	if end > total {
+		end = total
+	}
+	paginatedRounds := rounds[start:end]
+
+	respondJSON(w, http.StatusOK, NewPaginatedResponse(paginatedRounds, total, pagination.Limit, pagination.Offset))
 }
 
-// UpdateGameRound updates a game round.
+func (h *GameRoundHandler) ListAllRounds(w http.ResponseWriter, r *http.Request) {
+	pagination := ParsePagination(r)
+	rounds, err := h.service.ListAllGameRounds(r.Context())
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	total := len(rounds)
+	start := pagination.Offset
+	if start > total {
+		start = total
+	}
+	end := start + pagination.Limit
+	if end > total {
+		end = total
+	}
+	paginatedRounds := rounds[start:end]
+
+	respondJSON(w, http.StatusOK, NewPaginatedResponse(paginatedRounds, total, pagination.Limit, pagination.Offset))
+}
+
 // @Summary Update Game Round
 // @Description Update game round details
 // @Tags game-rounds

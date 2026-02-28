@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/bengobox/game-stats-api/internal/application/bracket"
 	"github.com/go-chi/chi/v5"
@@ -72,21 +73,46 @@ func (h *BracketHandler) GenerateBracket(w http.ResponseWriter, r *http.Request)
 func (h *BracketHandler) GetEventBracket(w http.ResponseWriter, r *http.Request) {
 	// Get round_id from query parameter
 	roundIDStr := r.URL.Query().Get("round_id")
-	if roundIDStr == "" {
-		respondError(w, http.StatusBadRequest, "round_id query parameter required")
+
+	// Get event ID
+	eventIDStr := chi.URLParam(r, "id")
+	eventID, err := uuid.Parse(eventIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid event ID")
 		return
 	}
 
-	roundID, err := uuid.Parse(roundIDStr)
-	if err != nil {
-		respondError(w, http.StatusBadRequest, "Invalid round ID")
-		return
-	}
+	var roundID uuid.UUID
+	var response *bracket.GetBracketResponse
 
-	response, err := h.service.GetBracket(r.Context(), roundID)
-	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
-		return
+	if roundIDStr == "" || roundIDStr == "all" {
+		// If no round_id, get combined bracket for all bracket rounds
+		var err error
+		response, err = h.service.GetEventBracketAll(r.Context(), eventID)
+		if err != nil {
+			// If no brackets found, return empty response instead of 404
+			response = &bracket.GetBracketResponse{
+				EventID:     eventID,
+				BracketType: bracket.BracketTypeSingleElimination,
+				TotalRounds: 0,
+				TotalGames:  0,
+				UpdatedAt:   time.Now(),
+			}
+		}
+	} else {
+		parsedID, err := uuid.Parse(roundIDStr)
+		if err != nil {
+			respondError(w, http.StatusBadRequest, "Invalid round ID")
+			return
+		}
+		roundID = parsedID
+
+		var bracketErr error
+		response, bracketErr = h.service.GetBracket(r.Context(), roundID)
+		if bracketErr != nil {
+			respondError(w, http.StatusInternalServerError, bracketErr.Error())
+			return
+		}
 	}
 
 	respondJSON(w, http.StatusOK, response)

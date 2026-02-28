@@ -35,8 +35,8 @@ const (
 	FieldAutoAdvance = "auto_advance"
 	// FieldTopNTeams holds the string denoting the top_n_teams field in the database.
 	FieldTopNTeams = "top_n_teams"
-	// EdgeEvent holds the string denoting the event edge name in mutations.
-	EdgeEvent = "event"
+	// EdgeEvents holds the string denoting the events edge name in mutations.
+	EdgeEvents = "events"
 	// EdgeTeams holds the string denoting the teams edge name in mutations.
 	EdgeTeams = "teams"
 	// EdgeGames holds the string denoting the games edge name in mutations.
@@ -45,13 +45,11 @@ const (
 	EdgeTargetRound = "target_round"
 	// Table holds the table name of the divisionpool in the database.
 	Table = "division_pools"
-	// EventTable is the table that holds the event relation/edge.
-	EventTable = "division_pools"
-	// EventInverseTable is the table name for the Event entity.
+	// EventsTable is the table that holds the events relation/edge. The primary key declared below.
+	EventsTable = "event_division_pools"
+	// EventsInverseTable is the table name for the Event entity.
 	// It exists in this package in order to avoid circular dependency with the "event" package.
-	EventInverseTable = "events"
-	// EventColumn is the table column denoting the event relation/edge.
-	EventColumn = "event_division_pools"
+	EventsInverseTable = "events"
 	// TeamsTable is the table that holds the teams relation/edge. The primary key declared below.
 	TeamsTable = "division_pool_teams"
 	// TeamsInverseTable is the table name for the Team entity.
@@ -92,10 +90,12 @@ var Columns = []string{
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
 	"division_pool_target_round",
-	"event_division_pools",
 }
 
 var (
+	// EventsPrimaryKey and EventsColumn2 are the table columns denoting the
+	// primary key for the events relation (M2M).
+	EventsPrimaryKey = []string{"event_id", "division_pool_id"}
 	// TeamsPrimaryKey and TeamsColumn2 are the table columns denoting the
 	// primary key for the teams relation (M2M).
 	TeamsPrimaryKey = []string{"division_pool_id", "team_id"}
@@ -186,10 +186,17 @@ func ByTopNTeams(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTopNTeams, opts...).ToFunc()
 }
 
-// ByEventField orders the results by event field.
-func ByEventField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByEventsCount orders the results by events count.
+func ByEventsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newEventStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newEventsStep(), opts...)
+	}
+}
+
+// ByEvents orders the results by events terms.
+func ByEvents(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newEventsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -227,11 +234,11 @@ func ByTargetRoundField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newTargetRoundStep(), sql.OrderByField(field, opts...))
 	}
 }
-func newEventStep() *sqlgraph.Step {
+func newEventsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(EventInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, EventTable, EventColumn),
+		sqlgraph.To(EventsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, EventsTable, EventsPrimaryKey...),
 	)
 }
 func newTeamsStep() *sqlgraph.Step {

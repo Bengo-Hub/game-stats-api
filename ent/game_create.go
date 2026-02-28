@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
+	"github.com/bengobox/game-stats-api/ent/event"
 	entfield "github.com/bengobox/game-stats-api/ent/field"
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/gameevent"
@@ -220,6 +221,25 @@ func (_c *GameCreate) SetNillableID(v *uuid.UUID) *GameCreate {
 		_c.SetID(*v)
 	}
 	return _c
+}
+
+// SetEventID sets the "event" edge to the Event entity by ID.
+func (_c *GameCreate) SetEventID(id uuid.UUID) *GameCreate {
+	_c.mutation.SetEventID(id)
+	return _c
+}
+
+// SetNillableEventID sets the "event" edge to the Event entity by ID if the given value is not nil.
+func (_c *GameCreate) SetNillableEventID(id *uuid.UUID) *GameCreate {
+	if id != nil {
+		_c = _c.SetEventID(*id)
+	}
+	return _c
+}
+
+// SetEvent sets the "event" edge to the Event entity.
+func (_c *GameCreate) SetEvent(v *Event) *GameCreate {
+	return _c.SetEventID(v.ID)
 }
 
 // SetGameRoundID sets the "game_round" edge to the GameRound entity by ID.
@@ -581,6 +601,23 @@ func (_c *GameCreate) createSpec() (*Game, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(game.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
+	}
+	if nodes := _c.mutation.EventIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   game.EventTable,
+			Columns: []string{game.EventColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.event_games = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.GameRoundIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

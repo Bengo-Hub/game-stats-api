@@ -159,7 +159,7 @@ func (r *gameRepository) ListWithFilter(ctx context.Context, filter domaingame.S
 
 	if filter.EventID != nil {
 		// Need to join through division_pool to reach event
-		query = query.Where(game.HasDivisionPoolWith(divisionpool.HasEventWith(event.ID(*filter.EventID))))
+		query = query.Where(game.HasDivisionPoolWith(divisionpool.HasEventsWith(event.ID(*filter.EventID))))
 	}
 
 	if filter.DivisionPoolID != nil {

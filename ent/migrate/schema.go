@@ -187,7 +187,6 @@ var (
 		{Name: "auto_advance", Type: field.TypeBool, Default: false},
 		{Name: "top_n_teams", Type: field.TypeInt, Nullable: true},
 		{Name: "division_pool_target_round", Type: field.TypeUUID, Nullable: true},
-		{Name: "event_division_pools", Type: field.TypeUUID},
 	}
 	// DivisionPoolsTable holds the schema information for the "division_pools" table.
 	DivisionPoolsTable = &schema.Table{
@@ -200,12 +199,6 @@ var (
 				Columns:    []*schema.Column{DivisionPoolsColumns[11]},
 				RefColumns: []*schema.Column{GameRoundsColumns[0]},
 				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "division_pools_events_division_pools",
-				Columns:    []*schema.Column{DivisionPoolsColumns[12]},
-				RefColumns: []*schema.Column{EventsColumns[0]},
-				OnDelete:   schema.Cascade,
 			},
 		},
 	}
@@ -366,6 +359,7 @@ var (
 		{Name: "version", Type: field.TypeInt, Default: 1},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 		{Name: "division_pool_games", Type: field.TypeUUID},
+		{Name: "event_games", Type: field.TypeUUID, Nullable: true},
 		{Name: "field_games", Type: field.TypeUUID},
 		{Name: "game_round_games", Type: field.TypeUUID, Nullable: true},
 		{Name: "team_home_games", Type: field.TypeUUID},
@@ -385,32 +379,38 @@ var (
 				OnDelete:   schema.NoAction,
 			},
 			{
-				Symbol:     "games_fields_games",
+				Symbol:     "games_events_games",
 				Columns:    []*schema.Column{GamesColumns[17]},
+				RefColumns: []*schema.Column{EventsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "games_fields_games",
+				Columns:    []*schema.Column{GamesColumns[18]},
 				RefColumns: []*schema.Column{FieldsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "games_game_rounds_games",
-				Columns:    []*schema.Column{GamesColumns[18]},
+				Columns:    []*schema.Column{GamesColumns[19]},
 				RefColumns: []*schema.Column{GameRoundsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "games_teams_home_games",
-				Columns:    []*schema.Column{GamesColumns[19]},
-				RefColumns: []*schema.Column{TeamsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "games_teams_away_games",
 				Columns:    []*schema.Column{GamesColumns[20]},
 				RefColumns: []*schema.Column{TeamsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
-				Symbol:     "games_users_officiated_games",
+				Symbol:     "games_teams_away_games",
 				Columns:    []*schema.Column{GamesColumns[21]},
+				RefColumns: []*schema.Column{TeamsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "games_users_officiated_games",
+				Columns:    []*schema.Column{GamesColumns[22]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -463,7 +463,6 @@ var (
 		{Name: "end_date", Type: field.TypeTime, Nullable: true},
 		{Name: "auto_advance", Type: field.TypeBool, Default: false},
 		{Name: "top_n_teams", Type: field.TypeInt, Nullable: true},
-		{Name: "event_game_rounds", Type: field.TypeUUID},
 		{Name: "game_round_target_round", Type: field.TypeUUID, Unique: true, Nullable: true},
 	}
 	// GameRoundsTable holds the schema information for the "game_rounds" table.
@@ -473,14 +472,8 @@ var (
 		PrimaryKey: []*schema.Column{GameRoundsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "game_rounds_events_game_rounds",
-				Columns:    []*schema.Column{GameRoundsColumns[11]},
-				RefColumns: []*schema.Column{EventsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
 				Symbol:     "game_rounds_game_rounds_target_round",
-				Columns:    []*schema.Column{GameRoundsColumns[12]},
+				Columns:    []*schema.Column{GameRoundsColumns[11]},
 				RefColumns: []*schema.Column{GameRoundsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -920,6 +913,56 @@ var (
 			},
 		},
 	}
+	// EventDivisionPoolsColumns holds the columns for the "event_division_pools" table.
+	EventDivisionPoolsColumns = []*schema.Column{
+		{Name: "event_id", Type: field.TypeUUID},
+		{Name: "division_pool_id", Type: field.TypeUUID},
+	}
+	// EventDivisionPoolsTable holds the schema information for the "event_division_pools" table.
+	EventDivisionPoolsTable = &schema.Table{
+		Name:       "event_division_pools",
+		Columns:    EventDivisionPoolsColumns,
+		PrimaryKey: []*schema.Column{EventDivisionPoolsColumns[0], EventDivisionPoolsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "event_division_pools_event_id",
+				Columns:    []*schema.Column{EventDivisionPoolsColumns[0]},
+				RefColumns: []*schema.Column{EventsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "event_division_pools_division_pool_id",
+				Columns:    []*schema.Column{EventDivisionPoolsColumns[1]},
+				RefColumns: []*schema.Column{DivisionPoolsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// EventGameRoundsColumns holds the columns for the "event_game_rounds" table.
+	EventGameRoundsColumns = []*schema.Column{
+		{Name: "event_id", Type: field.TypeUUID},
+		{Name: "game_round_id", Type: field.TypeUUID},
+	}
+	// EventGameRoundsTable holds the schema information for the "event_game_rounds" table.
+	EventGameRoundsTable = &schema.Table{
+		Name:       "event_game_rounds",
+		Columns:    EventGameRoundsColumns,
+		PrimaryKey: []*schema.Column{EventGameRoundsColumns[0], EventGameRoundsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "event_game_rounds_event_id",
+				Columns:    []*schema.Column{EventGameRoundsColumns[0]},
+				RefColumns: []*schema.Column{EventsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "event_game_rounds_game_round_id",
+				Columns:    []*schema.Column{EventGameRoundsColumns[1]},
+				RefColumns: []*schema.Column{GameRoundsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// EventManagedByColumns holds the columns for the "event_managed_by" table.
 	EventManagedByColumns = []*schema.Column{
 		{Name: "event_id", Type: field.TypeUUID},
@@ -1052,6 +1095,8 @@ var (
 		CountryManagedByTable,
 		DisciplineManagedByTable,
 		DivisionPoolTeamsTable,
+		EventDivisionPoolsTable,
+		EventGameRoundsTable,
 		EventManagedByTable,
 		EventCategoriesTable,
 		TeamPlayersTable,
@@ -1064,7 +1109,6 @@ func init() {
 	CountriesTable.ForeignKeys[0].RefTable = ContinentsTable
 	DisciplinesTable.ForeignKeys[0].RefTable = CountriesTable
 	DivisionPoolsTable.ForeignKeys[0].RefTable = GameRoundsTable
-	DivisionPoolsTable.ForeignKeys[1].RefTable = EventsTable
 	EventsTable.ForeignKeys[0].RefTable = DisciplinesTable
 	EventsTable.ForeignKeys[1].RefTable = LocationsTable
 	EventParticipationsTable.ForeignKeys[0].RefTable = EventsTable
@@ -1073,15 +1117,15 @@ func init() {
 	EventReconciliationsTable.ForeignKeys[0].RefTable = EventsTable
 	FieldsTable.ForeignKeys[0].RefTable = LocationsTable
 	GamesTable.ForeignKeys[0].RefTable = DivisionPoolsTable
-	GamesTable.ForeignKeys[1].RefTable = FieldsTable
-	GamesTable.ForeignKeys[2].RefTable = GameRoundsTable
-	GamesTable.ForeignKeys[3].RefTable = TeamsTable
+	GamesTable.ForeignKeys[1].RefTable = EventsTable
+	GamesTable.ForeignKeys[2].RefTable = FieldsTable
+	GamesTable.ForeignKeys[3].RefTable = GameRoundsTable
 	GamesTable.ForeignKeys[4].RefTable = TeamsTable
-	GamesTable.ForeignKeys[5].RefTable = UsersTable
+	GamesTable.ForeignKeys[5].RefTable = TeamsTable
+	GamesTable.ForeignKeys[6].RefTable = UsersTable
 	GameEventsTable.ForeignKeys[0].RefTable = GamesTable
 	GameEventsTable.ForeignKeys[1].RefTable = PlayersTable
-	GameRoundsTable.ForeignKeys[0].RefTable = EventsTable
-	GameRoundsTable.ForeignKeys[1].RefTable = GameRoundsTable
+	GameRoundsTable.ForeignKeys[0].RefTable = GameRoundsTable
 	LocationsTable.ForeignKeys[0].RefTable = CountriesTable
 	MvpNominationsTable.ForeignKeys[0].RefTable = PlayersTable
 	MvpNominationsTable.ForeignKeys[1].RefTable = SpiritScoresTable
@@ -1107,6 +1151,10 @@ func init() {
 	DisciplineManagedByTable.ForeignKeys[1].RefTable = UsersTable
 	DivisionPoolTeamsTable.ForeignKeys[0].RefTable = DivisionPoolsTable
 	DivisionPoolTeamsTable.ForeignKeys[1].RefTable = TeamsTable
+	EventDivisionPoolsTable.ForeignKeys[0].RefTable = EventsTable
+	EventDivisionPoolsTable.ForeignKeys[1].RefTable = DivisionPoolsTable
+	EventGameRoundsTable.ForeignKeys[0].RefTable = EventsTable
+	EventGameRoundsTable.ForeignKeys[1].RefTable = GameRoundsTable
 	EventManagedByTable.ForeignKeys[0].RefTable = EventsTable
 	EventManagedByTable.ForeignKeys[1].RefTable = UsersTable
 	EventCategoriesTable.ForeignKeys[0].RefTable = EventsTable
