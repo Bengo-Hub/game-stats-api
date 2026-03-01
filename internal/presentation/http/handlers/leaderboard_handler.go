@@ -215,12 +215,23 @@ func (h *LeaderboardHandler) GetPlayerLeaderboard(w http.ResponseWriter, r *http
 		}
 	}
 
-	// Limit results
-	if len(result) > pagination.Limit {
-		result = result[:pagination.Limit]
+	// Apply pagination to result slice
+	totalCount := len(result)
+	start := pagination.Offset
+	if start > totalCount {
+		start = totalCount
+	}
+	end := start + pagination.Limit
+	if end > totalCount {
+		end = totalCount
 	}
 
-	respondJSON(w, http.StatusOK, result)
+	paginatedData := result[start:end]
+
+	respondJSON(w, http.StatusOK, map[string]interface{}{
+		"data":  paginatedData,
+		"total": totalCount,
+	})
 }
 
 // GetSpiritLeaderboard godoc
@@ -349,10 +360,21 @@ func (h *LeaderboardHandler) GetSpiritLeaderboard(w http.ResponseWriter, r *http
 		}
 	}
 
-	// Limit results
-	if len(result) > pagination.Limit {
-		result = result[:pagination.Limit]
+	// Apply pagination to result slice
+	totalCount := len(result)
+	start := pagination.Offset
+	if start > totalCount {
+		start = totalCount
+	}
+	end := start + pagination.Limit
+	if end > totalCount {
+		end = totalCount
 	}
 
-	respondJSON(w, http.StatusOK, result)
+	paginatedData := result[start:end]
+
+	respondJSON(w, http.StatusOK, map[string]interface{}{
+		"data":  paginatedData,
+		"total": totalCount,
+	})
 }
