@@ -340,7 +340,7 @@ func mapSpiritScoreToDTO(s *ent.SpiritScore) *SpiritScoreDTO {
 }
 func (s *Service) upsertMVPNomination(ctx context.Context, spiritScore *ent.SpiritScore, playerID uuid.UUID, category string) error {
 	// Check if nomination already exists for this spirit score and category
-	existing, err := s.client.MVP_Nomination.Query().
+	existing, queryErr := s.client.MVP_Nomination.Query().
 		Where(mvp_nomination.HasSpiritScoreWith(spiritscore.ID(spiritScore.ID))).
 		Where(mvp_nomination.CategoryEQ(category)).
 		First(ctx)
@@ -350,8 +350,8 @@ func (s *Service) upsertMVPNomination(ctx context.Context, spiritScore *ent.Spir
 		return err
 	}
 
-	if err != nil {
-		if ent.IsNotFound(err) {
+	if queryErr != nil {
+		if ent.IsNotFound(queryErr) {
 			// Create new
 			_, err = s.mvpNominationRepo.Create(ctx, &ent.MVP_Nomination{
 				Category: category,
@@ -362,7 +362,7 @@ func (s *Service) upsertMVPNomination(ctx context.Context, spiritScore *ent.Spir
 			})
 			return err
 		}
-		return err
+		return queryErr
 	}
 
 	// Update existing
@@ -373,7 +373,7 @@ func (s *Service) upsertMVPNomination(ctx context.Context, spiritScore *ent.Spir
 
 func (s *Service) upsertSpiritNomination(ctx context.Context, spiritScore *ent.SpiritScore, playerID uuid.UUID, category string) error {
 	// Check if nomination already exists for this spirit score and category
-	existing, err := s.client.SpiritNomination.Query().
+	existing, queryErr := s.client.SpiritNomination.Query().
 		Where(spiritnomination.HasSpiritScoreWith(spiritscore.ID(spiritScore.ID))).
 		Where(spiritnomination.CategoryEQ(category)).
 		First(ctx)
@@ -383,8 +383,8 @@ func (s *Service) upsertSpiritNomination(ctx context.Context, spiritScore *ent.S
 		return err
 	}
 
-	if err != nil {
-		if ent.IsNotFound(err) {
+	if queryErr != nil {
+		if ent.IsNotFound(queryErr) {
 			// Create new
 			_, err = s.spiritNominationRepo.Create(ctx, &ent.SpiritNomination{
 				Category: category,
@@ -395,7 +395,7 @@ func (s *Service) upsertSpiritNomination(ctx context.Context, spiritScore *ent.S
 			})
 			return err
 		}
-		return err
+		return queryErr
 	}
 
 	// Update existing
