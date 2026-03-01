@@ -12,7 +12,9 @@ import (
 	"github.com/bengobox/game-stats-api/ent/discipline"
 	"github.com/bengobox/game-stats-api/ent/divisionpool"
 	"github.com/bengobox/game-stats-api/ent/event"
+	"github.com/bengobox/game-stats-api/ent/eventparticipation"
 	entGame "github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/gameround"
 	"github.com/bengobox/game-stats-api/ent/location"
 	"github.com/bengobox/game-stats-api/ent/predicate"
 	"github.com/bengobox/game-stats-api/ent/scopedrole"
@@ -797,6 +799,111 @@ func (h *EventHandler) UpdateDivisionPool(w http.ResponseWriter, r *http.Request
 		DivisionType: dp.DivisionType,
 		TeamsCount:   0, // Would need query to get actual count
 	})
+}
+
+// DeleteEvent godoc
+// @Summary Delete an event
+// @Description Soft-deletes an event and cascades to related data (participations, games, rounds, division pools). Requires delete_events permission.
+// @Tags events
+// @Param id path string true "Event ID" format(uuid)
+// @Success 204 "No Content"
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Security BearerAuth
+// @Router /events/{id} [delete]
+func (h *EventHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	idStr := chi.URLParam(r, "id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid event ID format")
+		return
+	}
+
+	// Check event exists and not already deleted
+	ev, err := h.client.Event.Query().
+		Where(event.ID(id), event.DeletedAtIsNil()).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			respondError(w, http.StatusNotFound, "Event not found")
+			return
+		}
+		respondError(w, http.StatusInternalServerError, "Failed to check event")
+		return
+	}
+	_ = ev // used for existence check
+
+	now := time.Now()
+
+	// Cascade soft-delete: participations, games (via division pools), game rounds, division pools, then event
+
+	// 1. Event participations for this event
+	_, err = h.client.EventParticipation.Update().
+		Where(
+			eventparticipation.HasEventWith(event.IDEQ(id)),
+			eventparticipation.DeletedAtIsNil(),
+		).
+		SetDeletedAt(now).
+		Save(ctx)
+	if err != nil {
+		logger.Error("Failed to soft-delete event participations", logger.String("event_id", id.String()), logger.Err(err))
+		respondError(w, http.StatusInternalServerError, "Failed to delete event and related data")
+		return
+	}
+
+	// 2. Games that belong to division pools of this event
+	_, err = h.client.Game.Update().
+		Where(
+			entGame.HasDivisionPoolWith(divisionpool.HasEventsWith(event.IDEQ(id))),
+			entGame.DeletedAtIsNil(),
+		).
+		SetDeletedAt(now).
+		Save(ctx)
+	if err != nil {
+		logger.Error("Failed to soft-delete games", logger.String("event_id", id.String()), logger.Err(err))
+		respondError(w, http.StatusInternalServerError, "Failed to delete event and related data")
+		return
+	}
+
+	// 3. Game rounds for this event
+	_, err = h.client.GameRound.Update().
+		Where(
+			gameround.HasEventsWith(event.IDEQ(id)),
+			gameround.DeletedAtIsNil(),
+		).
+		SetDeletedAt(now).
+		Save(ctx)
+	if err != nil {
+		logger.Error("Failed to soft-delete game rounds", logger.String("event_id", id.String()), logger.Err(err))
+		respondError(w, http.StatusInternalServerError, "Failed to delete event and related data")
+		return
+	}
+
+	// 4. Division pools for this event
+	_, err = h.client.DivisionPool.Update().
+		Where(
+			divisionpool.HasEventsWith(event.IDEQ(id)),
+			divisionpool.DeletedAtIsNil(),
+		).
+		SetDeletedAt(now).
+		Save(ctx)
+	if err != nil {
+		logger.Error("Failed to soft-delete division pools", logger.String("event_id", id.String()), logger.Err(err))
+		respondError(w, http.StatusInternalServerError, "Failed to delete event and related data")
+		return
+	}
+
+	// 5. Event itself
+	_, err = h.client.Event.UpdateOneID(id).SetDeletedAt(now).Save(ctx)
+	if err != nil {
+		logger.Error("Failed to soft-delete event", logger.String("event_id", id.String()), logger.Err(err))
+		respondError(w, http.StatusInternalServerError, "Failed to delete event")
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // DeleteDivisionPool godoc
