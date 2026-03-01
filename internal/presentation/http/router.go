@@ -217,6 +217,12 @@ func NewRouter(opts RouterOptions) chi.Router {
 					r.Get("/{id}/spirit", opts.SpiritScoreHandler.GetEventSpiritScores)
 				})
 
+				// Delete event - require delete_events permission (cascades to related data)
+				r.Group(func(r chi.Router) {
+					r.Use(middleware.RequirePermission(middleware.PermDeleteEvents))
+					r.Delete("/{id}", opts.EventHandler.DeleteEvent)
+				})
+
 				// Manage operations - require manage_events permission
 				r.Group(func(r chi.Router) {
 					r.Use(middleware.RequirePermission(middleware.PermManageEvents))

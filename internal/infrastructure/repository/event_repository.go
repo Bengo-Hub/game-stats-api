@@ -35,7 +35,7 @@ func (r *eventRepository) Create(ctx context.Context, e *ent.Event) (*ent.Event,
 
 func (r *eventRepository) GetByID(ctx context.Context, id uuid.UUID) (*ent.Event, error) {
 	return r.client.Event.Query().
-		Where(event.ID(id)).
+		Where(event.ID(id), event.DeletedAtIsNil()).
 		WithDiscipline().
 		WithLocation().
 		WithDivisionPools().
@@ -44,7 +44,7 @@ func (r *eventRepository) GetByID(ctx context.Context, id uuid.UUID) (*ent.Event
 
 func (r *eventRepository) GetBySlug(ctx context.Context, slug string) (*ent.Event, error) {
 	return r.client.Event.Query().
-		Where(event.SlugEQ(slug)).
+		Where(event.SlugEQ(slug), event.DeletedAtIsNil()).
 		WithDiscipline().
 		WithLocation().
 		WithDivisionPools().
