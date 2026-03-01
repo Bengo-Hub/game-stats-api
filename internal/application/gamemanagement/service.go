@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/bengobox/game-stats-api/ent"
+	entgame "github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/internal/domain/auth"
 	"github.com/bengobox/game-stats-api/internal/domain/divisionpool"
 	"github.com/bengobox/game-stats-api/internal/domain/event"
@@ -149,11 +150,26 @@ func (s *Service) ScheduleGame(ctx context.Context, req CreateGameRequest) (*Gam
 	}
 
 	// Auto-generate game name if not provided
-	var gameName string
+	var baseName string
 	if req.Name == nil || *req.Name == "" {
-		gameName = fmt.Sprintf("%s vs %s", homeTeam.Name, awayTeam.Name)
+		baseName = fmt.Sprintf("%s vs %s", homeTeam.Name, awayTeam.Name)
 	} else {
-		gameName = *req.Name
+		baseName = *req.Name
+	}
+
+	// Ensure unique game name
+	gameName := baseName
+	counter := 1
+	for {
+		exists, err := s.client.Game.Query().Where(entgame.NameEQ(gameName)).Exist(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if !exists {
+			break
+		}
+		gameName = fmt.Sprintf("%s (%d)", baseName, counter)
+		counter++
 	}
 
 	// Create game entity

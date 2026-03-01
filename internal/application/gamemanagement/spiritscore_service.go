@@ -5,6 +5,9 @@ import (
 	"errors"
 
 	"github.com/bengobox/game-stats-api/ent"
+	"github.com/bengobox/game-stats-api/ent/mvp_nomination"
+	"github.com/bengobox/game-stats-api/ent/spiritnomination"
+	"github.com/bengobox/game-stats-api/ent/spiritscore"
 	"github.com/google/uuid"
 )
 
@@ -58,82 +61,106 @@ func (s *Service) SubmitSpiritScore(ctx context.Context, gameID uuid.UUID, userI
 		return nil, err
 	}
 
+	var existingScore *ent.SpiritScore
 	for _, score := range existingScores {
 		if score.Edges.ScoredByTeam != nil && score.Edges.ScoredByTeam.ID == req.ScoredByTeamID &&
 			score.Edges.Team != nil && score.Edges.Team.ID == req.TeamID {
-			return nil, ErrDuplicateSpiritScore
+			existingScore = score
+			break
 		}
 	}
 
-	// Get teams
-	scoredByTeam, err := s.teamRepo.GetByID(ctx, req.ScoredByTeamID)
-	if err != nil {
-		return nil, err
+	var resultScore *ent.SpiritScore
+
+	if existingScore != nil {
+		// Update existing spirit score
+		existingScore.RulesKnowledge = req.RulesKnowledge
+		existingScore.FoulsBodyContact = req.FoulsBodyContact
+		existingScore.FairMindedness = req.FairMindedness
+		existingScore.Attitude = req.Attitude
+		existingScore.Communication = req.Communication
+		existingScore.Comments = req.Comments
+
+		updated, err := s.spiritScoreRepo.Update(ctx, existingScore)
+		if err != nil {
+			return nil, err
+		}
+		resultScore = updated
+
+		// Clear existing nominations to simplify replacement
+		// Use client directly or add to repo if needed. For now, we'll implement updateNomination logic
+	} else {
+		// Get teams
+		scoredByTeam, err := s.teamRepo.GetByID(ctx, req.ScoredByTeamID)
+		if err != nil {
+			return nil, err
+		}
+
+		team, err := s.teamRepo.GetByID(ctx, req.TeamID)
+		if err != nil {
+			return nil, err
+		}
+
+		// Get user
+		user, err := s.userRepo.GetByID(ctx, userID)
+		if err != nil {
+			return nil, err
+		}
+
+		// Create spirit score
+		spiritScore := &ent.SpiritScore{
+			RulesKnowledge:   req.RulesKnowledge,
+			FoulsBodyContact: req.FoulsBodyContact,
+			FairMindedness:   req.FairMindedness,
+			Attitude:         req.Attitude,
+			Communication:    req.Communication,
+			Comments:         req.Comments,
+			Edges: ent.SpiritScoreEdges{
+				Game:         game,
+				ScoredByTeam: scoredByTeam,
+				Team:         team,
+				SubmittedBy:  user,
+			},
+		}
+
+		created, err := s.spiritScoreRepo.Create(ctx, spiritScore)
+		if err != nil {
+			return nil, err
+		}
+		resultScore = created
 	}
 
-	team, err := s.teamRepo.GetByID(ctx, req.TeamID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Get user
-	user, err := s.userRepo.GetByID(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Create spirit score
-	spiritScore := &ent.SpiritScore{
-		RulesKnowledge:   req.RulesKnowledge,
-		FoulsBodyContact: req.FoulsBodyContact,
-		FairMindedness:   req.FairMindedness,
-		Attitude:         req.Attitude,
-		Communication:    req.Communication,
-		Comments:         req.Comments,
-		Edges: ent.SpiritScoreEdges{
-			Game:         game,
-			ScoredByTeam: scoredByTeam,
-			Team:         team,
-			SubmittedBy:  user,
-		},
-	}
-
-	created, err := s.spiritScoreRepo.Create(ctx, spiritScore)
-	if err != nil {
-		return nil, err
-	}
-
-	// Handle MVP nominations
+	// Handle MVP nominations (Upsert logic)
 	if req.MVPMaleNomination != nil {
-		if err := s.createMVPNomination(ctx, created, *req.MVPMaleNomination, "mvp_male"); err != nil {
+		if err := s.upsertMVPNomination(ctx, resultScore, *req.MVPMaleNomination, "mvp_male"); err != nil {
 			return nil, err
 		}
 	}
 	if req.MVPFemaleNomination != nil {
-		if err := s.createMVPNomination(ctx, created, *req.MVPFemaleNomination, "mvp_female"); err != nil {
+		if err := s.upsertMVPNomination(ctx, resultScore, *req.MVPFemaleNomination, "mvp_female"); err != nil {
 			return nil, err
 		}
 	}
 
-	// Handle Spirit nominations
+	// Handle Spirit nominations (Upsert logic)
 	if req.SpiritMaleNomination != nil {
-		if err := s.createSpiritNomination(ctx, created, *req.SpiritMaleNomination, "spirit_male"); err != nil {
+		if err := s.upsertSpiritNomination(ctx, resultScore, *req.SpiritMaleNomination, "spirit_male"); err != nil {
 			return nil, err
 		}
 	}
 	if req.SpiritFemaleNomination != nil {
-		if err := s.createSpiritNomination(ctx, created, *req.SpiritFemaleNomination, "spirit_female"); err != nil {
+		if err := s.upsertSpiritNomination(ctx, resultScore, *req.SpiritFemaleNomination, "spirit_female"); err != nil {
 			return nil, err
 		}
 	}
 
-	// Fetch with relations
-	result, err := s.spiritScoreRepo.GetByID(ctx, created.ID)
+	// Fetch with relations for final result
+	finalFull, err := s.spiritScoreRepo.GetByID(ctx, resultScore.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return mapSpiritScoreToDTO(result), nil
+	return mapSpiritScoreToDTO(finalFull), nil
 }
 
 func (s *Service) GetGameSpiritScores(ctx context.Context, gameID uuid.UUID) ([]*SpiritScoreDTO, error) {
@@ -311,38 +338,68 @@ func mapSpiritScoreToDTO(s *ent.SpiritScore) *SpiritScoreDTO {
 
 	return dto
 }
-func (s *Service) createMVPNomination(ctx context.Context, spiritScore *ent.SpiritScore, playerID uuid.UUID, category string) error {
+func (s *Service) upsertMVPNomination(ctx context.Context, spiritScore *ent.SpiritScore, playerID uuid.UUID, category string) error {
+	// Check if nomination already exists for this spirit score and category
+	existing, err := s.client.MVP_Nomination.Query().
+		Where(mvp_nomination.HasSpiritScoreWith(spiritscore.ID(spiritScore.ID))).
+		Where(mvp_nomination.CategoryEQ(category)).
+		First(ctx)
+
 	player, err := s.playerRepo.GetByID(ctx, playerID)
 	if err != nil {
 		return err
 	}
 
-	mvpNomination := &ent.MVP_Nomination{
-		Category: category,
-		Edges: ent.MVP_NominationEdges{
-			SpiritScore: spiritScore,
-			Player:      player,
-		},
+	if err != nil {
+		if ent.IsNotFound(err) {
+			// Create new
+			_, err = s.mvpNominationRepo.Create(ctx, &ent.MVP_Nomination{
+				Category: category,
+				Edges: ent.MVP_NominationEdges{
+					SpiritScore: spiritScore,
+					Player:      player,
+				},
+			})
+			return err
+		}
+		return err
 	}
 
-	_, err = s.mvpNominationRepo.Create(ctx, mvpNomination)
-	return err
+	// Update existing
+	return s.client.MVP_Nomination.UpdateOne(existing).
+		SetPlayer(player).
+		Exec(ctx)
 }
 
-func (s *Service) createSpiritNomination(ctx context.Context, spiritScore *ent.SpiritScore, playerID uuid.UUID, category string) error {
+func (s *Service) upsertSpiritNomination(ctx context.Context, spiritScore *ent.SpiritScore, playerID uuid.UUID, category string) error {
+	// Check if nomination already exists for this spirit score and category
+	existing, err := s.client.SpiritNomination.Query().
+		Where(spiritnomination.HasSpiritScoreWith(spiritscore.ID(spiritScore.ID))).
+		Where(spiritnomination.CategoryEQ(category)).
+		First(ctx)
+
 	player, err := s.playerRepo.GetByID(ctx, playerID)
 	if err != nil {
 		return err
 	}
 
-	spiritNomination := &ent.SpiritNomination{
-		Category: category,
-		Edges: ent.SpiritNominationEdges{
-			SpiritScore: spiritScore,
-			Player:      player,
-		},
+	if err != nil {
+		if ent.IsNotFound(err) {
+			// Create new
+			_, err = s.spiritNominationRepo.Create(ctx, &ent.SpiritNomination{
+				Category: category,
+				Edges: ent.SpiritNominationEdges{
+					SpiritScore: spiritScore,
+					Player:      player,
+				},
+			})
+			return err
+		}
+		return err
 	}
 
-	_, err = s.spiritNominationRepo.Create(ctx, spiritNomination)
-	return err
+	// Update existing
+	return s.client.SpiritNomination.UpdateOne(existing).
+		SetPlayer(player).
+		Exec(ctx)
 }
