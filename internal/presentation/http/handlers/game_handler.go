@@ -138,6 +138,15 @@ func (h *GameHandler) ListGames(w http.ResponseWriter, r *http.Request) {
 		filter.GameRoundID = &roundID
 	}
 
+	if teamStr := r.URL.Query().Get("team_id"); teamStr != "" {
+		teamID, err := uuid.Parse(teamStr)
+		if err != nil {
+			http.Error(w, "invalid team_id", http.StatusBadRequest)
+			return
+		}
+		filter.TeamID = &teamID
+	}
+
 	if status := r.URL.Query().Get("status"); status != "" {
 		filter.Status = &status
 	}
@@ -173,14 +182,13 @@ func (h *GameHandler) ListGames(w http.ResponseWriter, r *http.Request) {
 		filter.EndDate = &end
 	}
 
-	games, err := h.service.ListGames(r.Context(), filter)
+	games, total, err := h.service.ListGames(r.Context(), filter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(games)
+	respondJSON(w, http.StatusOK, NewPaginatedResponse(games, total, pagination.Limit, pagination.Offset))
 }
 
 // UpdateGame updates a game.
@@ -229,11 +237,11 @@ func (h *GameHandler) UpdateGame(w http.ResponseWriter, r *http.Request) {
 // @Description Cancel a scheduled or in-progress game
 // @Tags games
 // @Param id path string true "Game ID"
-// @Success 204
+// @Success 200 {object} gamemanagement.GameDTO
 // @Failure 400 {string} string "bad request"
 // @Failure 404 {string} string "not found"
 // @Security BearerAuth
-// @Router /games/{id} [delete]
+// @Router /games/{id}/cancel [post]
 func (h *GameHandler) CancelGame(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := uuid.Parse(idStr)
@@ -242,7 +250,39 @@ func (h *GameHandler) CancelGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.service.CancelGame(r.Context(), id); err != nil {
+	game, err := h.service.CancelGame(r.Context(), id)
+	if err != nil {
+		if err == gamemanagement.ErrGameNotFound {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(game)
+}
+
+// DeleteGame deletes a game permanently.
+// @Summary Delete Game
+// @Description Permanently delete a cancelled game
+// @Tags games
+// @Param id path string true "Game ID"
+// @Success 204
+// @Failure 400 {string} string "bad request"
+// @Failure 404 {string} string "not found"
+// @Security BearerAuth
+// @Router /games/{id} [delete]
+func (h *GameHandler) DeleteGame(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		http.Error(w, "invalid game ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.service.DeleteGame(r.Context(), id); err != nil {
 		if err == gamemanagement.ErrGameNotFound {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return

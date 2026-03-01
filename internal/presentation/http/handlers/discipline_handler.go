@@ -87,19 +87,30 @@ func NewDisciplineHandler(service DisciplineService) *DisciplineHandler {
 // @Success 200 {array} handlers.DisciplineResponse
 // @Router /disciplines [get]
 func (h *DisciplineHandler) ListDisciplines(w http.ResponseWriter, r *http.Request) {
+	pg := ParsePagination(r)
 	list, err := h.service.List(r.Context())
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	resp := make([]DisciplineResponse, len(list))
-	for i, d := range list {
+	total := len(list)
+	start := pg.Offset
+	if start > total {
+		start = total
+	}
+	end := start + pg.Limit
+	if end > total {
+		end = total
+	}
+	paginatedList := list[start:end]
+
+	resp := make([]DisciplineResponse, len(paginatedList))
+	for i, d := range paginatedList {
 		resp[i] = toDisciplineResponse(d)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	respondJSON(w, http.StatusOK, NewPaginatedResponse(resp, total, pg.Limit, pg.Offset))
 }
 
 // GetDiscipline returns a single discipline by ID.

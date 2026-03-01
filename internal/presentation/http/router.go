@@ -183,7 +183,8 @@ func NewRouter(opts RouterOptions) chi.Router {
 				// Delete operations - require delete_games permission
 				r.Group(func(r chi.Router) {
 					r.Use(middleware.RequirePermission(middleware.PermDeleteGames))
-					r.Delete("/{id}", opts.GameHandler.CancelGame)
+					r.Post("/{id}/cancel", opts.GameHandler.CancelGame)
+					r.Delete("/{id}", opts.GameHandler.DeleteGame)
 				})
 
 				// Score recording - require record_scores permission

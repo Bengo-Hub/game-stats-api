@@ -60,6 +60,7 @@ type Service struct {
 	permissionService    *auth.PermissionService
 	advancementService   AdvancementService
 	cache                *cache.RedisClient
+	client               *ent.Client
 }
 
 func NewService(
@@ -80,6 +81,7 @@ func NewService(
 	permissionService *auth.PermissionService,
 	advancementService AdvancementService,
 	cacheClient *cache.RedisClient,
+	client *ent.Client,
 ) *Service {
 	return &Service{
 		gameRepo:             gameRepo,
@@ -100,6 +102,7 @@ func NewService(
 		permissionService:    permissionService,
 		advancementService:   advancementService,
 		cache:                cacheClient,
+		client:               client,
 	}
 }
 
@@ -228,7 +231,7 @@ func (s *Service) GetGame(ctx context.Context, id uuid.UUID) (*GameDTO, error) {
 	return dto, nil
 }
 
-func (s *Service) ListGames(ctx context.Context, filter ListGamesFilter) ([]*GameDTO, error) {
+func (s *Service) ListGames(ctx context.Context, filter ListGamesFilter) ([]*GameDTO, int, error) {
 	// Set default pagination if not provided
 	limit := filter.Limit
 	if limit <= 0 {
@@ -251,13 +254,14 @@ func (s *Service) ListGames(ctx context.Context, filter ListGamesFilter) ([]*Gam
 		StartDate:      filter.StartDate,
 		EndDate:        filter.EndDate,
 		RoundType:      filter.RoundType,
+		TeamID:         filter.TeamID,
 		Limit:          limit,
 		Offset:         offset,
 	}
 
-	games, err := s.gameRepo.ListWithFilter(ctx, searchFilter)
+	games, total, err := s.gameRepo.ListWithFilter(ctx, searchFilter)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	result := make([]*GameDTO, len(games))
@@ -270,7 +274,7 @@ func (s *Service) ListGames(ctx context.Context, filter ListGamesFilter) ([]*Gam
 		result[i] = dto
 	}
 
-	return result, nil
+	return result, total, nil
 }
 
 func (s *Service) UpdateGame(ctx context.Context, id uuid.UUID, req UpdateGameRequest) (*GameDTO, error) {
@@ -376,7 +380,36 @@ func (s *Service) UpdateGame(ctx context.Context, id uuid.UUID, req UpdateGameRe
 	return mapGameToDTO(result), nil
 }
 
-func (s *Service) CancelGame(ctx context.Context, id uuid.UUID) error {
+func (s *Service) CancelGame(ctx context.Context, id uuid.UUID) (*GameDTO, error) {
+	game, err := s.gameRepo.GetByID(ctx, id)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, ErrGameNotFound
+		}
+		return nil, err
+	}
+
+	// Update status to canceled instead of deleting
+	updated, err := s.gameRepo.UpdateWithVersion(ctx, id, game.Version, func(u *ent.GameUpdateOne) *ent.GameUpdateOne {
+		return u.SetStatus("canceled")
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Invalidate cache
+	s.invalidateGameCache(ctx, id)
+
+	// Fetch fresh with relations for response
+	result, err := s.gameRepo.GetByIDWithRelations(ctx, updated.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapGameToDTO(result), nil
+}
+
+func (s *Service) DeleteGame(ctx context.Context, id uuid.UUID) error {
 	game, err := s.gameRepo.GetByID(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -385,11 +418,20 @@ func (s *Service) CancelGame(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	// Update status to canceled instead of deleting
-	_, err = s.gameRepo.UpdateWithVersion(ctx, id, game.Version, func(u *ent.GameUpdateOne) *ent.GameUpdateOne {
-		return u.SetStatus("canceled")
-	})
-	return err
+	// Restriction: Only allow deleting cancelled games
+	if game.Status != "canceled" {
+		return fmt.Errorf("only cancelled games can be permanently deleted (current status: %s)", game.Status)
+	}
+
+	// Perform hard delete
+	if err := s.gameRepo.Delete(ctx, id); err != nil {
+		return fmt.Errorf("failed to delete game: %w", err)
+	}
+
+	// Invalidate cache
+	s.invalidateGameCache(ctx, id)
+
+	return nil
 }
 
 func (s *Service) checkAndCancelExpiredGame(ctx context.Context, g *ent.Game) (*ent.Game, error) {

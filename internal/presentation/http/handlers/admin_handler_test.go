@@ -59,8 +59,8 @@ func (m *MockGameRepository) ListByRound(ctx context.Context, roundID uuid.UUID)
 	return nil, nil
 }
 
-func (m *MockGameRepository) ListWithFilter(ctx context.Context, filter game.SearchFilter) ([]*ent.Game, error) {
-	return nil, nil
+func (m *MockGameRepository) ListWithFilter(ctx context.Context, filter game.SearchFilter) ([]*ent.Game, int, error) {
+	return nil, 0, nil
 }
 
 func (m *MockGameRepository) ListByStatus(ctx context.Context, status string) ([]*ent.Game, error) {
@@ -95,8 +95,8 @@ func (m *MockGameRepository) SyncGameScores(ctx context.Context, id uuid.UUID) (
 	return args.Get(0).(*ent.Game), args.Error(1)
 }
 
-func (m *MockGameRepository) List(ctx context.Context, limit, offset int) ([]*ent.Game, error) {
-	return nil, nil
+func (m *MockGameRepository) List(ctx context.Context, limit, offset int) ([]*ent.Game, int, error) {
+	return nil, 0, nil
 }
 
 // MockSpiritScoreRepository is a mock for spirit score repository

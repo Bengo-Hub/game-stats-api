@@ -197,6 +197,7 @@ func main() {
 		permissionService,
 		rankingService,
 		redisClient,
+		client,
 	)
 
 	// Start background score sync worker

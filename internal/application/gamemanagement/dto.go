@@ -255,6 +255,7 @@ type ListGamesFilter struct {
 	StartDate      *time.Time
 	EndDate        *time.Time
 	RoundType      *string
+	TeamID         *uuid.UUID
 	Limit          int
 	Offset         int
 }

@@ -7,12 +7,31 @@ import (
 	"time"
 
 	"github.com/bengobox/game-stats-api/ent"
+	"github.com/bengobox/game-stats-api/ent/game"
+	"github.com/bengobox/game-stats-api/ent/player"
+	"github.com/bengobox/game-stats-api/ent/scoring"
 	"github.com/google/uuid"
 )
 
 // Scoring System
 func (s *Service) RecordScore(ctx context.Context, gameID uuid.UUID, userID uuid.UUID, req RecordScoreRequest) (*GameDTO, error) {
-	game, err := s.gameRepo.GetByIDWithRelations(ctx, gameID)
+	// Start transaction
+	tx, err := s.client.Tx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	// Get game with relations
+	gm, err := tx.Game.Query().
+		Where(game.ID(gameID)).
+		WithHomeTeam().
+		WithAwayTeam().
+		WithScorekeeper().
+		WithDivisionPool(func(dpq *ent.DivisionPoolQuery) {
+			dpq.WithEvents()
+		}).
+		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, ErrGameNotFound
@@ -29,49 +48,43 @@ func (s *Service) RecordScore(ctx context.Context, gameID uuid.UUID, userID uuid
 		return nil, ErrUnauthorized
 	}
 
+	// Check status
+	if gm.Status == "completed" {
+		return nil, errors.New("cannot record scores for a completed game")
+	}
+	if gm.Status == "cancelled" {
+		return nil, errors.New("cannot record scores for a cancelled game")
+	}
+
 	// Verify player exists
-	player, err := s.playerRepo.GetByID(ctx, req.PlayerID)
+	playerEntity, err := tx.Player.Query().
+		Where(player.ID(req.PlayerID)).
+		WithTeams().
+		Only(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	// Check for Score Approval requirement
-	// If game time has elapsed, scorekeeping might need approval
-	gameEndTime := game.ScheduledTime.Add(time.Duration(game.AllocatedTimeMinutes) * time.Minute)
-	if game.ActualEndTime != nil {
-		gameEndTime = *game.ActualEndTime
+	gameEndTime := gm.ScheduledTime.Add(time.Duration(gm.AllocatedTimeMinutes) * time.Minute)
+	if gm.ActualEndTime != nil {
+		gameEndTime = *gm.ActualEndTime
 	}
 
-	if time.Now().After(gameEndTime) && game.Status != "ended" && game.Edges.DivisionPool != nil && len(game.Edges.DivisionPool.Edges.Events) > 0 {
-		// Fetch event to check approval configuration
-		event, err := s.eventRepo.GetByID(ctx, game.Edges.DivisionPool.Edges.Events[0].ID)
+	if time.Now().After(gameEndTime) && gm.Status != "ended" && gm.Edges.DivisionPool != nil && len(gm.Edges.DivisionPool.Edges.Events) > 0 {
+		eventEntity, err := tx.Event.Get(ctx, gm.Edges.DivisionPool.Edges.Events[0].ID)
 		if err == nil {
-			// If approval is required, but user is NOT an admin/manager, we should handle this
-			// For now, we allow admins/managers to bypass, and others might be restricted
-			isManager, _ := s.permissionService.CheckPermission(ctx, userID, event.ScoreEditApprovalRole, "event", event.ID)
+			isManager, _ := s.permissionService.CheckPermission(ctx, userID, eventEntity.ScoreEditApprovalRole, "event", eventEntity.ID)
 			if !isManager {
-				// Calculate proposed new scores based on the request
-				newHomeScore := game.HomeTeamScore
-				newAwayScore := game.AwayTeamScore
-
-				// Create ScoreEditRequest
-				_, err := s.scoringRepo.CreateScoreEditRequest(ctx, &ent.ScoreEditRequest{
-					GameID:            gameID,
-					RequestedByID:     userID,
-					PreviousHomeScore: game.HomeTeamScore,
-					PreviousAwayScore: game.AwayTeamScore,
-					NewHomeScore:      newHomeScore,
-					NewAwayScore:      newAwayScore,
-					PlayerScores: []map[string]interface{}{
-						{
-							"player_id":   req.PlayerID.String(),
-							"player_name": player.Name,
-							"goals":       req.Goals,
-						},
-					},
-					Reason: fmt.Sprintf("Post-game score adjustment: Player %s goals set to %d", player.Name, req.Goals),
-					Status: "pending",
-				})
+				_, err := tx.ScoreEditRequest.Create().
+					SetGameID(gameID).
+					SetRequestedByID(userID).
+					SetPreviousHomeScore(gm.HomeTeamScore).
+					SetPreviousAwayScore(gm.AwayTeamScore).
+					SetNewHomeScore(gm.HomeTeamScore). // Simplified as we don't know the full impact without recalculate
+					SetReason(fmt.Sprintf("Post-game score adjustment: Player %s goals set to %d", playerEntity.Name, req.Goals)).
+					SetStatus("pending").
+					Save(ctx)
 				if err != nil {
 					return nil, err
 				}
@@ -80,124 +93,106 @@ func (s *Service) RecordScore(ctx context.Context, gameID uuid.UUID, userID uuid
 		}
 	}
 
-	// Check if scoring record exists for this player in this game
-	existingScores, err := s.scoringRepo.ListByGame(ctx, gameID)
-	if err != nil {
+	// Check if scoring record exists
+	existing, err := tx.Scoring.Query().
+		Where(scoring.HasGameWith(game.ID(gameID))).
+		Where(scoring.HasPlayerWith(player.ID(req.PlayerID))).
+		Where(scoring.DeletedAtIsNil()).
+		Only(ctx)
+
+	if err != nil && !ent.IsNotFound(err) {
 		return nil, err
 	}
 
-	var existingScore *ent.Scoring
-	for _, score := range existingScores {
-		if score.Edges.Player != nil && score.Edges.Player.ID == req.PlayerID {
-			existingScore = score
-			break
-		}
-	}
-
-	if existingScore != nil {
-		// Update existing score
-		existingScore.Goals = req.Goals
-		existingScore.Assists = req.Assists
-		existingScore.Blocks = req.Blocks
-		existingScore.Turns = req.Turns
-		existingScore.TeamID = req.TeamID
-
-		_, err = s.scoringRepo.Update(ctx, existingScore)
-		if err != nil {
-			return nil, err
-		}
+	if existing != nil {
+		err = tx.Scoring.UpdateOneID(existing.ID).
+			SetGoals(req.Goals).
+			SetAssists(req.Assists).
+			SetBlocks(req.Blocks).
+			SetTurns(req.Turns).
+			SetTeamID(req.TeamID).
+			SetUpdatedAt(time.Now()).
+			Exec(ctx)
 	} else {
-		// Create new score
-		scoreEntity := &ent.Scoring{
-			Goals:   req.Goals,
-			Assists: req.Assists,
-			Blocks:  req.Blocks,
-			Turns:   req.Turns,
-			TeamID:  req.TeamID,
-			Edges: ent.ScoringEdges{
-				Game:   game,
-				Player: player,
-			},
-		}
-
-		_, err = s.scoringRepo.Create(ctx, scoreEntity)
-		if err != nil {
-			return nil, err
-		}
+		err = tx.Scoring.Create().
+			SetGoals(req.Goals).
+			SetAssists(req.Assists).
+			SetBlocks(req.Blocks).
+			SetTurns(req.Turns).
+			SetTeamID(req.TeamID).
+			SetGameID(gameID).
+			SetPlayerID(req.PlayerID).
+			Exec(ctx)
 	}
-
-	// Recalculate game totals using shared domain service
-	homeScore, awayScore, err := s.scoreDomainService.RecalculateTotals(ctx, gameID, game.Edges.HomeTeam.ID, game.Edges.AwayTeam.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	// Update game scores with optimistic locking
-	updatedGame, err := s.gameRepo.UpdateWithVersion(ctx, gameID, game.Version, func(update *ent.GameUpdateOne) *ent.GameUpdateOne {
-		return update.
-			SetHomeTeamScore(homeScore).
-			SetAwayTeamScore(awayScore)
-	})
+	// Recalculate totals directly in transaction
+	scoreList, err := tx.Scoring.Query().
+		Where(scoring.HasGameWith(game.ID(gameID))).
+		Where(scoring.DeletedAtIsNil()).
+		All(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	// Create game event for goal if this was a new goal
+	homeScore := 0
+	awayScore := 0
+	for _, sl := range scoreList {
+		if sl.TeamID == gm.Edges.HomeTeam.ID {
+			homeScore += sl.Goals
+		} else if sl.TeamID == gm.Edges.AwayTeam.ID {
+			awayScore += sl.Goals
+		}
+	}
+
+	// Update game scores and version
+	updatedGm, err := tx.Game.UpdateOneID(gameID).
+		SetHomeTeamScore(homeScore).
+		SetAwayTeamScore(awayScore).
+		SetVersion(gm.Version + 1).
+		SetUpdatedAt(time.Now()).
+		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create game event for goal/assist if applicable
 	if req.Goals > 0 && req.Minute != nil && req.Second != nil {
-		// Detect Callahan: goal scored without an assist (interception in end zone)
 		isCallahan := req.Goals > 0 && req.Assists == 0
 		description := "Goal scored"
 		if isCallahan {
 			description = "Callahan goal scored"
 		}
 
-		_, err = s.gameEventRepo.Create(ctx, &ent.GameEvent{
-			EventType:   "goal_scored",
-			Minute:      *req.Minute,
-			Second:      *req.Second,
-			Description: description,
-			Metadata: map[string]interface{}{
+		_, err = tx.GameEvent.Create().
+			SetEventType("goal_scored").
+			SetMinute(*req.Minute).
+			SetSecond(*req.Second).
+			SetDescription(description).
+			SetMetadata(map[string]interface{}{
 				"player_id":   req.PlayerID,
 				"goals":       req.Goals,
 				"is_callahan": isCallahan,
-			},
-			Edges: ent.GameEventEdges{
-				Game: updatedGame,
-			},
-		})
+			}).
+			SetGameID(gameID).
+			Save(ctx)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	// Create event for assist
-	if req.Assists > 0 && req.Minute != nil && req.Second != nil {
-		_, err = s.gameEventRepo.Create(ctx, &ent.GameEvent{
-			EventType:   "assist_recorded",
-			Minute:      *req.Minute,
-			Second:      *req.Second,
-			Description: "Assist recorded",
-			Metadata: map[string]interface{}{
-				"player_id": req.PlayerID,
-				"assists":   req.Assists,
-			},
-			Edges: ent.GameEventEdges{
-				Game: updatedGame,
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// SSE events are broadcast via the stream handler when clients poll for updates
-
-	result, err := s.gameRepo.GetByIDWithRelations(ctx, updatedGame.ID)
-	if err != nil {
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 
 	s.invalidateGameCache(ctx, gameID)
+	result, err := s.gameRepo.GetByIDWithRelations(ctx, updatedGm.ID)
+	if err != nil {
+		return nil, err
+	}
 	dto := mapGameToDTO(result)
 	s.cacheGame(ctx, dto)
 	return dto, nil
@@ -281,7 +276,20 @@ func mapScoringToDTO(s *ent.Scoring) *ScoringDTO {
 }
 
 func (s *Service) UpdateBulkScores(ctx context.Context, gameID uuid.UUID, userID uuid.UUID, req UpdateGameScoreRequest) (*GameDTO, error) {
-	game, err := s.gameRepo.GetByIDWithRelations(ctx, gameID)
+	// Start transaction
+	tx, err := s.client.Tx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	// Get game with relations for verification and current version
+	gm, err := tx.Game.Query().
+		Where(game.ID(gameID)).
+		WithHomeTeam().
+		WithAwayTeam().
+		WithScorekeeper().
+		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, ErrGameNotFound
@@ -290,13 +298,11 @@ func (s *Service) UpdateBulkScores(ctx context.Context, gameID uuid.UUID, userID
 	}
 
 	// Verify authorization
-	// Admins and Event Managers can update any game
-	// Scorekeepers can only update games assigned to them
 	authorized := false
 	role, _ := ctx.Value("user_role").(string)
 	if role == "admin" || role == "event_manager" {
 		authorized = true
-	} else if game.Edges.Scorekeeper != nil && game.Edges.Scorekeeper.ID == userID {
+	} else if gm.Edges.Scorekeeper != nil && gm.Edges.Scorekeeper.ID == userID {
 		authorized = true
 	}
 
@@ -304,108 +310,155 @@ func (s *Service) UpdateBulkScores(ctx context.Context, gameID uuid.UUID, userID
 		return nil, ErrUnauthorized
 	}
 
-	// Update individual player scores
-	if len(req.PlayerScores) > 0 {
-		existingScores, err := s.scoringRepo.ListByGame(ctx, gameID)
+	// Check status
+	if gm.Status == "completed" {
+		return nil, errors.New("cannot update scores for a completed game")
+	}
+	if gm.Status == "cancelled" {
+		return nil, errors.New("cannot update scores for a cancelled game")
+	}
+
+	// Sync player scores
+	// List existing scores to decide update vs create vs delete
+	existingScores, err := tx.Scoring.Query().
+		Where(scoring.HasGameWith(game.ID(gameID))).
+		Where(scoring.DeletedAtIsNil()).
+		WithPlayer(func(pq *ent.PlayerQuery) {
+			pq.WithTeams()
+		}).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	scoreMap := make(map[uuid.UUID]*ent.Scoring)
+	for _, es := range existingScores {
+		if es.Edges.Player != nil {
+			scoreMap[es.Edges.Player.ID] = es
+		}
+	}
+
+	processedPlayerIDs := make(map[uuid.UUID]bool)
+	for _, ps := range req.PlayerScores {
+		// Find player and verify team
+		playerEntity, err := tx.Player.Query().
+			Where(player.ID(ps.PlayerID)).
+			WithTeams().
+			Only(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get player %s: %w", ps.PlayerID, err)
+		}
+
+		var teamID uuid.UUID
+		for _, t := range playerEntity.Edges.Teams {
+			if t.ID == gm.Edges.HomeTeam.ID {
+				teamID = gm.Edges.HomeTeam.ID
+				break
+			} else if t.ID == gm.Edges.AwayTeam.ID {
+				teamID = gm.Edges.AwayTeam.ID
+				break
+			}
+		}
+
+		if teamID == uuid.Nil {
+			return nil, fmt.Errorf("player %s does not belong to either team in this game", ps.PlayerID)
+		}
+
+		if existing, ok := scoreMap[ps.PlayerID]; ok {
+			err = tx.Scoring.UpdateOneID(existing.ID).
+				SetGoals(ps.Goals).
+				SetAssists(ps.Assists).
+				SetBlocks(ps.Blocks).
+				SetTurns(ps.Turns).
+				SetTeamID(teamID).
+				SetUpdatedAt(time.Now()).
+				Exec(ctx)
+		} else {
+			err = tx.Scoring.Create().
+				SetGoals(ps.Goals).
+				SetAssists(ps.Assists).
+				SetBlocks(ps.Blocks).
+				SetTurns(ps.Turns).
+				SetTeamID(teamID).
+				SetGameID(gameID).
+				SetPlayerID(ps.PlayerID).
+				Exec(ctx)
+		}
 		if err != nil {
 			return nil, err
 		}
+		processedPlayerIDs[ps.PlayerID] = true
+	}
 
-		scoreMap := make(map[uuid.UUID]*ent.Scoring)
-		for _, es := range existingScores {
-			if es.Edges.Player != nil {
-				scoreMap[es.Edges.Player.ID] = es
-			}
-		}
-
-		for _, ps := range req.PlayerScores {
-			// Determine which team the player belongs to by fetching with relations or checking existing edges
-			// To be safe and efficient, we'll check the player's team memberships
-			playerEntity, err := s.playerRepo.GetByID(ctx, ps.PlayerID)
-			if err != nil {
-				return nil, fmt.Errorf("failed to get player %s: %w", ps.PlayerID, err)
-			}
-
-			var teamID uuid.UUID
-			for _, t := range playerEntity.Edges.Teams {
-				if t.ID == game.Edges.HomeTeam.ID {
-					teamID = game.Edges.HomeTeam.ID
-					break
-				} else if t.ID == game.Edges.AwayTeam.ID {
-					teamID = game.Edges.AwayTeam.ID
-					break
-				}
-			}
-
-			if teamID == uuid.Nil {
-				return nil, fmt.Errorf("player %s does not belong to either team in this game", ps.PlayerID)
-			}
-
-			if existing, ok := scoreMap[ps.PlayerID]; ok {
-				existing.Goals = ps.Goals
-				existing.Assists = ps.Assists
-				existing.Blocks = ps.Blocks
-				existing.Turns = ps.Turns
-				existing.TeamID = teamID
-				_, err = s.scoringRepo.Update(ctx, existing)
-			} else {
-				_, err = s.scoringRepo.Create(ctx, &ent.Scoring{
-					Goals:   ps.Goals,
-					Assists: ps.Assists,
-					Blocks:  ps.Blocks,
-					Turns:   ps.Turns,
-					TeamID:  teamID,
-					Edges: ent.ScoringEdges{
-						Game:   game,
-						Player: &ent.Player{ID: ps.PlayerID},
-					},
-				})
-			}
+	// Delete scores for players NOT in the request
+	for playerID, existing := range scoreMap {
+		if !processedPlayerIDs[playerID] {
+			err = tx.Scoring.UpdateOneID(existing.ID).
+				SetDeletedAt(time.Now()).
+				Exec(ctx)
 			if err != nil {
 				return nil, err
 			}
 		}
 	}
 
-	// Recalculate game totals
-	homeScore, awayScore, err := s.scoreDomainService.RecalculateTotals(ctx, gameID, game.Edges.HomeTeam.ID, game.Edges.AwayTeam.ID)
+	// Recalculate totals directly in transaction
+	scoreList, err := tx.Scoring.Query().
+		Where(scoring.HasGameWith(game.ID(gameID))).
+		Where(scoring.DeletedAtIsNil()).
+		All(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	// Update game scores
-	updatedGame, err := s.gameRepo.UpdateWithVersion(ctx, gameID, game.Version, func(update *ent.GameUpdateOne) *ent.GameUpdateOne {
-		return update.
-			SetHomeTeamScore(homeScore).
-			SetAwayTeamScore(awayScore)
-	})
+	homeScore := 0
+	awayScore := 0
+	for _, sl := range scoreList {
+		if sl.TeamID == gm.Edges.HomeTeam.ID {
+			homeScore += sl.Goals
+		} else if sl.TeamID == gm.Edges.AwayTeam.ID {
+			awayScore += sl.Goals
+		}
+	}
+
+	// Update game scores and version
+	_, err = tx.Game.UpdateOneID(gameID).
+		SetHomeTeamScore(homeScore).
+		SetAwayTeamScore(awayScore).
+		SetVersion(gm.Version + 1).
+		SetUpdatedAt(time.Now()).
+		Save(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	// Log bulk update event
-	_, err = s.gameEventRepo.Create(ctx, &ent.GameEvent{
-		EventType:   "bulk_score_update",
-		Minute:      0, // Or current game minute
-		Second:      0,
-		Description: fmt.Sprintf("Bulk score update: %s", req.Reason),
-		Metadata: map[string]interface{}{
+	// Create event
+	_, err = tx.GameEvent.Create().
+		SetEventType("bulk_score_update").
+		SetMinute(0).
+		SetSecond(0).
+		SetDescription(fmt.Sprintf("Bulk score update: %s", req.Reason)).
+		SetMetadata(map[string]interface{}{
 			"reason":     req.Reason,
 			"home_score": homeScore,
 			"away_score": awayScore,
 			"player_cnt": len(req.PlayerScores),
 			"updated_by": userID,
-		},
-		Edges: ent.GameEventEdges{
-			Game: updatedGame,
-		},
-	})
+		}).
+		SetGameID(gameID).
+		Save(ctx)
 	if err != nil {
 		return nil, err
 	}
 
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
 	s.invalidateGameCache(ctx, gameID)
-	result, err := s.gameRepo.GetByIDWithRelations(ctx, updatedGame.ID)
+	// Fetch final result with all relations
+	result, err := s.gameRepo.GetByIDWithRelations(ctx, gameID)
 	if err != nil {
 		return nil, err
 	}

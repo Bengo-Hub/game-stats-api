@@ -11,6 +11,7 @@ import (
 	entfield "github.com/bengobox/game-stats-api/ent/field"
 	"github.com/bengobox/game-stats-api/ent/game"
 	"github.com/bengobox/game-stats-api/ent/gameround"
+	"github.com/bengobox/game-stats-api/ent/team"
 	domaingame "github.com/bengobox/game-stats-api/internal/domain/game"
 	"github.com/google/uuid"
 )
@@ -144,8 +145,13 @@ func (r *gameRepository) ListByDateRange(ctx context.Context, start, end time.Ti
 		All(ctx)
 }
 
-func (r *gameRepository) List(ctx context.Context, limit, offset int) ([]*ent.Game, error) {
-	return r.client.Game.Query().
+func (r *gameRepository) List(ctx context.Context, limit, offset int) ([]*ent.Game, int, error) {
+	total, err := r.client.Game.Query().Where(game.DeletedAtIsNil()).Count(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	games, err := r.client.Game.Query().
 		Where(game.DeletedAtIsNil()).
 		WithHomeTeam().
 		WithAwayTeam().
@@ -156,9 +162,10 @@ func (r *gameRepository) List(ctx context.Context, limit, offset int) ([]*ent.Ga
 		Limit(limit).
 		Offset(offset).
 		All(ctx)
+	return games, total, err
 }
 
-func (r *gameRepository) ListWithFilter(ctx context.Context, filter domaingame.SearchFilter) ([]*ent.Game, error) {
+func (r *gameRepository) ListWithFilter(ctx context.Context, filter domaingame.SearchFilter) ([]*ent.Game, int, error) {
 	query := r.client.Game.Query().Where(game.DeletedAtIsNil())
 
 	if filter.EventID != nil {
@@ -197,17 +204,18 @@ func (r *gameRepository) ListWithFilter(ctx context.Context, filter domaingame.S
 		query = query.Where(game.HasFieldLocationWith(entfield.ID(*filter.FieldID)))
 	}
 
-	if filter.StartDate != nil && filter.EndDate != nil {
-		query = query.Where(
-			game.And(
-				game.ScheduledTimeGTE(*filter.StartDate),
-				game.ScheduledTimeLTE(*filter.EndDate),
-			),
-		)
+	if filter.TeamID != nil {
+		query = query.Where(game.Or(
+			game.HasHomeTeamWith(team.ID(*filter.TeamID)),
+			game.HasAwayTeamWith(team.ID(*filter.TeamID)),
+		))
 	}
 
-	// Default sort by schedule time
-	query = query.Order(ent.Asc(game.FieldScheduledTime))
+	// Count total before applying pagination
+	total, err := query.Count(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
 
 	if filter.Limit > 0 {
 		query = query.Limit(filter.Limit)
@@ -216,12 +224,13 @@ func (r *gameRepository) ListWithFilter(ctx context.Context, filter domaingame.S
 		query = query.Offset(filter.Offset)
 	}
 
-	return query.
+	games, err := query.
 		WithHomeTeam().
 		WithAwayTeam().
 		WithFieldLocation().
 		WithGameRound().
 		All(ctx)
+	return games, total, err
 }
 
 func (r *gameRepository) Update(ctx context.Context, g *ent.Game) (*ent.Game, error) {
