@@ -23,11 +23,13 @@ build/
 
 # Environment
 .env
-.env.local
-.env.*.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
+
+# Secrets
+KubeSecrets/
+*.pem
+*-key.pem
 
 # IDE
 .idea/
