@@ -214,7 +214,7 @@ func TestGenerateBracket_Success(t *testing.T) {
 		Name:      "Bracket Round",
 		RoundType: "bracket",
 		Edges: ent.GameRoundEdges{
-			Event: &ent.Event{ID: eventID},
+			Events: []*ent.Event{{ID: eventID}},
 		},
 	}, nil)
 
@@ -295,7 +295,7 @@ func TestGenerateBracket_NonPowerOfTwo(t *testing.T) {
 		Name:      "Bracket Round",
 		RoundType: "bracket",
 		Edges: ent.GameRoundEdges{
-			Event: &ent.Event{ID: eventID},
+			Events: []*ent.Event{{ID: eventID}},
 		},
 	}, nil)
 
@@ -366,7 +366,7 @@ func TestGenerateBracket_InvalidRoundType(t *testing.T) {
 		Name:      "Pool Round",
 		RoundType: "pool", // Wrong type - should be bracket/semifinal/final
 		Edges: ent.GameRoundEdges{
-			Event: &ent.Event{ID: eventID},
+			Events: []*ent.Event{{ID: eventID}},
 		},
 	}, nil)
 
@@ -398,10 +398,10 @@ func TestGetBracket_Success(t *testing.T) {
 		Name:      "Bracket Round",
 		RoundType: "bracket",
 		Edges: ent.GameRoundEdges{
-			Event: &ent.Event{
+			Events: []*ent.Event{{
 				ID:   eventID,
 				Name: "Test Tournament",
-			},
+			}},
 		},
 	}, nil)
 

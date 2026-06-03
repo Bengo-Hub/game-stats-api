@@ -1,6 +1,6 @@
 module github.com/bengobox/game-stats-api
 
-go 1.25.4
+go 1.26.4
 
 require (
 	ariga.io/atlas v1.1.0
